@@ -47,12 +47,17 @@ void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx, uint s
 	glEnableVertexAttribArray(normLoc);
 	glVertexAttribPointer(normLoc, 3, GL_FLOAT, GL_FALSE, sizeof(ModelVertex), (void*)12);
 
+	uint colorLoc = 2;
+	glEnableVertexAttribArray(colorLoc);
+	glVertexAttribPointer(colorLoc, 3, GL_FLOAT, GL_FALSE, sizeof(ModelVertex), (void*)24);
+
 	// Draw geometry
 	glDrawElements(GL_TRIANGLES, Count, GL_UNSIGNED_INT, 0);
 
 	// Clean up state
 	glDisableVertexAttribArray(normLoc);
 	glDisableVertexAttribArray(posLoc);
+	glDisableVertexAttribArray(colorLoc);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -79,40 +84,40 @@ void Model::makeBox(const glm::vec3& boxMin, const glm::vec3& boxMax) {
 	// Specify vertices
 	std::vector<ModelVertex> vtx = {
 		// Front
-		{{boxMin.x,boxMin.y,boxMax.z},	{0,0,1}},
-		{{boxMax.x,boxMin.y,boxMax.z},	{0,0,1}},
-		{{boxMax.x,boxMax.y,boxMax.z},	{0,0,1}},
-		{{boxMin.x,boxMax.y,boxMax.z},	{0,0,1}},
+		{{boxMin.x,boxMin.y,boxMax.z},	{0,0,1}, {0,1.0,0}},
+		{{boxMax.x,boxMin.y,boxMax.z},	{0,0,1}, {0,1.0,0}},
+		{{boxMax.x,boxMax.y,boxMax.z},	{0,0,1}, {0,1.0,0}},
+		{{boxMin.x,boxMax.y,boxMax.z},	{0,0,1}, {0,1.0,0}},
 
 		// Back
-		{{boxMax.x,boxMin.y,boxMin.z},	{0,0,-1}},
-		{{boxMin.x,boxMin.y,boxMin.z},	{0,0,-1}},
-		{{boxMin.x,boxMax.y,boxMin.z},	{0,0,-1}},
-		{{boxMax.x,boxMax.y,boxMin.z},	{0,0,-1}},
+		{{boxMax.x,boxMin.y,boxMin.z},	{0,0,-1}, {1.0,0,0}},
+		{{boxMin.x,boxMin.y,boxMin.z},	{0,0,-1}, {1.0,0,0}},
+		{{boxMin.x,boxMax.y,boxMin.z},	{0,0,-1}, {1.0,0,0}},
+		{{boxMax.x,boxMax.y,boxMin.z},	{0,0,-1}, {1.0,0,0}},
 
 		// Top
-		{{boxMin.x,boxMax.y,boxMax.z},	{0,1,0}},
-		{{boxMax.x,boxMax.y,boxMax.z},	{0,1,0}},
-		{{boxMax.x,boxMax.y,boxMin.z},	{0,1,0}},
-		{{boxMin.x,boxMax.y,boxMin.z},	{0,1,0}},
+		{{boxMin.x,boxMax.y,boxMax.z},	{0,1,0}, {0,0,1.0}},
+		{{boxMax.x,boxMax.y,boxMax.z},	{0,1,0}, {0,0,1.0}},
+		{{boxMax.x,boxMax.y,boxMin.z},	{0,1,0}, {0,0,1.0}},
+		{{boxMin.x,boxMax.y,boxMin.z},	{0,1,0}, {0,0,1.0}},
 
 		// Bottom
-		{{boxMin.x,boxMin.y,boxMin.z},	{0,-1,0}},
-		{{boxMax.x,boxMin.y,boxMin.z},	{0,-1,0}},
-		{{boxMax.x,boxMin.y,boxMax.z},	{0,-1,0}},
-		{{boxMin.x,boxMin.y,boxMax.z},	{0,-1,0}},
+		{{boxMin.x,boxMin.y,boxMin.z},	{0,-1,0}, {0,0,0}},
+		{{boxMax.x,boxMin.y,boxMin.z},	{0,-1,0}, {0,0,0}},
+		{{boxMax.x,boxMin.y,boxMax.z},	{0,-1,0}, {0,0,0}},
+		{{boxMin.x,boxMin.y,boxMax.z},	{0,-1,0}, {0,0,0}},
 
 		// Left
-		{{boxMin.x,boxMin.y,boxMin.z},	{-1,0,0}},
-		{{boxMin.x,boxMin.y,boxMax.z},	{-1,0,0}},
-		{{boxMin.x,boxMax.y,boxMax.z},	{-1,0,0}},
-		{{boxMin.x,boxMax.y,boxMin.z},	{-1,0,0}},
+		{{boxMin.x,boxMin.y,boxMin.z},	{-1,0,0}, {0,0,1.0}},
+		{{boxMin.x,boxMin.y,boxMax.z},	{-1,0,0}, {0,0,1.0}},
+		{{boxMin.x,boxMax.y,boxMax.z},	{-1,0,0}, {0,0,1.0}},
+		{{boxMin.x,boxMax.y,boxMin.z},	{-1,0,0}, {0,0,1.0}},
 
 		// Right
-		{{boxMax.x,boxMin.y,boxMax.z},	{1,0,0}},
-		{{boxMax.x,boxMin.y,boxMin.z},	{1,0,0}},
-		{{boxMax.x,boxMax.y,boxMin.z},	{1,0,0}},
-		{{boxMax.x,boxMax.y,boxMax.z},	{1,0,0}},
+		{{boxMax.x,boxMin.y,boxMax.z},	{1,0,0}, {0,1.0,0}},
+		{{boxMax.x,boxMin.y,boxMin.z},	{1,0,0}, {0,1.0,0}},
+		{{boxMax.x,boxMax.y,boxMin.z},	{1,0,0}, {0,1.0,0}},
+		{{boxMax.x,boxMax.y,boxMax.z},	{1,0,0}, {0,1.0,0}},
 	};
 
 	// Specify indices

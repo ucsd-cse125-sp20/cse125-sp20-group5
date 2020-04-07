@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Model.glsl" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
