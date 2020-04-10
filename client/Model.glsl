@@ -10,10 +10,12 @@
 
 layout(location=0) in vec3 Position;
 layout(location=1) in vec3 Normal;
-layout(location=1) in vec3 Color;
+layout(location=2) in vec3 Color;
+layout(location=3) in vec2 Texture;
 
 out vec3 fragPosition;
 out vec3 fragNormal;
+out vec2 fragTexture;
 out vec3 eyedir;
 out vec3 LightDirection;
 out vec3 baseColor;
@@ -31,11 +33,13 @@ void main() {
 
 	fragPosition=vec3(ModelMtx * vec4(Position,1));
 
-	mat3 inner_mat = mat3(ModelViewProjMtx[0][0], ModelViewProjMtx[0][1], ModelViewProjMtx[0][2], 
-						ModelViewProjMtx[1][0], ModelViewProjMtx[1][1], ModelViewProjMtx[1][2], 
-						ModelViewProjMtx[2][0], ModelViewProjMtx[2][1], ModelViewProjMtx[2][2]);
+	mat3 inner_mat = mat3(ModelMtx[0][0], ModelMtx[0][1], ModelMtx[0][2], 
+						ModelMtx[1][0], ModelMtx[1][1], ModelMtx[1][2], 
+						ModelMtx[2][0], ModelMtx[2][1], ModelMtx[2][2]);
 		// find the normal
-	fragNormal = Normal;//normalize(transpose(inverse(inner_mat))*Normal) ; 
+	fragNormal = normalize(transpose(inverse(inner_mat))*Normal) ; 
+
+	fragTexture = Texture;
 
 	vec3 mypos = vec3(gl_Position) / gl_Position.w; // Dehomogenize current location 
     vec3 eyedir = normalize(eyepos - mypos);
@@ -54,6 +58,9 @@ in vec3 fragNormal;
 in vec3 eyedir;
 in vec3 LightDirection;
 in vec3 baseColor;
+in vec2 fragTexture;
+
+uniform sampler2D myTexture;
 
 uniform vec3 AmbientColor=vec3(0.1);
 
@@ -99,7 +106,7 @@ void main() {
 	vec3 color = DirLight(-LightDirection, LightColor, fragNormal, normalize(LightDirection + eyedir),temp,temp, .5, eyedir);
 	color += DirLight(LightDirection, vec3(1.0,1.0,1.0), fragNormal, normalize(LightDirection + eyedir),temp,temp, .5, eyedir);
 
-	gl_FragColor = vec4(color,1.0)+vec4(AmbientColor,1.0);
+	gl_FragColor = (vec4(color,1.0)+vec4(AmbientColor,1.0)) * texture(myTexture, fragTexture);
 }
 
 #endif

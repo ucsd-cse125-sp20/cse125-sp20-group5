@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -26,21 +26,27 @@
     <ClCompile Include="box.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="Ground.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="SpinningCube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="box.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Ground.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="SpinningCube.h" />
+    <ClInclude Include="stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="default_texture.png" />
+    <Image Include="grass1tile.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{41B34E76-1F31-4835-8A87-F05EA3E9FA03}</ProjectGuid>
@@ -123,14 +129,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)packages\glfw.3.3.1\build\native\lib\static\v142\win32;$(SolutionDir)packages\glew.1.9.0.1\build\native\lib\v110\Win32\Debug\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy /y "$(ProjectDir)packages\glew.redist.1.9.0.1\build\native\bin\v110\Win32\Debug\dynamic\glew.dll" "$(OutDir)"
-xcopy /y "$(ProjectDir)packages\freeglut.redist.2.8.1.15\build\native\bin\v110\x64\Debug\dynamic\freeglut.dll" "$(OutDir)"</Command>
-      <Message>Copy DLLs</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -160,14 +161,9 @@ xcopy /y "$(ProjectDir)packages\freeglut.redist.2.8.1.15\build\native\bin\v110\x
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)packages\glfw.3.3.1\build\native\lib\static\v142\win32;$(SolutionDir)packages\glew.1.9.0.1\build\native\lib\v110\Win32\Debug\static;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy /y "$(ProjectDir)packages\glew.redist.1.9.0.1\build\native\bin\v110\Win32\Debug\dynamic\glew.dll" "$(OutDir)"
-xcopy /y "$(ProjectDir)packages\freeglut.redist.2.8.1.15\build\native\bin\v110\x64\Debug\dynamic\freeglut.dll" "$(OutDir)"</Command>
-      <Message>Copy DLLs</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -192,8 +188,6 @@ xcopy /y "$(ProjectDir)packages\freeglut.redist.2.8.1.15\build\native\bin\v110\x
     <Import Project="packages\glm.0.9.9.700\build\native\glm.targets" Condition="Exists('packages\glm.0.9.9.700\build\native\glm.targets')" />
     <Import Project="packages\glew.redist.1.9.0.1\build\native\glew.redist.targets" Condition="Exists('packages\glew.redist.1.9.0.1\build\native\glew.redist.targets')" />
     <Import Project="packages\glew.1.9.0.1\build\native\glew.targets" Condition="Exists('packages\glew.1.9.0.1\build\native\glew.targets')" />
-    <Import Project="packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets" Condition="Exists('packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets')" />
-    <Import Project="packages\freeglut.2.8.1.15\build\native\freeglut.targets" Condition="Exists('packages\freeglut.2.8.1.15\build\native\freeglut.targets')" />
     <Import Project="packages\glfw.3.3.1\build\native\glfw.targets" Condition="Exists('packages\glfw.3.3.1\build\native\glfw.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -204,8 +198,6 @@ xcopy /y "$(ProjectDir)packages\freeglut.redist.2.8.1.15\build\native\bin\v110\x
     <Error Condition="!Exists('packages\glm.0.9.9.700\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glm.0.9.9.700\build\native\glm.targets'))" />
     <Error Condition="!Exists('packages\glew.redist.1.9.0.1\build\native\glew.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glew.redist.1.9.0.1\build\native\glew.redist.targets'))" />
     <Error Condition="!Exists('packages\glew.1.9.0.1\build\native\glew.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glew.1.9.0.1\build\native\glew.targets'))" />
-    <Error Condition="!Exists('packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freeglut.redist.2.8.1.15\build\native\freeglut.redist.targets'))" />
-    <Error Condition="!Exists('packages\freeglut.2.8.1.15\build\native\freeglut.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freeglut.2.8.1.15\build\native\freeglut.targets'))" />
     <Error Condition="!Exists('packages\glfw.3.3.1\build\native\glfw.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glfw.3.3.1\build\native\glfw.targets'))" />
   </Target>
 </Project>

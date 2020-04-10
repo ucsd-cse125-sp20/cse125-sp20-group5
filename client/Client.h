@@ -15,7 +15,9 @@
 #include <unordered_map>
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
+Currently the Client class handles the I/O as well as the game loop
+*/
 class Client {
 public:
 	static Client * CLIENT;

@@ -37,6 +37,12 @@ void glfwErrorCallback(int error, const char* description)
 	fputs(description, stderr);
 }
 
+/*
+right now the main sets up teh graphics and windows then starts the client
+
+the networking people need to figure out where to put the networking code
+ideally it coudl fit into a entirely seperate class 
+*/
 int main(int argc, char** argv) {
 	// set error callback first incase even initalization fails
 
@@ -50,7 +56,7 @@ int main(int argc, char** argv) {
 	// Create the window
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-	GLFWwindow * windowHandle = glfwCreateWindow(640, 640, "plant", NULL, NULL);
+	GLFWwindow * windowHandle = glfwCreateWindow(1000, 600, "plant", NULL, NULL);
 	glfwSetWindowPos(windowHandle, 100, 100);
 	if (!windowHandle)
 	{
@@ -76,7 +82,10 @@ int main(int argc, char** argv) {
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
+	// make the client
 	Client::CLIENT = new Client(windowHandle, argc, argv);
+	
+	// start the game loop
 	Client::CLIENT->loop();
 
 

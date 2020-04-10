@@ -25,10 +25,11 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	// Initialize components
 	program=new ShaderProgram("Model.glsl",ShaderProgram::eRender);
 
+	glfwGetWindowSize(windowHandle, &winX, &winY);
 	cam=new Camera;
 	cam->SetAspect(float(winX)/float(winY));
 
-	scene = Scene::testScene();
+	scene = Scene::scene0();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +37,7 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 Client::~Client() {
 	delete program;
 	delete cam;
+	delete scene;
 
 	glFinish();
 	glfwDestroyWindow(windowHandle);
@@ -89,10 +91,15 @@ void Client::draw() {
 	glfwSwapBuffers(windowHandle);
 }
 
+/* Ideally there would be a single networking object that we would pass our 
+ events to and have it serializae and send them
+ */
 void Client::sendEvents()
 {
 }
 
+/*Here we would poll the networking object and it would give us desearlized data in some format
+*/
 void Client::recieveState()
 {
 	scene->getState(keyPresses);

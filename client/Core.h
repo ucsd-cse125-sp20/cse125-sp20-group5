@@ -19,6 +19,9 @@
 // Set up GLEW
 #include <GLFW/glfw3.h>
 
+// get our constants
+#include "Constants.h"
+
 // Types
 typedef unsigned int uint;
 
