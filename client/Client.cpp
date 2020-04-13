@@ -4,6 +4,9 @@
 
 #include "Client.h"
 
+////////////////////////////////////////////////////////////////////////////////
+
+#define AUDIO_FILE_BGM "audio/testbgm.mp3"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +33,8 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	cam->SetAspect(float(winX)/float(winY));
 
 	scene = Scene::scene0();
+
+	setupAudio();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +43,8 @@ Client::~Client() {
 	delete program;
 	delete cam;
 	delete scene;
+
+	aEngine.Shutdown();
 
 	glFinish();
 	glfwDestroyWindow(windowHandle);
@@ -203,6 +210,21 @@ void Client::setupKeyboardPresses()
 	for (int c : keys) {
 		(*keyPresses)[c] = false;
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Client::setupAudio() {
+
+	aEngine.Init();
+
+	aEngine.LoadSound(AUDIO_FILE_BGM, false, true);
+	//aEngine.LoadSound("hold-weapon.mp3", true);
+	//aEngine.LoadSound("weapon-collide.mp3", true);
+	//aEngine.LoadSound("scream.mp3", true);
+
+	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.5f));
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
