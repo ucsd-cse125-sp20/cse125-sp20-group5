@@ -4,10 +4,38 @@
 
 #include "Client.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"
+
+////////////////////////////////////////////////////////////////////////////////
+//Assimp Test
+//TODO: to be removed
+
+#include "TestShader.h"
+#include "TestModel.h"
+
+TestModel* ourModel;
+TestShader* ourShader;
+
+void loadAssimpModelTest() {
+	ourShader = new TestShader("test.vs", "test.fs");
+	ourModel = new TestModel("model/corn.obj");
+}
+
+void renderAssimpModelTest(Camera* cam) {
+	ourShader->use();
+
+	// view/projection transformations
+	ourShader->setMat4("projectView", cam->GetViewProjectMtx());
+
+	// render the loaded model
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+	ourShader->setMat4("model", model);
+	ourModel->Draw(*ourShader);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +64,9 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	scene = Scene::scene0();
 
 	setupAudio();
+
+	//TODO: remove the test for assimp
+	loadAssimpModelTest();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +124,9 @@ void Client::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	scene->draw(cam->GetViewProjectMtx(), program->GetProgramID());
+
+	//TODO: remove the Assimp test
+	renderAssimpModelTest(cam);
 	
 	// Finish drawing scene
 	glFinish();
