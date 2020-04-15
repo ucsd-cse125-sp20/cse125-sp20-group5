@@ -342,3 +342,5 @@ healthchecksdb
 bin/
 include/
 lib/
+
+!game_client/model/*

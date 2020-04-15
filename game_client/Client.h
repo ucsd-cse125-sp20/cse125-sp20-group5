@@ -10,6 +10,7 @@
 #include "SpinningCube.h"
 #include "box.h"
 #include "Scene.h"
+#include "AudioEngine.h"
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -33,6 +34,7 @@ public:
 
 	void reset(); // reset scene ?
 	void quit(); // close window exit progmra ?
+	void setupAudio(); // setup audio engine
 
 	// Event handlers
 	void resize(GLFWwindow* window, int width, int height);
@@ -59,6 +61,7 @@ private:
 	ShaderProgram *program;
 	Scene * scene;
 	Camera * cam;
+	CAudioEngine aEngine;
 
 	std::vector<box> boxes;
 
