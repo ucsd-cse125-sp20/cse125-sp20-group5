@@ -31,11 +31,15 @@ public:
     vector<Mesh> meshes;
     string directory;
     bool gammaCorrection;
+    int nodeCount;
+    int meshCount;
 
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.
     TestModel(string const& path, bool gamma = false) : gammaCorrection(gamma)
     {
+        nodeCount = 0;
+        meshCount = 0;
         loadModel(path);
     }
 
@@ -70,6 +74,8 @@ private:
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene)
     {
+        std::cout << "node process " << nodeCount << std::endl;
+        nodeCount++;
         // process each mesh located at the current node
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {
@@ -88,6 +94,8 @@ private:
 
     Mesh processMesh(aiMesh* mesh, const aiScene* scene)
     {
+        std::cout << "mesh process " << meshCount << std::endl;
+        meshCount++;
         // data to fill
         vector<Vertex> vertices;
         vector<unsigned int> indices;

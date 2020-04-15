@@ -20,7 +20,7 @@ TestShader* ourShader;
 
 void loadAssimpModelTest() {
 	ourShader = new TestShader("test.vs", "test.fs");
-	ourModel = new TestModel("model/corn.obj");
+	ourModel = new TestModel("model/corn_basic.fbx");
 }
 
 void renderAssimpModelTest(Camera* cam) {
