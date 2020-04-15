@@ -1,3 +1,6 @@
+#ifndef _PLAYER_H
+#define _PLAYER_H
+
 #include "Position.hpp"
 #include "Direction.hpp"
 #include "Animation.hpp"
@@ -5,6 +8,16 @@
 
 class Player {
 public:
+    Player(Position* position, Direction* direction,
+           Animation* animation, Color* color, int playerId)
+            : playerId(playerId) {
+
+        this->position = position;
+        this->direction = direction;
+        this->animation = animation;
+        this->color = color;
+    }
+
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
@@ -14,6 +27,14 @@ public:
         color->serialize(ar, version);
         ar & playerId;
     }
+
+    ~Player() {
+        delete position;
+        delete direction;
+        delete animation;
+        delete color;
+    }
+
 private:
     Position* position; // Player position
     Direction* direction; // Direction player is facing
@@ -21,3 +42,5 @@ private:
     Color* color;
     int playerId;
 };
+
+#endif
