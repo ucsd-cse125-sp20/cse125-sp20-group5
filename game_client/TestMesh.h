@@ -41,6 +41,7 @@ public:
     vector<unsigned int> indices;
     vector<Texture> textures;
     unsigned int VAO;
+    glm::mat4 transform;
 
     /*  Functions  */
     // constructor

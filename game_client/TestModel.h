@@ -23,6 +23,16 @@ using namespace std;
 
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
 
+glm::mat4 switchMatrix(aiMatrix4x4 mat) {
+    glm::mat4 ret(1.0);
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+           // ret[j][i] = mat[i * 4 + j];
+        }
+    }
+    return ret;
+}
+
 class TestModel
 {
 public:
@@ -76,14 +86,19 @@ private:
     {
         std::cout << "node process " << nodeCount << std::endl;
         nodeCount++;
+        std::cout << node->mTransformation[1] << std::endl;;
         // process each mesh located at the current node
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {
             // the node object only contains indices to index the actual objects in the scene. 
             // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+            if (mesh->HasBones()) {
+                std::cout << "has bonesss BONESSSSSSSSSSSSSSSS" << std::endl;
+            }
             meshes.push_back(processMesh(mesh, scene));
         }
+
         // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
         for (unsigned int i = 0; i < node->mNumChildren; i++)
         {

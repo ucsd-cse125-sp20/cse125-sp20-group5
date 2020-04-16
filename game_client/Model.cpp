@@ -63,7 +63,7 @@ void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx, uint s
 
 	uint texLoc = 3;
 	glEnableVertexAttribArray(texLoc);
-	glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, sizeof(ModelVertex), (void*)32);
+	glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE, sizeof(ModelVertex), (void*)36);
 
 	// bind texture
 	glBindTexture(GL_TEXTURE_2D, TextureBuffer);
@@ -200,7 +200,7 @@ void Model::setBuffers(const std::vector<ModelVertex>& vtx, const std::vector<ui
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		//glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
 	{
