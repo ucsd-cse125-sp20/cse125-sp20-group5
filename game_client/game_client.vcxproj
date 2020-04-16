@@ -72,18 +72,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(SolutionDir)dll\Debug\Win32$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(SolutionDir)dll\Debug\x64$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(SolutionDir)dll\Release\Win32$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <LocalDebuggerEnvironment>PATH=%PATH%;$(SolutionDir)dll\Release\x64$(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -96,22 +104,21 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <ConformanceMode>
-      </ConformanceMode>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -129,7 +136,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,9 +154,50 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AudioEngine.h" />
+    <ClInclude Include="box.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="Core.h" />
+    <ClInclude Include="Drawable.h" />
+    <ClInclude Include="Ground.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SceneNode.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="SpinningCube.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TestMesh.h" />
+    <ClInclude Include="TestModel.h" />
+    <ClInclude Include="TestShader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AudioEngine.cpp" />
+    <ClCompile Include="box.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Model.glsl" />
+    <None Include="test.fs" />
+    <None Include="test.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="default_texture.png" />
+    <Image Include="grass1tile.png" />
+    <Image Include="water1tile.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
