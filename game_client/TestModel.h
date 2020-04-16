@@ -61,6 +61,7 @@ public:
     }
 
 private:
+
     /*  Functions   */
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const& path)
@@ -74,6 +75,17 @@ private:
             cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
             return;
         }
+
+        for (int i = 0; i < scene->mNumAnimations; i++) {
+            std::cout << "processing an animation Animations" << std::endl;
+            std::cout << "name of animation " << scene->mAnimations[i]->mName.C_Str() << std::endl;
+            std::cout << "duraiton of animation in ticks " << scene->mAnimations[i]->mDuration << std::endl;
+            std::cout << "ticks per sceond " << scene->mAnimations[i]->mTicksPerSecond << std::endl;
+            for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++) {
+                processAnimNode(scene->mAnimations[i]->mChannels[j]);
+            }
+        }
+
         // retrieve the directory path of the filepath
         directory = path.substr(0, path.find_last_of('/'));
 
@@ -81,12 +93,16 @@ private:
         processNode(scene->mRootNode, scene);
     }
 
+    void processAnimNode(aiNodeAnim * node) {
+        std::cout << "Animation node process " << (node->mNodeName).C_Str() << nodeCount << std::endl;
+    }
+
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene)
     {
-        std::cout << "node process " << nodeCount << std::endl;
+        std::cout << "node process " << (node->mName).C_Str() << " " << nodeCount << " " << node->mNumChildren  << std::endl;
         nodeCount++;
-        std::cout << node->mTransformation[1] << std::endl;;
+        //std::cout << node->mTransformation[1] << std::endl;;
         // process each mesh located at the current node
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {
