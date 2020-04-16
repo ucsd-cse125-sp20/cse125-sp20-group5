@@ -2,7 +2,7 @@
 #include "Client.h"
 #include <iostream>
 
-// These are really HACKS to make glut call member functions instead of static functions
+// These are really HACKS to make glfw call member functions instead of static functions
 
 static void skeyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (Client::CLIENT != NULL) {

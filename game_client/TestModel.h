@@ -23,6 +23,16 @@ using namespace std;
 
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
 
+glm::mat4 switchMatrix(aiMatrix4x4 mat) {
+    glm::mat4 ret(1.0);
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+           // ret[j][i] = mat[i * 4 + j];
+        }
+    }
+    return ret;
+}
+
 class TestModel
 {
 public:
@@ -31,11 +41,15 @@ public:
     vector<Mesh> meshes;
     string directory;
     bool gammaCorrection;
+    int nodeCount;
+    int meshCount;
 
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.
     TestModel(string const& path, bool gamma = false) : gammaCorrection(gamma)
     {
+        nodeCount = 0;
+        meshCount = 0;
         loadModel(path);
     }
 
@@ -47,6 +61,7 @@ public:
     }
 
 private:
+
     /*  Functions   */
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel(string const& path)
@@ -60,6 +75,17 @@ private:
             cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
             return;
         }
+
+        for (int i = 0; i < scene->mNumAnimations; i++) {
+            std::cout << "processing an animation Animations" << std::endl;
+            std::cout << "name of animation " << scene->mAnimations[i]->mName.C_Str() << std::endl;
+            std::cout << "duraiton of animation in ticks " << scene->mAnimations[i]->mDuration << std::endl;
+            std::cout << "ticks per sceond " << scene->mAnimations[i]->mTicksPerSecond << std::endl;
+            for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++) {
+                processAnimNode(scene->mAnimations[i]->mChannels[j]);
+            }
+        }
+
         // retrieve the directory path of the filepath
         directory = path.substr(0, path.find_last_of('/'));
 
@@ -67,17 +93,28 @@ private:
         processNode(scene->mRootNode, scene);
     }
 
+    void processAnimNode(aiNodeAnim * node) {
+        std::cout << "Animation node process " << (node->mNodeName).C_Str() << nodeCount << std::endl;
+    }
+
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene)
     {
+        std::cout << "node process " << (node->mName).C_Str() << " " << nodeCount << " " << node->mNumChildren  << std::endl;
+        nodeCount++;
+        //std::cout << node->mTransformation[1] << std::endl;;
         // process each mesh located at the current node
         for (unsigned int i = 0; i < node->mNumMeshes; i++)
         {
             // the node object only contains indices to index the actual objects in the scene. 
             // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+            if (mesh->HasBones()) {
+                std::cout << "has bonesss BONESSSSSSSSSSSSSSSS" << std::endl;
+            }
             meshes.push_back(processMesh(mesh, scene));
         }
+
         // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
         for (unsigned int i = 0; i < node->mNumChildren; i++)
         {
@@ -88,6 +125,8 @@ private:
 
     Mesh processMesh(aiMesh* mesh, const aiScene* scene)
     {
+        std::cout << "mesh process " << meshCount << std::endl;
+        meshCount++;
         // data to fill
         vector<Vertex> vertices;
         vector<unsigned int> indices;

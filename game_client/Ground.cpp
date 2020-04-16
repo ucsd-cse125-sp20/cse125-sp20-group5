@@ -13,10 +13,6 @@ Ground::Ground(int x, int y, float size,  int padX, int padY)
 
 	localMat = glm::mat4(1.0);
 
-	std::cout << totalX << " " << totalY << std::endl;
-	std::cout << tilesX << " " << tilesY << std::endl;
-
-
 	int gridsize = totalX * totalY;
 
 	grid = new TILE_TYPE[gridsize];
@@ -48,7 +44,6 @@ Ground::TILE_TYPE Ground::getLoc(int x, int y)
 
 void Ground::setLoc(int x, int y, TILE_TYPE type)
 {
-	std::cout << (padX + x) << " " << y + padY << std::endl;
 	grid[((padX + x) * totalY) + y + padY] = type;
 }
 
