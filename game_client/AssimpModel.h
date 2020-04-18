@@ -39,11 +39,15 @@ public:
 
 private:
 
-    void initFromScene(string const& path);
+    Assimp::Importer importer;
+    const aiScene* m_aiScene;
+
+    void initFromScene(const aiScene* scene, const string& path);
     void processAnimNode(aiNodeAnim* node);
     void processNode(aiNode* node, const aiScene* scene);
 
     AssimpMesh processMesh(aiMesh* mesh, const aiScene* scene);
+
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName); 
     unsigned int textureFromFile(const char* path, const string& directory, bool gamma = false);
 };

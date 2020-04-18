@@ -9,27 +9,24 @@ AssimpModel::AssimpModel(string const& path, bool gamma) : gammaCorrection(gamma
 	nodeCount = 0;
 	meshCount = 0;
 	
-
-
 	// read file via ASSIMP
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
+	m_aiScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 
 	// check for errors
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+	if (!m_aiScene || m_aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_aiScene->mRootNode) // if is Not Zero
 	{
 		cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
 		return;
 	}
 
 	// TODO: animation
-	for (int i = 0; i < scene->mNumAnimations; i++) {
+	for (int i = 0; i < m_aiScene->mNumAnimations; i++) {
 		std::cout << "processing an animation Animations" << std::endl;
-		std::cout << "name of animation " << scene->mAnimations[i]->mName.C_Str() << std::endl;
-		std::cout << "duraiton of animation in ticks " << scene->mAnimations[i]->mDuration << std::endl;
-		std::cout << "ticks per sceond " << scene->mAnimations[i]->mTicksPerSecond << std::endl;
-		for (int j = 0; j < scene->mAnimations[i]->mNumChannels; j++) {
-			processAnimNode(scene->mAnimations[i]->mChannels[j]);
+		std::cout << "name of animation " << m_aiScene->mAnimations[i]->mName.C_Str() << std::endl;
+		std::cout << "duraiton of animation in ticks " << m_aiScene->mAnimations[i]->mDuration << std::endl;
+		std::cout << "ticks per sceond " << m_aiScene->mAnimations[i]->mTicksPerSecond << std::endl;
+		for (int j = 0; j < m_aiScene->mAnimations[i]->mNumChannels; j++) {
+			processAnimNode(m_aiScene->mAnimations[i]->mChannels[j]);
 		}
 	}
 
@@ -37,19 +34,8 @@ AssimpModel::AssimpModel(string const& path, bool gamma) : gammaCorrection(gamma
 	directory = path.substr(0, path.find_last_of('/'));
 
 	// process ASSIMP's root node recursively
-	processNode(scene->mRootNode, scene);
-}
-
-// draws the model, and thus all its meshes
-void AssimpModel::draw(uint shader)
-{
-	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].draw(shader);
-}
-
-// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-void AssimpModel::initFromScene(string const& path)
-{
+	initFromScene(m_aiScene, path);
+	//processNode(m_aiScene->mRootNode, m_aiScene);
 }
 
 //TODO: animation
@@ -63,6 +49,8 @@ void AssimpModel::processNode(aiNode* node, const aiScene* scene)
 	std::cout << "node process " << (node->mName).C_Str() << " " << nodeCount << " " << node->mNumChildren << std::endl;
 	nodeCount++;
 	//std::cout << node->mTransformation[1] << std::endl;;
+
+
 	// process each mesh located at the current node
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -80,13 +68,13 @@ void AssimpModel::processNode(aiNode* node, const aiScene* scene)
 	{
 		processNode(node->mChildren[i], scene);
 	}
-
 }
 
 AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 	std::cout << "mesh process " << meshCount << std::endl;
 	meshCount++;
+
 	// data to fill
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
@@ -96,73 +84,71 @@ AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
-		glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
-		// positions
-		vector.x = mesh->mVertices[i].x;
-		vector.y = mesh->mVertices[i].y;
-		vector.z = mesh->mVertices[i].z;
-		vertex.Position = vector;
-		// normals
-		vector.x = mesh->mNormals[i].x;
-		vector.y = mesh->mNormals[i].y;
-		vector.z = mesh->mNormals[i].z;
-		vertex.Normal = vector;
-		// texture coordinates
-		if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-		{
-			glm::vec2 vec;
-			// a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
-			// use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-			vec.x = mesh->mTextureCoords[0][i].x;
-			vec.y = mesh->mTextureCoords[0][i].y;
-			vertex.TexCoords = vec;
-		}
-		else
-			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-		// tangent
-		vector.x = mesh->mTangents[i].x;
-		vector.y = mesh->mTangents[i].y;
-		vector.z = mesh->mTangents[i].z;
-		vertex.Tangent = vector;
-		// bitangent
-		vector.x = mesh->mBitangents[i].x;
-		vector.y = mesh->mBitangents[i].y;
-		vector.z = mesh->mBitangents[i].z;
-		vertex.Bitangent = vector;
+		glm::vec3 vector;
+
+		aiVector3D pos = mesh->mVertices[i];
+		aiVector3D normal = mesh->mNormals[i];
+		aiVector3D texCoord = mesh->HasTextureCoords(0) ? 
+			mesh->mTextureCoords[0][i]
+			: aiVector3D(0.0f, 0.0f, 0.0f);
+
+		vertex.Position = glm::vec3(pos.x, pos.y, pos.z);
+		vertex.Normal = glm::vec3(normal.x, normal.y, normal.z);
+		vertex.TexCoords = glm::vec2(texCoord.x, texCoord.y);
+		
+		// TODO
+		//loadBone()
+
 		vertices.push_back(vertex);
 	}
-	// now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+
+	// Walk through the mesh's faces (a mesh triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 	{
 		aiFace face = mesh->mFaces[i];
-		// retrieve all indices of the face and store them in the indices vector
+		assert(Face.mNumIndices == 3);
+
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
+
 	// process materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
 	// as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-	// Same applies to other texture as the following list summarizes:
-	// diffuse: texture_diffuseN
-	// specular: texture_specularN
-	// normal: texture_normalN
 
-	// 1. diffuse maps
+
+
+	std::cout << "MAT: " << material->GetName().C_Str() << std::endl;
+	aiColor3D color(0.f, 0.f, 0.f);
+	material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+	std::cout << "       " << color.r << color.g << color.b << std::endl;
+	std::cout << "       " << material->GetTextureCount(aiTextureType_BASE_COLOR) << std::endl;
+	std::cout << "       " << material->GetTextureCount(aiTextureType_NONE) << std::endl;
+	std::cout << "       " << material->GetTextureCount(aiTextureType_AMBIENT) << std::endl;
+
+
+
+	// diffuse: texture_diffuseN
 	vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	// 2. specular maps
+	// specular: texture_specularN
 	vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-	// 3. normal maps
-	std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+	// normal: texture_normalN
+	vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
 	textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-	// 4. height maps
-	std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+	// height maps
+	vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_height");
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+	// ambient
+	vector<Texture> ambientMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ambient");
+	textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return AssimpMesh(vertices, indices, textures);
+	AssimpMesh resMesh(vertices, indices, textures);
+	resMesh.color = glm::vec3(color.r, color.g, color.b); //TODO: for test
+	return resMesh;
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
@@ -197,6 +183,26 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 	}
 	return textures;
 }
+
+// draws the model, and thus all its meshes
+void AssimpModel::draw(uint shader)
+{
+	for (unsigned int i = 0; i < meshes.size(); i++)
+		meshes[i].draw(shader);
+}
+
+// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+void AssimpModel::initFromScene(const aiScene* scene, const string& path)
+{
+	// Initialize the meshes in the scene one by one
+	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
+		aiMesh* mesh = scene->mMeshes[i];
+		meshes.push_back(processMesh(mesh, scene));
+	}
+
+	//return InitMaterials(pScene, Filename);
+}
+
 
 
 unsigned int AssimpModel::textureFromFile(const char* path, const string& directory, bool gamma)

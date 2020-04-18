@@ -25,10 +25,9 @@ struct Vertex {
     glm::vec3 Normal;
     // texCoords
     glm::vec2 TexCoords;
-    // tangent
-    glm::vec3 Tangent;
-    // bitangent
-    glm::vec3 Bitangent;
+
+    //TODO
+    //vector<VertexBoneData> Bones;
 };
 
 struct Texture {
@@ -45,6 +44,7 @@ public:
     vector<Texture> textures;
     unsigned int VAO;
     glm::mat4 transform;
+    glm::vec3 color; // TODO: for test
 
     /*  Functions  */
     AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
