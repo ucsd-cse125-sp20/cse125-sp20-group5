@@ -60,10 +60,7 @@
     <ClInclude Include="TestMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TestShader.h">
+    <ClInclude Include="AssimpModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -98,15 +95,15 @@
     <ClCompile Include="AudioEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AssimpModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Model.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="test.fs">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="test.vs">
+    <None Include="AssimpModel.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

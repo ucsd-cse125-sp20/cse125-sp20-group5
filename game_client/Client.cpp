@@ -12,29 +12,27 @@
 //Assimp Test
 //TODO: to be removed
 
-#include "TestShader.h"
-#include "TestModel.h"
+#include "AssimpModel.h"
 
-TestModel* ourModel;
-TestShader* ourShader;
+AssimpModel* ourModel;
 
 void loadAssimpModelTest() {
-	ourShader = new TestShader("test.vs", "test.fs");
-	ourModel = new TestModel("model/rabbit_simple_animation.fbx");
+	ourModel = new AssimpModel("model/rabbit_simple_animation.fbx");
 }
 
-void renderAssimpModelTest(Camera* cam) {
-	ourShader->use();
+void renderAssimpModelTest(Camera* cam, uint shader) {
+	glUseProgram(shader);
 
-	// view/projection transformations
-	ourShader->setMat4("projectView", cam->GetViewProjectMtx());
-
-	// render the loaded model
+	// create a temp model mtx
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-	ourShader->setMat4("model", model);
-	ourModel->Draw(*ourShader);
+	model = glm::translate(model, glm::vec3(0.0f, 1.75f, 0.0f));
+	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&cam->GetViewProjectMtx());
+
+	ourModel->draw(shader);
+
+	glUseProgram(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +53,7 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	setupKeyboardPresses();
 
 	// Initialize components
-	program=new ShaderProgram("Model.glsl",ShaderProgram::eRender);
+	program=new ShaderProgram("Model.glsl", ShaderProgram::eRender);
 
 	glfwGetWindowSize(windowHandle, &winX, &winY);
 	cam=new Camera;
@@ -66,6 +64,7 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	setupAudio();
 
 	//TODO: remove the test for assimp
+	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
 	loadAssimpModelTest();
 }
 
@@ -126,7 +125,7 @@ void Client::draw() {
 	scene->draw(cam->GetViewProjectMtx(), program->GetProgramID());
 
 	//TODO: remove the Assimp test
-	renderAssimpModelTest(cam);
+	renderAssimpModelTest(cam, assimpProgram->GetProgramID());
 	
 	// Finish drawing scene
 	glFinish();
