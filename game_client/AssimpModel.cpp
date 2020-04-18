@@ -117,18 +117,6 @@ AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
 	// as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
 
-
-
-	std::cout << "MAT: " << material->GetName().C_Str() << std::endl;
-	aiColor3D color(0.f, 0.f, 0.f);
-	material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-	std::cout << "       " << color.r << color.g << color.b << std::endl;
-	std::cout << "       " << material->GetTextureCount(aiTextureType_BASE_COLOR) << std::endl;
-	std::cout << "       " << material->GetTextureCount(aiTextureType_NONE) << std::endl;
-	std::cout << "       " << material->GetTextureCount(aiTextureType_AMBIENT) << std::endl;
-
-
-
 	// diffuse: texture_diffuseN
 	vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -147,7 +135,10 @@ AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	// return a mesh object created from the extracted mesh data
 	AssimpMesh resMesh(vertices, indices, textures);
-	resMesh.color = glm::vec3(color.r, color.g, color.b); //TODO: for test
+	//TODO: for test
+	aiColor3D color(0.f, 0.f, 0.f);
+	material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+	resMesh.color = glm::vec3(color.r, color.g, color.b); 
 	return resMesh;
 }
 

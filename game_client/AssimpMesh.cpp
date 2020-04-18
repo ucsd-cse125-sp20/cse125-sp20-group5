@@ -71,7 +71,6 @@ void AssimpMesh::draw(uint shader)
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 
-
 	glUniform3fv(glGetUniformLocation(shader, "color"), 1, &color[0]); // TODO: for test
 
 	// draw mesh
@@ -79,8 +78,9 @@ void AssimpMesh::draw(uint shader)
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
-	// unbind the textures
+	// reset textures and color
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform3fv(glGetUniformLocation(shader, "color"), 1, &glm::vec3(0)[0]); //TODO: for color test
 
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);
