@@ -15,15 +15,19 @@
 #include "TestShader.h"
 #include "TestModel.h"
 
+
 TestModel* ourModel;
 TestShader* ourShader;
 
 void loadAssimpModelTest() {
+	
 	ourShader = new TestShader("test.vs", "test.fs");
-	ourModel = new TestModel("model/rabbit_simple_animation.fbx");
+	ourModel = new TestModel("model/new_rabbit.fbx");
+	
 }
 
 void renderAssimpModelTest(Camera* cam) {
+
 	ourShader->use();
 
 	// view/projection transformations
@@ -35,6 +39,7 @@ void renderAssimpModelTest(Camera* cam) {
 	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
 	ourShader->setMat4("model", model);
 	ourModel->Draw(*ourShader);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

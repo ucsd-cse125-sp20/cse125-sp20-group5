@@ -109,8 +109,8 @@ private:
             // the node object only contains indices to index the actual objects in the scene. 
             // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            if (mesh->HasBones()) {
-                std::cout << "has bonesss BONESSSSSSSSSSSSSSSS" << std::endl;
+            for (int j = 0; j < mesh->mNumBones; j++) {
+                std::cout << mesh->mBones[j]->mName.C_Str() << std::endl;
             }
             meshes.push_back(processMesh(mesh, scene));
         }
