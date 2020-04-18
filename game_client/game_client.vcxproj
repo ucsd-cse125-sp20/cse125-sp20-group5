@@ -172,10 +172,11 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpinningCube.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="TestMesh.h" />
+    <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AssimpMesh.cpp" />
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="AudioEngine.cpp" />
     <ClCompile Include="box.cpp" />

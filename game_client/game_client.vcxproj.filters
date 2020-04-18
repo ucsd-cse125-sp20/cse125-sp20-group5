@@ -57,10 +57,10 @@
     <ClInclude Include="AudioEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestMesh.h">
+    <ClInclude Include="AssimpModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpModel.h">
+    <ClInclude Include="AssimpMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -96,6 +96,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AssimpModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssimpMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

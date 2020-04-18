@@ -8,21 +8,9 @@ AssimpModel::AssimpModel(string const& path, bool gamma) : gammaCorrection(gamma
 {
 	nodeCount = 0;
 	meshCount = 0;
-	loadModel(path);
-}
-
-// draws the model, and thus all its meshes
-void AssimpModel::draw(uint shader)
-{
-	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(shader);
-}
+	
 
 
-/*  Functions   */
-// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-void AssimpModel::loadModel(string const& path)
-{
 	// read file via ASSIMP
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
@@ -50,6 +38,18 @@ void AssimpModel::loadModel(string const& path)
 
 	// process ASSIMP's root node recursively
 	processNode(scene->mRootNode, scene);
+}
+
+// draws the model, and thus all its meshes
+void AssimpModel::draw(uint shader)
+{
+	for (unsigned int i = 0; i < meshes.size(); i++)
+		meshes[i].draw(shader);
+}
+
+// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+void AssimpModel::initFromScene(string const& path)
+{
 }
 
 //TODO: animation
@@ -83,7 +83,7 @@ void AssimpModel::processNode(aiNode* node, const aiScene* scene)
 
 }
 
-Mesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
+AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 {
 	std::cout << "mesh process " << meshCount << std::endl;
 	meshCount++;
@@ -162,7 +162,7 @@ Mesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return Mesh(vertices, indices, textures);
+	return AssimpMesh(vertices, indices, textures);
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
@@ -188,7 +188,7 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 		if (!skip)
 		{   // if texture hasn't been loaded already, load it
 			Texture texture;
-			texture.id = TextureFromFile(str.C_Str(), this->directory);
+			texture.id = textureFromFile(str.C_Str(), this->directory);
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
@@ -199,7 +199,7 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 }
 
 
-unsigned int AssimpModel::TextureFromFile(const char* path, const string& directory, bool gamma)
+unsigned int AssimpModel::textureFromFile(const char* path, const string& directory, bool gamma)
 {
 	string filename = string(path);
 	filename = directory + '/' + filename;
