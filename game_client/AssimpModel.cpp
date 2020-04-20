@@ -135,12 +135,10 @@ AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 	textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	AssimpMesh resMesh(vertices, indices, textures);
-	//TODO: for test
-	aiColor3D color(0.f, 0.f, 0.f);
-	material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-	resMesh.color = glm::vec3(color.r, color.g, color.b); 
-	return resMesh;
+	AssimpMesh resultMesh(vertices, indices, textures);
+	resultMesh.setupShadingAttributes(material);
+
+	return resultMesh;
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.

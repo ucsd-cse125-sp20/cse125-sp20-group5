@@ -45,6 +45,10 @@ AssimpMesh::AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, ve
 // render the mesh
 void AssimpMesh::draw(uint shader)
 {
+	// reset textures and color
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glUniform3fv(glGetUniformLocation(shader, "color"), 1, &glm::vec3(0)[0]); //TODO: for color test
+
 	// bind appropriate textures
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
@@ -71,7 +75,10 @@ void AssimpMesh::draw(uint shader)
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 
-	glUniform3fv(glGetUniformLocation(shader, "color"), 1, &color[0]); // TODO: for test
+	// set shading attributes
+	glUniform3fv(glGetUniformLocation(shader, "diffuseColor"), 1, &diffuse[0]);
+	glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, &ambient[0]);
+	glUniform3fv(glGetUniformLocation(shader, "specularColor"), 1, &specular[0]);
 
 	// draw mesh
 	glBindVertexArray(VAO);
@@ -86,6 +93,16 @@ void AssimpMesh::draw(uint shader)
 	glActiveTexture(GL_TEXTURE0);
 }
 
+void AssimpMesh::setupShadingAttributes(aiMaterial* material) 
+{
+	aiColor3D kd(0.f, 0.f, 0.f), ka(0), ks(0);
+	material->Get(AI_MATKEY_COLOR_DIFFUSE, kd);
+	material->Get(AI_MATKEY_COLOR_AMBIENT, ka);
+	material->Get(AI_MATKEY_COLOR_SPECULAR, ks);
+	this->diffuse = glm::vec3(kd.r, kd.g, kd.b);
+	this->ambient = glm::vec3(ka.r, ka.g, ka.b);
+	this->specular = glm::vec3(ks.r, ks.g, ks.b);
+}
 
 void AssimpMesh::setupMesh()
 {

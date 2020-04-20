@@ -32,13 +32,7 @@ void main() {
 	gl_Position=ModelViewProjMtx * vec4(Position,1);
 
 	fragPosition=vec3(ModelMtx * vec4(Position,1));
-
-	mat3 inner_mat = mat3(ModelMtx[0][0], ModelMtx[0][1], ModelMtx[0][2], 
-						ModelMtx[1][0], ModelMtx[1][1], ModelMtx[1][2], 
-						ModelMtx[2][0], ModelMtx[2][1], ModelMtx[2][2]);
-		// find the normal
-	fragNormal = normalize(transpose(inverse(inner_mat))*Normal) ; 
-
+	fragNormal = normalize(transpose(inverse(mat3(ModelMtx)))*Normal) ; 
 	fragTexture = Texture;
 
 	vec3 mypos = vec3(gl_Position) / gl_Position.w; // Dehomogenize current location 

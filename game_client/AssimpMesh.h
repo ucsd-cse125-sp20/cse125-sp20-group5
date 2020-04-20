@@ -9,6 +9,10 @@
 
 #include "Core.h"//#include <glad/glad.h> // holds all OpenGL type declarations
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -44,13 +48,25 @@ public:
     vector<Texture> textures;
     unsigned int VAO;
     glm::mat4 transform;
-    glm::vec3 color; // TODO: for test
 
     /*  Functions  */
     AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
     void draw(uint shader);
+    void setupShadingAttributes(aiMaterial* material);
 
 private:
     unsigned int VBO, EBO;
     void setupMesh();
+
+    /* Shading attributes */
+    glm::vec3 ambient; // Ka in .mat file
+    glm::vec3 diffuse; // Kd
+    glm::vec3 specular; // Ks
+    /*
+    // Refer to http://paulbourke.net/dataformats/mtl/
+    glm::vec3 transmissionFilter; // Tf
+    float opacityDensity; // Ni
+    glm::vec3 specularReflectivity; // Ks
+    glm::vec3 specularExponent; // Ns
+    */
 };
