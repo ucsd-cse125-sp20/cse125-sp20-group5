@@ -197,8 +197,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="default_texture.png" />
-    <Image Include="grass1tile.png" />
-    <Image Include="water1tile.png" />
+    <Image Include="grass_texture.jpg" />
+    <Image Include="water_texture.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
