@@ -172,11 +172,12 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpinningCube.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="TestMesh.h" />
-    <ClInclude Include="TestModel.h" />
-    <ClInclude Include="TestShader.h" />
+    <ClInclude Include="AssimpMesh.h" />
+    <ClInclude Include="AssimpModel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AssimpMesh.cpp" />
+    <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="AudioEngine.cpp" />
     <ClCompile Include="box.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -189,9 +190,8 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AssimpModel.glsl" />
     <None Include="Model.glsl" />
-    <None Include="test.fs" />
-    <None Include="test.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="default_texture.png" />

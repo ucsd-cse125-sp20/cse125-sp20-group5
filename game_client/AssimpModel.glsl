@@ -1,5 +1,5 @@
 ////////////////////////////////////////
-// Model.glsl
+// AssimpModel.glsl
 ////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7,38 +7,36 @@
 #ifdef VERTEX_SHADER
 //#version 330 core
 
-
-layout(location=0) in vec3 Position;
-layout(location=1) in vec3 Normal;
-layout(location=2) in vec3 Color;
-layout(location=3) in vec2 Texture;
+layout (location = 0) in vec3 Position;
+layout (location = 1) in vec3 Normal;
+layout (location = 2) in vec2 Texture;
 
 out vec3 fragPosition;
 out vec3 fragNormal;
 out vec2 fragTexture;
-out vec3 eyedir;
-out vec3 LightDirection;
-out vec3 baseColor;
 
-uniform mat4 ModelMtx=mat4(1.0);
-uniform mat4 ModelViewProjMtx=mat4(1.0);
+out vec3 eyedir;
+out vec3 lightDirection;
+
+uniform mat4 model;
+uniform mat4 projectView;
 uniform vec3 eyepos=vec3(0);
 
 ////////////////////////////////////////
 // Vertex shader
 ////////////////////////////////////////
 
-void main() {
-	gl_Position=ModelViewProjMtx * vec4(Position,1);
+void main()
+{
+    gl_Position = projectView * model * vec4(Position, 1.0);
 
-	fragPosition=vec3(ModelMtx * vec4(Position,1));
-	fragNormal = normalize(transpose(inverse(mat3(ModelMtx)))*Normal) ; 
+	fragPosition=vec3(model * vec4(Position,1));
+	fragNormal = mat3(transpose(inverse(model))) * Normal;
 	fragTexture = Texture;
 
 	vec3 mypos = vec3(gl_Position) / gl_Position.w; // Dehomogenize current location 
     vec3 eyedir = normalize(eyepos - mypos);
-	LightDirection=normalize(vec3(vec4(1,5,2,0)));
-	baseColor = Color;
+	lightDirection=normalize(vec3(vec4(1,5,2,0)));
 }
 
 #endif
@@ -47,21 +45,25 @@ void main() {
 
 #ifdef FRAGMENT_SHADER
 //#version 330 core
+
 in vec3 fragPosition;
 in vec3 fragNormal;
-in vec3 eyedir;
-in vec3 LightDirection;
-in vec3 baseColor;
 in vec2 fragTexture;
+in vec3 eyedir;
+in vec3 lightDirection;
 
-uniform sampler2D myTexture;
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_specular1;
+uniform sampler2D texture_normal1;
 
-uniform vec3 AmbientColor=vec3(0.1);
+uniform vec3 diffuseColor=vec3(0.0);
+uniform vec3 ambientColor=vec3(0.0);
+uniform vec3 specularColor=vec3(0.0);
 
-uniform vec3 LightColor=vec3(1.0,1.0,1.0);
-uniform vec3 DiffuseColor=vec3(0.5);
+uniform vec3 lightColor=vec3(1.0,1.0,1.0);
 
-out vec3 finalColor;
+out vec3 fraglColor;
+
 
 ////////////////////////////////////////
 // Fragment shader
@@ -96,11 +98,15 @@ vec3 DirLight (const in vec3 direction, const in vec3 lightcolor, const in vec3 
 void main() {
 	// Compute irradiance (sum of ambient & direct lighting)
 
-	vec3 temp = baseColor;
-	vec3 color = DirLight(-LightDirection, LightColor, fragNormal, normalize(LightDirection + eyedir),temp,temp, .5, eyedir);
-	color += DirLight(LightDirection, vec3(1.0,1.0,1.0), fragNormal, normalize(LightDirection + eyedir),temp,temp, .5, eyedir);
+	//vec3 color = DirLight(-lightDirection, lightColor, fragNormal, normalize(lightDirection + eyedir), diffuseColor, specularColor, 0.5, eyedir);
+	//color += DirLight(lightDirection, vec3(1.0,1.0,1.0), fragNormal, normalize(lightDirection + eyedir), diffuseColor, specularColor, 0.5, eyedir);
 
-	gl_FragColor = (vec4(color,1.0)+vec4(AmbientColor,1.0)) * texture(myTexture, fragTexture);
+	vec3 norm = normalize(fragNormal);
+	float diff = max(dot(norm, lightDirection), 0.0);
+	vec3 lightColor = vec3(1.0);
+	vec3 color = diff * diffuseColor * lightColor; //only calculates diffuse
+
+	gl_FragColor = vec4(color + diffuseColor,1.0) + texture(texture_diffuse1, fragTexture); // used to be multiply
 }
 
 #endif
