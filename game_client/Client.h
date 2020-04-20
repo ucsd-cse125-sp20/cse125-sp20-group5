@@ -11,6 +11,7 @@
 #include "box.h"
 #include "Scene.h"
 #include "AudioEngine.h"
+#include "NetworkClient.h"
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -35,6 +36,7 @@ public:
 	void reset(); // reset scene ?
 	void quit(); // close window exit progmra ?
 	void setupAudio(); // setup audio engine
+	void setupNetwork(); // setup network client
 
 	// Event handlers
 	void resize(GLFWwindow* window, int width, int height);
@@ -66,7 +68,8 @@ private:
 
 	std::vector<box> boxes;
 
-
+	NetworkClient *netClient;
+	GameState* currentGameState;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

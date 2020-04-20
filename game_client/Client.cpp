@@ -3,6 +3,7 @@
 ////////////////////////////////////////
 
 #include "Client.h"
+#include "NetworkClient.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -66,6 +67,9 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	//TODO: remove the test for assimp
 	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
 	loadAssimpModelTest();
+
+	// Load network class
+	setupNetwork();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +78,7 @@ Client::~Client() {
 	delete program;
 	delete cam;
 	delete scene;
+	delete netClient;
 
 	aEngine.Shutdown();
 
@@ -86,11 +91,11 @@ Client::~Client() {
 void Client::loop() {
 	while (!glfwWindowShouldClose(windowHandle)) {
 		//std::cout << "main looop" << std::endl;
-		// send events to the server
-		sendEvents();
+
+		recieveState();
 
 		// recieve the state from the server
-		recieveState();
+		currentGameState = netClient->getCurrentState();
 
 		// Update the components in the world
 		// calculate matrices for rendering
@@ -166,16 +171,37 @@ void Client::resize(GLFWwindow* window, int width, int height) {
 
 void Client::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	switch(key) {
+	switch (key) {
 		case 0x1b:		// Escape
 			quit();
 			break;
 		case 'r':
 			reset();
 			break;
+		case GLFW_KEY_W: {
+			std::string w("w");
+			netClient->sendMessage(w);
+			break;
+		}
+		case GLFW_KEY_A: {
+			std::string a("a");
+			netClient->sendMessage(a);
+			break;
+		}
+		case GLFW_KEY_S: {
+			std::string s("s");
+			netClient->sendMessage(s);
+			break;
+		}
+		case GLFW_KEY_D: {
+			std::string d("d");
+			netClient->sendMessage(d);
+			break;
+		}
 		default:
 			break;
 	}
+
 
 	if (action == GLFW_PRESS && keyPresses->count((char)key) > 0) {
 		(*keyPresses)[key] = true;
@@ -258,6 +284,12 @@ void Client::setupAudio() {
 
 	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.2f));
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void Client::setupNetwork() {
+	netClient = new NetworkClient("localhost", "13");
+	netClient->start();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

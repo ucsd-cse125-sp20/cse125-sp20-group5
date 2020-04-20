@@ -57,10 +57,16 @@
     <ClInclude Include="AudioEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpModel.h">
+    <ClInclude Include="TestMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AssimpMesh.h">
+    <ClInclude Include="TestModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -95,10 +101,7 @@
     <ClCompile Include="AudioEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AssimpModel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AssimpMesh.cpp">
+    <ClCompile Include="NetworkClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,7 +109,10 @@
     <None Include="Model.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="AssimpModel.glsl">
+    <None Include="test.fs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="test.vs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
