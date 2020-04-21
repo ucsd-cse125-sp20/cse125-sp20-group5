@@ -112,7 +112,9 @@
     <None Include="Model.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="AssimpModel.glsl" />
+    <None Include="AssimpModel.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="default_texture.png">
