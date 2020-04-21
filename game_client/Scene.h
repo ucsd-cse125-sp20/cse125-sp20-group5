@@ -4,16 +4,27 @@
 #include "Model.h"
 #include "SpinningCube.h"
 #include "Ground.h"
+#include <GameState.hpp>
+#include "AssimpModel.h"
 
 class Scene
 {
 private:
 	std::vector<Model*> models;
 	Ground * ground;
+
+	GameState * state;
+
+	std::vector<glm::mat4> zombieTransfroms;
+	std::vector<glm::mat4> playerTransforms;
+
+	AssimpModel * zombieModel;
+	AssimpModel * playerModel; 
 public:
 	Scene();
 	~Scene();
-	void getState(std::unordered_map<int, bool> * keyPresses); // get a new state
+
+	void setState(GameState * state);
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat, uint shader); // renders everything
 

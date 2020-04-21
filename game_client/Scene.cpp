@@ -1,9 +1,13 @@
 #include "Scene.h"
+#include "Constants.h"
 #include <iostream>
+#include <glm\gtx\euler_angles.hpp>
 
 Scene::Scene()
 {
-	
+	zombieModel = new AssimpModel(ZOMBIE_MODEL);
+	playerModel = new AssimpModel(PLAYER_MODEL);
+
 }
 
 Scene::~Scene()
@@ -12,42 +16,84 @@ Scene::~Scene()
 		delete mod;
 	}
 	delete ground;
+
+	delete zombieModel;
 }
 
-// this is a dummy fucniton it should take the netowrk values and make sense of them
-void Scene::getState(std::unordered_map<int,bool> * keyPresses)
-{
-	float stepSize = 0.05;
-	if ((*keyPresses)[GLFW_KEY_W]) {
-		models[0]->setPosition(models[0]->getPosition() + glm::vec3(0, 0, -stepSize));
-	}
-	if ((*keyPresses)[GLFW_KEY_A]) {
-		models[0]->setPosition(models[0]->getPosition() + glm::vec3(-stepSize, 0, 0));
-	}
-	if ((*keyPresses)[GLFW_KEY_S]) {
-		models[0]->setPosition(models[0]->getPosition() + glm::vec3(0, 0, stepSize));
-	}
-	if ((*keyPresses)[GLFW_KEY_D]) {
-		models[0]->setPosition(models[0]->getPosition() + glm::vec3(stepSize, 0, 0));
-	}
-}
 
 void Scene::update()
 {
+	// Clear the two vectors
+	zombieTransfroms.clear();
+	playerTransforms.clear();
+
+	for (Zombie* zombie : state->zombies) {
+		Position* position = zombie->position;
+		Direction* direction = zombie->direction;
+
+		glm::mat4 mat4Transform(1.0f);
+
+		// Move
+		mat4Transform[3][0] = position->getX();
+		mat4Transform[3][1] = position->getY();
+		mat4Transform[3][2] = position->getZ();
+		// Rotate
+		mat4Transform = glm::eulerAngleZ(direction->angle) * mat4Transform;
+
+		zombieTransfroms.push_back(mat4Transform);
+	}
+
+	for (Player* player : state->players) {
+		Position* position = player->position;
+		Direction* direction = player->direction;
+
+		glm::mat4 mat4Transform(1.0f);
+
+		// Move
+		mat4Transform[3][0] = position->getX();
+		mat4Transform[3][1] = position->getY();
+		mat4Transform[3][2] = position->getZ();
+
+		// std::cout << position->getX() << ", " << position->getY() << ", " << position->getZ() << "\n";
+		
+		// Rotate
+		mat4Transform = glm::eulerAngleZ(direction->angle) * mat4Transform;
+
+		playerTransforms.push_back(mat4Transform);
+	}
+
+	
 	for (Model* model : models) {
 		model->update();
 	}
+
 	ground->update();
 }
 
 void Scene::draw(const glm::mat4 &veiwProjMat, uint shader)
 {
+	for (glm::mat4 transform : zombieTransfroms) {
+		// Add transform to assimp models
+		zombieModel->draw(transform, veiwProjMat, shader);
+	}
+
+	for (glm::mat4 transform : playerTransforms) {
+		// Add transform to assimp models
+		playerModel->draw(transform, veiwProjMat, shader);
+	}
+
+
 	for (Model * model : models) {
 		model->draw(model->getLocalMat(), veiwProjMat, shader);
 	}
 	ground->draw(veiwProjMat, shader);
 }
 
+// Update the current gamestate
+void Scene::setState(GameState* state) 
+{
+	this->state = state;
+}
 
 
 

@@ -175,10 +175,19 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 }
 
 // draws the model, and thus all its meshes
-void AssimpModel::draw(uint shader)
+void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx, uint shader)
 {
+	glUseProgram(shader);
+
+	// create a temp model mtx
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
+
 	for (unsigned int i = 0; i < meshes.size(); i++)
 		meshes[i].draw(shader);
+
+	glUseProgram(0);
+
 }
 
 // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

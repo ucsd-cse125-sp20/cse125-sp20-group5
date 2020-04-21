@@ -42,7 +42,6 @@ public:
             position->getZ() + 1);
     }
 
-private:
     Position* position; // Player position
     Direction* direction; // Direction player is facing
     Animation* animation; // type of animation for player

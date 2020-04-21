@@ -123,7 +123,6 @@ public:
         }
     }
 
-private:
     // We could use other data structures, for now use a list
 
     std::vector<Player*> players; // Up to 4 players?

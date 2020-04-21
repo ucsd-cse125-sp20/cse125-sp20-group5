@@ -11,7 +11,6 @@ public:
         ar & angle;
     }
 
-private:
     float angle; // The angle that the plant is facing??
 };
 

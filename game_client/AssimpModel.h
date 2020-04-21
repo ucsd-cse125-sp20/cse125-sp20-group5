@@ -32,7 +32,7 @@ public:
 
     AssimpModel(const string& path, bool gamma = false);
 
-    void draw(uint shader);
+    void draw(const glm::mat4& model, const glm::mat4& viewProjMtx, uint shader);
 
 private:
 
