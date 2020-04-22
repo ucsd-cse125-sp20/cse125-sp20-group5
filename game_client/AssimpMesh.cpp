@@ -4,7 +4,9 @@
 
 #include "AssimpMesh.h"
 
-AssimpMesh::AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
+AssimpMesh::AssimpMesh(	vector<Vertex> vertices, 
+											vector<unsigned int> indices, 
+											vector<Texture> textures)
 {
 	this->vertices = vertices;
 	this->indices = indices;
@@ -18,7 +20,7 @@ AssimpMesh::AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, ve
 	// load data into vertex buffers
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
 
 	// set the vertex attribute pointers
 	// vertex positions
@@ -30,11 +32,14 @@ AssimpMesh::AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, ve
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-	/*
-	// vertex bones
+
+	// vertex reference to the bone data
+	//		bone ID
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bones));
-	*/
+	glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, BoneReference));
+	//		weights of each bone
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)(offsetof(Vertex, BoneReference) + offsetof(BoneReferenceData, weights))); // 16 needs to be checked TODO
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
