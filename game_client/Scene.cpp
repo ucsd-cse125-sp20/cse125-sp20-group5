@@ -8,6 +8,8 @@ Scene::Scene()
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AssimpModel(PLAYER_MODEL, assimpProgram->GetProgramID());
+	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
+
 	ground = NULL;
 }
 
@@ -26,6 +28,9 @@ Scene::~Scene()
 	delete animationProgram;
 }
 
+glm::mat4 getPoseFromDirection(float angle) {
+	return glm::eulerAngleZ(angle);
+}
 
 void Scene::update()
 {
@@ -34,15 +39,16 @@ void Scene::update()
 	playerTransforms.clear();
 
 	if (ground == NULL) {
-		ground = new Ground(state->tiles.size(), state->tiles[0].size(), .5, 2, 2, program->GetProgramID());
+		ground = new Ground(state->tiles.size(), state->tiles[0].size(), 1.0, 10, 10, program->GetProgramID());
 	}
 
 	for (int i = 0; i < state->tiles.size(); i++) {
 		for (int j = 0; j < state->tiles[0].size(); j++) {
 			ground->setLoc(i,j,(Ground::TILE_TYPE)(state->tiles[i][j]->tileType));
-
 		}
 	}
+
+	ground->update();
 
 	for (Zombie* zombie : state->zombies) {
 		Position* position = zombie->position;
@@ -55,7 +61,7 @@ void Scene::update()
 		mat4Transform[3][1] = position->getY();
 		mat4Transform[3][2] = position->getZ();
 		// Rotate
-		mat4Transform = glm::eulerAngleZ(direction->angle) * mat4Transform;
+		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * RABBIT_SCALER;
 
 		zombieTransfroms.push_back(mat4Transform);
 	}
@@ -70,25 +76,29 @@ void Scene::update()
 		mat4Transform[3][0] = position->getX();
 		mat4Transform[3][1] = position->getY();
 		mat4Transform[3][2] = position->getZ();
-
-		// std::cout << position->getX() << ", " << position->getY() << ", " << position->getZ() << "\n";
 		
 		// Rotate
-		mat4Transform = glm::eulerAngleZ(direction->angle) * mat4Transform;
+		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * PLAYER_SCALER;
 
 		playerTransforms.push_back(mat4Transform);
 	}
 
-	
+	tapTransform = glm::mat4(1.0);
+	tapTransform[3][0] = state->waterTap->position->getX();
+	tapTransform[3][1] = state->waterTap->position->getY();
+	tapTransform[3][2] = state->waterTap->position->getZ();
+
+	tapTransform = tapTransform * getPoseFromDirection(state->waterTap->direction->angle) * WATER_TAP_SCALER;
+
 	for (Model* model : models) {
 		model->update();
 	}
-
-	ground->update();
 }
 
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
+	ground->draw(veiwProjMat);
+
 	for (glm::mat4 transform : zombieTransfroms) {
 		// Add transform to assimp models
 		zombieModel->draw(transform, veiwProjMat);
@@ -99,11 +109,11 @@ void Scene::draw(const glm::mat4 &veiwProjMat)
 		playerModel->draw(transform, veiwProjMat);
 	}
 
+	tapModel->draw(tapTransform, veiwProjMat);
 
 	for (Model * model : models) {
 		model->draw(model->getLocalMat(), veiwProjMat);
-	}
-	ground->draw(veiwProjMat);
+	}	
 }
 
 // Update the current gamestate

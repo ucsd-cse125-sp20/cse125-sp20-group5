@@ -23,9 +23,11 @@ private:
 
 	std::vector<glm::mat4> zombieTransfroms;
 	std::vector<glm::mat4> playerTransforms;
+	glm::mat4 tapTransform;
 
 	AssimpModel * zombieModel;
 	AssimpModel * playerModel; 
+	AssimpModel * tapModel;
 
 	ShaderProgram * program;
 	ShaderProgram * assimpProgram;

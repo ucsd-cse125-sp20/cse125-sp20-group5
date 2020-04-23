@@ -17,7 +17,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 
 	grid = new TILE_TYPE[gridsize];
 
-	position = glm::vec3(-(x*.5)*size -1.5, 0, -(y*.5)*size - 3);
+	position = glm::vec3(-(totalX *.5)*size -1.5, 0, -(totalY *.5)*size - 3);
 
 	for (int i = 0; i < NUM_TILES; i++) {
 		Model * temp = new Model(shader);

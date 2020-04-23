@@ -52,11 +52,12 @@ public:
 
 
         // Init seed shack and water tap
-        Position* seedShackPosition = new Position(3, 3, 0);
+        Position* seedShackPosition = new Position(3, 0, 3);
         seedShack = new SeedShack(seedShackPosition);
 
-        Position* waterTapPosition = new Position(2, 2, 0);
-        waterTap = new WaterTap(waterTapPosition);
+        Position* waterTapPosition = new Position(2, 0, 2);
+        Direction* waterTapDirection = new Direction(0);
+        waterTap = new WaterTap(waterTapPosition, waterTapDirection);
     }
 
     template<class Archive>
