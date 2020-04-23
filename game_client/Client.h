@@ -43,6 +43,7 @@ public:
 	void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void mouseButton(GLFWwindow* window, int btn, int action, int mods);
 	void mouseMotion(GLFWwindow* window, double x, double y);
+	void zoomScreen(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
 	// Window management

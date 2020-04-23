@@ -19,7 +19,7 @@
 AssimpModel* ourModel;
 
 void loadAssimpModelTest() {
-	ourModel = new AnimatedAssimpModel("model/rabbit_simple_animation.fbx");
+	ourModel = new AssimpModel("model/corn.fbx");
 }
 
 void renderAssimpModelTest(Camera* cam, uint shader) {
@@ -265,6 +265,19 @@ void Client::mouseMotion(GLFWwindow* window, double nx, double ny) {
 		cam->SetDistance(dist);
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Client::zoomScreen(GLFWwindow* window, double xoffset, double yoffset) {
+	if (cam->GetFOV() >= 1.0f && cam->GetFOV() <= 45.0f)
+		cam->SetFOV(cam->GetFOV() - yoffset);
+	if (cam->GetFOV() <= 1.0f)
+		cam->SetFOV(1.0f);
+	if (cam->GetFOV() >= 45.0f)
+		cam->SetFOV(45.0f);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 void Client::setupKeyboardPresses()
 {
