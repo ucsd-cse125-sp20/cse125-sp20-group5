@@ -7,7 +7,7 @@ Scene::Scene()
 
 	zombieModel = new AssimpModel(ZOMBIE_MODEL, assimpProgram->GetProgramID());
 	playerModel = new AssimpModel(PLAYER_MODEL, assimpProgram->GetProgramID());
-
+	ground = NULL;
 }
 
 Scene::~Scene()
@@ -30,6 +30,17 @@ void Scene::update()
 	// Clear the two vectors
 	zombieTransfroms.clear();
 	playerTransforms.clear();
+
+	if (ground == NULL) {
+		ground = new Ground(state->tiles.size(), state->tiles[0].size(), .5, 2, 2, program->GetProgramID());
+	}
+
+	for (int i = 0; i < 1; i++) {
+		for (int j = 0; j < 1; j++) {
+			ground->setLoc(i,j,(Ground::TILE_TYPE)(state->tiles[i][j]->tileType));
+
+		}
+	}
 
 	for (Zombie* zombie : state->zombies) {
 		Position* position = zombie->position;

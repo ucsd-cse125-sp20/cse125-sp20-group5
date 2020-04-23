@@ -34,6 +34,9 @@ public:
 
 	void setPadding(TILE_TYPE type);
 
+	int getX();
+	int getY();
+
 	static glm::vec3 getColor(TILE_TYPE type);
 	static const char* getTexture(TILE_TYPE type);
 

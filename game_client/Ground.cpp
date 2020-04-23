@@ -27,6 +27,8 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 		temp->makeTile(min, max, color, getTexture((TILE_TYPE)i));
 		tiles.push_back(temp);
 	}
+
+	setPadding(TILE_TYPE::BLANK);
 }
 
 Ground::~Ground()
@@ -100,6 +102,14 @@ void Ground::setPadding(TILE_TYPE type) {
 	}
 }
 
+int Ground::getX() {
+	return tilesX;
+}
+
+int Ground::getY() {
+	return tilesY;
+}
+
 glm::vec3 Ground::getColor(TILE_TYPE type)
 {
 	switch (type) {
@@ -143,7 +153,6 @@ Ground * Ground::ground0(uint shader)
 	int padY = 2;
 
 	Ground * ground0 = new Ground(x, y, size, padX, padY, shader);
-	ground0->setPadding(TILE_TYPE::BLANK);
 
 	for (int i = 0; i < x; i++) {
 		for (int j = 0; j < y; j++) {

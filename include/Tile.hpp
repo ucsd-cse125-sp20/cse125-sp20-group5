@@ -9,6 +9,7 @@ public:
     Tile(Position* position, int tileType, Direction* direction)
         : tileType(tileType) {
 
+        this->tileType = tileType;
         this->position = position;
         this->direction = direction;
     }
@@ -26,7 +27,6 @@ public:
         delete direction;
     }
 
-private:
     Position* position; // Tile's position
     int tileType; // D/f types (e.g. normal, occupied by zombie, etc)
 
