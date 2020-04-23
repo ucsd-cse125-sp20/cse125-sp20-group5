@@ -35,8 +35,8 @@ void Scene::update()
 		ground = new Ground(state->tiles.size(), state->tiles[0].size(), .5, 2, 2, program->GetProgramID());
 	}
 
-	for (int i = 0; i < 1; i++) {
-		for (int j = 0; j < 1; j++) {
+	for (int i = 0; i < state->tiles.size(); i++) {
+		for (int j = 0; j < state->tiles[0].size(); j++) {
 			ground->setLoc(i,j,(Ground::TILE_TYPE)(state->tiles[i][j]->tileType));
 
 		}

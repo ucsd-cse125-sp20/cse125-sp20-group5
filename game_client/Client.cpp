@@ -23,7 +23,7 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	cam=new Camera;
 	cam->SetAspect(float(winX)/float(winY));
 
-	scene = Scene::scene0();
+	scene = new Scene();
 
 	setupAudio();
 
