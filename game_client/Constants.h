@@ -6,3 +6,7 @@
 
 #define ZOMBIE_MODEL "model/rabbit_simple_animation.fbx"
 #define PLAYER_MODEL "model/rabbit_simple_animation.fbx"
+#define CORN_MODEL "model/corn.fbx"
+#define WATER_TAP_MODEL "model/water_tap.fbx"
+
+#define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"

@@ -66,6 +66,9 @@
     <ClInclude Include="AssimpModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AnimatedAssimpModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="box.cpp">
@@ -107,12 +110,18 @@
     <ClCompile Include="AssimpModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AnimatedAssimpModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Model.glsl">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="AssimpModel.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="AnimatedAssimpModel.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

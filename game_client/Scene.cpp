@@ -4,8 +4,9 @@ Scene::Scene()
 {
 	program = new ShaderProgram("Model.glsl", ShaderProgram::eRender);
 	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
-
-	zombieModel = new AssimpModel(ZOMBIE_MODEL, assimpProgram->GetProgramID());
+	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
+	
+	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AssimpModel(PLAYER_MODEL, assimpProgram->GetProgramID());
 	ground = NULL;
 }
@@ -22,6 +23,7 @@ Scene::~Scene()
 
 	delete program;
 	delete assimpProgram;
+	delete animationProgram;
 }
 
 

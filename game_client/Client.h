@@ -41,6 +41,7 @@ public:
 	void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void mouseButton(GLFWwindow* window, int btn, int action, int mods);
 	void mouseMotion(GLFWwindow* window, double x, double y);
+	void zoomScreen(GLFWwindow* window, double xoffset, double yoffset);
 
 private:
 	// Window management
@@ -54,10 +55,8 @@ private:
 	const int keys[5] = {GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE};
 
 	GLFWwindow* windowHandle;
-	// Components
-	// ShaderProgram *program;
-	// ShaderProgram *assimpProgram;
-	
+
+	// Components	
 	Scene * scene;
 	Camera * cam;
 	CAudioEngine aEngine;

@@ -22,16 +22,43 @@
 
 using namespace std;
 
-struct Vertex {
-    // position
-    glm::vec3 Position;
-    // normal
-    glm::vec3 Normal;
-    // texCoords
-    glm::vec2 TexCoords;
+#define NUM_BONES_PER_VEREX 4
+/**
+ * BoneReferenceData is a struct that, for each vertex, contains reference to the bone along
+ * with the weights; the bone data is stored in AssimpModel and will be passed into the 
+ * shaders through uniform.
+ */
+struct BoneReferenceData
+{
+    // The two arrays' indice
+    uint boneIDs[NUM_BONES_PER_VEREX];
+    float weights[NUM_BONES_PER_VEREX];
 
-    //TODO
-    //vector<VertexBoneData> Bones;
+    BoneReferenceData()
+    {
+        memset(boneIDs, 0, sizeof(boneIDs));
+        memset(weights, 0, sizeof(weights));
+    };
+
+    void addData(uint boneID, float weight) {
+        for (uint i = 0; i < NUM_BONES_PER_VEREX; i++) {
+            if (weights[i] == 0.0) {
+                boneIDs[i] = boneID;
+                weights[i] = weight;
+                return;
+            }
+        }
+        // should never get here - more bones than we have space for
+        assert(0);
+    }
+};
+
+
+struct Vertex {
+    glm::vec3 Position;
+    glm::vec3 Normal;
+    glm::vec2 TexCoords;
+    BoneReferenceData BoneReference;
 };
 
 struct Texture {
@@ -39,6 +66,7 @@ struct Texture {
     string type;
     string path;
 };
+
 
 class AssimpMesh {
 public:
@@ -49,14 +77,15 @@ public:
     unsigned int VAO;
     glm::mat4 transform;
 
+    /* Animation Related Data */
+
     /*  Functions  */
-    AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
-    void draw(uint shader);
+    AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, glm::mat4 transform);
     void setupShadingAttributes(aiMaterial* material);
+    void draw(uint shader);
 
 private:
     unsigned int VBO, EBO;
-    void setupMesh();
 
     /* Shading attributes */
     glm::vec3 ambient; // Ka in .mat file

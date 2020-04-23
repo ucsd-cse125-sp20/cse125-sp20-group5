@@ -4,89 +4,72 @@
 
 #include "AssimpModel.h"
 
-AssimpModel::AssimpModel(string const& path, uint shader, bool gamma) : gammaCorrection(gamma)
+AssimpModel::AssimpModel()
+{
+	/* To be called by derived class in order to avoid calling overriden method through the base class constructor */
+}
+
+AssimpModel::AssimpModel(string const& path, uint shader)
+{
+	importScene(path, shader);
+
+	glm::mat4 globalInverseTransform = convertToGlmMat(m_aiScene->mRootNode->mTransformation.Inverse());
+	loadModelByNodeTraversal(m_aiScene->mRootNode, globalInverseTransform);
+
+}
+
+// Because it is highly discouraged to call an overriden method in virtual, this method is created to avoid AnimatedAssimpModel 
+// calling the above constructor which would eventually all an overriden method, loadBoneData()
+void AssimpModel::importScene(const string& path, uint shader)
 {
 	this->shader = shader;
 
-	nodeCount = 0;
-	meshCount = 0;
-	
-	// read file via ASSIMP
 	m_aiScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 
-	// check for errors
 	if (!m_aiScene || m_aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_aiScene->mRootNode) // if is Not Zero
 	{
 		cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
 		return;
 	}
-
-	// TODO: animation
-	for (int i = 0; i < m_aiScene->mNumAnimations; i++) {
-		std::cout << "processing an animation Animations" << std::endl;
-		std::cout << "name of animation " << m_aiScene->mAnimations[i]->mName.C_Str() << std::endl;
-		std::cout << "duraiton of animation in ticks " << m_aiScene->mAnimations[i]->mDuration << std::endl;
-		std::cout << "ticks per sceond " << m_aiScene->mAnimations[i]->mTicksPerSecond << std::endl;
-		for (int j = 0; j < m_aiScene->mAnimations[i]->mNumChannels; j++) {
-			processAnimNode(m_aiScene->mAnimations[i]->mChannels[j]);
-		}
-	}
-
-	// retrieve the directory path of the filepath
 	directory = path.substr(0, path.find_last_of('/'));
-
-	// process ASSIMP's root node recursively
-	initFromScene(m_aiScene, path);
-	//processNode(m_aiScene->mRootNode, m_aiScene);
-}
-
-//TODO: animation
-void AssimpModel::processAnimNode(aiNodeAnim* node) {
-	std::cout << "Animation node process " << (node->mNodeName).C_Str() << nodeCount << std::endl;
 }
 
 // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-void AssimpModel::processNode(aiNode* node, const aiScene* scene)
+void AssimpModel::loadModelByNodeTraversal(aiNode* node, const glm::mat4& parentTransform)
 {
-	std::cout << "node process " << (node->mName).C_Str() << " " << nodeCount << " " << node->mNumChildren << std::endl;
-	nodeCount++;
-	//std::cout << node->mTransformation[1] << std::endl;;
-
+	// get node transformation
+	glm::mat4 curNodeTransformation = convertToGlmMat(node->mTransformation);
+	glm::mat4 globalTransformation = parentTransform * curNodeTransformation;
 
 	// process each mesh located at the current node
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		// the node object only contains indices to index the actual objects in the scene. 
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		if (mesh->HasBones()) {
-			std::cout << "has bonesss BONESSSSSSSSSSSSSSSS" << std::endl;
-		}
-		meshes.push_back(processMesh(mesh, scene));
+		aiMesh* mesh = m_aiScene->mMeshes[node->mMeshes[i]];
+		AssimpMesh loadedMesh = loadMesh(mesh, m_aiScene, globalTransformation);
+		meshes.push_back(loadedMesh);
 	}
 
-	// after we've processed all of the meshes (if any) we then recursively process each of the children nodes
-	for (unsigned int i = 0; i < node->mNumChildren; i++)
-	{
-		processNode(node->mChildren[i], scene);
+	// recursive call on children
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		loadModelByNodeTraversal(node->mChildren[i], globalTransformation);
 	}
 }
 
-AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
+// create an AssimpMesh for each mesh
+AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform)
 {
-	std::cout << "mesh process " << meshCount << std::endl;
-	meshCount++;
-
 	// data to fill
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
 	vector<Texture> textures;
+	vector<BoneReferenceData> boneReferences;
 
 	// Walk through each of the mesh's vertices
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
-		glm::vec3 vector;
 
 		aiVector3D pos = mesh->mVertices[i];
 		aiVector3D normal = mesh->mNormals[i];
@@ -97,29 +80,27 @@ AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 		vertex.Position = glm::vec3(pos.x, pos.y, pos.z);
 		vertex.Normal = glm::vec3(normal.x, normal.y, normal.z);
 		vertex.TexCoords = glm::vec2(texCoord.x, texCoord.y);
-		
-		// TODO
-		//loadBone()
 
 		vertices.push_back(vertex);
 	}
 
-	// Walk through the mesh's faces (a mesh triangle) and retrieve the corresponding vertex indices.
-	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-	{
-		aiFace face = mesh->mFaces[i];
-		assert(face.mNumIndices == 3);
-		// assert(Face.mNumIndices == 3);
+	// Load Bones for this mesh
+	boneReferences.resize(vertices.size());
+	loadBoneData(mesh, boneReferences);
+	// Add bone reference data to the vertices
+	for (unsigned int i = 0; i < vertices.size(); i++)
+		vertices[i].BoneReference = boneReferences[i];
 
+	// Walk through the mesh's faces (a mesh triangle) and retrieve the corresponding vertex indices.
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++)	{
+		aiFace face = mesh->mFaces[i];
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
 
 	// process materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	// we assume a convention for sampler names in the shaders. Each diffuse texture should be named
-	// as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
-
+	// Each diffuse texture in the shaders should be named as 'texture_diffuseN' (1 <= N <= MAX_SAMPLER_NUMBER). 
 	// diffuse: texture_diffuseN
 	vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -137,10 +118,14 @@ AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 	textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	AssimpMesh resultMesh(vertices, indices, textures);
+	AssimpMesh resultMesh(vertices, indices, textures, meshTransform);
 	resultMesh.setupShadingAttributes(material);
 
 	return resultMesh;
+}
+
+void AssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences) {
+	/* to be overriden by AnimatedAssimpModel */
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
@@ -148,23 +133,19 @@ AssimpMesh AssimpModel::processMesh(aiMesh* mesh, const aiScene* scene)
 vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
 {
 	vector<Texture> textures;
-	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-	{
+	for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		// check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
 		bool skip = false;
-		for (unsigned int j = 0; j < textures_loaded.size(); j++)
-		{
-			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
-			{
+		for (unsigned int j = 0; j < textures_loaded.size(); j++) {
+			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
 				textures.push_back(textures_loaded[j]);
 				skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
 				break;
 			}
 		}
-		if (!skip)
-		{   // if texture hasn't been loaded already, load it
+		if (!skip) {   // if texture hasn't been loaded already, load it
 			Texture texture;
 			texture.id = textureFromFile(str.C_Str(), this->directory);
 			texture.type = typeName;
@@ -180,7 +161,7 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
-
+	
 	// create a temp model mtx
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
@@ -192,21 +173,18 @@ void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
 
 }
 
-// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-void AssimpModel::initFromScene(const aiScene* scene, const string& path)
-{
-	// Initialize the meshes in the scene one by one
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-		aiMesh* mesh = scene->mMeshes[i];
-		meshes.push_back(processMesh(mesh, scene));
-	}
+////////////////////////////////////////////////////////////////////////
 
-	//return InitMaterials(pScene, Filename);
+glm::mat4 convertToGlmMat(const aiMatrix4x4& AssimpMatrix) {
+	glm::mat4 m;
+	m[0][0] = AssimpMatrix.a1; m[0][1] = AssimpMatrix.a2; m[0][2] = AssimpMatrix.a3; m[0][3] = AssimpMatrix.a4;
+	m[1][0] = AssimpMatrix.b1; m[1][1] = AssimpMatrix.b2; m[1][2] = AssimpMatrix.b3; m[1][3] = AssimpMatrix.b4;
+	m[2][0] = AssimpMatrix.c1; m[2][1] = AssimpMatrix.c2; m[2][2] = AssimpMatrix.c3; m[2][3] = AssimpMatrix.c4;
+	m[3][0] = AssimpMatrix.d1; m[3][1] = AssimpMatrix.d2; m[3][2] = AssimpMatrix.d3; m[3][3] = AssimpMatrix.d4;
+	return glm::transpose(m); // since aiMatrix4x4 treats glm::mat4's rows as columns
 }
 
-
-
-unsigned int AssimpModel::textureFromFile(const char* path, const string& directory, bool gamma)
+unsigned int AssimpModel::textureFromFile(const char* path, const string& directory)
 {
 	string filename = string(path);
 	filename = directory + '/' + filename;

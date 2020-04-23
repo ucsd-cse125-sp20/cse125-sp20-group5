@@ -9,7 +9,9 @@
 
 layout (location = 0) in vec3 Position;
 layout (location = 1) in vec3 Normal;
-layout (location = 2) in vec2 Texture;
+layout (location = 2) in vec2 Texture;                                             
+layout (location = 3) in ivec4 BoneID;
+layout (location = 4) in vec4 Weight;
 
 out vec3 fragPosition;
 out vec3 fragNormal;
@@ -22,7 +24,8 @@ uniform mat4 model;
 uniform mat4 projectView;
 uniform vec3 eyepos=vec3(0);
 
-uniform mat4 meshTransform;
+const int MAX_BONES = 100;
+uniform mat4 gBones[MAX_BONES];
 
 ////////////////////////////////////////
 // Vertex shader
@@ -30,10 +33,17 @@ uniform mat4 meshTransform;
 
 void main()
 {
-	gl_Position = projectView * model * meshTransform *vec4(Position, 1.0);
+	mat4 boneTransform = gBones[BoneID[0]] * Weight[0];
+    boneTransform     += gBones[BoneID[1]] * Weight[1];
+    boneTransform     += gBones[BoneID[2]] * Weight[2];
+    boneTransform     += gBones[BoneID[3]] * Weight[3];
 
-	fragPosition=vec3(model * meshTransform* vec4(Position,1));
-	fragNormal = mat3(transpose(inverse(model * meshTransform))) * Normal;
+    vec4 animatedPosition = boneTransform * vec4(Position, 1.0);
+	vec4 animatedNormal = boneTransform * vec4(Normal, 0.0);
+
+	gl_Position = projectView * model * animatedPosition;
+	fragPosition = vec3(model* animatedPosition);
+	fragNormal = vec3(model * animatedNormal);
 	fragTexture = Texture;
 
 

@@ -5,8 +5,6 @@
 #include "Client.h"
 #include "NetworkClient.h"
 
-#define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"
-
 Client * Client::CLIENT;
 
 Client::Client(GLFWwindow * window, int argc, char **argv) {
@@ -17,8 +15,6 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	mouseX=mouseY=0;
 
 	// Initialize components
-	// program =new ShaderProgram("Model.glsl", ShaderProgram::eRender);
-
 	glfwGetWindowSize(windowHandle, &winX, &winY);
 	cam=new Camera;
 	cam->SetAspect(float(winX)/float(winY));
@@ -199,6 +195,16 @@ void Client::mouseMotion(GLFWwindow* window, double nx, double ny) {
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void Client::zoomScreen(GLFWwindow* window, double xoffset, double yoffset) {
+	if (cam->GetFOV() >= 1.0f && cam->GetFOV() <= 45.0f)
+		cam->SetFOV(cam->GetFOV() - yoffset);
+	if (cam->GetFOV() <= 1.0f)
+		cam->SetFOV(1.0f);
+	if (cam->GetFOV() >= 45.0f)
+		cam->SetFOV(45.0f);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -210,7 +216,7 @@ void Client::setupAudio() {
 	//aEngine.LoadSound("weapon-collide.mp3", true);
 	//aEngine.LoadSound("scream.mp3", true);
 
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.2f));
+	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.02f));
 
 }
 

@@ -1,14 +1,16 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include <iostream>
+#include <glm\gtx\euler_angles.hpp>
+
+#include <GameState.hpp>
 #include "Model.h"
 #include "SpinningCube.h"
 #include "Ground.h"
-#include <GameState.hpp>
 #include "AssimpModel.h"
-#include <iostream>
+#include "AnimatedAssimpModel.h"
 #include "Constants.h"
-#include <glm\gtx\euler_angles.hpp>
 #include "Shader.h"
 
 class Scene
@@ -27,6 +29,7 @@ private:
 
 	ShaderProgram * program;
 	ShaderProgram * assimpProgram;
+	ShaderProgram* animationProgram;
 
 public:
 	Scene();
