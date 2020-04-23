@@ -7,8 +7,6 @@
 #include "core.h"
 #include "Shader.h"
 #include "Camera.h"
-#include "SpinningCube.h"
-#include "box.h"
 #include "Scene.h"
 #include "AudioEngine.h"
 #include "NetworkClient.h"
@@ -60,8 +58,6 @@ private:
 	Scene * scene;
 	Camera * cam;
 	CAudioEngine aEngine;
-
-	std::vector<box> boxes;
 
 	NetworkClient *netClient;
 	GameState* currentGameState;

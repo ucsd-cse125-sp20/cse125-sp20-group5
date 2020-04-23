@@ -6,7 +6,6 @@
 
 #include <GameState.hpp>
 #include "Model.h"
-#include "SpinningCube.h"
 #include "Ground.h"
 #include "AssimpModel.h"
 #include "AnimatedAssimpModel.h"

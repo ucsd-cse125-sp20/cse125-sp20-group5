@@ -160,7 +160,6 @@
   <ItemGroup>
     <ClInclude Include="AnimatedAssimpModel.h" />
     <ClInclude Include="AudioEngine.h" />
-    <ClInclude Include="box.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Constants.h" />
@@ -172,7 +171,6 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="SpinningCube.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
@@ -182,7 +180,6 @@
     <ClCompile Include="AssimpMesh.cpp" />
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="AudioEngine.cpp" />
-    <ClCompile Include="box.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Ground.cpp" />
