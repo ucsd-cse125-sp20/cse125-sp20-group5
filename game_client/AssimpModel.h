@@ -30,9 +30,9 @@ public:
     unsigned int VAO;
     glm::mat4 transform;
 
-    AssimpModel(const string& path, bool gamma = false);
+    AssimpModel(const string& path, uint shader, bool gamma = false);
 
-    void draw(const glm::mat4& model, const glm::mat4& viewProjMtx, uint shader);
+    void draw(const glm::mat4& model, const glm::mat4& viewProjMtx);
 
 private:
 
@@ -47,4 +47,6 @@ private:
 
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName); 
     unsigned int textureFromFile(const char* path, const string& directory, bool gamma = false);
+
+    uint shader;
 };

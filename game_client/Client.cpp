@@ -5,38 +5,7 @@
 #include "Client.h"
 #include "NetworkClient.h"
 
-////////////////////////////////////////////////////////////////////////////////
-
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"
-
-////////////////////////////////////////////////////////////////////////////////
-//Assimp Test
-//TODO: to be removed
-
-#include "AssimpModel.h"
-
-AssimpModel* ourModel;
-
-void loadAssimpModelTest() {
-	ourModel = new AssimpModel("model/rabbit_simple_animation.fbx");
-}
-
-void renderAssimpModelTest(Camera* cam, uint shader) {
-	glUseProgram(shader);
-
-	// create a temp model mtx
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 1.75f, 0.0f));
-	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
-	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&cam->GetViewProjectMtx());
-
-	// ourModel->draw(shader);
-
-	glUseProgram(0);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 Client * Client::CLIENT;
 
@@ -48,7 +17,7 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	mouseX=mouseY=0;
 
 	// Initialize components
-	program=new ShaderProgram("Model.glsl", ShaderProgram::eRender);
+	// program =new ShaderProgram("Model.glsl", ShaderProgram::eRender);
 
 	glfwGetWindowSize(windowHandle, &winX, &winY);
 	cam=new Camera;
@@ -58,10 +27,6 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 
 	setupAudio();
 
-	//TODO: remove the test for assimp
-	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
-	loadAssimpModelTest();
-
 	// Load network class
 	setupNetwork();
 }
@@ -69,7 +34,6 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 
 Client::~Client() {
-	delete program;
 	delete cam;
 	delete scene;
 	delete netClient;
@@ -121,11 +85,8 @@ void Client::draw() {
 	glViewport(0, 0, winX, winY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	scene->draw(cam->GetViewProjectMtx(), assimpProgram->GetProgramID());
+	scene->draw(cam->GetViewProjectMtx());
 	// scene->draw(cam->GetViewProjectMtx(), program->GetProgramID());
-
-	//TODO: remove the Assimp test
-	renderAssimpModelTest(cam, assimpProgram->GetProgramID());
 	
 	// Finish drawing scene
 	glFinish();

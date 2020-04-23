@@ -55,8 +55,9 @@ private:
 
 	GLFWwindow* windowHandle;
 	// Components
-	ShaderProgram *program;
-	ShaderProgram *assimpProgram;
+	// ShaderProgram *program;
+	// ShaderProgram *assimpProgram;
+	
 	Scene * scene;
 	Camera * cam;
 	CAudioEngine aEngine;

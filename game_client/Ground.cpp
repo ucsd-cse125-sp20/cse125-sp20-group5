@@ -1,7 +1,7 @@
 #include "Ground.h"
 #include <iostream>
 
-Ground::Ground(int x, int y, float size,  int padX, int padY)
+Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 {
 	tilesX = x;
 	tilesY = y;
@@ -20,7 +20,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY)
 	position = glm::vec3(-(x*.5)*size -1.5, 0, -(y*.5)*size - 3);
 
 	for (int i = 0; i < NUM_TILES; i++) {
-		Model * temp = new Model;
+		Model * temp = new Model(shader);
 		glm::vec3 color = getColor((TILE_TYPE)i);
 		glm::vec3 min(0, 0, 0);
 		glm::vec3 max(size, 0, size);
@@ -55,7 +55,7 @@ void Ground::update()
 		position[0], position[1], position[2], 1.0);
 }
 
-void Ground::draw(const glm::mat4& viewProjMtx, uint shader)
+void Ground::draw(const glm::mat4& viewProjMtx)
 {
 	glm::mat4 tileMat = localMat;
 	for (int i = 0; i < totalX; i++) {
@@ -63,7 +63,7 @@ void Ground::draw(const glm::mat4& viewProjMtx, uint shader)
 		tileMat[3][0] += tileSize;
 		for (int j = 0; j < totalY; j++) {
 			tileMat[3][2] += tileSize;
-			tiles[( (int)grid[(i*totalY) + j] )]->draw(tileMat, viewProjMtx, shader);
+			tiles[( (int)grid[(i*totalY) + j] )]->draw(tileMat, viewProjMtx);
 		}
 	}
 }
@@ -134,7 +134,7 @@ const char* Ground::getTexture(TILE_TYPE type)
 	return NULL;
 }
 
-Ground * Ground::ground0()
+Ground * Ground::ground0(uint shader)
 {
 	int x = 24;
 	int y = 20;
@@ -142,7 +142,7 @@ Ground * Ground::ground0()
 	int padX = 2;
 	int padY = 2;
 
-	Ground * ground0 = new Ground(x, y, size, padX, padY);
+	Ground * ground0 = new Ground(x, y, size, padX, padY, shader);
 	ground0->setPadding(TILE_TYPE::BLANK);
 
 	for (int i = 0; i < x; i++) {

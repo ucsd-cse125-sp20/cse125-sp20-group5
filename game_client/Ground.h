@@ -25,18 +25,18 @@ public:
 	static enum class TILE_TYPE {PATH = 0, NORMAL = 1, TILLED = 2, WATER = 3, BLANK = 4};
 	static const int NUM_TILES = 5;
 
-	Ground(int x, int y, float size, int paddingX, int paddingY);
+	Ground(int x, int y, float size, int paddingX, int paddingY, uint shader);
 	~Ground();
 	TILE_TYPE getLoc(int x, int y);
 	void setLoc(int x, int y, TILE_TYPE type);
 	void update();
-	void draw(const glm::mat4& viewProjMtx, uint shader);
+	void draw(const glm::mat4& viewProjMtx);
 
 	void setPadding(TILE_TYPE type);
 
 	static glm::vec3 getColor(TILE_TYPE type);
 	static const char* getTexture(TILE_TYPE type);
 
-	static Ground * ground0();
+	static Ground * ground0(uint shader);
 };
 

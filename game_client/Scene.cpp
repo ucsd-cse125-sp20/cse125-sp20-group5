@@ -1,12 +1,12 @@
 #include "Scene.h"
-#include "Constants.h"
-#include <iostream>
-#include <glm\gtx\euler_angles.hpp>
 
 Scene::Scene()
 {
-	zombieModel = new AssimpModel(ZOMBIE_MODEL);
-	playerModel = new AssimpModel(PLAYER_MODEL);
+	program = new ShaderProgram("Model.glsl", ShaderProgram::eRender);
+	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
+
+	zombieModel = new AssimpModel(ZOMBIE_MODEL, assimpProgram->GetProgramID());
+	playerModel = new AssimpModel(PLAYER_MODEL, assimpProgram->GetProgramID());
 
 }
 
@@ -18,6 +18,10 @@ Scene::~Scene()
 	delete ground;
 
 	delete zombieModel;
+	delete playerModel;
+
+	delete program;
+	delete assimpProgram;
 }
 
 
@@ -70,23 +74,23 @@ void Scene::update()
 	ground->update();
 }
 
-void Scene::draw(const glm::mat4 &veiwProjMat, uint shader)
+void Scene::draw(const glm::mat4 &veiwProjMat)
 {
 	for (glm::mat4 transform : zombieTransfroms) {
 		// Add transform to assimp models
-		zombieModel->draw(transform, veiwProjMat, shader);
+		zombieModel->draw(transform, veiwProjMat);
 	}
 
 	for (glm::mat4 transform : playerTransforms) {
 		// Add transform to assimp models
-		playerModel->draw(transform, veiwProjMat, shader);
+		playerModel->draw(transform, veiwProjMat);
 	}
 
 
 	for (Model * model : models) {
-		model->draw(model->getLocalMat(), veiwProjMat, shader);
+		model->draw(model->getLocalMat(), veiwProjMat);
 	}
-	ground->draw(veiwProjMat, shader);
+	ground->draw(veiwProjMat);
 }
 
 // Update the current gamestate
@@ -103,13 +107,13 @@ void Scene::setState(GameState* state)
 Scene * Scene::testScene() {
 	Scene * scene = new Scene;
 
-	Model * cube = new Model;
+	Model * cube = new Model(scene->program->GetProgramID());
 	cube->makeBox(glm::vec3(-.25,0,-.25), glm::vec3(.25,.5,.25));
 
-	Model* floor = new Model;
+	Model* floor = new Model(scene->program->GetProgramID());
 	floor->makeBox(glm::vec3(-2, -0.05, -2), glm::vec3(2, 0, 2));
 
-	Model* tile = new Model;
+	Model* tile = new Model(scene->program->GetProgramID());
 	tile->makeTile(glm::vec3(0, -3, 0), glm::vec3(.1, -3, .1), glm::vec3(.8, .3, .12), "grass1tile.png");
 
 	scene->models.push_back(cube);
@@ -121,10 +125,10 @@ Scene * Scene::testScene() {
 Scene* Scene::scene0() {
 	Scene* scene = new Scene;
 
-	Model* cube = new Model;
+	Model* cube = new Model(scene->program->GetProgramID());
 	cube->makeBox(glm::vec3(-.25, 0, -.25), glm::vec3(.25, .5, .25));
 
-	scene->ground = Ground::ground0();
+	scene->ground = Ground::ground0(scene->program->GetProgramID());
 
 	scene->models.push_back(cube);
 

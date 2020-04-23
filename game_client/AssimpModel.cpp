@@ -4,8 +4,10 @@
 
 #include "AssimpModel.h"
 
-AssimpModel::AssimpModel(string const& path, bool gamma) : gammaCorrection(gamma)
+AssimpModel::AssimpModel(string const& path, uint shader, bool gamma) : gammaCorrection(gamma)
 {
+	this->shader = shader;
+
 	nodeCount = 0;
 	meshCount = 0;
 	
@@ -175,7 +177,7 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 }
 
 // draws the model, and thus all its meshes
-void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx, uint shader)
+void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 

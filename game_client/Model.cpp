@@ -12,7 +12,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Model::Model() {
+Model::Model(uint shader) {
+	this->shader = shader;
 	pose = glm::vec3(0);
 	position = glm::vec3(0);
 
@@ -33,11 +34,11 @@ Model::~Model() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Model::draw(const glm::mat4& viewProjMtx, uint shader) {
-	draw(localMat, viewProjMtx, shader);
+void Model::draw(const glm::mat4& viewProjMtx) {
+	draw(localMat, viewProjMtx);
 }
 
-void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx, uint shader) {
+void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx) {
 	// Set up shader
 	glUseProgram(shader);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelMtx"), 1, false, (float*)&modelMtx);
