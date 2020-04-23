@@ -41,25 +41,13 @@ public:
     AssimpModel(const string& path);
 
     void draw(uint shader);
-    void updateBoneTransform(float TimeInSeconds);
 
-private:
+protected:
     /* Animation Data */
     Assimp::Importer importer;
     const aiScene* m_aiScene;
     map<string, uint> boneMap; // maps a bone name to its index
     vector<Bone> bones;
-    chrono::system_clock::time_point startTime;
-
-    /* Animation related function */
-    void calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    void calcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    void calcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    const aiNodeAnim* findNodeAnim(const aiAnimation* pAnimation, const string NodeName);
-    void traverseNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
 
     void initFromScene(const aiScene* scene, const string& path);
 

@@ -14,11 +14,12 @@
 //TODO: to be removed
 
 #include "AssimpModel.h"
+#include "AnimatedAssimpModel.h"
 
 AssimpModel* ourModel;
 
 void loadAssimpModelTest() {
-	ourModel = new AssimpModel("model/rabbit_simple_animation.fbx");
+	ourModel = new AnimatedAssimpModel("model/rabbit_simple_animation.fbx");
 }
 
 void renderAssimpModelTest(Camera* cam, uint shader) {
@@ -282,7 +283,7 @@ void Client::setupAudio() {
 	//aEngine.LoadSound("weapon-collide.mp3", true);
 	//aEngine.LoadSound("scream.mp3", true);
 
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.2f));
+	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.02f));
 
 }
 

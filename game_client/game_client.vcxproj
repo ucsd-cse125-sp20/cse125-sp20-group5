@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AnimatedAssimpModel.h" />
     <ClInclude Include="AudioEngine.h" />
     <ClInclude Include="box.h" />
     <ClInclude Include="Camera.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="AssimpModel.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AnimatedAssimpModel.cpp" />
     <ClCompile Include="AssimpMesh.cpp" />
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="AudioEngine.cpp" />
@@ -192,6 +194,7 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AnimatedAssimpModel.glsl" />
     <None Include="AssimpModel.glsl" />
     <None Include="Model.glsl" />
   </ItemGroup>
