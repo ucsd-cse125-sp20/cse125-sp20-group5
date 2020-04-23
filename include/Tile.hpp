@@ -6,8 +6,8 @@
 
 class Tile {
 public:
-    Tile(Position* position, int tileType, bool tilled, Direction* direction)
-        : tileType(tileType), tilled(tilled) {
+    Tile(Position* position, int tileType, Direction* direction)
+        : tileType(tileType) {
 
         this->position = position;
         this->direction = direction;
@@ -18,7 +18,6 @@ public:
     {
         position->serialize(ar, version);
         ar & tileType;
-        ar & tilled;
         direction->serialize(ar, version);
     }
 
@@ -31,7 +30,7 @@ private:
     Position* position; // Tile's position
     int tileType; // D/f types (e.g. normal, occupied by zombie, etc)
 
-    bool tilled; // For normal tiles
+    // bool tilled; // For normal tiles
 
     Direction* direction; // For zombie tiles (e.g. which direction do they go)
 };
