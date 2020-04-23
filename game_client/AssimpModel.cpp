@@ -183,6 +183,7 @@ void AssimpModel::draw(uint shader)
 ////////////////////////////////////////////////////////////////////////
 
 /* Animation related functions */
+/* The interpolation assumes all starting and ending keyframes are at the edge of the timerange */
 
 void AssimpModel::updateBoneTransform(float TimeInSeconds)
 {
