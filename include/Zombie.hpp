@@ -27,7 +27,6 @@ public:
         delete animation;
     }
 
-private:
     Position* position; // Zombie's position
     Direction* direction; // Direction the zombie is facing
     Animation* animation; // type of animation for the zombie

@@ -11,9 +11,9 @@
 class AnimatedAssimpModel : public AssimpModel
 {
 public:
-    AnimatedAssimpModel(const string& path);
+    AnimatedAssimpModel(const string& path, uint shader);
 
-    void draw(uint shader) override;
+    void draw(const glm::mat4& model, const glm::mat4& viewProjMtx) override;
     void updateBoneTransform(float TimeInSeconds);
 
 private:

@@ -26,7 +26,7 @@ class AssimpModel
 {
 public:
     AssimpModel();
-    AssimpModel(const string& path);
+    AssimpModel(const string& path, uint shader);
 
     /*  Model Data */
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
@@ -41,7 +41,8 @@ public:
     unsigned int VAO;
     glm::mat4 transform;
 
-    virtual void draw(uint shader);
+
+    virtual void draw(const glm::mat4& model, const glm::mat4& viewProjMtx);
 
 protected:
     /* Animation Data */
@@ -50,7 +51,9 @@ protected:
     map<string, uint> boneMap; // maps a bone name to its index
     vector<Bone> bones;
 
-    void importScene(const string& path);
+    uint shader;
+
+    void importScene(const string& path, uint shader);
     void loadModelByNodeTraversal(aiNode* node, const glm::mat4& parentTransform);
 
     AssimpMesh loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform);

@@ -20,11 +20,11 @@ struct ModelVertex {
 
 class Model : public Drawable {
 public:
-	Model();
+	Model(uint shader);
 	~Model();
 
-	void draw(const glm::mat4& viewProjMtx, uint shader);
-	void draw(const glm::mat4 &modelMtx,const glm::mat4 &viewProjMtx,uint shader);
+	void draw(const glm::mat4& viewProjMtx);
+	void draw(const glm::mat4 &modelMtx,const glm::mat4 &viewProjMtx);
 	void update();
 
 	void makeBox(const glm::vec3 &boxMin,const glm::vec3 &boxMax);
@@ -46,6 +46,8 @@ private:
 	glm::mat4 localMat;
 
 	int Count;
+
+	uint shader;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

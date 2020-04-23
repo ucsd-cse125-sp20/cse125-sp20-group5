@@ -4,9 +4,9 @@
 
 #include "AnimatedAssimpModel.h"
 
-AnimatedAssimpModel::AnimatedAssimpModel(string const& path) : AssimpModel()
+AnimatedAssimpModel::AnimatedAssimpModel(string const& path, uint shader) : AssimpModel()
 {
-	importScene(path);
+	importScene(path, shader);
 
 	glm::mat4 globalInverseTransform = convertToGlmMat(m_aiScene->mRootNode->mTransformation.Inverse());
 	loadModelByNodeTraversal(m_aiScene->mRootNode, globalInverseTransform);
@@ -45,8 +45,10 @@ void AnimatedAssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceD
 }
 
 // draws the model, and thus all its meshes
-void AnimatedAssimpModel::draw(uint shader)
+void AnimatedAssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
+	glUseProgram(shader);
+
 	// calculate the animated transformation for this frame
 	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
 	float runningTime = elapsed_seconds.count();
@@ -60,7 +62,7 @@ void AnimatedAssimpModel::draw(uint shader)
 			(float*)&(bones[i].finalTransformation));
 	}
 
-	AssimpModel::draw(shader);
+	AssimpModel::draw(model, viewProjMtx);
 }
 
 

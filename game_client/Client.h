@@ -30,8 +30,6 @@ public:
 	void loop(); // Loop will be the idling function of glut
 	void update(); // recalcuate the matrices
 	void draw(); // renders everything
-	void sendEvents(); // send the events to the server
-	void recieveState(); // get the state form the server
 
 	void reset(); // reset scene ?
 	void quit(); // close window exit progmra ?
@@ -56,13 +54,9 @@ private:
 	// Keyboard sensers
 	const int keys[5] = {GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE};
 
-	std::unordered_map<int, bool> * keyPresses;
-	void setupKeyboardPresses();
-
 	GLFWwindow* windowHandle;
-	// Components
-	ShaderProgram *program;
-	ShaderProgram *assimpProgram;
+
+	// Components	
 	Scene * scene;
 	Camera * cam;
 	CAudioEngine aEngine;

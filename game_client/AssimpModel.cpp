@@ -9,9 +9,9 @@ AssimpModel::AssimpModel()
 	/* To be called by derived class in order to avoid calling overriden method through the base class constructor */
 }
 
-AssimpModel::AssimpModel(string const& path)
+AssimpModel::AssimpModel(string const& path, uint shader)
 {
-	importScene(path);
+	importScene(path, shader);
 
 	glm::mat4 globalInverseTransform = convertToGlmMat(m_aiScene->mRootNode->mTransformation.Inverse());
 	loadModelByNodeTraversal(m_aiScene->mRootNode, globalInverseTransform);
@@ -20,8 +20,10 @@ AssimpModel::AssimpModel(string const& path)
 
 // Because it is highly discouraged to call an overriden method in virtual, this method is created to avoid AnimatedAssimpModel 
 // calling the above constructor which would eventually all an overriden method, loadBoneData()
-void AssimpModel::importScene(const string& path)
+void AssimpModel::importScene(const string& path, uint shader)
 {
+	this->shader = shader;
+
 	m_aiScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 
 	if (!m_aiScene || m_aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_aiScene->mRootNode) // if is Not Zero
@@ -156,10 +158,19 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 }
 
 // draws the model, and thus all its meshes
-void AssimpModel::draw(uint shader)
+void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
+	glUseProgram(shader);
+	
+	// create a temp model mtx
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
+
 	for (unsigned int i = 0; i < meshes.size(); i++)
 		meshes[i].draw(shader);
+
+	glUseProgram(0);
+
 }
 
 ////////////////////////////////////////////////////////////////////////

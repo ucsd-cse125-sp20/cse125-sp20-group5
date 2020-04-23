@@ -33,7 +33,7 @@ uniform mat4 gBones[MAX_BONES];
 
 void main()
 {
-	mat4 boneTransform = gBones[BoneID[0]] * 1;
+	mat4 boneTransform = gBones[BoneID[0]] * Weight[0];
     boneTransform     += gBones[BoneID[1]] * Weight[1];
     boneTransform     += gBones[BoneID[2]] * Weight[2];
     boneTransform     += gBones[BoneID[3]] * Weight[3];

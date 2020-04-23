@@ -45,7 +45,7 @@ public:
                 Position* tilePosition = new Position(i, j, 0);
                 Direction* tileDirection = new Direction(0);
 
-                row.push_back(new Tile(tilePosition, 0, false, tileDirection));
+                row.push_back(new Tile(tilePosition, 0, tileDirection));
             }
             tiles.push_back(row);
         }
@@ -123,7 +123,6 @@ public:
         }
     }
 
-private:
     // We could use other data structures, for now use a list
 
     std::vector<Player*> players; // Up to 4 players?
