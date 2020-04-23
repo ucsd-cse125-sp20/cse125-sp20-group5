@@ -22,7 +22,7 @@ AssimpMesh::AssimpMesh(	vector<Vertex> vertices,
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(Vertex), &this->vertices[0], GL_STATIC_DRAW);
 
-	// set the vertex attribute pointers
+	/* Set the vertex attribute pointers */
 	// vertex positions
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
@@ -32,7 +32,6 @@ AssimpMesh::AssimpMesh(	vector<Vertex> vertices,
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-
 	// vertex reference to the bone data
 	//		bone ID
 	glEnableVertexAttribArray(3);
@@ -41,18 +40,17 @@ AssimpMesh::AssimpMesh(	vector<Vertex> vertices,
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)(offsetof(Vertex, BoneReference) + offsetof(BoneReferenceData, weights))); // 16 needs to be checked TODO
 
+	// Set indices
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 }
 
-// render the mesh
 void AssimpMesh::draw(uint shader)
 {
-	// reset textures and color
+	// reset textures
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glUniform3fv(glGetUniformLocation(shader, "color"), 1, &glm::vec3(0)[0]); //TODO: for color test
 
 	// bind appropriate textures
 	unsigned int diffuseNr = 1;
@@ -74,9 +72,7 @@ void AssimpMesh::draw(uint shader)
 		else if (name == "texture_height")
 			number = std::to_string(heightNr++); // transfer unsigned int to stream
 
-		// now set the sampler to the correct texture unit
 		glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
-		// and finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 
@@ -90,9 +86,8 @@ void AssimpMesh::draw(uint shader)
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
-	// reset textures and color
+	// reset textures (TODO: can be redundant)
 	glBindTexture(GL_TEXTURE_2D, 0);
-	glUniform3fv(glGetUniformLocation(shader, "color"), 1, &glm::vec3(0)[0]); //TODO: for color test
 
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);
@@ -107,9 +102,4 @@ void AssimpMesh::setupShadingAttributes(aiMaterial* material)
 	this->diffuse = glm::vec3(kd.r, kd.g, kd.b);
 	this->ambient = glm::vec3(ka.r, ka.g, ka.b);
 	this->specular = glm::vec3(ks.r, ks.g, ks.b);
-}
-
-void AssimpMesh::setupMesh()
-{
-
 }

@@ -39,15 +39,13 @@ void main()
     boneTransform     += gBones[BoneID[3]] * Weight[3];
 
     vec4 animatedPosition = boneTransform * vec4(Position, 1.0);
+	vec4 animatedNormal = boneTransform * vec4(Normal, 0.0);
 
-    //gl_Position = projectView * model * vec4(Position, 1.0);
 	gl_Position = projectView * model * animatedPosition;
-
-	//fragPosition = vec3(model * vec4(Position,1));
 	fragPosition = vec3(model* animatedPosition);
-	//fragNormal = mat3(transpose(inverse(model))) * Normal;
-	fragNormal = vec3(model * boneTransform * vec4(Normal, 0)); //TODO need to be check
+	fragNormal = vec3(model * animatedNormal);
 	fragTexture = Texture;
+
 
 	vec3 mypos = vec3(gl_Position) / gl_Position.w; // Dehomogenize current location 
     vec3 eyedir = normalize(eyepos - mypos);
@@ -77,7 +75,7 @@ uniform vec3 specularColor=vec3(0.0);
 
 uniform vec3 lightColor=vec3(1.0,1.0,1.0);
 
-out vec3 fraglColor;
+out vec3 fragColor;
 
 
 ////////////////////////////////////////

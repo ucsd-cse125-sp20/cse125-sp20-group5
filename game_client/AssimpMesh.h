@@ -78,10 +78,6 @@ public:
     glm::mat4 transform;
 
     /* Animation Related Data */
-    /*uint baseVertexIndex;
-    uint baseIndex;
-    uint numIndices;
-    uint materialIndex;*/
 
     /*  Functions  */
     AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
@@ -90,7 +86,6 @@ public:
 
 private:
     unsigned int VBO, EBO;
-    void setupMesh();
 
     /* Shading attributes */
     glm::vec3 ambient; // Ka in .mat file
