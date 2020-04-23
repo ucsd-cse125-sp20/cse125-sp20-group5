@@ -25,6 +25,9 @@ struct Bone
 class AssimpModel
 {
 public:
+    AssimpModel();
+    AssimpModel(const string& path);
+
     /*  Model Data */
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<AssimpMesh> meshes;
@@ -38,9 +41,7 @@ public:
     unsigned int VAO;
     glm::mat4 transform;
 
-    AssimpModel(const string& path);
-
-    void draw(uint shader);
+    virtual void draw(uint shader);
 
 protected:
     /* Animation Data */
@@ -49,10 +50,11 @@ protected:
     map<string, uint> boneMap; // maps a bone name to its index
     vector<Bone> bones;
 
-    void initFromScene(const aiScene* scene, const string& path);
+    void importScene(const string& path);
+    void loadModelByNodeTraversal(aiNode* node, const glm::mat4& parentTransform);
 
-    AssimpMesh loadMesh(aiMesh* mesh, const aiScene* scene);
-    void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences);
+    AssimpMesh loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform);
+    virtual void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences);
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName); 
     
     unsigned int textureFromFile(const char* path, const string& directory);

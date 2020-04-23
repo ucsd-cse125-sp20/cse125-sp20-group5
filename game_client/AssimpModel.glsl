@@ -22,16 +22,18 @@ uniform mat4 model;
 uniform mat4 projectView;
 uniform vec3 eyepos=vec3(0);
 
+uniform mat4 meshTransform;
+
 ////////////////////////////////////////
 // Vertex shader
 ////////////////////////////////////////
 
 void main()
 {
-	gl_Position = projectView * model * vec4(Position, 1.0);
+	gl_Position = projectView * model * meshTransform *vec4(Position, 1.0);
 
-	fragPosition=vec3(model * vec4(Position,1));
-	fragNormal = mat3(transpose(inverse(model))) * Normal;
+	fragPosition=vec3(model * meshTransform* vec4(Position,1));
+	fragNormal = mat3(transpose(inverse(model * meshTransform))) * Normal;
 	fragTexture = Texture;
 
 
@@ -56,6 +58,7 @@ in vec3 lightDirection;
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
+uniform sampler2D texture_ambient1;
 
 uniform vec3 diffuseColor=vec3(0.0);
 uniform vec3 ambientColor=vec3(0.0);
@@ -63,7 +66,9 @@ uniform vec3 specularColor=vec3(0.0);
 
 uniform vec3 lightColor=vec3(1.0,1.0,1.0);
 
-out vec3 fragColor;
+uniform int hasTexture;
+
+out vec4 fragColor;
 
 
 ////////////////////////////////////////
@@ -107,7 +112,10 @@ void main() {
 	vec3 lightColor = vec3(1.0);
 	vec3 color = diff * diffuseColor * lightColor; //only calculates diffuse
 
-	gl_FragColor = vec4(color + diffuseColor,1.0) + texture(texture_diffuse1, fragTexture); // used to be multiply
+	vec4 finalColor = vec4(color + diffuseColor,1.0); // diffuseColor is added as ambient
+	if (hasTexture == 1)
+		finalColor = finalColor * texture(texture_diffuse1, fragTexture);
+	gl_FragColor = finalColor;
 }
 
 #endif

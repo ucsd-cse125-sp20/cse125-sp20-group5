@@ -13,7 +13,7 @@ class AnimatedAssimpModel : public AssimpModel
 public:
     AnimatedAssimpModel(const string& path);
 
-    void draw(uint shader);
+    void draw(uint shader) override;
     void updateBoneTransform(float TimeInSeconds);
 
 private:
@@ -24,14 +24,12 @@ private:
     void calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
     void calcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
     void calcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    uint FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    const aiNodeAnim* findNodeAnim(const aiAnimation* pAnimation, const string NodeName);
-    void traverseNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
+    uint findAnimScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    uint findAnimRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    uint findAnimPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+    const aiNodeAnim* findAnimNode(const aiAnimation* pAnimation, const string NodeName);
+    void calcAnimByNodeTraversal(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
 
-    //void initFromScene(const aiScene* scene, const string& path);
-
-    //void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences);
+    void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences) override;
 };
 

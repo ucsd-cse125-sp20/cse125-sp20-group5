@@ -80,9 +80,9 @@ public:
     /* Animation Related Data */
 
     /*  Functions  */
-    AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
-    void draw(uint shader);
+    AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, glm::mat4 transform);
     void setupShadingAttributes(aiMaterial* material);
+    void draw(uint shader);
 
 private:
     unsigned int VBO, EBO;

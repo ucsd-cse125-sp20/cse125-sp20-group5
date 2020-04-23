@@ -68,6 +68,7 @@ in vec3 lightDirection;
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
 uniform sampler2D texture_normal1;
+uniform sampler2D texture_ambient1;
 
 uniform vec3 diffuseColor=vec3(0.0);
 uniform vec3 ambientColor=vec3(0.0);
@@ -75,7 +76,9 @@ uniform vec3 specularColor=vec3(0.0);
 
 uniform vec3 lightColor=vec3(1.0,1.0,1.0);
 
-out vec3 fragColor;
+uniform int hasTexture;
+
+out vec4 fragColor;
 
 
 ////////////////////////////////////////
@@ -119,7 +122,10 @@ void main() {
 	vec3 lightColor = vec3(1.0);
 	vec3 color = diff * diffuseColor * lightColor; //only calculates diffuse
 
-	gl_FragColor = vec4(color + diffuseColor,1.0) + texture(texture_diffuse1, fragTexture); // used to be multiply
+	vec4 finalColor = vec4(color + diffuseColor,1.0); // diffuseColor is added as ambient
+	if (hasTexture == 1)
+		finalColor = finalColor * texture(texture_diffuse1, fragTexture);
+	gl_FragColor = finalColor;
 }
 
 #endif

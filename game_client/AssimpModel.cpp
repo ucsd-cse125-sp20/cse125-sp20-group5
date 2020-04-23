@@ -4,37 +4,59 @@
 
 #include "AssimpModel.h"
 
+AssimpModel::AssimpModel()
+{
+	/* To be called by derived class in order to avoid calling overriden method through the base class constructor */
+}
+
 AssimpModel::AssimpModel(string const& path)
 {
-	// read file via ASSIMP
+	importScene(path);
+
+	glm::mat4 globalInverseTransform = convertToGlmMat(m_aiScene->mRootNode->mTransformation.Inverse());
+	loadModelByNodeTraversal(m_aiScene->mRootNode, globalInverseTransform);
+
+}
+
+// Because it is highly discouraged to call an overriden method in virtual, this method is created to avoid AnimatedAssimpModel 
+// calling the above constructor which would eventually all an overriden method, loadBoneData()
+void AssimpModel::importScene(const string& path)
+{
 	m_aiScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals | aiProcess_JoinIdenticalVertices);
 
-	// check for errors
 	if (!m_aiScene || m_aiScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_aiScene->mRootNode) // if is Not Zero
 	{
 		cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
 		return;
 	}
 	directory = path.substr(0, path.find_last_of('/'));
-
-	initFromScene(m_aiScene, path);
 }
 
-// loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-void AssimpModel::initFromScene(const aiScene* scene, const string& path)
+// processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
+void AssimpModel::loadModelByNodeTraversal(aiNode* node, const glm::mat4& parentTransform)
 {
-	// Initialize the meshes in the scene one by one
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-		aiMesh* mesh = scene->mMeshes[i];
-		meshes.push_back(loadMesh(mesh, scene));
+	// get node transformation
+	glm::mat4 curNodeTransformation = convertToGlmMat(node->mTransformation);
+	glm::mat4 globalTransformation = parentTransform * curNodeTransformation;
+
+	// process each mesh located at the current node
+	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	{
+		// the node object only contains indices to index the actual objects in the scene. 
+		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+		aiMesh* mesh = m_aiScene->mMeshes[node->mMeshes[i]];
+		AssimpMesh loadedMesh = loadMesh(mesh, m_aiScene, globalTransformation);
+		meshes.push_back(loadedMesh);
 	}
 
-	// Check if there's too many bones
-	assert(bones.size() <= 100); // which is the MAX_BONES, set in the vertex shader 
+	// recursive call on children
+	for (unsigned int i = 0; i < node->mNumChildren; i++) {
+		loadModelByNodeTraversal(node->mChildren[i], globalTransformation);
+	}
 }
 
 // create an AssimpMesh for each mesh
-AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene)
+AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform)
 {
 	// data to fill
 	vector<Vertex> vertices;
@@ -70,7 +92,6 @@ AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene)
 	// Walk through the mesh's faces (a mesh triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)	{
 		aiFace face = mesh->mFaces[i];
-
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
@@ -95,37 +116,14 @@ AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene)
 	textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	AssimpMesh resultMesh(vertices, indices, textures);
+	AssimpMesh resultMesh(vertices, indices, textures, meshTransform);
 	resultMesh.setupShadingAttributes(material);
 
 	return resultMesh;
 }
 
-// populates the bone vectors which stores the transformation data for each bone, and
-// populates the bone reference vectors for the mesh
 void AssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences) {
-	for (uint i = 0; i < mesh->mNumBones; i++) {
-		uint boneIndex = 0;
-		string boneName(mesh->mBones[i]->mName.data);
-
-		if (boneMap.find(boneName) == boneMap.end()) {
-			// Allocate an index for a new bone
-			boneIndex = bones.size();
-			Bone bone;
-			bones.push_back(bone);
-			bones[boneIndex].boneOffset = convertToGlmMat(mesh->mBones[i]->mOffsetMatrix);
-			boneMap[boneName] = boneIndex;
-		}
-		else {
-			boneIndex = boneMap[boneName];
-		}
-
-		for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
-			uint vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
-			float weight = mesh->mBones[i]->mWeights[j].mWeight;
-			boneReferences[vertexID].addData(boneIndex, weight);
-		}
-	}
+	/* to be overriden by AnimatedAssimpModel */
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.
@@ -160,16 +158,6 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 // draws the model, and thus all its meshes
 void AssimpModel::draw(uint shader)
 {
-	// feed in bone info (identity matrices if no animation)
-	for (uint i = 0; i < bones.size(); i++) {
-		// set the uniform
-		string str = "gBones[" + to_string(i) + "]";
-		const char* uniformName = &(str)[0];
-		glUniformMatrix4fv(glGetUniformLocation(shader, uniformName), 1, false,
-			(float*)&(bones[i].finalTransformation));
-	}
-
-	// Render
 	for (unsigned int i = 0; i < meshes.size(); i++)
 		meshes[i].draw(shader);
 }

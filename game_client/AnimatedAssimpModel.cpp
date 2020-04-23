@@ -4,9 +4,44 @@
 
 #include "AnimatedAssimpModel.h"
 
-AnimatedAssimpModel::AnimatedAssimpModel(string const& path) : AssimpModel(path)
+AnimatedAssimpModel::AnimatedAssimpModel(string const& path) : AssimpModel()
 {
+	importScene(path);
+
+	glm::mat4 globalInverseTransform = convertToGlmMat(m_aiScene->mRootNode->mTransformation.Inverse());
+	loadModelByNodeTraversal(m_aiScene->mRootNode, globalInverseTransform);
+
+	// Check if there's too many bones
+	assert(bones.size() <= 100); // which is the MAX_BONES, set in the vertex shader 
+
 	startTime = chrono::system_clock::now();
+}
+
+// populates the bone vectors which stores the transformation data for each bone, and
+// populates the bone reference vectors for the mesh
+void AnimatedAssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences) {
+	for (uint i = 0; i < mesh->mNumBones; i++) {
+		uint boneIndex = 0;
+		string boneName(mesh->mBones[i]->mName.data);
+
+		if (boneMap.find(boneName) == boneMap.end()) {
+			// Allocate an index for a new bone
+			boneIndex = bones.size();
+			Bone bone;
+			bones.push_back(bone);
+			bones[boneIndex].boneOffset = convertToGlmMat(mesh->mBones[i]->mOffsetMatrix);
+			boneMap[boneName] = boneIndex;
+		}
+		else {
+			boneIndex = boneMap[boneName];
+		}
+
+		for (uint j = 0; j < mesh->mBones[i]->mNumWeights; j++) {
+			uint vertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+			float weight = mesh->mBones[i]->mWeights[j].mWeight;
+			boneReferences[vertexID].addData(boneIndex, weight);
+		}
+	}
 }
 
 // draws the model, and thus all its meshes
@@ -17,8 +52,14 @@ void AnimatedAssimpModel::draw(uint shader)
 	float runningTime = elapsed_seconds.count();
 
 	updateBoneTransform(runningTime);
+	for (uint i = 0; i < bones.size(); i++) {
+		// set the uniform
+		string str = "gBones[" + to_string(i) + "]";
+		const char* uniformName = &(str)[0];
+		glUniformMatrix4fv(glGetUniformLocation(shader, uniformName), 1, false,
+			(float*)&(bones[i].finalTransformation));
+	}
 
-	// Render
 	AssimpModel::draw(shader);
 }
 
@@ -30,14 +71,14 @@ void AnimatedAssimpModel::updateBoneTransform(float TimeInSeconds)
 {
 	float TicksPerSecond = (float)(m_aiScene->mAnimations[0]->mTicksPerSecond != 0
 		? m_aiScene->mAnimations[0]->mTicksPerSecond
-		: 50.0f); // the last value is the default ticks/sec
+		: 25.0f); // the last value is the default ticks/sec
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
 	float AnimationTime = fmod(TimeInTicks, (float)m_aiScene->mAnimations[0]->mDuration);
 
-	traverseNodeHeirarchy(AnimationTime, m_aiScene->mRootNode, glm::mat4(1));
+	calcAnimByNodeTraversal(AnimationTime, m_aiScene->mRootNode, glm::mat4(1));
 }
 
-void AnimatedAssimpModel::traverseNodeHeirarchy(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)
+void AnimatedAssimpModel::calcAnimByNodeTraversal(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)
 {
 	string NodeName(pNode->mName.data);
 
@@ -45,7 +86,7 @@ void AnimatedAssimpModel::traverseNodeHeirarchy(float AnimationTime, const aiNod
 
 	glm::mat4 NodeTransformation = convertToGlmMat(pNode->mTransformation);
 
-	const aiNodeAnim* pNodeAnim = findNodeAnim(pAnimation, NodeName);
+	const aiNodeAnim* pNodeAnim = findAnimNode(pAnimation, NodeName);
 
 	if (pNodeAnim) {
 		// Interpolate transformations
@@ -74,11 +115,11 @@ void AnimatedAssimpModel::traverseNodeHeirarchy(float AnimationTime, const aiNod
 	}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++) {
-		traverseNodeHeirarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
+		calcAnimByNodeTraversal(AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
 }
 
-const aiNodeAnim* AnimatedAssimpModel::findNodeAnim(const aiAnimation* pAnimation, const string NodeName)
+const aiNodeAnim* AnimatedAssimpModel::findAnimNode(const aiAnimation* pAnimation, const string NodeName)
 {
 	for (uint i = 0; i < pAnimation->mNumChannels; i++) {
 		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
@@ -97,7 +138,7 @@ void AnimatedAssimpModel::calcInterpolatedPosition(aiVector3D& Out, float Animat
 		return;
 	}
 
-	uint PositionIndex = FindPosition(AnimationTime, pNodeAnim);
+	uint PositionIndex = findAnimPosition(AnimationTime, pNodeAnim);
 	uint NextPositionIndex = (PositionIndex + 1);
 	assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
 	float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
@@ -119,7 +160,7 @@ void AnimatedAssimpModel::calcInterpolatedRotation(aiQuaternion& Out, float Anim
 		return;
 	}
 
-	uint RotationIndex = FindRotation(AnimationTime, pNodeAnim);
+	uint RotationIndex = findAnimRotation(AnimationTime, pNodeAnim);
 	uint NextRotationIndex = (RotationIndex + 1);
 	assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
 	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
@@ -140,7 +181,7 @@ void AnimatedAssimpModel::calcInterpolatedScaling(aiVector3D& Out, float Animati
 		return;
 	}
 
-	uint ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
+	uint ScalingIndex = findAnimScaling(AnimationTime, pNodeAnim);
 	uint NextScalingIndex = (ScalingIndex + 1);
 	assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
 	float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
@@ -153,7 +194,7 @@ void AnimatedAssimpModel::calcInterpolatedScaling(aiVector3D& Out, float Animati
 	Out = Start + Factor * Delta;
 }
 
-uint AnimatedAssimpModel::FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim)
+uint AnimatedAssimpModel::findAnimPosition(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
 	for (uint i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime)
@@ -165,7 +206,7 @@ uint AnimatedAssimpModel::FindPosition(float AnimationTime, const aiNodeAnim* pN
 }
 
 
-uint AnimatedAssimpModel::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
+uint AnimatedAssimpModel::findAnimRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
 	assert(pNodeAnim->mNumRotationKeys > 0);
 
@@ -179,7 +220,7 @@ uint AnimatedAssimpModel::FindRotation(float AnimationTime, const aiNodeAnim* pN
 }
 
 
-uint AnimatedAssimpModel::FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim)
+uint AnimatedAssimpModel::findAnimScaling(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
 	assert(pNodeAnim->mNumScalingKeys > 0);
 

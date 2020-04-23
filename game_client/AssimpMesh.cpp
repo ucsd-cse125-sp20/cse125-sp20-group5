@@ -6,11 +6,13 @@
 
 AssimpMesh::AssimpMesh(	vector<Vertex> vertices, 
 											vector<unsigned int> indices, 
-											vector<Texture> textures)
+											vector<Texture> textures,
+											glm::mat4 transform=glm::mat4(1.0f))
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
+	this->transform = transform;
 
 	// create buffers/arrays
 	glGenVertexArrays(1, &VAO);
@@ -49,31 +51,44 @@ AssimpMesh::AssimpMesh(	vector<Vertex> vertices,
 
 void AssimpMesh::draw(uint shader)
 {
-	// reset textures
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	// bind appropriate textures
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
 	unsigned int normalNr = 1;
 	unsigned int heightNr = 1;
-	for (unsigned int i = 0; i < textures.size(); i++)
-	{
-		glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-		// retrieve texture number (the N in diffuse_textureN)
-		string number;
-		string name = textures[i].type;
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++); // transfer unsigned int to stream
-		else if (name == "texture_normal")
-			number = std::to_string(normalNr++); // transfer unsigned int to stream
-		else if (name == "texture_height")
-			number = std::to_string(heightNr++); // transfer unsigned int to stream
+	unsigned int ambientNr = 1;
 
-		glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
+	GLint uniformHasTexture = glGetUniformLocation(shader, "hasTexture");
+	if (textures.empty()) {
+		// reset textures
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glUniform1i(uniformHasTexture, 0);
+	}
+	else {
+		glUniform1i(uniformHasTexture, 1);
+
+		for (unsigned int i = 0; i < textures.size(); i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+			// retrieve texture number (the N in diffuse_textureN)
+			string number;
+			string name = textures[i].type;
+			if (name == "texture_diffuse")
+				number = std::to_string(diffuseNr++); // transfer unsigned int to stream
+			else if (name == "texture_specular")
+				number = std::to_string(specularNr++);
+			else if (name == "texture_normal")
+				number = std::to_string(normalNr++);
+			else if (name == "texture_height")
+				number = std::to_string(heightNr++);
+			else if (name == "texture_ambient")
+				number = std::to_string(ambientNr++);
+
+			glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}
 	}
 
 	// set shading attributes
@@ -81,16 +96,16 @@ void AssimpMesh::draw(uint shader)
 	glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, &ambient[0]);
 	glUniform3fv(glGetUniformLocation(shader, "specularColor"), 1, &specular[0]);
 
+	glUniformMatrix4fv(glGetUniformLocation(shader, "meshTransform"), 1, false, (float*)&transform);
+
 	// draw mesh
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
-	// reset textures (TODO: can be redundant)
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	// always good practice to set everything back to defaults once configured.
 	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0); //(TODO: can be redundant)
 }
 
 void AssimpMesh::setupShadingAttributes(aiMaterial* material) 

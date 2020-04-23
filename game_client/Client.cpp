@@ -19,7 +19,7 @@
 AssimpModel* ourModel;
 
 void loadAssimpModelTest() {
-	ourModel = new AssimpModel("model/corn.fbx");
+	ourModel = new AnimatedAssimpModel("model/rabbit_simple_animation.fbx");
 }
 
 void renderAssimpModelTest(Camera* cam, uint shader) {
@@ -66,7 +66,7 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	setupAudio();
 
 	//TODO: remove the test for assimp
-	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
+	assimpProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
 	loadAssimpModelTest();
 
 	// Load network class
