@@ -28,6 +28,12 @@ static void sresize(GLFWwindow* window, int width, int height) {
 	}
 }
 
+static void sscroll(GLFWwindow* window, double xoffset, double yoffset) {
+	if (Client::CLIENT) {
+		Client::CLIENT->zoomScreen(window, xoffset, yoffset);
+	}
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,6 +81,7 @@ int main(int argc, char** argv) {
 	glfwSetMouseButtonCallback(windowHandle, smouseButton);
 	glfwSetCursorPosCallback(windowHandle, smouseMotion);
 	glfwSetWindowSizeCallback(windowHandle, sresize);
+	glfwSetScrollCallback(windowHandle, sscroll);
 
 
 	// Initialize GLEW

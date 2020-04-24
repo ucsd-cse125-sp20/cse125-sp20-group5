@@ -20,14 +20,16 @@ public:
 	void Reset();
 
 	// Access functions
-	void SetAspect(float a)					{Aspect=a;}
-	void SetDistance(float d)				{Distance=d;}
-	void SetAzimuth(float a)				{Azimuth=a;}
-	void SetIncline(float i)				{Incline=i;}
+	void SetFOV(float f) { FOV = f; }
+	void SetAspect(float a) { Aspect = a; }
+	void SetDistance(float d) { Distance = d; }
+	void SetAzimuth(float a) { Azimuth = a; }
+	void SetIncline(float i) { Incline = i; }
 
-	float GetDistance()						{return Distance;}
-	float GetAzimuth()						{return Azimuth;}
-	float GetIncline()						{return Incline;}
+	float GetFOV() { return FOV; }
+	float GetDistance() { return Distance; }
+	float GetAzimuth() { return Azimuth; }
+	float GetIncline() { return Incline; }
 
 	const glm::mat4 &GetViewProjectMtx()	{return ViewProjectMtx;}
 

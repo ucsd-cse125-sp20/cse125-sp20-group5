@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="box.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,32 +45,26 @@
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SpinningCube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AudioEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TestMesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TestModel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TestShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="NetworkClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AssimpModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatedAssimpModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="box.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -104,15 +95,24 @@
     <ClCompile Include="NetworkClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AssimpMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssimpModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatedAssimpModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Model.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="test.fs">
+    <None Include="AssimpModel.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="test.vs">
+    <None Include="AnimatedAssimpModel.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -120,10 +120,10 @@
     <Image Include="default_texture.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="grass1tile.png">
+    <Image Include="grass_texture.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="water1tile.png">
+    <Image Include="water_texture.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

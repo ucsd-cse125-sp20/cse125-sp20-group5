@@ -45,18 +45,19 @@ public:
                 Position* tilePosition = new Position(i, j, 0);
                 Direction* tileDirection = new Direction(0);
 
-                row.push_back(new Tile(tilePosition, 0, false, tileDirection));
+                row.push_back(new Tile(tilePosition, 0, tileDirection));
             }
             tiles.push_back(row);
         }
 
 
         // Init seed shack and water tap
-        Position* seedShackPosition = new Position(3, 3, 0);
+        Position* seedShackPosition = new Position(3, 0, 3);
         seedShack = new SeedShack(seedShackPosition);
 
-        Position* waterTapPosition = new Position(2, 2, 0);
-        waterTap = new WaterTap(waterTapPosition);
+        Position* waterTapPosition = new Position(2, 0, 2);
+        Direction* waterTapDirection = new Direction(0);
+        waterTap = new WaterTap(waterTapPosition, waterTapDirection);
     }
 
     template<class Archive>
@@ -123,7 +124,6 @@ public:
         }
     }
 
-private:
     // We could use other data structures, for now use a list
 
     std::vector<Player*> players; // Up to 4 players?

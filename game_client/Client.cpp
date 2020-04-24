@@ -5,41 +5,6 @@
 #include "Client.h"
 #include "NetworkClient.h"
 
-////////////////////////////////////////////////////////////////////////////////
-
-#define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"
-
-////////////////////////////////////////////////////////////////////////////////
-//Assimp Test
-//TODO: to be removed
-
-#include "TestShader.h"
-#include "TestModel.h"
-
-TestModel* ourModel;
-TestShader* ourShader;
-
-void loadAssimpModelTest() {
-	ourShader = new TestShader("test.vs", "test.fs");
-	ourModel = new TestModel("model/rabbit_simple_animation.fbx");
-}
-
-void renderAssimpModelTest(Camera* cam) {
-	ourShader->use();
-
-	// view/projection transformations
-	ourShader->setMat4("projectView", cam->GetViewProjectMtx());
-
-	// render the loaded model
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-	ourShader->setMat4("model", model);
-	ourModel->Draw(*ourShader);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Client * Client::CLIENT;
 
 Client::Client(GLFWwindow * window, int argc, char **argv) {
@@ -49,25 +14,14 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	leftDown=middleDown=rightDown=false;
 	mouseX=mouseY=0;
 
-	//set up keyboard tracker
-	std::unordered_map<int, bool>* hi;
-	hi = new std::unordered_map<int, bool>;
-	keyPresses = hi;
-	setupKeyboardPresses();
-
 	// Initialize components
-	program=new ShaderProgram("Model.glsl",ShaderProgram::eRender);
-
 	glfwGetWindowSize(windowHandle, &winX, &winY);
 	cam=new Camera;
 	cam->SetAspect(float(winX)/float(winY));
 
-	scene = Scene::scene0();
+	scene = new Scene();
 
 	setupAudio();
-
-	//TODO: remove the test for assimp
-	loadAssimpModelTest();
 
 	// Load network class
 	setupNetwork();
@@ -76,7 +30,6 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 ////////////////////////////////////////////////////////////////////////////////
 
 Client::~Client() {
-	delete program;
 	delete cam;
 	delete scene;
 	delete netClient;
@@ -93,10 +46,10 @@ void Client::loop() {
 	while (!glfwWindowShouldClose(windowHandle)) {
 		//std::cout << "main looop" << std::endl;
 
-		recieveState();
-
 		// recieve the state from the server
 		currentGameState = netClient->getCurrentState();
+
+		scene->setState(currentGameState);
 
 		// Update the components in the world
 		// calculate matrices for rendering
@@ -128,29 +81,14 @@ void Client::draw() {
 	glViewport(0, 0, winX, winY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	scene->draw(cam->GetViewProjectMtx(), program->GetProgramID());
-
-	//TODO: remove the Assimp test
-	renderAssimpModelTest(cam);
+	scene->draw(cam->GetViewProjectMtx());
+	// scene->draw(cam->GetViewProjectMtx(), program->GetProgramID());
 	
 	// Finish drawing scene
 	glFinish();
 	glfwSwapBuffers(windowHandle);
 }
 
-/* Ideally there would be a single networking object that we would pass our 
- events to and have it serializae and send them
- */
-void Client::sendEvents()
-{
-}
-
-/*Here we would poll the networking object and it would give us desearlized data in some format
-*/
-void Client::recieveState()
-{
-	scene->getState(keyPresses);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -201,15 +139,6 @@ void Client::keyboard(GLFWwindow* window, int key, int scancode, int action, int
 		}
 		default:
 			break;
-	}
-
-
-	if (action == GLFW_PRESS && keyPresses->count((char)key) > 0) {
-		(*keyPresses)[key] = true;
-	}
-
-	if (action == GLFW_RELEASE && keyPresses->count((char)key) > 0) {
-		(*keyPresses)[key] = false;
 	}
 }
 
@@ -266,11 +195,15 @@ void Client::mouseMotion(GLFWwindow* window, double nx, double ny) {
 	}
 }
 
-void Client::setupKeyboardPresses()
-{
-	for (int c : keys) {
-		(*keyPresses)[c] = false;
-	}
+////////////////////////////////////////////////////////////////////////////////
+
+void Client::zoomScreen(GLFWwindow* window, double xoffset, double yoffset) {
+	if (cam->GetFOV() >= 1.0f && cam->GetFOV() <= 45.0f)
+		cam->SetFOV(cam->GetFOV() - yoffset);
+	if (cam->GetFOV() <= 1.0f)
+		cam->SetFOV(1.0f);
+	if (cam->GetFOV() >= 45.0f)
+		cam->SetFOV(45.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +216,7 @@ void Client::setupAudio() {
 	//aEngine.LoadSound("weapon-collide.mp3", true);
 	//aEngine.LoadSound("scream.mp3", true);
 
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.2f));
+	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.02f));
 
 }
 
