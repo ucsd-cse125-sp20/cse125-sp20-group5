@@ -5,6 +5,8 @@
 
 class SeedShack {
 public:
+    SeedShack() : position(nullptr) {}
+
     SeedShack(Position* position) {
       this->position = position;
     }
@@ -12,7 +14,7 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
+        ar & position;
     }
 
     ~SeedShack() {

@@ -8,6 +8,8 @@
 
 class Plant {
 public:
+    Plant() : position(nullptr), direction(nullptr), animation(nullptr), range(nullptr) {}
+
     Plant(Position* position, Direction* direction,
           Animation* animation, TowerRange* range) {
         this->position = position;
@@ -19,10 +21,10 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
-        direction->serialize(ar, version);
-        animation->serialize(ar, version);
-        range->serialize(ar, version);
+        ar & position;
+        ar & direction;
+        ar & animation;
+        ar & range;
     }
 
     ~Plant() {

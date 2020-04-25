@@ -6,6 +6,8 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include "GameState.hpp"
+#include "Message.hpp"
+
 
 PtrClientConnection ClientConnection::create(boost::asio::io_context& io_context, IGameServer* ptrServer) {
     return PtrClientConnection(new ClientConnection(io_context, ptrServer));
@@ -34,10 +36,19 @@ void ClientConnection::deliver(const std::string& msg) {
 }
 
 void ClientConnection::deliverSerialization(char* buf) {
-    boost::asio::async_write(socket_, boost::asio::buffer(buf, 4096),
+    size_t send_size = std::strlen(buf);
+    //std::cout << buf << std::endl;
+    socket_.async_write_some(
+        boost::asio::buffer(buf, send_size),
         boost::bind(&ClientConnection::handleWrite, shared_from_this(),
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
+    
+/*boost::asio::async_write_some(socket_, boost::asio::buffer(buf, send_size),
+        boost::bind(&ClientConnection::handleWrite, shared_from_this(),
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+*/
 }
 
 void ClientConnection::stop(const boost::system::error_code& error) {
@@ -47,10 +58,14 @@ void ClientConnection::stop(const boost::system::error_code& error) {
 }
 
 void ClientConnection::doRead() {
-    socket_.async_read_some(boost::asio::buffer(readBuf),
+    boost::asio::async_read_until(socket_, readStreamBuf, CRLF,
         boost::bind(&ClientConnection::handleRead, shared_from_this(),
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
+    /*socket_.async_read_some(boost::asio::buffer(readBuf),
+        boost::bind(&ClientConnection::handleRead, shared_from_this(),
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));*/
     /*boost::asio::async_read(socket_, boost::asio::buffer(read_buf_, 1),
         boost::bind(&tcp_connection::handle_read, shared_from_this(),
             boost::asio::placeholders::error,
@@ -63,14 +78,24 @@ void ClientConnection::handleRead(const boost::system::error_code& error, size_t
         stop(error);
         return;
     }
-    server->onDataRead(shared_from_this(), readBuf, bytes_transferred);
+
+    std::ostringstream ss;
+    ss << &readStreamBuf;
+    std::string s = ss.str();
+
+    //std::cout << s << std::endl;
+    //std::cout << bytes_transferred << std::endl;
+
+    server->onDataRead(shared_from_this(), s.data(), bytes_transferred);
     doRead();
 }
 
 void ClientConnection::handleWrite(const boost::system::error_code& error, size_t bytes_transferred) {
     if (error) {
+        std::cout << "Serialization Sent Error" << std::endl;
         return;
     }
+    //std::cout << "Serialization Sent bytes_transferred = " << bytes_transferred << std::endl;
 }
 
 GameServer::GameServer(
@@ -80,7 +105,8 @@ GameServer::GameServer(
   : ioContext(io_context),
     tcpAcceptor(io_context, tcp::endpoint(tcp::v4(), port_num)),
     tickTimer(boost::asio::steady_timer(io_context)),
-    deltaTimeMicrosec(1000000 / tick_rate){
+    deltaTimeMicrosec(1000000 / tick_rate) {
+    gameState.init();
     startAccept();
     sendToAll();
 }
@@ -104,21 +130,21 @@ void GameServer::handleAccept(PtrClientConnection newConnection, const boost::sy
 
 void GameServer::sendToAll() {
     if (!clients.empty()) {
-        char buffer[4096];
-        gameState.updatePlayerPosition();
+        char buffer[maxMsg];
 
-        boost::iostreams::basic_array_sink<char> sr(buffer, 4096);
+        boost::iostreams::basic_array_sink<char> sr(buffer, maxMsg);
         boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
 
         boost::archive::text_oarchive oa(source);
 
         oa << gameState;
+        source << CRLF;
+        source << '\0';
+
 
         for (PtrClientConnection conn : clients) {
             conn->deliverSerialization(buffer);
-            //conn->deliver(message);
         }
-        std::cout << "Serialization Sent: " << make_daytime_string();
     }
 
     tickTimer.expires_from_now(boost::asio::chrono::microseconds(deltaTimeMicrosec));
@@ -127,7 +153,20 @@ void GameServer::sendToAll() {
 
 void GameServer::onClientConnected(PtrClientConnection pConn) {
     std::cout << "Client connected!" << std::endl;
+    Player* newPlayer = new Player(new Position(0,0,0),
+        new Direction(0),
+        new Animation(0, 0),
+        new Color(0, 0, 0), 1);
+
+    pConn2Player.insert(std::make_pair(pConn, newPlayer));
     clients.push_back(pConn);
+
+    // TODO: Update GameState (add player)
+    // Need to synchronize?
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+        gameState.addPlayer(newPlayer);
+    }
 }
 
 void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::system::error_code& error) {
@@ -135,16 +174,44 @@ void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::sy
         std::cerr << error.message() << std::endl;
     }
     std::cout << "Client disconnect." << std::endl;
-    auto it = std::find(clients.begin(), clients.end(), pConn);
-    if (it != clients.end()) {
-        clients.erase(it);
+
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+
+        auto it = std::find(clients.begin(), clients.end(), pConn);
+        if (it != clients.end()) {
+            clients.erase(it);
+        }
+
+        Player* toDel = pConn2Player[pConn];
+        pConn2Player.erase(pConn);
+        gameState.removePlayer(toDel);
     }
+
+    // TODO: Update GameState (delete player)
 }
 
-void GameServer::onDataRead(PtrClientConnection pConn, char* pData, size_t bytes_transferred) {
-    pData[bytes_transferred] = '\0';
-    std::cout << "Message received: " << pData << std::endl;
-    std::string msg(pData);
+void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t bytes_transferred) {
+    //pData[bytes_transferred] = '\0';
+    //std::cout << "Message received: " << pData << std::endl;
+    //std::string msg(pData);
+
+    boost::iostreams::stream<boost::iostreams::array_source> is(pData, maxMsg);
+    boost::archive::text_iarchive ia(is);
+
+    Message msg;
+    ia >> msg; 
+
+    // Do something with the message (update game state)
+    std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
+    
+    Player* player = pConn2Player[pConn];
+    // critical section here
+    // TODO: Update gameState
+    {
+        boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+        gameState.update(msg.getOpCode(), player);
+    }
 }
 
 int main(int argc, char* argv[]) {

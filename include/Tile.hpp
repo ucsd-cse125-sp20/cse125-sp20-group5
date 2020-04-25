@@ -6,9 +6,10 @@
 
 class Tile {
 public:
+    Tile() : position(nullptr), direction(nullptr) {}
+
     Tile(Position* position, int tileType, Direction* direction)
         : tileType(tileType) {
-
         this->tileType = tileType;
         this->position = position;
         this->direction = direction;
@@ -17,9 +18,9 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
+        ar & position;
         ar & tileType;
-        direction->serialize(ar, version);
+        ar & direction;
     }
 
     ~Tile() {

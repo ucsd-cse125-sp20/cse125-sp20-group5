@@ -8,6 +8,8 @@
 
 class Player {
 public:
+    Player() : position(nullptr), direction(nullptr), animation(nullptr), color(nullptr) {}
+
     Player(Position* position, Direction* direction,
            Animation* animation, Color* color, int playerId)
             : playerId(playerId) {
@@ -21,10 +23,10 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
-        direction->serialize(ar, version);
-        animation->serialize(ar, version);
-        color->serialize(ar, version);
+        ar & position;
+        ar & direction;
+        ar & animation;
+        ar & color;
         ar & playerId;
     }
 
@@ -33,13 +35,6 @@ public:
         delete direction;
         delete animation;
         delete color;
-    }
-
-    void updatePosition() {
-        position->update(
-            position->getX() + 1,
-            position->getY() + 1,
-            position->getZ() + 1);
     }
 
     Position* position; // Player position

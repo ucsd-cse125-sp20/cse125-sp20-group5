@@ -3,6 +3,7 @@
 
 class Animation {
 public:
+    Animation() : animationType(0), animationFrame(0) {}
     Animation(int animationType, int animationFrame)
         : animationType(animationType),
           animationFrame(animationFrame) {}

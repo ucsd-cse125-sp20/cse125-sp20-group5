@@ -5,6 +5,8 @@
 
 class Tool {
 public:
+    Tool() : position(nullptr) {}
+
     Tool(Position* position, int toolType, int heldBy)
         : toolType(toolType), heldBy(heldBy) {
 
@@ -14,7 +16,7 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
+        ar & position;
         ar & toolType;
         ar & heldBy;
     }
@@ -23,7 +25,6 @@ public:
         delete position;
     }
 
-private:
     Position* position; // Tool position
     int toolType; // e.g. watering can, hoe, etc
     int heldBy; // Either held by players 1 - 4 or not held (0)

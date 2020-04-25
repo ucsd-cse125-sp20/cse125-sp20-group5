@@ -5,6 +5,8 @@
 
 class WaterTap {
 public:
+    WaterTap() : position(nullptr), direction(nullptr) {}
+    
     WaterTap(Position* position, Direction* direction) {
         this->position = position;
         this->direction = direction;
@@ -13,8 +15,8 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
-        direction->serialize(ar, version);
+        ar & position;
+        ar & direction;
     }
 
     ~WaterTap() {

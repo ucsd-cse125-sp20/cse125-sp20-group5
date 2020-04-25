@@ -7,6 +7,8 @@
 
 class Zombie {
 public:
+    Zombie() : position(nullptr), direction(nullptr), animation(nullptr) {}
+
     Zombie(Position* position, Direction* direction, Animation* animation) {
         this->position = position;
         this->direction = direction;
@@ -16,9 +18,9 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
-        direction->serialize(ar, version);
-        animation->serialize(ar, version);
+        ar & position;
+        ar & direction;
+        ar & animation;
     }
 
     ~Zombie() {

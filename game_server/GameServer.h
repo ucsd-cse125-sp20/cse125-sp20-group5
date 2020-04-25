@@ -4,6 +4,8 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/thread.hpp>
 #include "GameState.hpp"
 
 using boost::asio::ip::tcp;
@@ -19,7 +21,7 @@ class ClientConnection;
 typedef boost::shared_ptr<ClientConnection> PtrClientConnection;
 
 struct IGameServer {
-    virtual void onDataRead(PtrClientConnection pConn, char *pData, size_t bytes_transferred) = 0;
+    virtual void onDataRead(PtrClientConnection pConn, const char *pData, size_t bytes_transferred) = 0;
     virtual void onClientConnected(PtrClientConnection pConn) = 0;
     virtual void onClientDisconnected(PtrClientConnection pConn, const boost::system::error_code& error) = 0;
 };
@@ -46,6 +48,7 @@ private:
     IGameServer* server;
     enum { maxMsg = 4096};
     char readBuf[maxMsg];
+    boost::asio::streambuf readStreamBuf;
     char writeBuf[maxMsg];
 };
 
@@ -62,14 +65,19 @@ private:
 
     void onClientConnected(PtrClientConnection pConn);
     void onClientDisconnected(PtrClientConnection pConn, const boost::system::error_code& error);
-    void onDataRead(PtrClientConnection pConn, char* pData, size_t bytes_transferred);
+    void onDataRead(PtrClientConnection pConn, const char* pData, size_t bytes_transferred);
 
     boost::asio::io_context& ioContext;
     tcp::acceptor tcpAcceptor;
+
     std::vector<PtrClientConnection> clients;
+    boost::unordered::unordered_map<PtrClientConnection, Player*> pConn2Player;
+
     boost::asio::steady_timer tickTimer;
     int deltaTimeMicrosec;
     std::vector<std::string> messages;
     GameState gameState;
+    boost::recursive_mutex m_guard;
+    enum { maxMsg = 4096 };
 };
 #endif

@@ -57,9 +57,9 @@ void Scene::update()
 		glm::mat4 mat4Transform(1.0f);
 
 		// Move
-		mat4Transform[3][0] = position->getX();
-		mat4Transform[3][1] = position->getY();
-		mat4Transform[3][2] = position->getZ();
+		mat4Transform[3][0] = position->x;
+		mat4Transform[3][1] = position->y;
+		mat4Transform[3][2] = position->z;
 		// Rotate
 		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * RABBIT_SCALER;
 
@@ -73,9 +73,9 @@ void Scene::update()
 		glm::mat4 mat4Transform(1.0f);
 
 		// Move
-		mat4Transform[3][0] = position->getX();
-		mat4Transform[3][1] = position->getY();
-		mat4Transform[3][2] = position->getZ();
+		mat4Transform[3][0] = position->x;
+		mat4Transform[3][1] = position->y;
+		mat4Transform[3][2] = position->z;
 		
 		// Rotate
 		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * PLAYER_SCALER;
@@ -84,9 +84,9 @@ void Scene::update()
 	}
 
 	tapTransform = glm::mat4(1.0);
-	tapTransform[3][0] = state->waterTap->position->getX();
-	tapTransform[3][1] = state->waterTap->position->getY();
-	tapTransform[3][2] = state->waterTap->position->getZ();
+	tapTransform[3][0] = state->waterTap->position->x;
+	tapTransform[3][1] = state->waterTap->position->y;
+	tapTransform[3][2] = state->waterTap->position->z;
 
 	tapTransform = tapTransform * getPoseFromDirection(state->waterTap->direction->angle) * WATER_TAP_SCALER;
 
