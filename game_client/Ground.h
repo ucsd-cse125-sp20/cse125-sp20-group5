@@ -29,8 +29,8 @@ public:
 	~Ground();
 	TILE_TYPE getLoc(int x, int y);
 	void setLoc(int x, int y, TILE_TYPE type);
-	void update();
-	void draw(const glm::mat4& viewProjMtx);
+	void update(SceneNode * node) override;
+	void draw(const glm::mat4& model, const glm::mat4& viewProjMtx) override;
 
 	void setPadding(TILE_TYPE type);
 

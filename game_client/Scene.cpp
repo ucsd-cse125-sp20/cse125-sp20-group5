@@ -48,7 +48,7 @@ void Scene::update()
 		}
 	}
 
-	ground->update();
+	ground->update(NULL);
 
 	for (Zombie* zombie : state->zombies) {
 		Position* position = zombie->position;
@@ -91,13 +91,13 @@ void Scene::update()
 	tapTransform = tapTransform * getPoseFromDirection(state->waterTap->direction->angle) * WATER_TAP_SCALER;
 
 	for (Model* model : models) {
-		model->update();
+		model->update(NULL);
 	}
 }
 
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
-	ground->draw(veiwProjMat);
+	ground->draw(glm::mat4(1.0), veiwProjMat);
 
 	for (glm::mat4 transform : zombieTransfroms) {
 		// Add transform to assimp models

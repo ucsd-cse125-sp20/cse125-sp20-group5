@@ -1,15 +1,31 @@
 #pragma once
-#include "Drawable.h"
+//#include "Drawable.h"
 #include "core.h"
+#include <unordered_map>
+
+class Drawable;
+
 class SceneNode
 {
 private:
-	Drawable* obj;
+
+	/*not sure baout this*/
+	uint objectId;
+	uint modelId;
+
+	Drawable * obj;
 	SceneNode* parent;
-	std::vector<SceneNode*> childern;
+	std::string name;
+
+	glm::mat4 transform;
+
+	// maybe jsut a vector
+	uint childNum;
+	uint childCount;
+	std::unordered_map<uint, SceneNode*> childern;
 
 public:
-	SceneNode(Drawable * myO);
+	SceneNode(Drawable * myO, std::string name, uint objectId);
 
 	// this kills your children to remove yourself if you want your children
 	~SceneNode();
@@ -17,7 +33,10 @@ public:
 	// this take you out of the graph completely set your kids to your parent porbably not used
 	void removeSelf();
 
-	// this makes more sense just becuase adding a child effects nothing else adding a parent is harder
+	// straight forward;
 	void setParent(SceneNode * newParent);
+
+
+	void addChild(SceneNode* newChild);
 };
 

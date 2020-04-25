@@ -9,6 +9,7 @@
 #include "Core.h"
 #include "stb_image.h"
 #include "AssimpMesh.h"
+#include "Drawable.h"
 
 struct Bone
 {
@@ -22,7 +23,7 @@ struct Bone
     }
 };
 
-class AssimpModel
+class AssimpModel : public Drawable
 {
 public:
     AssimpModel();
@@ -35,7 +36,8 @@ public:
     string directory;
     bool gammaCorrection;
 
-    virtual void draw(const glm::mat4& model, const glm::mat4& viewProjMtx);
+    virtual void draw(const glm::mat4& model, const glm::mat4& viewProjMtx) override;
+    virtual void update(SceneNode * node) override;
 
 protected:
     /* Animation Data */

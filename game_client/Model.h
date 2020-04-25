@@ -6,6 +6,7 @@
 
 #include "Core.h"
 #include "Drawable.h"
+#include "SceneNode.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +26,7 @@ public:
 
 	void draw(const glm::mat4& viewProjMtx);
 	void draw(const glm::mat4 &modelMtx,const glm::mat4 &viewProjMtx);
-	void update();
+	void update(SceneNode * node);
 
 	void makeBox(const glm::vec3 &boxMin,const glm::vec3 &boxMax);
 	void makeTile(const glm::vec3& tileMin, const glm::vec3& tileMax, const glm::vec3& color, const char* texturefile);

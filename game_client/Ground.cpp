@@ -49,7 +49,7 @@ void Ground::setLoc(int x, int y, TILE_TYPE type)
 	grid[((padX + x) * totalY) + y + padY] = type;
 }
 
-void Ground::update()
+void Ground::update(SceneNode * node)
 {
 	localMat = glm::mat4(1.0, 0, 0, 0,
 		0, 1.0, 0, 0,
@@ -57,11 +57,11 @@ void Ground::update()
 		position[0], position[1], position[2], 1.0);
 }
 
-void Ground::draw(const glm::mat4& viewProjMtx)
+void Ground::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
-	glm::mat4 tileMat = localMat;
+	glm::mat4 tileMat = model;
 	for (int i = 0; i < totalX; i++) {
-		tileMat[3][2] = localMat[3][2];
+		tileMat[3][2] = model[3][2];
 		tileMat[3][0] += tileSize;
 		for (int j = 0; j < totalY; j++) {
 			tileMat[3][2] += tileSize;

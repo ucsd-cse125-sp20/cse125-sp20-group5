@@ -84,9 +84,11 @@ void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx) {
 	glUseProgram(0);
 }
 
-void Model::update()
+void Model::update(SceneNode * node)
 {
 
+	// TODO:: this is code should be uneeded once the scen graph grpahis completed
+	// TODO:: remove this code and localMat and pose Values
 	localMat = glm::eulerAngleX(pose.x);
 	localMat = glm::eulerAngleY(pose.y) * localMat;
 	localMat = glm::eulerAngleZ(pose.z) * localMat;

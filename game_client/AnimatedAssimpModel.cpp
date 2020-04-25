@@ -24,6 +24,7 @@ AnimatedAssimpModel::AnimatedAssimpModel(string const& path, uint shader) : Assi
 	}
 
 	// fin the root bone
+	// teh root bone is direct child of the scene's root node hte top of the bone structure
 	setRootBone();
 	std::cout << rootBone->mName.C_Str() << std::endl;
 
@@ -85,6 +86,11 @@ void AnimatedAssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProj
 	AssimpModel::draw(model, viewProjMtx);
 }
 
+// this funciton needs to load the bone data from the Scene nodes
+void AnimatedAssimpModel::update(SceneNode* node)
+{
+}
+
 
 /* Animation related functions */
 /* The interpolation assumes all starting and ending keyframes are at the edge of the timerange */
@@ -97,8 +103,27 @@ void AnimatedAssimpModel::updateBoneTransform(int animId, float TimeInSeconds)
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
 	float AnimationTime = fmod(TimeInTicks, (float)m_aiScene->mAnimations[0]->mDuration);
 
-	calcAnimByNodeTraversal(animId, AnimationTime, m_aiScene->mRootNode, glm::mat4(1));
+	// set this line to just use the root bone node rathher than root bone
+	calcAnimByNodeTraversal(animId, AnimationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
 }
+
+SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId, aiNode* curNode)
+{
+	SceneNode* newNode;
+	if (curNode == NULL) {
+		newNode = new SceneNode(this, string("modelRoot"), objectId);
+		newNode->addChild(createSceneNodes(objectId, rootBone));
+		return newNode;
+	}
+
+	newNode = new SceneNode(NULL, string(curNode->mName.C_Str()), objectId);
+	for (int i = 0; i < curNode->mNumChildren; i++) {
+		newNode->addChild(createSceneNodes(objectId, curNode->mChildren[i]));
+	}
+
+	return newNode;
+}
+
 
 void AnimatedAssimpModel::calcAnimByNodeTraversal(int animId, float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)
 {
