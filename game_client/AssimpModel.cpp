@@ -18,6 +18,13 @@ AssimpModel::AssimpModel(string const& path, uint shader)
 
 }
 
+AssimpModel::~AssimpModel()
+{
+	for (Texture tex : textures_loaded) {
+		glDeleteTextures(1, &(tex.id));
+	}
+}
+
 // Because it is highly discouraged to call an overriden method in virtual, this method is created to avoid AnimatedAssimpModel 
 // calling the above constructor which would eventually all an overriden method, loadBoneData()
 void AssimpModel::importScene(const string& path, uint shader)

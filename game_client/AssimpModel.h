@@ -27,19 +27,13 @@ class AssimpModel
 public:
     AssimpModel();
     AssimpModel(const string& path, uint shader);
+    ~AssimpModel();
 
     /*  Model Data */
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<AssimpMesh> meshes;
     string directory;
     bool gammaCorrection;
-
-    /*  Mesh Data  */
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-    vector<Texture> textures;
-    unsigned int VAO;
-    glm::mat4 transform;
 
     virtual void draw(const glm::mat4& model, const glm::mat4& viewProjMtx);
 
