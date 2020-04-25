@@ -16,10 +16,12 @@ public:
     GameState() {
         // Init the default state here
         // TODO: change them later
+        int NUM_OF_PLAYER = 3;
+        int NUM_OF_ZOMBIE = 1;
 
         // Init players
-        for (int i = 0; i < 3; i++) {
-            Position* playerPosition = new Position(1, 0, 0);
+        for (int i = 0; i < NUM_OF_PLAYER; i++) {
+            Position* playerPosition = new Position(i, 0, 0);
             Direction* playerDirection = new Direction(0.0);
             Animation* playerAnimation = new Animation(0, 0);
             Color* playerColor = new Color(100, 100, 100);
@@ -28,6 +30,16 @@ public:
                     playerPosition, playerDirection,
                     playerAnimation, playerColor, i
                 )
+            );
+        }
+
+        // Init zombies
+        for (int i = 0; i < NUM_OF_ZOMBIE; i++) {
+            Position* zombiePosition = new Position(-i, 0, 0);
+            Direction* zombieDirection = new Direction(0.0);
+            Animation* zombieAnimation = new Animation(0, 0);
+            zombies.push_back(
+                new Zombie(zombiePosition, zombieDirection, zombieAnimation)
             );
         }
 
