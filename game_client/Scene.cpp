@@ -7,7 +7,7 @@ Scene::Scene()
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
-	playerModel = new AssimpModel(PLAYER_MODEL, assimpProgram->GetProgramID());
+	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;

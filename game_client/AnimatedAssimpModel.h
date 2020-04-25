@@ -7,6 +7,7 @@
 #pragma once
 
 #include "AssimpModel.h"
+#include <unordered_map>
 
 class AnimatedAssimpModel : public AssimpModel
 {
@@ -19,6 +20,8 @@ public:
 private:
     /* Animation Data */
     chrono::system_clock::time_point startTime;
+
+    std::unordered_map<std::string, aiNodeAnim*> animatedNodeMap;
 
     /* Animation related function */
     void calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);

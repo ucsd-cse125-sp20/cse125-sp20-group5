@@ -14,6 +14,14 @@ AnimatedAssimpModel::AnimatedAssimpModel(string const& path, uint shader) : Assi
 	// Check if there's too many bones
 	assert(bones.size() <= 100); // which is the MAX_BONES, set in the vertex shader 
 
+	for (int i = 0; i < m_aiScene->mNumAnimations; i++) {
+		for (int j = 0; j < m_aiScene->mAnimations[i]->mNumChannels; j++) {
+			aiNodeAnim* curAnimNode = m_aiScene->mAnimations[i]->mChannels[j];
+			std::string name = std::string(curAnimNode->mNodeName.C_Str());
+			animatedNodeMap[name] = curAnimNode;
+		}
+	}
+
 	startTime = chrono::system_clock::now();
 }
 
@@ -123,11 +131,8 @@ void AnimatedAssimpModel::calcAnimByNodeTraversal(float AnimationTime, const aiN
 
 const aiNodeAnim* AnimatedAssimpModel::findAnimNode(const aiAnimation* pAnimation, const string NodeName)
 {
-	for (uint i = 0; i < pAnimation->mNumChannels; i++) {
-		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
-
-		if (string(pNodeAnim->mNodeName.data) == NodeName)
-			return pNodeAnim;
+	if (animatedNodeMap.count(NodeName) > 0) {
+		return animatedNodeMap[NodeName];
 	}
 	return NULL;
 }
