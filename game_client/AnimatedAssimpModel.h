@@ -21,7 +21,8 @@ private:
     /* Animation Data */
     chrono::system_clock::time_point startTime;
 
-    std::unordered_map<std::string, aiNodeAnim*> animatedNodeMap;
+    // used when getting the animation value based on 
+    std::vector<std::unordered_map<std::string, aiNodeAnim*>*> animatedNodeMapList;
 
     /* Animation related function */
     void calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
@@ -30,7 +31,7 @@ private:
     uint findAnimScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint findAnimRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint findAnimPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
-    const aiNodeAnim* findAnimNode(const aiAnimation* pAnimation, const string NodeName);
+    const aiNodeAnim* findAnimNode(const int animId, const aiAnimation* pAnimation, const string NodeName);
     void calcAnimByNodeTraversal(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
 
     void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences) override;

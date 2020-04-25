@@ -41,7 +41,6 @@ public:
     unsigned int VAO;
     glm::mat4 transform;
 
-
     virtual void draw(const glm::mat4& model, const glm::mat4& viewProjMtx);
 
 protected:

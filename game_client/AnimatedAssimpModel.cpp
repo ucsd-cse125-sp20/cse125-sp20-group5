@@ -15,10 +15,11 @@ AnimatedAssimpModel::AnimatedAssimpModel(string const& path, uint shader) : Assi
 	assert(bones.size() <= 100); // which is the MAX_BONES, set in the vertex shader 
 
 	for (int i = 0; i < m_aiScene->mNumAnimations; i++) {
+		animatedNodeMapList.push_back(new std::unordered_map<std::string, aiNodeAnim*>());
 		for (int j = 0; j < m_aiScene->mAnimations[i]->mNumChannels; j++) {
 			aiNodeAnim* curAnimNode = m_aiScene->mAnimations[i]->mChannels[j];
 			std::string name = std::string(curAnimNode->mNodeName.C_Str());
-			animatedNodeMap[name] = curAnimNode;
+			(*(animatedNodeMapList[i]))[name] = curAnimNode;
 		}
 	}
 
@@ -96,7 +97,7 @@ void AnimatedAssimpModel::calcAnimByNodeTraversal(float AnimationTime, const aiN
 
 	glm::mat4 NodeTransformation = convertToGlmMat(pNode->mTransformation);
 
-	const aiNodeAnim* pNodeAnim = findAnimNode(pAnimation, NodeName);
+	const aiNodeAnim* pNodeAnim = findAnimNode(0, pAnimation, NodeName);
 
 	if (pNodeAnim) {
 		// Interpolate transformations
@@ -129,10 +130,10 @@ void AnimatedAssimpModel::calcAnimByNodeTraversal(float AnimationTime, const aiN
 	}
 }
 
-const aiNodeAnim* AnimatedAssimpModel::findAnimNode(const aiAnimation* pAnimation, const string NodeName)
+const aiNodeAnim* AnimatedAssimpModel::findAnimNode(const int animId, const aiAnimation* pAnimation, const string NodeName)
 {
-	if (animatedNodeMap.count(NodeName) > 0) {
-		return animatedNodeMap[NodeName];
+	if ((animatedNodeMapList[animId])->count(NodeName) > 0) {
+		return (*(animatedNodeMapList[animId]))[NodeName];
 	}
 	return NULL;
 }
