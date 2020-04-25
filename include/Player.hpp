@@ -37,9 +37,9 @@ public:
 
     void updatePosition() {
         position->update(
-            position->getX() + 1,
-            position->getY() + 1,
-            position->getZ() + 1);
+            position->getX() + 0.01,
+            position->getY(),
+            position->getZ() + 0.01);
     }
 
     Position* position; // Player position
