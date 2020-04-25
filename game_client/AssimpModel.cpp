@@ -98,6 +98,7 @@ AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 m
 	for (unsigned int i = 0; i < vertices.size(); i++)
 		vertices[i].BoneReference = boneReferences[i];
 
+
 	// Walk through the mesh's faces (a mesh triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)	{
 		aiFace face = mesh->mFaces[i];
