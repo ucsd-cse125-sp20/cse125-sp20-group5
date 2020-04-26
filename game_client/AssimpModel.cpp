@@ -169,7 +169,7 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 void AssimpModel::update(SceneNode* node) {}
 
 // draws the model, and thus all its meshes
-void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
+void AssimpModel::draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 	

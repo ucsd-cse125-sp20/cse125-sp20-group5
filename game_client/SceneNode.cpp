@@ -1,4 +1,5 @@
 #include "SceneNode.h"
+#include <glm\gtx\euler_angles.hpp>
 
 SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 {
@@ -6,7 +7,15 @@ SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 	this->name = name;
 	this->objectId = objectId;
 	childCount = 0;
+	transform = glm::mat4(1.0);
 	parent = NULL;
+	animationId = 0;
+	animationTime = 0.0;
+	updated = false; // dont' double update stuff
+
+	position = glm::vec3(0.0);
+	dir = 0.0;
+	scaler = 1.0;
 }
 
 SceneNode::~SceneNode()
@@ -41,7 +50,55 @@ void SceneNode::addChild(SceneNode* newChild)
 	newChild->parent = this; // set the parent
 }
 
-std::string SceneNode::getName() 
+void SceneNode::calcLocalTransform()
+{
+	transform = glm::mat4(scaler);
+	transform[3][3] = 1.0;
+
+	transform = transform * glm::eulerAngleZ(dir);
+
+	transform[3][0] = position[0];
+	transform[3][1] = position[0];
+	transform[3][2] = position[0];
+
+}
+
+void SceneNode::update(glm::mat4 world)
+{
+	if (obj != NULL) {
+		obj->update(this);
+	}
+
+	// if updated externally by another nimation function;
+	if (!updated) {
+		calcLocalTransform();
+		transform = world * transform;
+	}
+	updated = true;
+
+	std::unordered_map<uint, SceneNode*>::iterator it;
+	for (it = children.begin(); it != children.end(); it++) {
+		it->second->update(transform);
+	}
+}
+
+void SceneNode::draw(const glm::mat4& veiwProjMat)
+{
+	updated = false;
+	// need to do next load the save bone state in here
+	// actually stack the transfroms
+	// mark stuff with update 
+	if (obj != NULL) {
+		obj->draw(this, transform, veiwProjMat);
+	}
+	std::unordered_map<uint, SceneNode*>::iterator it;
+	for (it = children.begin(); it != children.end(); it++) {
+		it->second->draw(veiwProjMat);
+	}
+}
+
+std::string SceneNode::getName()
 {
 	return name;
 }
+

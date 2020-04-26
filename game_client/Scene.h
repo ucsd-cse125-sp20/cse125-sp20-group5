@@ -19,18 +19,22 @@ private:
 	Ground * ground;
 
 	GameState * state;
+	SceneNode* rootNode;
 
-	std::vector<glm::mat4> zombieTransfroms;
-	std::vector<glm::mat4> playerTransforms;
+	std::vector<SceneNode*> zombieTransfroms;
+	std::vector<SceneNode*> playerTransforms;
 	glm::mat4 tapTransform;
 
-	AssimpModel * zombieModel;
-	AssimpModel * playerModel; 
+	AnimatedAssimpModel * zombieModel;
+	AnimatedAssimpModel * playerModel; 
 	AssimpModel * tapModel;
 
 	ShaderProgram * program;
 	ShaderProgram * assimpProgram;
 	ShaderProgram* animationProgram;
+
+	// this is a temp thing until we get animation from server;
+	chrono::system_clock::time_point startTime;
 
 public:
 	Scene();
@@ -40,7 +44,7 @@ public:
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat); // renders everything
 
-	// static function for a to create a specfic scene I imagine one of these for each level/screen
+	// static function for a to create a specfic scene good for grahics testing
 	static Scene* testScene();
 	static Scene* scene0();
 };

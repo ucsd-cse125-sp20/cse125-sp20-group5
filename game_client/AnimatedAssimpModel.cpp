@@ -66,15 +66,18 @@ void AnimatedAssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceD
 }
 
 // draws the model, and thus all its meshes
-void AnimatedAssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
+void AnimatedAssimpModel::draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 
+	// moving this code into the scene
 	// calculate the animated transformation for this frame
-	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
-	float runningTime = elapsed_seconds.count();
+	//chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
+	//float runningTime = elapsed_seconds.count();
+	//updateBoneTransform(0, runningTime);
+	if (node != NULL)
+		loadBoneFromSceneNodes(node);
 
-	updateBoneTransform(0, runningTime);
 	for (uint i = 0; i < bones.size(); i++) {
 		// set the uniform
 		string str = "gBones[" + to_string(i) + "]";
@@ -83,12 +86,14 @@ void AnimatedAssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProj
 			(float*)&(bones[i].finalTransformation));
 	}
 
-	AssimpModel::draw(model, viewProjMtx);
+	AssimpModel::draw(node, model, viewProjMtx);
 }
 
 // this funciton needs to load the bone data from the Scene nodes
 void AnimatedAssimpModel::update(SceneNode* node)
 {
+	updateBoneTransform(node->animationId, node->animationTime);
+	loadSceneNodes(node);
 }
 
 
@@ -128,6 +133,7 @@ SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId, aiNode* curNode)
 void AnimatedAssimpModel::loadSceneNodes(SceneNode* node)
 {
 	if (boneMap.find(node->getName()) == boneMap.end()) {
+		node->updated = true;
 		node->transform = bones[boneMap[node->getName()]].finalTransformation;
 		std::unordered_map<uint, SceneNode*>::iterator children;
 		for (children = node->children.begin(); children != node->children.end(); children++) {

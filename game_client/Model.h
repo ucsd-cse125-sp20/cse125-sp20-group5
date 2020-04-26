@@ -24,8 +24,7 @@ public:
 	Model(uint shader);
 	~Model();
 
-	void draw(const glm::mat4& viewProjMtx);
-	void draw(const glm::mat4 &modelMtx,const glm::mat4 &viewProjMtx);
+	void draw(SceneNode* node, const glm::mat4 &modelMtx,const glm::mat4 &viewProjMtx);
 	void update(SceneNode * node);
 
 	void makeBox(const glm::vec3 &boxMin,const glm::vec3 &boxMax);

@@ -34,11 +34,7 @@ Model::~Model() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Model::draw(const glm::mat4& viewProjMtx) {
-	draw(localMat, viewProjMtx);
-}
-
-void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx) {
+void Model::draw(SceneNode* node, const glm::mat4& modelMtx, const glm::mat4& viewProjMtx) {
 	// Set up shader
 	glUseProgram(shader);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelMtx"), 1, false, (float*)&modelMtx);

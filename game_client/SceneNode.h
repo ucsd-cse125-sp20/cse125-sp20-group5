@@ -1,9 +1,7 @@
 #pragma once
-//#include "Drawable.h"
+#include "Drawable.h"
 #include "core.h"
 #include <unordered_map>
-
-class Drawable;
 
 class SceneNode
 {
@@ -13,7 +11,6 @@ private:
 	uint modelId;
 
 	uint objectId;
-	Drawable * obj;
 	SceneNode* parent;
 	std::string name;
 
@@ -21,10 +18,19 @@ private:
 	uint childNum;
 	uint childCount;
 
+	// animation info;
+
 public:
 
 	glm::mat4 transform;
 	std::unordered_map<uint, SceneNode*> children;
+	Drawable* obj;
+	uint animationId;
+	float animationTime;
+	bool updated;
+	glm::vec3 position;
+	float dir;
+	float scaler;
 
 	SceneNode(Drawable * myO, std::string name, uint objectId);
 
@@ -38,6 +44,14 @@ public:
 	void setParent(SceneNode * newParent);
 
 	void addChild(SceneNode* newChild);
+
+	void calcLocalTransform();
+
+	// update the matrices recursive
+	void update(glm::mat4 world);
+
+	// draw teh matrices recursive
+	void draw(const glm::mat4& veiwProjMat);
 
 	std::string getName();
 

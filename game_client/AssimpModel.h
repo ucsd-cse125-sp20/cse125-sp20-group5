@@ -36,7 +36,7 @@ public:
     string directory;
     bool gammaCorrection;
 
-    virtual void draw(const glm::mat4& model, const glm::mat4& viewProjMtx) override;
+    virtual void draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx) override;
     virtual void update(SceneNode * node) override;
 
 protected:

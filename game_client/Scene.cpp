@@ -11,6 +11,10 @@ Scene::Scene()
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
+
+	rootNode = new SceneNode(NULL, string("absoluteRoot"), 0);
+
+	startTime = chrono::system_clock::now();
 }
 
 Scene::~Scene()
@@ -26,6 +30,7 @@ Scene::~Scene()
 	delete program;
 	delete assimpProgram;
 	delete animationProgram;
+	delete rootNode;
 }
 
 glm::mat4 getPoseFromDirection(float angle) {
@@ -54,33 +59,41 @@ void Scene::update()
 		Position* position = zombie->position;
 		Direction* direction = zombie->direction;
 
-		glm::mat4 mat4Transform(1.0f);
+		SceneNode* zombieTemp = zombieModel->createSceneNodes(1, NULL);
 
-		// Move
-		mat4Transform[3][0] = position->getX();
-		mat4Transform[3][1] = position->getY();
-		mat4Transform[3][2] = position->getZ();
-		// Rotate
-		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * RABBIT_SCALER;
+		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
+		float runningTime = elapsed_seconds.count();
+		zombieTemp->animationTime = runningTime;
 
-		zombieTransfroms.push_back(mat4Transform);
+		zombieTemp->position[0] = position->getX();
+		zombieTemp->position[1] = position->getY();
+		zombieTemp->position[2] = position->getZ();
+
+		zombieTemp->dir = direction->angle;
+
+		zombieTemp->update(glm::mat4(1.0));
+
+		zombieTransfroms.push_back(zombieTemp);
 	}
 
 	for (Player* player : state->players) {
 		Position* position = player->position;
 		Direction* direction = player->direction;
 
-		glm::mat4 mat4Transform(1.0f);
+		SceneNode * playerTemp = playerModel->createSceneNodes(player->playerId, NULL);
 
-		// Move
-		mat4Transform[3][0] = position->getX();
-		mat4Transform[3][1] = position->getY();
-		mat4Transform[3][2] = position->getZ();
-		
-		// Rotate
-		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * PLAYER_SCALER;
+		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
+		float runningTime = elapsed_seconds.count();
+		playerTemp->animationTime = runningTime;
 
-		playerTransforms.push_back(mat4Transform);
+		playerTemp->position[0] = position->getX();
+		playerTemp->position[1] = position->getY();
+		playerTemp->position[2] = position->getZ();
+
+		playerTemp->dir = direction->angle;
+
+		playerTemp->update(glm::mat4(1.0));
+		playerTransforms.push_back(playerTemp);
 	}
 
 	tapTransform = glm::mat4(1.0);
@@ -97,24 +110,25 @@ void Scene::update()
 
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
-	ground->draw(glm::mat4(1.0), veiwProjMat);
+	ground->draw(NULL, glm::mat4(1.0), veiwProjMat);
 
-	for (glm::mat4 transform : zombieTransfroms) {
+	for (SceneNode * node : zombieTransfroms) {
 		// Add transform to assimp models
-		zombieModel->draw(transform, veiwProjMat);
+		node->draw(veiwProjMat);
 	}
 
-	for (glm::mat4 transform : playerTransforms) {
+	for (SceneNode * node : playerTransforms) {
 		// Add transform to assimp models
-		playerModel->draw(transform, veiwProjMat);
+		node->draw(veiwProjMat);
 	}
 
-	tapModel->draw(tapTransform, veiwProjMat);
+	tapModel->draw(NULL, tapTransform, veiwProjMat);
 
 	for (Model * model : models) {
-		model->draw(model->getLocalMat(), veiwProjMat);
+		model->draw(NULL, model->getLocalMat(), veiwProjMat);
 	}	
 }
+
 
 // Update the current gamestate
 void Scene::setState(GameState* state) 

@@ -57,7 +57,7 @@ void Ground::update(SceneNode * node)
 		position[0], position[1], position[2], 1.0);
 }
 
-void Ground::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
+void Ground::draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx)
 {
 	glm::mat4 tileMat = model;
 	for (int i = 0; i < totalX; i++) {
@@ -65,7 +65,7 @@ void Ground::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
 		tileMat[3][0] += tileSize;
 		for (int j = 0; j < totalY; j++) {
 			tileMat[3][2] += tileSize;
-			tiles[( (int)grid[(i*totalY) + j] )]->draw(tileMat, viewProjMtx);
+			tiles[( (int)grid[(i*totalY) + j] )]->draw(node, tileMat, viewProjMtx);
 		}
 	}
 }
