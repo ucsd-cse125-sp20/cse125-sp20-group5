@@ -97,11 +97,11 @@ void AnimatedAssimpModel::update(SceneNode* node)
 
 void AnimatedAssimpModel::updateBoneTransform(int animId, float TimeInSeconds)
 {
-	float TicksPerSecond = (float)(m_aiScene->mAnimations[0]->mTicksPerSecond != 0
-		? m_aiScene->mAnimations[0]->mTicksPerSecond
+	float TicksPerSecond = (float)(m_aiScene->mAnimations[animId]->mTicksPerSecond != 0
+		? m_aiScene->mAnimations[animId]->mTicksPerSecond
 		: 25.0f); // the last value is the default ticks/sec
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
-	float AnimationTime = fmod(TimeInTicks, (float)m_aiScene->mAnimations[0]->mDuration);
+	float AnimationTime = fmod(TimeInTicks, (float)m_aiScene->mAnimations[animId]->mDuration);
 
 	// set this line to just use the root bone node rathher than root bone
 	calcAnimByNodeTraversal(animId, AnimationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
@@ -122,6 +122,29 @@ SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId, aiNode* curNode)
 	}
 
 	return newNode;
+}
+
+// takes a scene node that acts as a bone node and loads the values 
+void AnimatedAssimpModel::loadSceneNodes(SceneNode* node)
+{
+	if (boneMap.find(node->getName()) == boneMap.end()) {
+		node->transform = bones[boneMap[node->getName()]].finalTransformation;
+		std::unordered_map<uint, SceneNode*>::iterator children;
+		for (children = node->children.begin(); children != node->children.end(); children++) {
+			loadSceneNodes(children->second);
+		}
+	}
+}
+
+void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node)
+{
+	if (boneMap.find(node->getName()) == boneMap.end()) {
+		bones[boneMap[node->getName()]].finalTransformation = node->transform;
+		std::unordered_map<uint, SceneNode*>::iterator children;
+		for (children = node->children.begin(); children != node->children.end(); children++) {
+			loadSceneNodes(children->second);
+		}
+	}
 }
 
 

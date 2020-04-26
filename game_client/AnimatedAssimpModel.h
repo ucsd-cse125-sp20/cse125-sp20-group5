@@ -20,7 +20,9 @@ public:
     void update(SceneNode* node) override;
     void updateBoneTransform(int animId, float TimeInSeconds);
     SceneNode * createSceneNodes(uint objectId, aiNode * curNode);
-    void loadSceneNodes();
+    void loadSceneNodes(SceneNode * node);
+    void loadBoneFromSceneNodes(SceneNode * node);
+    
 
 private:
     /* Animation Data */

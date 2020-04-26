@@ -10,21 +10,22 @@ class SceneNode
 private:
 
 	/*not sure baout this*/
-	uint objectId;
 	uint modelId;
 
+	uint objectId;
 	Drawable * obj;
 	SceneNode* parent;
 	std::string name;
 
-	glm::mat4 transform;
-
 	// maybe jsut a vector
 	uint childNum;
 	uint childCount;
-	std::unordered_map<uint, SceneNode*> childern;
 
 public:
+
+	glm::mat4 transform;
+	std::unordered_map<uint, SceneNode*> children;
+
 	SceneNode(Drawable * myO, std::string name, uint objectId);
 
 	// this kills your children to remove yourself if you want your children
@@ -36,7 +37,9 @@ public:
 	// straight forward;
 	void setParent(SceneNode * newParent);
 
-
 	void addChild(SceneNode* newChild);
+
+	std::string getName();
+
 };
 
