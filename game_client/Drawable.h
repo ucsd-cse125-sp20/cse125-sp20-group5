@@ -9,7 +9,7 @@ class Drawable
 private:
 public:
 	// TODO REMOVE MODEL
-	virtual void draw(SceneNode * node, const glm::mat4& model, const glm::mat4& viewProjMtx) = 0;
+	virtual void draw(SceneNode& node, const glm::mat4& viewProjMtx) = 0;
 	virtual void update(SceneNode* node) = 0;
 };
 

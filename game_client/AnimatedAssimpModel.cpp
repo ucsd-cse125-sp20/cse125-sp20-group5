@@ -66,17 +66,11 @@ void AnimatedAssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceD
 }
 
 // draws the model, and thus all its meshes
-void AnimatedAssimpModel::draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx)
+void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 
-	// moving this code into the scene
-	// calculate the animated transformation for this frame
-	//chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
-	//float runningTime = elapsed_seconds.count();
-	//updateBoneTransform(0, runningTime);
-	if (node != NULL)
-		loadBoneFromSceneNodes(node);
+	loadBoneFromSceneNodes(&node);
 
 	for (uint i = 0; i < bones.size(); i++) {
 		// set the uniform
@@ -86,7 +80,7 @@ void AnimatedAssimpModel::draw(SceneNode* node, const glm::mat4& model, const gl
 			(float*)&(bones[i].finalTransformation));
 	}
 
-	AssimpModel::draw(node, model, viewProjMtx);
+	AssimpModel::draw(node, viewProjMtx);
 }
 
 // this funciton needs to load the bone data from the Scene nodes

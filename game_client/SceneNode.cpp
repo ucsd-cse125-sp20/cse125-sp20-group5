@@ -89,7 +89,7 @@ void SceneNode::draw(const glm::mat4& veiwProjMat)
 	// actually stack the transfroms
 	// mark stuff with update 
 	if (obj != NULL) {
-		obj->draw(this, transform, veiwProjMat);
+		obj->draw(*this, veiwProjMat);
 	}
 	std::unordered_map<uint, SceneNode*>::iterator it;
 	for (it = children.begin(); it != children.end(); it++) {
@@ -97,7 +97,7 @@ void SceneNode::draw(const glm::mat4& veiwProjMat)
 	}
 }
 
-std::string SceneNode::getName()
+std::string SceneNode::getName() const
 {
 	return name;
 }

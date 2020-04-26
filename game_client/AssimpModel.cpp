@@ -169,12 +169,12 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 void AssimpModel::update(SceneNode* node) {}
 
 // draws the model, and thus all its meshes
-void AssimpModel::draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx)
+void AssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 	
 	// create a temp model mtx
-	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&(node.transform));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
 
 	for (unsigned int i = 0; i < meshes.size(); i++)

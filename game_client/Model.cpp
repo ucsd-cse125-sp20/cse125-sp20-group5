@@ -32,12 +32,12 @@ Model::~Model() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Model::draw(SceneNode* node, const glm::mat4& modelMtx, const glm::mat4& viewProjMtx) {
+void Model::draw(SceneNode& node, const glm::mat4& viewProjMtx) {
 	// Set up shader
 	glUseProgram(shader);
-	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelMtx"), 1, false, (float*)&modelMtx);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelMtx"), 1, false, (float*)&(node.transform));
 
-	glm::mat4 mvpMtx = viewProjMtx * modelMtx;
+	glm::mat4 mvpMtx = viewProjMtx * node.transform;
 	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelViewProjMtx"), 1, false, (float*)&mvpMtx);
 
 	// Set up state

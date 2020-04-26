@@ -106,7 +106,9 @@ void Scene::update()
 
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
-	ground->draw(NULL, glm::mat4(1.0), veiwProjMat);
+	SceneNode temp(NULL, std::string(""), 0);
+	temp.transform = glm::mat4(1.0);
+	ground->draw(temp, veiwProjMat);
 
 	for (SceneNode * node : zombieTransfroms) {
 		// Add transform to assimp models
@@ -118,10 +120,12 @@ void Scene::draw(const glm::mat4 &veiwProjMat)
 		node->draw(veiwProjMat);
 	}
 
-	tapModel->draw(NULL, tapTransform, veiwProjMat);
+	temp.transform = tapTransform;
+	tapModel->draw(temp, veiwProjMat);
 
+	temp.transform = glm::mat4(1.0);
 	for (Model * model : models) {
-		model->draw(NULL, glm::mat4(1.0), veiwProjMat);
+		model->draw(temp, veiwProjMat);
 	}	
 }
 

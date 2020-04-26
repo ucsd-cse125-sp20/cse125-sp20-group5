@@ -24,8 +24,8 @@ public:
 	Model(uint shader);
 	~Model();
 
-	void draw(SceneNode* node, const glm::mat4 &modelMtx,const glm::mat4 &viewProjMtx);
-	void update(SceneNode * node);
+	void draw(SceneNode& node,const glm::mat4 &viewProjMtx) override;
+	void update(SceneNode * node) override;
 
 	void makeBox(const glm::vec3 &boxMin,const glm::vec3 &boxMax);
 	void makeTile(const glm::vec3& tileMin, const glm::vec3& tileMax, const glm::vec3& color, const char* texturefile);

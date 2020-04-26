@@ -53,7 +53,7 @@ public:
 	// draw teh matrices recursive
 	void draw(const glm::mat4& veiwProjMat);
 
-	std::string getName();
+	std::string getName() const;
 
 };
 

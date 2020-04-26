@@ -7,7 +7,6 @@
 #pragma once
 
 #include "AssimpModel.h"
-#include "SceneNode.h"
 #include <unordered_map>
 
 class AnimatedAssimpModel : public AssimpModel
@@ -16,7 +15,7 @@ public:
     AnimatedAssimpModel(const string& path, uint shader);
     ~AnimatedAssimpModel();
 
-    void draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx) override;
+    void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
     void update(SceneNode* node) override;
     void updateBoneTransform(int animId, float TimeInSeconds);
     SceneNode * createSceneNodes(uint objectId, aiNode * curNode);

@@ -10,6 +10,7 @@
 #include "stb_image.h"
 #include "AssimpMesh.h"
 #include "Drawable.h"
+#include "SceneNode.h"
 
 struct Bone
 {
@@ -36,7 +37,7 @@ public:
     string directory;
     bool gammaCorrection;
 
-    virtual void draw(SceneNode* node, const glm::mat4& model, const glm::mat4& viewProjMtx) override;
+    virtual void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
     virtual void update(SceneNode * node) override;
 
 protected:
