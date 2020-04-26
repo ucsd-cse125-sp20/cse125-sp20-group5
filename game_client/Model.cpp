@@ -14,8 +14,6 @@
 
 Model::Model(uint shader) {
 	this->shader = shader;
-	pose = glm::vec3(0);
-	position = glm::vec3(0);
 
 	glGenBuffers(1, &VertexBuffer);
 	glGenBuffers(1, &IndexBuffer);
@@ -83,16 +81,6 @@ void Model::draw(SceneNode* node, const glm::mat4& modelMtx, const glm::mat4& vi
 void Model::update(SceneNode * node)
 {
 
-	// TODO:: this is code should be uneeded once the scen graph grpahis completed
-	// TODO:: remove this code and localMat and pose Values
-	localMat = glm::eulerAngleX(pose.x);
-	localMat = glm::eulerAngleY(pose.y) * localMat;
-	localMat = glm::eulerAngleZ(pose.z) * localMat;
-
-	localMat = glm::mat4(1.0, 0, 0, 0,
-		0, 1.0, 0, 0,
-		0, 0, 1.0, 0,
-		position[0], position[1], position[2], 1.0) * localMat;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,23 +194,4 @@ void Model::setBuffers(const std::vector<ModelVertex>& vtx, const std::vector<ui
 		std::cout << "Failed to load texture " << texturefile << std::endl;
 	}
 	stbi_image_free(data);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-// Access functions
-glm::mat4 Model::getLocalMat() {
-	return localMat;
-}
-
-void Model::setPose(glm::vec3 pose) {
-	this->pose = pose;
-}
-
-void Model::setPosition(glm::vec3 position) {
-	this->position = position;
-}
-
-glm::vec3 Model::getPosition() {
-	return position;
 }

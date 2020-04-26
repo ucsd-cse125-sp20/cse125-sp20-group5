@@ -31,19 +31,10 @@ public:
 	void makeTile(const glm::vec3& tileMin, const glm::vec3& tileMax, const glm::vec3& color, const char* texturefile);
 	void setBuffers(const std::vector<ModelVertex> &vtx,const std::vector<uint> &idx, const char* texturefile);
 
-	glm::mat4 getLocalMat();
-	void setPose(glm::vec3 pose);
-	void setPosition(glm::vec3 position);
-	glm::vec3 getPosition();
-
 private:
 	uint VertexBuffer;
 	uint IndexBuffer;
 	uint TextureBuffer;
-
-	glm::vec3 pose;
-	glm::vec3 position;
-	glm::mat4 localMat;
 
 	int Count;
 

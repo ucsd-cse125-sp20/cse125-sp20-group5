@@ -33,10 +33,6 @@ Scene::~Scene()
 	delete rootNode;
 }
 
-glm::mat4 getPoseFromDirection(float angle) {
-	return glm::eulerAngleZ(angle);
-}
-
 void Scene::update()
 {
 	// Clear the two vectors
@@ -101,7 +97,7 @@ void Scene::update()
 	tapTransform[3][1] = state->waterTap->position->getY();
 	tapTransform[3][2] = state->waterTap->position->getZ();
 
-	tapTransform = tapTransform * getPoseFromDirection(state->waterTap->direction->angle) * WATER_TAP_SCALER;
+	tapTransform = tapTransform * glm::eulerAngleZ(state->waterTap->direction->angle) * WATER_TAP_SCALER;
 
 	for (Model* model : models) {
 		model->update(NULL);
@@ -125,7 +121,7 @@ void Scene::draw(const glm::mat4 &veiwProjMat)
 	tapModel->draw(NULL, tapTransform, veiwProjMat);
 
 	for (Model * model : models) {
-		model->draw(NULL, model->getLocalMat(), veiwProjMat);
+		model->draw(NULL, glm::mat4(1.0), veiwProjMat);
 	}	
 }
 

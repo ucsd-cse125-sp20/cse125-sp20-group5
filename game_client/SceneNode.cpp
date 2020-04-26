@@ -58,8 +58,8 @@ void SceneNode::calcLocalTransform()
 	transform = transform * glm::eulerAngleZ(dir);
 
 	transform[3][0] = position[0];
-	transform[3][1] = position[0];
-	transform[3][2] = position[0];
+	transform[3][1] = position[1];
+	transform[3][2] = position[2];
 
 }
 
