@@ -10,8 +10,6 @@ private:
 
 	/*not sure baout this*/
 	uint modelId;
-
-	SceneNode* parent;
 	std::string name;
 	uint childNum;
 	uint childCount;
@@ -22,6 +20,7 @@ public:
 
 	uint objectId;
 	glm::mat4 transform;
+	SceneNode* parent;
 	std::unordered_map<uint, SceneNode*> children;
 	Drawable* obj;
 	uint animationId;

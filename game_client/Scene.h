@@ -22,12 +22,13 @@ private:
 
 	// scene gprah values
 	SceneNode* rootNode;
+	SceneNode* groundNode;
 	std::unordered_map<uint, SceneNode*> objectIdMap;
 
 	// models
 	AnimatedAssimpModel * zombieModel;
-	AnimatedAssimpModel * playerModel; 
-	AssimpModel * tapModel;
+	AnimatedAssimpModel* playerModel;
+	AssimpModel* tapModel;
 
 	// shaders
 	ShaderProgram * program;

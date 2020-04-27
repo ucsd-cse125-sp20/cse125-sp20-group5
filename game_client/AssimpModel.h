@@ -37,6 +37,8 @@ public:
     string directory;
     bool gammaCorrection;
 
+    void setModelFixer(glm::mat4 fixer);
+
     virtual void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
     virtual void update(SceneNode * node) override;
     virtual SceneNode* createSceneNodes(uint objectId) override;
@@ -47,6 +49,10 @@ protected:
     const aiScene* m_aiScene;
     map<string, uint> boneMap; // maps a bone name to its index
     vector<Bone> bones;
+
+    // this is to handel nay model speifc issues
+    // scalign the model movign it sligghtly down rotaitng it
+    glm::mat4 modelFixer = glm::mat4(1.0);
 
     uint shader;
 

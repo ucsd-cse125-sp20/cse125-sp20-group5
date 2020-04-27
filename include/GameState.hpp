@@ -21,7 +21,7 @@ public:
 
         // Init players
         for (int i = 0; i < NUM_OF_PLAYER; i++) {
-            Position* playerPosition = new Position(i, 0, 0);
+            Position* playerPosition = new Position(i*3, 0, 0);
             Direction* playerDirection = new Direction(0.0);
             Animation* playerAnimation = new Animation(0, 0);
             Color* playerColor = new Color(100, 100, 100);
@@ -51,6 +51,8 @@ public:
             Direction* toolDirection = new Direction(0.0);
             Animation* toolAnimation = new Animation(0, 0);
             tools.push_back(new Tool(toolPosition, toolDirection, toolAnimation, objectCount, i, 0));
+            players[0]->holding = true;
+            players[0]->heldObject = tools[0]->objectId;
             objectCount++;
         }
 

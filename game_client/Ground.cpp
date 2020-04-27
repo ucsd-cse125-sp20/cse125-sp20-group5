@@ -58,9 +58,13 @@ void Ground::update(SceneNode * node)
 
 void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
-	glm::mat4 tileMat = node.transform;
+	glm::mat4 handlePadding = node.transform;
+	handlePadding[3][0] = handlePadding[3][0] - (tileSize * padX);
+	handlePadding[3][2] = handlePadding[3][2] - (tileSize * padY);
+
+	glm::mat4 tileMat = handlePadding;
 	for (int i = 0; i < totalX; i++) {
-		tileMat[3][2] = node.transform[3][2];
+		tileMat[3][2] = handlePadding[3][2];
 		tileMat[3][0] += tileSize;
 		for (int j = 0; j < totalY; j++) {
 			tileMat[3][2] += tileSize;

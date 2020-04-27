@@ -10,9 +10,15 @@ Scene::Scene()
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 
+	zombieModel->setModelFixer(RABBIT_SCALER);
+	playerModel->setModelFixer(PLAYER_SCALER);
+	tapModel->setModelFixer(PLAYER_SCALER);
+
 	ground = NULL;
 
 	rootNode = new SceneNode(NULL, string("absoluteRoot"), 0);
+	groundNode = new SceneNode(ground, string("ground"), 1);
+	rootNode->addChild(groundNode);
 
 	startTime = chrono::system_clock::now();
 }
@@ -35,16 +41,16 @@ Scene::~Scene()
 
 void Scene::update()
 {
-	// TODO refactor ground in gamestate add to the graph
+	// TODO refactor ground in gamestate and to simplify this
 	if (ground == NULL) {
 		ground = new Ground(state->tiles.size(), state->tiles[0].size(), 1.0, 10, 10, program->GetProgramID());
+		groundNode->obj = ground;
 	}
 	for (int i = 0; i < state->tiles.size(); i++) {
 		for (int j = 0; j < state->tiles[0].size(); j++) {
 			ground->setLoc(i,j,(Ground::TILE_TYPE)(state->tiles[i][j]->tileType));
 		}
 	}
-	ground->update(NULL);
 
 	float offestTime = 0;
 	for (Zombie* zombie : state->zombies) {
@@ -65,16 +71,18 @@ void Scene::update()
 		SceneNode * playerTemp = getDrawableSceneNode(player->objectId, playerModel);
 		playerTemp->loadGameObject(player);
 
-		// here is wehre we woudl handle stuff like making sure they are holding another object
+		// here is wehre we handle stuff like making sure they are holding another object
 		if (player->holding) {
-			if (objectIdMap.count(player->heldObject) < 1) {
+			if (objectIdMap.count(player->heldObject) > 0) {
 				SceneNode * heldNode = objectIdMap[player->heldObject];
-				// TDOD the string needs the players models hand joint name
-				SceneNode * playerHand = playerTemp->find(std::string(""), playerTemp->objectId); 
-				playerHand->addChild(heldNode);
-				// TODO the matrix will have to be a constant we need to figure out how to make it look held
-				heldNode->transform = glm::mat4(1.0);
-				heldNode->updated = true; // set upadate to true since we are ignoring the gamstate values
+				SceneNode * playerHand = playerTemp->find(std::string("j_r_arm_$AssimpFbx$_Translation"), playerTemp->objectId); 
+				if (heldNode != NULL && playerHand != NULL) {
+					if (heldNode->parent != playerHand) {
+						playerHand->addChild(heldNode);
+						// TODO the matrix will have to be a constant we need to figure out how to make it look held
+						heldNode->transform = glm::mat4(1.0);
+					}
+				}
 			}
 		}
 
@@ -87,12 +95,19 @@ void Scene::update()
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
 	tapNode->loadGameObject(state->waterTap);
-	
 
+	for (Tool * tool : state->tools) {
+		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, tapModel);
+		toolTemp->loadGameObject(tool); // load new data
+	}
+	
+	rootNode->update(glm::mat4(1.0));
+
+	// this is test sode remove it at some point;
 	for (Model* model : models) {
 		model->update(NULL);
 	}
-	rootNode->update(glm::mat4(1.0));
+
 }
 
 // gets or make sthe sceneNode for a given object id and model;
@@ -104,7 +119,7 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	if (objectIdMap.count(objectId) < 1) {
 		node = model->createSceneNodes(objectId);
 		objectIdMap[objectId] = node;
-		rootNode->addChild(node); // this should be the ground or maybe a parameter
+		groundNode->addChild(node); // this should be the ground or maybe a parameter
 	}
 	else { // if its made just get the ref
 		node = objectIdMap[objectId];
@@ -114,12 +129,12 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
-	SceneNode temp(NULL, std::string(""), 0);
-	temp.transform = glm::mat4(1.0);
-	ground->draw(temp, veiwProjMat);
 
 	rootNode->draw(veiwProjMat);
 
+	// this is for testing we should be bale to remove at some point
+	SceneNode temp(NULL, std::string(""), 0);
+	temp.transform = glm::mat4(1.0);
 	for (Model * model : models) {
 		model->draw(temp, veiwProjMat);
 	}	

@@ -173,13 +173,19 @@ SceneNode* AssimpModel::createSceneNodes(uint objectId)
 	return new SceneNode(this, std::string("assimpmodel"), objectId);
 }
 
+void AssimpModel::setModelFixer(glm::mat4 fixer)
+{
+	modelFixer = fixer;
+}
+
 // draws the model, and thus all its meshes
 void AssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 	
+	const glm::mat4 model = node.transform *modelFixer;
 	// create a temp model mtx
-	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&(node.transform));
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
 
 	for (unsigned int i = 0; i < meshes.size(); i++)
