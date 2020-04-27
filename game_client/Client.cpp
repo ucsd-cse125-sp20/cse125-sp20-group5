@@ -244,7 +244,7 @@ void Client::setupAudio() {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Client::setupNetwork() {
-	netClient = new NetworkClient("localhost", "13");
+	netClient = new NetworkClient("localhost", "10032");
 	netClient->start();
 }
 

@@ -79,9 +79,10 @@ void ClientConnection::handleRead(const boost::system::error_code& error, size_t
         return;
     }
 
-    std::ostringstream ss;
-    ss << &readStreamBuf;
-    std::string s = ss.str();
+    std::string s{
+        boost::asio::buffers_begin(readStreamBuf.data()),
+        boost::asio::buffers_begin(readStreamBuf.data()) + bytes_transferred - 4 };
+    readStreamBuf.consume(bytes_transferred);
 
     //std::cout << s << std::endl;
     //std::cout << bytes_transferred << std::endl;

@@ -83,9 +83,11 @@ void NetworkClient::handleSend(const boost::system::error_code& error, size_t by
 
 void NetworkClient::handleReceive(const boost::system::error_code& error, size_t bytes_transferred) {
     if (!error) {
-        std::ostringstream ss;
-        ss << &readStreamBuf;
-        std::string s = ss.str();
+        std::string s{
+            boost::asio::buffers_begin(readStreamBuf.data()),
+            boost::asio::buffers_begin(readStreamBuf.data()) + bytes_transferred - 4 };
+        readStreamBuf.consume(bytes_transferred);
+
         //std::cout << s << std::endl;
 
         boost::iostreams::stream<boost::iostreams::array_source> is(s.data(), s.length());
