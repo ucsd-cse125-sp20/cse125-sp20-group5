@@ -35,19 +35,18 @@ Scene::~Scene()
 
 void Scene::update()
 {
-
+	// TODO refactor ground in gamestate add to the graph
 	if (ground == NULL) {
 		ground = new Ground(state->tiles.size(), state->tiles[0].size(), 1.0, 10, 10, program->GetProgramID());
 	}
-
 	for (int i = 0; i < state->tiles.size(); i++) {
 		for (int j = 0; j < state->tiles[0].size(); j++) {
 			ground->setLoc(i,j,(Ground::TILE_TYPE)(state->tiles[i][j]->tileType));
 		}
 	}
-
 	ground->update(NULL);
 
+	float offestTime = 0;
 	for (Zombie* zombie : state->zombies) {
 
 		SceneNode* zombieTemp = getAnimatedAssimpSceneNode(zombie->objectId, zombieModel);
@@ -56,11 +55,11 @@ void Scene::update()
 		// this is only here becuase there server sint sending it right now
 		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
 		float runningTime = elapsed_seconds.count();
-		zombieTemp->animationTime = runningTime;;
-
+		zombieTemp->animationTime = runningTime + offestTime;
+		offestTime += 4.0;
 	}
 
-	float offestTime = 0;
+
 	for (Player* player : state->players) {
 		
 		SceneNode * playerTemp = getAnimatedAssimpSceneNode(player->objectId, playerModel);

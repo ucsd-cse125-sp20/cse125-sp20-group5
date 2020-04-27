@@ -142,7 +142,7 @@ void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node, uint objectId)
 		bones[boneMap[node->getName()]].finalTransformation = node->transform;
 		std::unordered_map<uint, SceneNode*>::iterator children;
 		for (children = node->children.begin(); children != node->children.end(); children++) {
-			loadSceneNodes(children->second, objectId);
+			loadBoneFromSceneNodes(children->second, objectId);
 		}
 	}
 }
