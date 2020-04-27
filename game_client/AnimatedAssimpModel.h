@@ -18,7 +18,7 @@ public:
     void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
     void update(SceneNode* node) override;
     void updateBoneTransform(int animId, float TimeInSeconds);
-    SceneNode * createSceneNodes(uint objectId, aiNode * curNode);
+    SceneNode * createSceneNodes(uint objectId);
 
 private:
     /* Animation Data */
@@ -33,6 +33,7 @@ private:
     // getting scene nodes info
     void loadSceneNodes(SceneNode* node, uint objecId);
     void loadBoneFromSceneNodes(SceneNode* node, uint objecId);
+    SceneNode * createSceneNodesRec(uint objectId, aiNode * curNode);
 
     /* Animation related function */
     void calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);

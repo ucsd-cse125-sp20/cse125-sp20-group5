@@ -26,6 +26,8 @@ public:
 	~Ground();
 	TILE_TYPE getLoc(int x, int y);
 	void setLoc(int x, int y, TILE_TYPE type);
+
+	SceneNode* createSceneNodes(uint objectId) override;
 	void update(SceneNode * node) override;
 	void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
 

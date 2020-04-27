@@ -49,7 +49,7 @@ void Scene::update()
 	float offestTime = 0;
 	for (Zombie* zombie : state->zombies) {
 
-		SceneNode* zombieTemp = getAnimatedAssimpSceneNode(zombie->objectId, zombieModel);
+		SceneNode* zombieTemp = getDrawableSceneNode(zombie->objectId, zombieModel);
 		zombieTemp->loadGameObject(zombie); // load new data
 
 		// this is only here becuase there server sint sending it right now
@@ -62,7 +62,7 @@ void Scene::update()
 
 	for (Player* player : state->players) {
 		
-		SceneNode * playerTemp = getAnimatedAssimpSceneNode(player->objectId, playerModel);
+		SceneNode * playerTemp = getDrawableSceneNode(player->objectId, playerModel);
 		playerTemp->loadGameObject(player);
 
 		// here is wehre we woudl handle stuff like making sure they are holding another object
@@ -85,18 +85,8 @@ void Scene::update()
 		offestTime += 0.3;
 	}
 
-	SceneNode* node = NULL;
-	// if we haven't made make it
-	if (objectIdMap.count(state->waterTap->objectId) < 1) {
-		node = new SceneNode(tapModel, "waterTap", state->waterTap->objectId);
-		objectIdMap[state->waterTap->objectId] = node;
-		rootNode->addChild(node); // this should be the ground or maybe a parameter
-	}
-	else { // if its made just get the ref
-		node = objectIdMap[state->waterTap->objectId];
-	}
-	node->loadGameObject(state->waterTap);
-	//not needed noew but hanlde smoe stuff there 
+	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
+	tapNode->loadGameObject(state->waterTap);
 	
 
 	for (Model* model : models) {
@@ -106,14 +96,13 @@ void Scene::update()
 }
 
 // gets or make sthe sceneNode for a given object id and model;
-SceneNode* Scene::getAnimatedAssimpSceneNode(uint objectId, AnimatedAssimpModel * model)
+SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 {
 	SceneNode* node = NULL;
 	// if we haven't made make it
+	// TOOD we need to delete models that are no longer used at some point
 	if (objectIdMap.count(objectId) < 1) {
-		// TODO createScenNodes Should be part of Drawable
-		// TODO then this functino could take a Drawable instead of AnimatedAssimpModel
-		node = model->createSceneNodes(objectId, NULL);
+		node = model->createSceneNodes(objectId);
 		objectIdMap[objectId] = node;
 		rootNode->addChild(node); // this should be the ground or maybe a parameter
 	}

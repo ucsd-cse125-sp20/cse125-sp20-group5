@@ -37,7 +37,7 @@ private:
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
 
-	SceneNode* getAnimatedAssimpSceneNode(uint objectId, AnimatedAssimpModel * model);
+	SceneNode* getDrawableSceneNode(uint objectId, Drawable * model);
 
 public:
 	Scene();

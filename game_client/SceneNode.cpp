@@ -109,7 +109,7 @@ void SceneNode::loadGameObject(GameObject* gameObj)
 	animationId = gameObj->animation->animationType;
 	animationTime = gameObj->animation->animationFrame;
 
-}
+} 
 
 SceneNode* SceneNode::find(std::string name, uint objectId)
 {

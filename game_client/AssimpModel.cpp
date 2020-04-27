@@ -168,6 +168,11 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 // for right now we don't have to do anythign for non animated models
 void AssimpModel::update(SceneNode* node) {}
 
+SceneNode* AssimpModel::createSceneNodes(uint objectId)
+{
+	return new SceneNode(this, std::string("assimpmodel"), objectId);
+}
+
 // draws the model, and thus all its meshes
 void AssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {

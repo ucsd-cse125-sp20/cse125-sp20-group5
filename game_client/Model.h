@@ -26,6 +26,7 @@ public:
 
 	void draw(SceneNode& node,const glm::mat4 &viewProjMtx) override;
 	void update(SceneNode * node) override;
+	SceneNode* createSceneNodes(uint objectId) override;
 
 	void makeBox(const glm::vec3 &boxMin,const glm::vec3 &boxMax);
 	void makeTile(const glm::vec3& tileMin, const glm::vec3& tileMax, const glm::vec3& color, const char* texturefile);

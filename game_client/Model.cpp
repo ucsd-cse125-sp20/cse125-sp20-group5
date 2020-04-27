@@ -83,6 +83,11 @@ void Model::update(SceneNode * node)
 
 }
 
+SceneNode* Model::createSceneNodes(uint objectId)
+{
+	return new SceneNode(this, std::string("model"), objectId);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void Model::makeBox(const glm::vec3& boxMin, const glm::vec3& boxMax) {

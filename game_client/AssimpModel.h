@@ -39,6 +39,7 @@ public:
 
     virtual void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
     virtual void update(SceneNode * node) override;
+    virtual SceneNode* createSceneNodes(uint objectId) override;
 
 protected:
     /* Animation Data */

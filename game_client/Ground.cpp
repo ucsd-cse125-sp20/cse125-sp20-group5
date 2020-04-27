@@ -46,6 +46,11 @@ void Ground::setLoc(int x, int y, TILE_TYPE type)
 	grid[((padX + x) * totalY) + y + padY] = type;
 }
 
+SceneNode* Ground::createSceneNodes(uint objectId)
+{
+	return new SceneNode(this, std::string("ground"), objectId);
+}
+
 void Ground::update(SceneNode * node)
 {
 	

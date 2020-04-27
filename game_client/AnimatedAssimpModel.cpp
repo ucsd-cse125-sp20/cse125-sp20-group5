@@ -106,20 +106,10 @@ void AnimatedAssimpModel::updateBoneTransform(int animId, float TimeInSeconds)
 	calcAnimByNodeTraversal(animId, AnimationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
 }
 
-SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId, aiNode* curNode)
+SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId)
 {
-	SceneNode* newNode;
-	if (curNode == NULL) {
-		newNode = new SceneNode(this, string("modelRoot"), objectId);
-		newNode->addChild(createSceneNodes(objectId, rootBone));
-		return newNode;
-	}
-
-	newNode = new SceneNode(NULL, string(curNode->mName.C_Str()), objectId);
-	for (int i = 0; i < curNode->mNumChildren; i++) {
-		newNode->addChild(createSceneNodes(objectId, curNode->mChildren[i]));
-	}
-
+	SceneNode * newNode = new SceneNode(this, string("modelRoot"), objectId);
+	newNode->addChild(createSceneNodesRec(objectId, rootBone));
 	return newNode;
 }
 
@@ -145,6 +135,15 @@ void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node, uint objectId)
 			loadBoneFromSceneNodes(children->second, objectId);
 		}
 	}
+}
+
+SceneNode * AnimatedAssimpModel::createSceneNodesRec(uint objectId, aiNode* curNode)
+{
+	SceneNode * newNode = new SceneNode(NULL, string(curNode->mName.C_Str()), objectId);
+	for (int i = 0; i < curNode->mNumChildren; i++) {
+		newNode->addChild(createSceneNodesRec(objectId, curNode->mChildren[i]));
+	}
+	return newNode;
 }
 
 
