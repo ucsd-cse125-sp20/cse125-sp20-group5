@@ -11,13 +11,10 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 	totalY = (y + (2 * padY));
 	tileSize = size;
 
-	localMat = glm::mat4(1.0);
-
 	int gridsize = totalX * totalY;
 
 	grid = new TILE_TYPE[gridsize];
 
-	position = glm::vec3(-(totalX *.5)*size -1.5, 0, -(totalY *.5)*size - 3);
 
 	for (int i = 0; i < NUM_TILES; i++) {
 		Model * temp = new Model(shader);
@@ -51,10 +48,7 @@ void Ground::setLoc(int x, int y, TILE_TYPE type)
 
 void Ground::update(SceneNode * node)
 {
-	localMat = glm::mat4(1.0, 0, 0, 0,
-		0, 1.0, 0, 0,
-		0, 0, 1.0, 0,
-		position[0], position[1], position[2], 1.0);
+	
 }
 
 void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)

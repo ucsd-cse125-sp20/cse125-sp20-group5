@@ -19,22 +19,25 @@ private:
 	Ground * ground;
 
 	GameState * state;
+
+	// scene gprah values
 	SceneNode* rootNode;
+	std::unordered_map<uint, SceneNode*> objectIdMap;
 
-	std::vector<SceneNode*> zombieTransfroms;
-	std::vector<SceneNode*> playerTransforms;
-	glm::mat4 tapTransform;
-
+	// models
 	AnimatedAssimpModel * zombieModel;
 	AnimatedAssimpModel * playerModel; 
 	AssimpModel * tapModel;
 
+	// shaders
 	ShaderProgram * program;
 	ShaderProgram * assimpProgram;
 	ShaderProgram* animationProgram;
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
+
+	SceneNode* getAnimatedAssimpSceneNode(uint objectId, AnimatedAssimpModel * model);
 
 public:
 	Scene();

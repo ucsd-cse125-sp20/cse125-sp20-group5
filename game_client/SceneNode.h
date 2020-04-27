@@ -2,6 +2,7 @@
 #include "Drawable.h"
 #include "core.h"
 #include <unordered_map>
+#include <GameObject.hpp>
 
 class SceneNode
 {
@@ -52,6 +53,8 @@ public:
 
 	// draw teh matrices recursive
 	void draw(const glm::mat4& veiwProjMat);
+
+	void loadGameObject(GameObject * gameObj);
 
 	std::string getName() const;
 

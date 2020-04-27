@@ -13,9 +13,6 @@ private:
 
 	float tileSize;
 
-	glm::vec3 position;
-	glm::mat4 localMat;
-
 	// this is a one dimensinal arrya that ill use as a two dimensional cuz c++ arrays are bad
 	std::vector<Model*> tiles;
 	TILE_TYPE* grid;

@@ -19,6 +19,8 @@ public:
         GameObject::serialize(ar, version);
         color->serialize(ar, version);
         ar & playerId;
+        ar & holding;
+        ar & heldObject;
     }
 
     ~Player() {
@@ -37,6 +39,8 @@ public:
     //Animation* animation; // type of animation for player
     Color* color;
     int playerId;
+    bool holding;
+    unsigned int heldObject;
 };
 
 #endif

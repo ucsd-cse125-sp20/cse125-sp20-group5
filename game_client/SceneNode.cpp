@@ -97,6 +97,20 @@ void SceneNode::draw(const glm::mat4& veiwProjMat)
 	}
 }
 
+void SceneNode::loadGameObject(GameObject* gameObj) 
+{
+
+	position[0] = gameObj->position->getX();
+	position[1] = gameObj->position->getY();
+	position[2] = gameObj->position->getZ();
+
+	dir = gameObj->direction->angle;
+
+	animationId = gameObj->animation->animationType;
+	animationTime = gameObj->animation->animationFrame;
+
+}
+
 std::string SceneNode::getName() const
 {
 	return name;

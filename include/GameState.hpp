@@ -159,7 +159,8 @@ public:
     SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
 
-    unsigned int objectCount;
+    // start of at 100 so we can portnetially reserve special constants
+    unsigned int objectCount = 100;
 };
 
 #endif

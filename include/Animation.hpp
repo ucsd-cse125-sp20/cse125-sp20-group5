@@ -13,7 +13,7 @@ public:
         ar & animationType;
         ar & animationFrame;
     }
-private:
+
     int animationType; // The current animation type (e.g. tool, player, etc)
     float animationFrame; // How far into the animation right now?
 };
