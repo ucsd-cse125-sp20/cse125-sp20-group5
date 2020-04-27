@@ -60,18 +60,30 @@ void Scene::update()
 
 	}
 
+	float offestTime = 0;
 	for (Player* player : state->players) {
 		
 		SceneNode * playerTemp = getAnimatedAssimpSceneNode(player->objectId, playerModel);
 		playerTemp->loadGameObject(player);
 
 		// here is wehre we woudl handle stuff like making sure they are holding another object
+		if (player->holding) {
+			if (objectIdMap.count(player->heldObject) < 1) {
+				SceneNode * heldNode = objectIdMap[player->heldObject];
+				// TDOD the string needs the players models hand joint name
+				SceneNode * playerHand = playerTemp->find(std::string(""), playerTemp->objectId); 
+				playerHand->addChild(heldNode);
+				// TODO the matrix will have to be a constant we need to figure out how to make it look held
+				heldNode->transform = glm::mat4(1.0);
+				heldNode->updated = true; // set upadate to true since we are ignoring the gamstate values
+			}
+		}
 
 		// this is only here becuase there server isnt sending it right now
 		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
 		float runningTime = elapsed_seconds.count();
-		playerTemp->animationTime = runningTime;
-
+		playerTemp->animationTime = runningTime+offestTime;
+		offestTime += 0.3;
 	}
 
 	SceneNode* node = NULL;
@@ -100,7 +112,7 @@ SceneNode* Scene::getAnimatedAssimpSceneNode(uint objectId, AnimatedAssimpModel 
 	SceneNode* node = NULL;
 	// if we haven't made make it
 	if (objectIdMap.count(objectId) < 1) {
-		// TODO createScenNodes Shoudl be part of Drawable
+		// TODO createScenNodes Should be part of Drawable
 		// TODO then this functino could take a Drawable instead of AnimatedAssimpModel
 		node = model->createSceneNodes(objectId, NULL);
 		objectIdMap[objectId] = node;
@@ -120,7 +132,6 @@ void Scene::draw(const glm::mat4 &veiwProjMat)
 
 	rootNode->draw(veiwProjMat);
 
-	temp.transform = glm::mat4(1.0);
 	for (Model * model : models) {
 		model->draw(temp, veiwProjMat);
 	}	

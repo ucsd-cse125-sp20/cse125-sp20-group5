@@ -111,6 +111,24 @@ void SceneNode::loadGameObject(GameObject* gameObj)
 
 }
 
+SceneNode* SceneNode::find(std::string name, uint objectId)
+{
+	if (objectId != this->objectId) {
+		return nullptr;
+	}
+	if (this->name == name) {
+		return this;
+	}
+	std::unordered_map<uint, SceneNode*>::iterator it;
+	for (it = children.begin(); it != children.end(); it++) {
+		SceneNode* node = it->second->find(name, objectId);
+		if (node != nullptr) {
+			return node;
+		}
+	}
+	return nullptr;
+}
+
 std::string SceneNode::getName() const
 {
 	return name;

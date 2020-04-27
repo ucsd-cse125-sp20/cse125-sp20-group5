@@ -11,11 +11,8 @@ private:
 	/*not sure baout this*/
 	uint modelId;
 
-	uint objectId;
 	SceneNode* parent;
 	std::string name;
-
-	// maybe jsut a vector
 	uint childNum;
 	uint childCount;
 
@@ -23,6 +20,7 @@ private:
 
 public:
 
+	uint objectId;
 	glm::mat4 transform;
 	std::unordered_map<uint, SceneNode*> children;
 	Drawable* obj;
@@ -55,6 +53,10 @@ public:
 	void draw(const glm::mat4& veiwProjMat);
 
 	void loadGameObject(GameObject * gameObj);
+
+	// finds a sub noe with the given name and object id
+	// used for finding hands and such 
+	SceneNode* find(std::string name, uint objectId);
 
 	std::string getName() const;
 

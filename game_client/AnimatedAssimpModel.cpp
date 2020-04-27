@@ -70,7 +70,7 @@ void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 
-	loadBoneFromSceneNodes(&node);
+	loadBoneFromSceneNodes(node.children.begin()->second, node.objectId);
 
 	for (uint i = 0; i < bones.size(); i++) {
 		// set the uniform
@@ -87,7 +87,7 @@ void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 void AnimatedAssimpModel::update(SceneNode* node)
 {
 	updateBoneTransform(node->animationId, node->animationTime);
-	loadSceneNodes(node);
+	loadSceneNodes(node->children.begin()->second, node->objectId);
 }
 
 
@@ -124,25 +124,25 @@ SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId, aiNode* curNode)
 }
 
 // takes a scene node that acts as a bone node and loads the values 
-void AnimatedAssimpModel::loadSceneNodes(SceneNode* node)
+void AnimatedAssimpModel::loadSceneNodes(SceneNode* node, uint objectId)
 {
-	if (boneMap.find(node->getName()) == boneMap.end()) {
+	if (boneMap.find(node->getName()) != boneMap.end() && node->objectId == objectId) {
 		node->updated = true;
 		node->transform = bones[boneMap[node->getName()]].finalTransformation;
 		std::unordered_map<uint, SceneNode*>::iterator children;
 		for (children = node->children.begin(); children != node->children.end(); children++) {
-			loadSceneNodes(children->second);
+			loadSceneNodes(children->second, objectId);
 		}
 	}
 }
 
-void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node)
+void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node, uint objectId)
 {
-	if (boneMap.find(node->getName()) == boneMap.end()) {
+	if (boneMap.find(node->getName()) != boneMap.end() && objectId == node->objectId) {
 		bones[boneMap[node->getName()]].finalTransformation = node->transform;
 		std::unordered_map<uint, SceneNode*>::iterator children;
 		for (children = node->children.begin(); children != node->children.end(); children++) {
-			loadSceneNodes(children->second);
+			loadSceneNodes(children->second, objectId);
 		}
 	}
 }

@@ -19,9 +19,6 @@ public:
     void update(SceneNode* node) override;
     void updateBoneTransform(int animId, float TimeInSeconds);
     SceneNode * createSceneNodes(uint objectId, aiNode * curNode);
-    void loadSceneNodes(SceneNode * node);
-    void loadBoneFromSceneNodes(SceneNode * node);
-    
 
 private:
     /* Animation Data */
@@ -32,6 +29,10 @@ private:
 
     aiNode* rootBone;
     void setRootBone();
+
+    // getting scene nodes info
+    void loadSceneNodes(SceneNode* node, uint objecId);
+    void loadBoneFromSceneNodes(SceneNode* node, uint objecId);
 
     /* Animation related function */
     void calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
