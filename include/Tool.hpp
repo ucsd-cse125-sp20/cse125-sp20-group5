@@ -5,25 +5,27 @@
 
 class Tool : public GameObject {
 public:
+    Tool() : GameObject(), toolType(0), heldBy(0), held(false) {}
     Tool(Position* position, Direction * direction, Animation * animation, 
-        unsigned int objectId, int toolType, bool held)
-        : GameObject(position, direction, animation, objectId), toolType(toolType), held(held)  {
-        this->position = position;
+        unsigned int objectId, int toolType, int heldBy, bool held)
+        : GameObject(position, direction, animation, objectId), toolType(toolType), heldBy(heldBy), held(held)  {
+
     }
 
+    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        GameObject::serialize(ar, version);
+        ar & boost::serialization::base_object<GameObject>(*this);
         ar & toolType;
+        ar & heldBy;
         ar & held;
     }
 
     ~Tool() {
-        //delete position;
     }
-
     int toolType; // e.g. watering can, hoe, etc
+    int heldBy;
     bool held; // Either held by players 1 - 4 or not held (0)
 };
 

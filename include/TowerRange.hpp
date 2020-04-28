@@ -3,6 +3,7 @@
 
 class TowerRange {
 public:
+    TowerRange() : rangeDistance(0) {}
     TowerRange(float rangeDistance): rangeDistance(rangeDistance) {}
 
     template<class Archive>
