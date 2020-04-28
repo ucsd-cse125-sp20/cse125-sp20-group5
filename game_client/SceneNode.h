@@ -14,8 +14,6 @@ private:
 	uint childNum;
 	uint childCount;
 
-	// animation info;
-
 public:
 
 	uint objectId;

@@ -51,6 +51,7 @@ public:
             Direction* toolDirection = new Direction(0.0);
             Animation* toolAnimation = new Animation(0, 0);
             tools.push_back(new Tool(toolPosition, toolDirection, toolAnimation, objectCount, i, 0));
+            tools[0]->held = true;
             players[0]->holding = true;
             players[0]->heldObject = tools[0]->objectId;
             objectCount++;

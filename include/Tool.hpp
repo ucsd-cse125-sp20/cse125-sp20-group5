@@ -6,8 +6,8 @@
 class Tool : public GameObject {
 public:
     Tool(Position* position, Direction * direction, Animation * animation, 
-        unsigned int objectId, int toolType, int heldBy)
-        : GameObject(position, direction, animation, objectId), toolType(toolType), heldBy(heldBy)  {
+        unsigned int objectId, int toolType, bool held)
+        : GameObject(position, direction, animation, objectId), toolType(toolType), held(held)  {
         this->position = position;
     }
 
@@ -16,17 +16,15 @@ public:
     {
         GameObject::serialize(ar, version);
         ar & toolType;
-        ar & heldBy;
+        ar & held;
     }
 
     ~Tool() {
         //delete position;
     }
 
-private:
-    //Position* position; // Tool position
     int toolType; // e.g. watering can, hoe, etc
-    int heldBy; // Either held by players 1 - 4 or not held (0)
+    bool held; // Either held by players 1 - 4 or not held (0)
 };
 
 #endif

@@ -9,10 +9,11 @@ Scene::Scene()
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
+	toolModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 
-	zombieModel->setModelFixer(RABBIT_SCALER);
-	playerModel->setModelFixer(PLAYER_SCALER);
-	tapModel->setModelFixer(PLAYER_SCALER);
+	//zombieModel->setModelFixer(RABBIT_SCALER);
+	//playerModel->setModelFixer(PLAYER_SCALER);
+	//tapModel->setModelFixer(PLAYER_SCALER);
 
 	ground = NULL;
 
@@ -79,8 +80,8 @@ void Scene::update()
 				if (heldNode != NULL && playerHand != NULL) {
 					if (heldNode->parent != playerHand) {
 						playerHand->addChild(heldNode);
-						// TODO the matrix will have to be a constant we need to figure out how to make it look held
-						heldNode->transform = glm::mat4(1.0);
+						// TODO the values will have to be a constant we need to figure out how to make it look held
+						heldNode->position = glm::vec3(-4.5,1.3,.5);
 					}
 				}
 			}
@@ -97,8 +98,9 @@ void Scene::update()
 	tapNode->loadGameObject(state->waterTap);
 
 	for (Tool * tool : state->tools) {
-		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, tapModel);
-		toolTemp->loadGameObject(tool); // load new data
+		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, toolModel);
+		if (!tool->held)
+			toolTemp->loadGameObject(tool); // load new data
 	}
 	
 	rootNode->update(glm::mat4(1.0));

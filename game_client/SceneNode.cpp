@@ -1,5 +1,6 @@
 #include "SceneNode.h"
 #include <glm\gtx\euler_angles.hpp>
+#include <iostream>
 
 SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 {
@@ -60,7 +61,6 @@ void SceneNode::calcLocalTransform()
 	transform[3][0] = position[0];
 	transform[3][1] = position[1];
 	transform[3][2] = position[2];
-
 }
 
 void SceneNode::update(glm::mat4 world)
@@ -69,11 +69,13 @@ void SceneNode::update(glm::mat4 world)
 		obj->update(this);
 	}
 
-	// if updated externally by another nimation function;
+	// if updated externally by another animation function;
 	if (!updated) {
 		calcLocalTransform();
-		transform = world * transform;
+
 	}
+
+	transform = world * transform;
 	updated = true;
 
 	std::unordered_map<uint, SceneNode*>::iterator it;

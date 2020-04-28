@@ -29,6 +29,7 @@ private:
 	AnimatedAssimpModel * zombieModel;
 	AnimatedAssimpModel* playerModel;
 	AssimpModel* tapModel;
+	AssimpModel* toolModel;
 
 	// shaders
 	ShaderProgram * program;

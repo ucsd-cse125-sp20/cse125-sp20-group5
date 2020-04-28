@@ -69,7 +69,6 @@ void AnimatedAssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceD
 void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
-
 	loadBoneFromSceneNodes(node.children.begin()->second, node.objectId);
 
 	for (uint i = 0; i < bones.size(); i++) {
@@ -80,7 +79,15 @@ void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			(float*)&(bones[i].finalTransformation));
 	}
 
-	AssimpModel::draw(node, viewProjMtx);
+	const glm::mat4 model = glm::mat4(1.0);// node.transform* modelFixer;
+	// create a temp model mtx
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
+
+	for (unsigned int i = 0; i < meshes.size(); i++)
+		meshes[i].draw(shader);
+
+	glUseProgram(0);
 }
 
 // this funciton needs to load the bone data from the Scene nodes
@@ -129,7 +136,7 @@ void AnimatedAssimpModel::loadSceneNodes(SceneNode* node, uint objectId)
 void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node, uint objectId)
 {
 	if (boneMap.find(node->getName()) != boneMap.end() && objectId == node->objectId) {
-		bones[boneMap[node->getName()]].finalTransformation = node->transform;
+		bones[boneMap[node->getName()]].finalTransformation = node->transform * bones[boneMap[node->getName()]].boneOffset;
 		std::unordered_map<uint, SceneNode*>::iterator children;
 		for (children = node->children.begin(); children != node->children.end(); children++) {
 			loadBoneFromSceneNodes(children->second, objectId);
@@ -178,11 +185,11 @@ void AnimatedAssimpModel::calcAnimByNodeTraversal(int animId, float AnimationTim
 	if (boneMap.find(NodeName) != boneMap.end()) {
 		uint BoneIndex = boneMap[NodeName];
 		glm::mat4 m_GlobalInverseTransform = convertToGlmMat(m_aiScene->mRootNode->mTransformation.Inverse()); // TODO;  Replace the passed in argument with this
-		bones[BoneIndex].finalTransformation = m_GlobalInverseTransform * GlobalTransformation * bones[BoneIndex].boneOffset;
+		bones[BoneIndex].finalTransformation = m_GlobalInverseTransform * GlobalTransformation;
 	}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++) {
-		calcAnimByNodeTraversal(animId, AnimationTime, pNode->mChildren[i], GlobalTransformation);
+		calcAnimByNodeTraversal(animId, AnimationTime, pNode->mChildren[i], ParentTransform);//GlobalTransformation);//
 	}
 }
 
