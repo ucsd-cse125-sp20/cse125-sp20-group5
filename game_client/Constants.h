@@ -11,8 +11,12 @@
 #define WATERING_CAN_MODEL "model/watering_can.fbx"
 
 #define WATER_TAP_SCALER_MAT glm::mat4(.5, 0, 0, 0,		0, .5, 0, 0,	0, 0, .5, 0,		0, 0, 0, 1.0)
-#define RABBIT_SCALER glm::mat4(.5, 0, 0, 0,		0, .5, 0, 0,	0, 0, .5, 0,		0, 0, 0, 1.0)
-#define PLAYER_SCALER glm::mat4(.5, 0, 0, 0,		0, .5, 0, 0,	0, 0, .5, 0,		0, 0, 0, 1.0)
+#define RABBIT_SCALER_MAT glm::mat4(.5, 0, 0, 0,		0, .5, 0, 0,	0, 0, .5, 0,		0, 0, 0, 1.0)
+#define PLAYER_SCALER_MAT glm::mat4(.5, 0, 0, 0,		0, .5, 0, 0,	0, 0, .5, 0,		0, 0, 0, 1.0)
 
+#define WATER_TAP_SCALER 0.5
+#define RABBIT_SCALER 0.5
+#define PLAYER_SCALER 0.5
+#define TOOL_SCALER 0.5
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"
