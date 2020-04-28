@@ -18,6 +18,13 @@ AssimpModel::AssimpModel(string const& path, uint shader)
 
 }
 
+AssimpModel::~AssimpModel()
+{
+	for (Texture tex : textures_loaded) {
+		glDeleteTextures(1, &(tex.id));
+	}
+}
+
 // Because it is highly discouraged to call an overriden method in virtual, this method is created to avoid AnimatedAssimpModel 
 // calling the above constructor which would eventually all an overriden method, loadBoneData()
 void AssimpModel::importScene(const string& path, uint shader)
@@ -91,6 +98,7 @@ AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 m
 	for (unsigned int i = 0; i < vertices.size(); i++)
 		vertices[i].BoneReference = boneReferences[i];
 
+
 	// Walk through the mesh's faces (a mesh triangle) and retrieve the corresponding vertex indices.
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)	{
 		aiFace face = mesh->mFaces[i];
@@ -157,11 +165,25 @@ vector<Texture> AssimpModel::loadMaterialTextures(aiMaterial* mat, aiTextureType
 	return textures;
 }
 
+// for right now we don't have to do anythign for non animated models
+void AssimpModel::update(SceneNode* node) {}
+
+SceneNode* AssimpModel::createSceneNodes(uint objectId)
+{
+	return new SceneNode(this, std::string("assimpmodel"), objectId);
+}
+
+void AssimpModel::setModelFixer(glm::mat4 fixer)
+{
+	modelFixer = fixer;
+}
+
 // draws the model, and thus all its meshes
-void AssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
+void AssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 	
+	const glm::mat4 model = node.transform *modelFixer;
 	// create a temp model mtx
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);

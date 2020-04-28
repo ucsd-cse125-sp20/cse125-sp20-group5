@@ -14,8 +14,6 @@
 
 Model::Model(uint shader) {
 	this->shader = shader;
-	pose = glm::vec3(0);
-	position = glm::vec3(0);
 
 	glGenBuffers(1, &VertexBuffer);
 	glGenBuffers(1, &IndexBuffer);
@@ -34,16 +32,12 @@ Model::~Model() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Model::draw(const glm::mat4& viewProjMtx) {
-	draw(localMat, viewProjMtx);
-}
-
-void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx) {
+void Model::draw(SceneNode& node, const glm::mat4& viewProjMtx) {
 	// Set up shader
 	glUseProgram(shader);
-	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelMtx"), 1, false, (float*)&modelMtx);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelMtx"), 1, false, (float*)&(node.transform));
 
-	glm::mat4 mvpMtx = viewProjMtx * modelMtx;
+	glm::mat4 mvpMtx = viewProjMtx * node.transform;
 	glUniformMatrix4fv(glGetUniformLocation(shader, "ModelViewProjMtx"), 1, false, (float*)&mvpMtx);
 
 	// Set up state
@@ -84,17 +78,14 @@ void Model::draw(const glm::mat4& modelMtx, const glm::mat4& viewProjMtx) {
 	glUseProgram(0);
 }
 
-void Model::update()
+void Model::update(SceneNode * node)
 {
 
-	localMat = glm::eulerAngleX(pose.x);
-	localMat = glm::eulerAngleY(pose.y) * localMat;
-	localMat = glm::eulerAngleZ(pose.z) * localMat;
+}
 
-	localMat = glm::mat4(1.0, 0, 0, 0,
-		0, 1.0, 0, 0,
-		0, 0, 1.0, 0,
-		position[0], position[1], position[2], 1.0) * localMat;
+SceneNode* Model::createSceneNodes(uint objectId)
+{
+	return new SceneNode(this, std::string("model"), objectId);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,23 +199,4 @@ void Model::setBuffers(const std::vector<ModelVertex>& vtx, const std::vector<ui
 		std::cout << "Failed to load texture " << texturefile << std::endl;
 	}
 	stbi_image_free(data);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-// Access functions
-glm::mat4 Model::getLocalMat() {
-	return localMat;
-}
-
-void Model::setPose(glm::vec3 pose) {
-	this->pose = pose;
-}
-
-void Model::setPosition(glm::vec3 position) {
-	this->position = position;
-}
-
-glm::vec3 Model::getPosition() {
-	return position;
 }

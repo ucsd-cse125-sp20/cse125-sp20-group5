@@ -3,7 +3,7 @@
 
 class Animation {
 public:
-    Animation(int animationType, int animationFrame)
+    Animation(int animationType, float animationFrame)
         : animationType(animationType),
           animationFrame(animationFrame) {}
 
@@ -13,9 +13,9 @@ public:
         ar & animationType;
         ar & animationFrame;
     }
-private:
+
     int animationType; // The current animation type (e.g. tool, player, etc)
-    int animationFrame; // How far into the animation right now?
+    float animationFrame; // How far into the animation right now?
 };
 
 #endif

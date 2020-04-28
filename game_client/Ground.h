@@ -13,9 +13,6 @@ private:
 
 	float tileSize;
 
-	glm::vec3 position;
-	glm::mat4 localMat;
-
 	// this is a one dimensinal arrya that ill use as a two dimensional cuz c++ arrays are bad
 	std::vector<Model*> tiles;
 	TILE_TYPE* grid;
@@ -29,8 +26,10 @@ public:
 	~Ground();
 	TILE_TYPE getLoc(int x, int y);
 	void setLoc(int x, int y, TILE_TYPE type);
-	void update();
-	void draw(const glm::mat4& viewProjMtx);
+
+	SceneNode* createSceneNodes(uint objectId) override;
+	void update(SceneNode * node) override;
+	void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
 
 	void setPadding(TILE_TYPE type);
 

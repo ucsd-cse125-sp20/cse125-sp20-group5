@@ -14,7 +14,28 @@ AnimatedAssimpModel::AnimatedAssimpModel(string const& path, uint shader) : Assi
 	// Check if there's too many bones
 	assert(bones.size() <= 100); // which is the MAX_BONES, set in the vertex shader 
 
+	for (int i = 0; i < m_aiScene->mNumAnimations; i++) {
+		animatedNodeMapList.push_back(new std::unordered_map<std::string, aiNodeAnim*>());
+		for (int j = 0; j < m_aiScene->mAnimations[i]->mNumChannels; j++) {
+			aiNodeAnim* curAnimNode = m_aiScene->mAnimations[i]->mChannels[j];
+			std::string name = std::string(curAnimNode->mNodeName.C_Str());
+			(*(animatedNodeMapList[i]))[name] = curAnimNode;
+		}
+	}
+
+	// fin the root bone
+	// teh root bone is direct child of the scene's root node hte top of the bone structure
+	setRootBone();
+	std::cout << rootBone->mName.C_Str() << std::endl;
+
 	startTime = chrono::system_clock::now();
+}
+
+AnimatedAssimpModel::~AnimatedAssimpModel()
+{
+	for (std::unordered_map<std::string, aiNodeAnim*>* map : animatedNodeMapList) {
+		delete map;
+	}
 }
 
 // populates the bone vectors which stores the transformation data for each bone, and
@@ -45,15 +66,12 @@ void AnimatedAssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceD
 }
 
 // draws the model, and thus all its meshes
-void AnimatedAssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProjMtx)
+void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 
-	// calculate the animated transformation for this frame
-	chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
-	float runningTime = elapsed_seconds.count();
+	loadBoneFromSceneNodes(node.children.begin()->second, node.objectId);
 
-	updateBoneTransform(runningTime);
 	for (uint i = 0; i < bones.size(); i++) {
 		// set the uniform
 		string str = "gBones[" + to_string(i) + "]";
@@ -62,33 +80,80 @@ void AnimatedAssimpModel::draw(const glm::mat4& model, const glm::mat4& viewProj
 			(float*)&(bones[i].finalTransformation));
 	}
 
-	AssimpModel::draw(model, viewProjMtx);
+	AssimpModel::draw(node, viewProjMtx);
+}
+
+// this funciton needs to load the bone data from the Scene nodes
+void AnimatedAssimpModel::update(SceneNode* node)
+{
+	updateBoneTransform(node->animationId, node->animationTime);
+	loadSceneNodes(node->children.begin()->second, node->objectId);
 }
 
 
 /* Animation related functions */
 /* The interpolation assumes all starting and ending keyframes are at the edge of the timerange */
 
-void AnimatedAssimpModel::updateBoneTransform(float TimeInSeconds)
+void AnimatedAssimpModel::updateBoneTransform(int animId, float TimeInSeconds)
 {
-	float TicksPerSecond = (float)(m_aiScene->mAnimations[0]->mTicksPerSecond != 0
-		? m_aiScene->mAnimations[0]->mTicksPerSecond
+	float TicksPerSecond = (float)(m_aiScene->mAnimations[animId]->mTicksPerSecond != 0
+		? m_aiScene->mAnimations[animId]->mTicksPerSecond
 		: 25.0f); // the last value is the default ticks/sec
 	float TimeInTicks = TimeInSeconds * TicksPerSecond;
-	float AnimationTime = fmod(TimeInTicks, (float)m_aiScene->mAnimations[0]->mDuration);
+	float AnimationTime = fmod(TimeInTicks, (float)m_aiScene->mAnimations[animId]->mDuration);
 
-	calcAnimByNodeTraversal(AnimationTime, m_aiScene->mRootNode, glm::mat4(1));
+	// set this line to just use the root bone node rathher than root bone
+	calcAnimByNodeTraversal(animId, AnimationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
 }
 
-void AnimatedAssimpModel::calcAnimByNodeTraversal(float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)
+SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId)
+{
+	SceneNode * newNode = new SceneNode(this, string("modelRoot"), objectId);
+	newNode->addChild(createSceneNodesRec(objectId, rootBone));
+	return newNode;
+}
+
+// takes a scene node that acts as a bone node and loads the values 
+void AnimatedAssimpModel::loadSceneNodes(SceneNode* node, uint objectId)
+{
+	if (boneMap.find(node->getName()) != boneMap.end() && node->objectId == objectId) {
+		node->updated = true;
+		node->transform = bones[boneMap[node->getName()]].finalTransformation;
+		std::unordered_map<uint, SceneNode*>::iterator children;
+		for (children = node->children.begin(); children != node->children.end(); children++) {
+			loadSceneNodes(children->second, objectId);
+		}
+	}
+}
+
+void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node, uint objectId)
+{
+	if (boneMap.find(node->getName()) != boneMap.end() && objectId == node->objectId) {
+		bones[boneMap[node->getName()]].finalTransformation = node->transform;
+		std::unordered_map<uint, SceneNode*>::iterator children;
+		for (children = node->children.begin(); children != node->children.end(); children++) {
+			loadBoneFromSceneNodes(children->second, objectId);
+		}
+	}
+}
+
+SceneNode * AnimatedAssimpModel::createSceneNodesRec(uint objectId, aiNode* curNode)
+{
+	SceneNode * newNode = new SceneNode(NULL, string(curNode->mName.C_Str()), objectId);
+	for (int i = 0; i < curNode->mNumChildren; i++) {
+		newNode->addChild(createSceneNodesRec(objectId, curNode->mChildren[i]));
+	}
+	return newNode;
+}
+
+
+void AnimatedAssimpModel::calcAnimByNodeTraversal(int animId, float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)
 {
 	string NodeName(pNode->mName.data);
 
-	const aiAnimation* pAnimation = m_aiScene->mAnimations[0];
-
 	glm::mat4 NodeTransformation = convertToGlmMat(pNode->mTransformation);
 
-	const aiNodeAnim* pNodeAnim = findAnimNode(pAnimation, NodeName);
+	const aiNodeAnim* pNodeAnim = findAnimNode(animId, NodeName);
 
 	if (pNodeAnim) {
 		// Interpolate transformations
@@ -117,17 +182,14 @@ void AnimatedAssimpModel::calcAnimByNodeTraversal(float AnimationTime, const aiN
 	}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++) {
-		calcAnimByNodeTraversal(AnimationTime, pNode->mChildren[i], GlobalTransformation);
+		calcAnimByNodeTraversal(animId, AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
 }
 
-const aiNodeAnim* AnimatedAssimpModel::findAnimNode(const aiAnimation* pAnimation, const string NodeName)
+const aiNodeAnim* AnimatedAssimpModel::findAnimNode(const int animId, const string NodeName)
 {
-	for (uint i = 0; i < pAnimation->mNumChannels; i++) {
-		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
-
-		if (string(pNodeAnim->mNodeName.data) == NodeName)
-			return pNodeAnim;
+	if ((animatedNodeMapList[animId])->count(NodeName) > 0) {
+		return (*(animatedNodeMapList[animId]))[NodeName];
 	}
 	return NULL;
 }
@@ -175,6 +237,19 @@ void AnimatedAssimpModel::calcInterpolatedRotation(aiQuaternion& Out, float Anim
 	Out = Out.Normalize();
 }
 
+// this finds the root bone in the bone hierarcy ideally this coudl be simplfied
+// if all root bones were name root bone in the model this would become much easier
+void AnimatedAssimpModel::setRootBone()
+{
+	std::map<string, uint>::iterator bones;
+	for (bones = boneMap.begin(); bones != boneMap.end(); bones++) {
+		for (int i = 0; i < m_aiScene->mRootNode->mNumChildren; i++) {
+			if (bones->first == std::string(m_aiScene->mRootNode->mChildren[i]->mName.C_Str())) {
+				rootBone = m_aiScene->mRootNode->mChildren[i];
+			}
+		}
+	}
+}
 
 void AnimatedAssimpModel::calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {

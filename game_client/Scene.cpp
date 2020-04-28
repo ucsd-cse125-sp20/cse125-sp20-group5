@@ -7,10 +7,20 @@ Scene::Scene()
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
-	playerModel = new AssimpModel(PLAYER_MODEL, assimpProgram->GetProgramID());
+	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 
+	zombieModel->setModelFixer(RABBIT_SCALER);
+	playerModel->setModelFixer(PLAYER_SCALER);
+	tapModel->setModelFixer(PLAYER_SCALER);
+
 	ground = NULL;
+
+	rootNode = new SceneNode(NULL, string("absoluteRoot"), 0);
+	groundNode = new SceneNode(ground, string("ground"), 1);
+	rootNode->addChild(groundNode);
+
+	startTime = chrono::system_clock::now();
 }
 
 Scene::~Scene()
@@ -26,93 +36,107 @@ Scene::~Scene()
 	delete program;
 	delete assimpProgram;
 	delete animationProgram;
-}
-
-glm::mat4 getPoseFromDirection(float angle) {
-	return glm::eulerAngleZ(angle);
+	delete rootNode;
 }
 
 void Scene::update()
 {
-	// Clear the two vectors
-	zombieTransfroms.clear();
-	playerTransforms.clear();
-
+	// TODO refactor ground in gamestate and to simplify this
 	if (ground == NULL) {
 		ground = new Ground(state->tiles.size(), state->tiles[0].size(), 1.0, 10, 10, program->GetProgramID());
+		groundNode->obj = ground;
 	}
-
 	for (int i = 0; i < state->tiles.size(); i++) {
 		for (int j = 0; j < state->tiles[0].size(); j++) {
 			ground->setLoc(i,j,(Ground::TILE_TYPE)(state->tiles[i][j]->tileType));
 		}
 	}
 
-	ground->update();
-
+	float offestTime = 0;
 	for (Zombie* zombie : state->zombies) {
-		Position* position = zombie->position;
-		Direction* direction = zombie->direction;
 
-		glm::mat4 mat4Transform(1.0f);
+		SceneNode* zombieTemp = getDrawableSceneNode(zombie->objectId, zombieModel);
+		zombieTemp->loadGameObject(zombie); // load new data
 
-		// Move
-		mat4Transform[3][0] = position->getX();
-		mat4Transform[3][1] = position->getY();
-		mat4Transform[3][2] = position->getZ();
-		// Rotate
-		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * RABBIT_SCALER;
-
-		zombieTransfroms.push_back(mat4Transform);
+		// this is only here becuase there server sint sending it right now
+		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
+		float runningTime = elapsed_seconds.count();
+		zombieTemp->animationTime = runningTime + offestTime;
+		offestTime += 4.0;
 	}
+
 
 	for (Player* player : state->players) {
-		Position* position = player->position;
-		Direction* direction = player->direction;
-
-		glm::mat4 mat4Transform(1.0f);
-
-		// Move
-		mat4Transform[3][0] = position->getX();
-		mat4Transform[3][1] = position->getY();
-		mat4Transform[3][2] = position->getZ();
 		
-		// Rotate
-		mat4Transform = getPoseFromDirection(direction->angle) * mat4Transform * PLAYER_SCALER;
+		SceneNode * playerTemp = getDrawableSceneNode(player->objectId, playerModel);
+		playerTemp->loadGameObject(player);
 
-		playerTransforms.push_back(mat4Transform);
+		// here is wehre we handle stuff like making sure they are holding another object
+		if (player->holding) {
+			if (objectIdMap.count(player->heldObject) > 0) {
+				SceneNode * heldNode = objectIdMap[player->heldObject];
+				SceneNode * playerHand = playerTemp->find(std::string("j_r_arm_$AssimpFbx$_Translation"), playerTemp->objectId); 
+				if (heldNode != NULL && playerHand != NULL) {
+					if (heldNode->parent != playerHand) {
+						playerHand->addChild(heldNode);
+						// TODO the matrix will have to be a constant we need to figure out how to make it look held
+						heldNode->transform = glm::mat4(1.0);
+					}
+				}
+			}
+		}
+
+		// this is only here becuase there server isnt sending it right now
+		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
+		float runningTime = elapsed_seconds.count();
+		playerTemp->animationTime = runningTime+offestTime;
+		offestTime += 0.3;
 	}
 
-	tapTransform = glm::mat4(1.0);
-	tapTransform[3][0] = state->waterTap->position->getX();
-	tapTransform[3][1] = state->waterTap->position->getY();
-	tapTransform[3][2] = state->waterTap->position->getZ();
+	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
+	tapNode->loadGameObject(state->waterTap);
 
-	tapTransform = tapTransform * getPoseFromDirection(state->waterTap->direction->angle) * WATER_TAP_SCALER;
+	for (Tool * tool : state->tools) {
+		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, tapModel);
+		toolTemp->loadGameObject(tool); // load new data
+	}
+	
+	rootNode->update(glm::mat4(1.0));
 
+	// this is test sode remove it at some point;
 	for (Model* model : models) {
-		model->update();
+		model->update(NULL);
 	}
+
+}
+
+// gets or make sthe sceneNode for a given object id and model;
+SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
+{
+	SceneNode* node = NULL;
+	// if we haven't made make it
+	// TOOD we need to delete models that are no longer used at some point
+	if (objectIdMap.count(objectId) < 1) {
+		node = model->createSceneNodes(objectId);
+		objectIdMap[objectId] = node;
+		groundNode->addChild(node); // this should be the ground or maybe a parameter
+	}
+	else { // if its made just get the ref
+		node = objectIdMap[objectId];
+	}
+	return node;
 }
 
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
-	ground->draw(veiwProjMat);
 
-	for (glm::mat4 transform : zombieTransfroms) {
-		// Add transform to assimp models
-		zombieModel->draw(transform, veiwProjMat);
-	}
+	rootNode->draw(veiwProjMat);
 
-	for (glm::mat4 transform : playerTransforms) {
-		// Add transform to assimp models
-		playerModel->draw(transform, veiwProjMat);
-	}
-
-	tapModel->draw(tapTransform, veiwProjMat);
-
+	// this is for testing we should be bale to remove at some point
+	SceneNode temp(NULL, std::string(""), 0);
+	temp.transform = glm::mat4(1.0);
 	for (Model * model : models) {
-		model->draw(model->getLocalMat(), veiwProjMat);
+		model->draw(temp, veiwProjMat);
 	}	
 }
 
@@ -121,8 +145,6 @@ void Scene::setState(GameState* state)
 {
 	this->state = state;
 }
-
-
 
 // static function for a to create a specfic scene I imagine one of these for each level/screen
 

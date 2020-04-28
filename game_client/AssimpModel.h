@@ -9,6 +9,8 @@
 #include "Core.h"
 #include "stb_image.h"
 #include "AssimpMesh.h"
+#include "Drawable.h"
+#include "SceneNode.h"
 
 struct Bone
 {
@@ -22,11 +24,12 @@ struct Bone
     }
 };
 
-class AssimpModel
+class AssimpModel : public Drawable
 {
 public:
     AssimpModel();
     AssimpModel(const string& path, uint shader);
+    ~AssimpModel();
 
     /*  Model Data */
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
@@ -34,15 +37,11 @@ public:
     string directory;
     bool gammaCorrection;
 
-    /*  Mesh Data  */
-    vector<Vertex> vertices;
-    vector<unsigned int> indices;
-    vector<Texture> textures;
-    unsigned int VAO;
-    glm::mat4 transform;
+    void setModelFixer(glm::mat4 fixer);
 
-
-    virtual void draw(const glm::mat4& model, const glm::mat4& viewProjMtx);
+    virtual void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
+    virtual void update(SceneNode * node) override;
+    virtual SceneNode* createSceneNodes(uint objectId) override;
 
 protected:
     /* Animation Data */
@@ -50,6 +49,10 @@ protected:
     const aiScene* m_aiScene;
     map<string, uint> boneMap; // maps a bone name to its index
     vector<Bone> bones;
+
+    // this is to handel nay model speifc issues
+    // scalign the model movign it sligghtly down rotaitng it
+    glm::mat4 modelFixer = glm::mat4(1.0);
 
     uint shader;
 

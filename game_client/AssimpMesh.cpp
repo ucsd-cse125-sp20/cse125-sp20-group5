@@ -49,6 +49,13 @@ AssimpMesh::AssimpMesh(	vector<Vertex> vertices,
 	glBindVertexArray(0);
 }
 
+AssimpMesh::~AssimpMesh()
+{
+	glDeleteBuffers(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+}
+
 void AssimpMesh::draw(uint shader)
 {
 	// bind appropriate textures

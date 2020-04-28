@@ -81,6 +81,7 @@ public:
 
     /*  Functions  */
     AssimpMesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures, glm::mat4 transform);
+    ~AssimpMesh();
     void setupShadingAttributes(aiMaterial* material);
     void draw(uint shader);
 
