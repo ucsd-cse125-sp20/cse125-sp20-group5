@@ -8,12 +8,17 @@
 #include "Tile.hpp"
 #include "SeedShack.hpp"
 #include "WaterTap.hpp"
-
 #include "Message.hpp"
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 #include <boost/serialization/vector.hpp>
+
+const float SQRT2 = 1.41421356237309504880f;
+const float STEP_SIZE = 0.15f;
+const float EPSILON = 0.001f;
+const float IN_ROTATION_STEP_SIZE = 0.05f;
 
 class GameState {
 public:
@@ -131,17 +136,41 @@ public:
 
     void update(int opCode, Player* player) {
         switch (opCode) {
-            case OPCODE_PLAYER_MOVE_UP:
-                player->position->z -= 0.05f;
-                break;
             case OPCODE_PLAYER_MOVE_DOWN:
-                player->position->z += 0.05f;
+                player->position->z += STEP_SIZE;
+                player->direction->angle = Direction::DIRECTION_DOWN;
                 break;
-            case OPCODE_PLAYER_MOVE_LEFT:
-                player->position->x -= 0.05f;
+            case OPCODE_PLAYER_MOVE_LOWER_RIGHT:
+                player->position->z += STEP_SIZE / SQRT2;
+                player->position->x += STEP_SIZE / SQRT2;
+                player->direction->angle = Direction::DIRECTION_LOWER_RIGHT;
                 break;
             case OPCODE_PLAYER_MOVE_RIGHT:
-                player->position->x += 0.05f;
+                player->position->x += STEP_SIZE;
+                player->direction->angle = Direction::DIRECTION_RIGHT;
+                break;
+            case OPCODE_PLAYER_MOVE_UPPER_RIGHT:
+                player->position->z -= STEP_SIZE / SQRT2;
+                player->position->x += STEP_SIZE / SQRT2;
+                player->direction->angle = Direction::DIRECTION_UPPER_RIGHT;
+                break;
+            case OPCODE_PLAYER_MOVE_UP:
+                player->position->z -= STEP_SIZE;
+                player->direction->angle = Direction::DIRECTION_UP;
+                break;
+            case OPCODE_PLAYER_MOVE_UPPER_LEFT:
+                player->position->z -= STEP_SIZE / SQRT2;
+                player->position->x -= STEP_SIZE / SQRT2;
+                player->direction->angle = Direction::DIRECTION_UPPER_LEFT;
+                break;
+            case OPCODE_PLAYER_MOVE_LEFT:
+                player->position->x -= STEP_SIZE;
+                player->direction->angle = Direction::DIRECTION_LEFT;
+                break;
+            case OPCODE_PLAYER_MOVE_LOWER_LEFT:
+                player->position->z += STEP_SIZE / SQRT2;
+                player->position->x -= STEP_SIZE / SQRT2;
+                player->direction->angle = Direction::DIRECTION_LOWER_LEFT;
                 break;
         }
     }
@@ -155,6 +184,11 @@ public:
         if (it != players.end()) {
             players.erase(it);
         }
+    }
+
+    bool directionEquals(float angle, float direction) {
+        return std::abs(angle - direction) < EPSILON
+            || std::abs(angle - direction + 2 * Direction::PI) < EPSILON;
     }
 
     // We could use other data structures, for now use a list
