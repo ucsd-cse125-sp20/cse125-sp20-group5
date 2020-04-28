@@ -198,6 +198,7 @@
     <None Include="AnimatedAssimpModel.glsl" />
     <None Include="AssimpModel.glsl" />
     <None Include="Model.glsl" />
+    <None Include="particle\Particle.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="default_texture.png" />

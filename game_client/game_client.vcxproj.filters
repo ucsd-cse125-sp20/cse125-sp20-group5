@@ -127,6 +127,9 @@
     <None Include="AnimatedAssimpModel.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="particle\Particle.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="default_texture.png">
