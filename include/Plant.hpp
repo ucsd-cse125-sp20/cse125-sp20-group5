@@ -6,17 +6,19 @@
 
 class Plant : GameObject {
 public:
+    Plant(): GameObject(), range(nullptr) {}
+
     Plant(Position* position, Direction* direction, Animation* animation, unsigned int objectId, 
         TowerRange* range) : GameObject(position, direction, animation, objectId) {
-
         this->range = range;
     }
 
+    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        GameObject::serialize(ar, version);
-        range->serialize(ar, version);
+        ar & boost::serialization::base_object<GameObject>(*this);
+        ar & range;
     }
 
     ~Plant() {

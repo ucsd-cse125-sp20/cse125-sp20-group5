@@ -5,15 +5,16 @@
 
 class Zombie : public GameObject {
 public:
-    Zombie(Position* position, Direction* direction, Animation* animation, 
-        unsigned int objectId) : GameObject(position, direction, animation, objectId){
-        
+    Zombie() : GameObject() {}
+    Zombie(Position* position, Direction* direction, Animation* animation,
+        unsigned int objectId) : GameObject(position, direction, animation, objectId) {
     }
 
+    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        GameObject::serialize(ar, version);
+        ar & boost::serialization::base_object<GameObject>(*this);
     }
 
     ~Zombie() {

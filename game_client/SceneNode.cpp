@@ -100,9 +100,9 @@ void SceneNode::draw(const glm::mat4& veiwProjMat)
 void SceneNode::loadGameObject(GameObject* gameObj) 
 {
 
-	position[0] = gameObj->position->getX();
-	position[1] = gameObj->position->getY();
-	position[2] = gameObj->position->getZ();
+	position[0] = gameObj->position->x;
+	position[1] = gameObj->position->y;
+	position[2] = gameObj->position->z;
 
 	dir = gameObj->direction->angle;
 

@@ -4,6 +4,7 @@
 
 #include "Client.h"
 #include "NetworkClient.h"
+#include "Message.hpp"
 
 Client * Client::CLIENT;
 
@@ -13,6 +14,9 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 	// initalize mouse state
 	leftDown=middleDown=rightDown=false;
 	mouseX=mouseY=0;
+
+	// initialize keyboard state
+	setupKeyboardPresses();
 
 	// Initialize components
 	glfwGetWindowSize(windowHandle, &winX, &winY);
@@ -45,9 +49,11 @@ Client::~Client() {
 void Client::loop() {
 	while (!glfwWindowShouldClose(windowHandle)) {
 		//std::cout << "main looop" << std::endl;
+		sendKeyboardEvents();
 
 		// recieve the state from the server
 		currentGameState = netClient->getCurrentState();
+		//std::cout << currentGameState << std::endl;
 
 		scene->setState(currentGameState);
 
@@ -89,6 +95,24 @@ void Client::draw() {
 	glfwSwapBuffers(windowHandle);
 }
 
+/* Ideally there would be a single networking object that we would pass our 
+ events to and have it serializae and send them
+ */
+void Client::sendKeyboardEvents()
+{
+	if ((*keyPresses)[GLFW_KEY_W]) {
+        netClient->sendMessage(OPCODE_PLAYER_MOVE_UP);
+	}
+	if ((*keyPresses)[GLFW_KEY_A]) {
+        netClient->sendMessage(OPCODE_PLAYER_MOVE_LEFT);
+	}
+	if ((*keyPresses)[GLFW_KEY_S]) {
+        netClient->sendMessage(OPCODE_PLAYER_MOVE_DOWN);
+	}
+	if ((*keyPresses)[GLFW_KEY_D]) {
+		netClient->sendMessage(OPCODE_PLAYER_MOVE_RIGHT);
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -111,34 +135,22 @@ void Client::resize(GLFWwindow* window, int width, int height) {
 void Client::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	switch (key) {
-		case 0x1b:		// Escape
+		case GLFW_KEY_ESCAPE:		// Escape
 			quit();
 			break;
-		case 'r':
+		case GLFW_KEY_R:
 			reset();
 			break;
-		case GLFW_KEY_W: {
-			std::string w("w");
-			netClient->sendMessage(w);
-			break;
-		}
-		case GLFW_KEY_A: {
-			std::string a("a");
-			netClient->sendMessage(a);
-			break;
-		}
-		case GLFW_KEY_S: {
-			std::string s("s");
-			netClient->sendMessage(s);
-			break;
-		}
-		case GLFW_KEY_D: {
-			std::string d("d");
-			netClient->sendMessage(d);
-			break;
-		}
 		default:
-			break;
+			break;	
+	}
+
+	if (action == GLFW_PRESS && keyPresses->count((char)key) > 0) {
+		(*keyPresses)[key] = true;
+	}
+
+	if (action == GLFW_RELEASE && keyPresses->count((char)key) > 0) {
+		(*keyPresses)[key] = false;
 	}
 }
 
@@ -208,6 +220,16 @@ void Client::zoomScreen(GLFWwindow* window, double xoffset, double yoffset) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Client::setupKeyboardPresses()
+{
+	keyPresses = new std::unordered_map<int, bool>;
+	for (int c : keys) {
+		(*keyPresses)[c] = false;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Client::setupAudio() {
 	aEngine.Init();
 
@@ -222,7 +244,7 @@ void Client::setupAudio() {
 
 ////////////////////////////////////////////////////////////////////////////////
 void Client::setupNetwork() {
-	netClient = new NetworkClient("localhost", "13");
+	netClient = new NetworkClient("localhost", "10032");
 	netClient->start();
 }
 

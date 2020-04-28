@@ -28,11 +28,13 @@ public:
 	void loop(); // Loop will be the idling function of glut
 	void update(); // recalcuate the matrices
 	void draw(); // renders everything
+	void sendKeyboardEvents(); // Send keyboard events
 
 	void reset(); // reset scene ?
 	void quit(); // close window exit progmra ?
 	void setupAudio(); // setup audio engine
 	void setupNetwork(); // setup network client
+	void setupKeyboardPresses(); // setup keyboard handler
 
 	// Event handlers
 	void resize(GLFWwindow* window, int width, int height);
@@ -58,6 +60,7 @@ private:
 	Scene * scene;
 	Camera * cam;
 	CAudioEngine aEngine;
+	std::unordered_map<int, bool>* keyPresses;
 
 	NetworkClient *netClient;
 	GameState* currentGameState;

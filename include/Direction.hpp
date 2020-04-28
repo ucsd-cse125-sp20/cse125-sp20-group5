@@ -3,6 +3,7 @@
 
 class Direction {
 public:
+    Direction() : angle(0) {}
     Direction(float angle): angle(angle) {}
 
     template<class Archive>

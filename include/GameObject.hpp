@@ -5,11 +5,14 @@
 #include "Direction.hpp"
 #include "Animation.hpp"
 #include "TowerRange.hpp"
+#include <boost/serialization/base_object.hpp>
 
 class GameObject {
 public:
+    GameObject(): position(nullptr), direction(nullptr), animation(nullptr), objectId(0) {}
+
     GameObject(Position* position, Direction* direction, Animation* animation, 
-        int objectId) : objectId(objectId){
+        unsigned int objectId) : objectId(objectId){
         this->position = position;
         this->direction = direction;
         this->animation = animation;
@@ -18,9 +21,9 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        position->serialize(ar, version);
-        direction->serialize(ar, version);
-        animation->serialize(ar, version);
+        ar & position;
+        ar & direction;
+        ar & animation;
         ar & objectId;
     }
 
