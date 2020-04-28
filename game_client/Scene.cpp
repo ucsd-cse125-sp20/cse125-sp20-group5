@@ -11,10 +11,6 @@ Scene::Scene()
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	toolModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 
-	//zombieModel->setModelFixer(RABBIT_SCALER);
-	//playerModel->setModelFixer(PLAYER_SCALER);
-	//tapModel->setModelFixer(PLAYER_SCALER);
-
 	ground = NULL;
 
 	rootNode = new SceneNode(NULL, string("absoluteRoot"), 0);
@@ -81,6 +77,7 @@ void Scene::update()
 					if (heldNode->parent != playerHand) {
 						playerHand->addChild(heldNode);
 						// TODO the values will have to be a constant we need to figure out how to make it look held
+						heldNode->scaler = 1.0;
 						heldNode->position = glm::vec3(-4.5,1.3,.5);
 					}
 				}
@@ -99,8 +96,13 @@ void Scene::update()
 
 	for (Tool * tool : state->tools) {
 		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, toolModel);
-		if (!tool->held)
+		if (!tool->held) {
+			if (toolTemp->parent != groundNode) {
+				toolTemp->setParent(groundNode);
+				toolTemp->scaler = .5;
+			}
 			toolTemp->loadGameObject(tool); // load new data
+		}
 	}
 	
 	rootNode->update(glm::mat4(1.0));
@@ -121,6 +123,7 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	if (objectIdMap.count(objectId) < 1) {
 		node = model->createSceneNodes(objectId);
 		objectIdMap[objectId] = node;
+		node->scaler = .5;
 		groundNode->addChild(node); // this should be the ground or maybe a parameter
 	}
 	else { // if its made just get the ref
