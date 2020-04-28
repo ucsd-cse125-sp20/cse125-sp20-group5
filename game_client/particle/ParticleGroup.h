@@ -22,7 +22,7 @@
 class ParticleGroup
 {
 private:
-    std::vector<Particle> children;
+    std::vector<Particle*> children;
 
 	GLuint vao; // Vao for paritcles
 	GLuint vbos[2]; // Vbo for paricles

@@ -24,7 +24,7 @@ ParticleGroup::ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 col
 		
 		children.push_back(
 			// TODO: varify identity matrix
-			Particle(this->shader, glm::mat4(1.0f), randColor,
+			new Particle(this->shader, glm::mat4(1.0f), randColor,
 			randInitialV, this->acceleration, this->particleLifeSpan)
 		);
 	}
@@ -112,9 +112,28 @@ ParticleGroup::ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 col
 
 ParticleGroup::~ParticleGroup()
 {
+	// Delete the whole children vector
+	for (Particle* child : children) {
+		delete child;
+	}
 	// Delete the VBOs and the VAO.
 	glDeleteBuffers(2, vbos);
 	glDeleteVertexArrays(1, &vao);
+}
+
+// Draw all the children
+void ParticleGroup::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
+{
+	for (Particle * child : children) {
+		child->draw(projectionMatrix, viewMatrix, groupModelMatrix, vao);
+	}
+}
+
+void ParticleGroup::update(float timeDifference)
+{
+	for (Particle* child : children) {
+		child->update(timeDifference);
+	}
 }
 
 glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
@@ -133,15 +152,4 @@ glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
 	glm::vec3 diff = glm::vec3(xrand * variance.x, yrand * variance.y, zrand * variance.z);
 
 	return base + diff;
-}
-
-// Draw all the children
-void ParticleGroup::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
-{
-
-}
-
-void ParticleGroup::update(float timeDifference)
-{
-
 }
