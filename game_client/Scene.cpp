@@ -5,6 +5,8 @@ Scene::Scene()
 	program = new ShaderProgram("Model.glsl", ShaderProgram::eRender);
 	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
+	skyboxProgram = new ShaderProgram("Skybox.glsl", ShaderProgram::eRender);
+	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
@@ -17,6 +19,8 @@ Scene::Scene()
 	groundNode = new SceneNode(ground, string("ground"), 1);
 	rootNode->addChild(groundNode);
 
+	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(30.0f)));
+
 	startTime = chrono::system_clock::now();
 }
 
@@ -26,6 +30,7 @@ Scene::~Scene()
 		delete mod;
 	}
 	delete ground;
+	delete skybox;
 
 	delete zombieModel;
 	delete playerModel;
@@ -33,6 +38,9 @@ Scene::~Scene()
 	delete program;
 	delete assimpProgram;
 	delete animationProgram;
+	delete skyboxProgram;
+	delete uiProgram;
+
 	delete rootNode;
 }
 
@@ -134,6 +142,7 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
+	skybox->draw(veiwProjMat);
 
 	rootNode->draw(veiwProjMat);
 

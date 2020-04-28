@@ -164,6 +164,7 @@
     <ClInclude Include="Client.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Model.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
@@ -189,16 +191,19 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AnimatedAssimpModel.glsl" />
     <None Include="AssimpModel.glsl" />
     <None Include="Model.glsl" />
+    <None Include="Skybox.glsl" />
+    <None Include="UI.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="default_texture.png" />
-    <Image Include="grass_texture.jpg" />
-    <Image Include="water_texture.jpg" />
+    <Image Include="texture\default_texture.png" />
+    <Image Include="texture\grass_texture.jpg" />
+    <Image Include="texture\water_texture.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

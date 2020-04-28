@@ -9,6 +9,7 @@
 #include "Ground.h"
 #include "AssimpModel.h"
 #include "AnimatedAssimpModel.h"
+#include "Skybox.h"
 #include "Constants.h"
 #include "Shader.h"
 
@@ -30,11 +31,14 @@ private:
 	AnimatedAssimpModel* playerModel;
 	AssimpModel* tapModel;
 	AssimpModel* toolModel;
+	Skybox* skybox;
 
 	// shaders
 	ShaderProgram * program;
 	ShaderProgram * assimpProgram;
 	ShaderProgram* animationProgram;
+	ShaderProgram* skyboxProgram;
+	ShaderProgram* uiProgram;
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;

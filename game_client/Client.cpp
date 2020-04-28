@@ -210,12 +210,14 @@ void Client::mouseMotion(GLFWwindow* window, double nx, double ny) {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Client::zoomScreen(GLFWwindow* window, double xoffset, double yoffset) {
-	if (cam->GetFOV() >= 1.0f && cam->GetFOV() <= 45.0f)
+	float lowerBound = 0.10f;
+	float upperBound = 75.0f;
+	if (cam->GetFOV() >= lowerBound && cam->GetFOV() <= upperBound)
 		cam->SetFOV(cam->GetFOV() - yoffset);
-	if (cam->GetFOV() <= 1.0f)
-		cam->SetFOV(1.0f);
-	if (cam->GetFOV() >= 45.0f)
-		cam->SetFOV(45.0f);
+	if (cam->GetFOV() <= lowerBound)
+		cam->SetFOV(lowerBound);
+	if (cam->GetFOV() >= upperBound)
+		cam->SetFOV(upperBound);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
