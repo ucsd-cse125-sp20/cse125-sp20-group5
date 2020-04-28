@@ -168,6 +168,8 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="NetworkClient.h" />
+    <ClInclude Include="particle\Particle.h" />
+    <ClInclude Include="particle\ParticleGroup.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Shader.h" />
@@ -186,6 +188,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="NetworkClient.cpp" />
+    <ClCompile Include="particle\Particle.cpp" />
+    <ClCompile Include="particle\ParticleGroup.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Shader.cpp" />
