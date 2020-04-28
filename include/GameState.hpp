@@ -9,11 +9,17 @@
 #include "SeedShack.hpp"
 #include "WaterTap.hpp"
 
+#include "Message.hpp"
+
 #include <vector>
+#include <iostream>
+#include <boost/serialization/vector.hpp>
 
 class GameState {
 public:
-    GameState() {
+    GameState() : seedShack(nullptr), waterTap(nullptr) {}
+
+    void init() {
         // Init the default state here
         // TODO: change them later
         int NUM_OF_PLAYER = 3;
@@ -87,53 +93,35 @@ public:
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        for (Player* player: players) {
-            player->serialize(ar, version);
-        }
-
-        for (Plant* plant: plants) {
-            plant->serialize(ar, version);
-        }
-
-        for (Zombie* zombie: zombies) {
-            zombie->serialize(ar, version);
-        }
-
-        for (Tool* tool: tools) {
-            tool->serialize(ar, version);
-        }
-
-        for (std::vector<Tile*> row: tiles) {
-            for (Tile* tile: row) {
-                tile->serialize(ar, version);
-            }
-        }
-
-        seedShack->serialize(ar, version);
-        waterTap->serialize(ar, version);
+        ar & players;
+        ar & plants;
+        ar & zombies;
+        ar & tools;
+        ar & tiles;
+        ar & seedShack;
+        ar & waterTap;
     }
 
     ~GameState() {
-        for (int i = 0; i < players.size(); i++) {
-            delete players[i];
+        for (Player* player: players) {
+            delete player;
+		}
+
+        for (Plant* plant: plants) {
+            delete plant;
+		}
+
+        for (Zombie* zombie: zombies) {
+            delete zombie;
         }
 
-        for (int i = 0; i < plants.size(); i++) {
-            delete plants[i];
+        for (Tool* tool: tools) {
+            delete tool;
         }
 
-        for (int i = 0; i < zombies.size(); i++) {
-            delete zombies[i];
-        }
-
-        for (int i = 0; i < tools.size(); i++) {
-            delete tools[i];
-        }
-
-        for (int i = 0; i < tiles.size(); i++) {
-            std::vector<Tile*> row = tiles[i];
-            for (int j = 0; j < row.size(); j++) {
-                delete row[j];
+        for (std::vector<Tile*>& row : tiles) {
+            for (Tile* tile : row) {
+                delete tile;
             }
         }
 
@@ -141,10 +129,31 @@ public:
         delete waterTap;
     }
 
+    void update(int opCode, Player* player) {
+        switch (opCode) {
+            case OPCODE_PLAYER_MOVE_UP:
+                player->position->z -= 0.05f;
+                break;
+            case OPCODE_PLAYER_MOVE_DOWN:
+                player->position->z += 0.05f;
+                break;
+            case OPCODE_PLAYER_MOVE_LEFT:
+                player->position->x -= 0.05f;
+                break;
+            case OPCODE_PLAYER_MOVE_RIGHT:
+                player->position->x += 0.05f;
+                break;
+        }
+    }
 
-    void updatePlayerPosition() {
-        for (Player* player : players) {
-            player->updatePosition();
+    void addPlayer(Player *player) {
+        players.push_back(player);
+    }
+
+    void removePlayer(Player *player) {
+        auto it = std::find(players.begin(), players.end(), player);
+        if (it != players.end()) {
+            players.erase(it);
         }
     }
 

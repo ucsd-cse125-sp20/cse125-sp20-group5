@@ -6,6 +6,8 @@
 
 class Player : public GameObject {
 public:
+    Player() : GameObject(), color(nullptr), playerId(0), holding(false), heldObject(0) {}
+
     Player(Position* position, Direction* direction,
            Animation* animation, unsigned int objectId, Color* color, int playerId)
             : GameObject(position, direction, animation, objectId), playerId(playerId) {
@@ -13,11 +15,12 @@ public:
         this->color = color;
     }
 
+    friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
     {
-        GameObject::serialize(ar, version);
-        color->serialize(ar, version);
+        ar & boost::serialization::base_object<GameObject>(*this);
+        ar & color;
         ar & playerId;
         ar & holding;
         ar & heldObject;
@@ -27,16 +30,6 @@ public:
         delete color;
     }
 
-    void updatePosition() {
-        position->update(
-            position->getX() + 0.1,
-            position->getY(),
-            position->getZ() + 0.1);
-    }
-
-   // Position* position; // Player position
-    //Direction* direction; // Direction player is facing
-    //Animation* animation; // type of animation for player
     Color* color;
     int playerId;
     bool holding;
