@@ -23,14 +23,21 @@ Scene::Scene()
 	startTime = chrono::system_clock::now();
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
-	float particleSize = 2.0f;
-	glm::vec3 particlePosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 particleColor = glm::vec3(1.0f, 0.95f, 0.1f);
-	glm::mat4 particleModelMat = glm::scale(glm::vec3(particleSize / 2.f));
-	particleModelMat = glm::translate(particleModelMat, particlePosition / (particleSize / 2.f));
+	glm::vec3 particleInitVelocity(0.2f, 1.2f, 0.2f);
+	glm::vec3 particleAcceleration(0.0f, -0.1f, 0.0f);
+	int particleInitNum = 100;
+	int particleMaxNum = 100;
+	float particleLifeSpan = 1000.0f;
+	glm::vec3 colorVariance(0.0f, 0.0f, 0.0f);
+	glm::vec3 velocityVariance(1.0f, 1.0f, 1.0f);
+	float particleSize = 1.0f;
+	glm::vec3 particlePosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	particleTest = new ParticleGroup(particleProgram->GetProgramID(), 
-		particleModelMat, particleColor, glm::vec3(0.2f, 1.2f, 0.2f),
-		glm::vec3(0.0f, -0.1f, 0.0f), 100, 100, 1000000, glm::vec3(0.0f), glm::vec3(0.0f));
+		particleSize, particlePosition, particleColor, particleInitVelocity,
+		particleAcceleration, particleInitNum, particleMaxNum, particleLifeSpan, 
+		colorVariance, velocityVariance);
 }
 
 Scene::~Scene()
@@ -144,7 +151,7 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 void Scene::draw(const glm::mat4 &veiwProjMat)
 {
 
-	// rootNode->draw(veiwProjMat);
+	rootNode->draw(veiwProjMat);
 
 	// this is for testing we should be bale to remove at some point
 	SceneNode temp(NULL, std::string(""), 0);

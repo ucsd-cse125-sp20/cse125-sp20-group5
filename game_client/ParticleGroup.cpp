@@ -1,12 +1,16 @@
 #include "ParticleGroup.h"
 
-ParticleGroup::ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 color, glm::vec3 initialVelocity,
+ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 particlePosition,
+	glm::vec3 color, glm::vec3 initialVelocity,
 	glm::vec3 acceleration, int initParicleNum, int maxParticleNum, float lifeSpan,
 	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance)
 {
 	// Setup variables
 	this->shader = shader;
-	this->groupModelMatrix = modelMatrix;
+
+	this->groupModelMatrix = glm::scale(glm::vec3(particleSize / 2.f));
+	this->groupModelMatrix = glm::translate(this->groupModelMatrix, particlePosition / (particleSize / 2.f));
+
 	this->baseColor = color;
 	this->initialVelocity = initialVelocity;
 	this->acceleration = acceleration;
@@ -23,7 +27,7 @@ ParticleGroup::ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 col
 		
 		children.push_back(
 			// TODO: varify identity matrix
-			new Particle(this->shader, glm::mat4(1.0f), randColor,
+			new Particle(this->shader, groupModelMatrix, randColor,
 			randInitialV, this->acceleration, this->particleLifeSpan)
 		);
 	}
@@ -149,7 +153,7 @@ glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
 	float zrand = (float)(rand() % 201 - 100) / 100.0f;
 
 	// TODO: delete
-	std::cout << "randomized particle: " << xrand << " " << yrand << " " << zrand << "\n";
+	// std::cout << "randomized particle: " << xrand << " " << yrand << " " << zrand << "\n";
 
 	glm::vec3 diff = glm::vec3(xrand * variance.x, yrand * variance.y, zrand * variance.z);
 

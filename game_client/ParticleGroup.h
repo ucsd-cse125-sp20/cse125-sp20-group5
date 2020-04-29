@@ -45,7 +45,8 @@ private:
     // Helper functions
     glm::vec3 randomizeVec3(glm::vec3 base, glm::vec3 variance);
 public:
-	ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 color, glm::vec3 initialVelocity,
+	ParticleGroup(GLuint shader, float particleSize, glm::vec3 particlePosition,
+        glm::vec3 color, glm::vec3 initialVelocity,
         glm::vec3 acceleration,  int initParicleNum, int maxParticleNum, float lifeSpan,
         glm::vec3 colorVariance, glm::vec3 initialVelocityVariance);
     ~ParticleGroup();
