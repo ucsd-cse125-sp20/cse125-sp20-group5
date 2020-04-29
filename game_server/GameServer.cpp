@@ -205,7 +205,7 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
     ia >> msg; 
 
     // Do something with the message (update game state)
-    std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
+    // std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
     
     Player* player = pConn2Player[pConn];
     // critical section here

@@ -15,10 +15,11 @@
 #include <iostream>
 #include <boost/serialization/vector.hpp>
 
-const float SQRT2 = 1.41421356237309504880f;
+const float SQRT_2 = 1.41421356237309504880f;
 const float STEP_SIZE = 0.15f;
-const float EPSILON = 0.001f;
+const float STEP_SIZE_DIAGONAL = STEP_SIZE / SQRT_2;
 const float IN_ROTATION_STEP_SIZE = 0.05f;
+const float IN_ROTATION_STEP_SIZE_DIAGONAL = IN_ROTATION_STEP_SIZE / SQRT_2;
 
 class GameState {
 public:
@@ -135,44 +136,143 @@ public:
     }
 
     void update(int opCode, Player* player) {
+        float translateDistance = 0.0f;
+        //std::cout << "Before update angle = " << player->direction->angle << std::endl;
         switch (opCode) {
             case OPCODE_PLAYER_MOVE_DOWN:
-                player->position->z += STEP_SIZE;
-                player->direction->angle = Direction::DIRECTION_DOWN;
+                if (player->direction->directionEquals(Direction::DIRECTION_DOWN)) {
+                    player->direction->angle = Direction::DIRECTION_DOWN;
+                    translateDistance = STEP_SIZE;
+                } else if (player->direction->clockwiseCloser(Direction::DIRECTION_DOWN)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                } else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                player->position->z += translateDistance;
                 break;
             case OPCODE_PLAYER_MOVE_LOWER_RIGHT:
-                player->position->z += STEP_SIZE / SQRT2;
-                player->position->x += STEP_SIZE / SQRT2;
-                player->direction->angle = Direction::DIRECTION_LOWER_RIGHT;
+                if (player->direction->directionEquals(Direction::DIRECTION_LOWER_RIGHT)) {
+                    player->direction->angle = Direction::DIRECTION_LOWER_RIGHT;
+                    translateDistance = STEP_SIZE_DIAGONAL;
+                } else if (player->direction->clockwiseCloser(Direction::DIRECTION_LOWER_RIGHT)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE_DIAGONAL;
+                } else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE_DIAGONAL;
+                }
+                player->position->z += translateDistance;
+                player->position->x += translateDistance;
                 break;
             case OPCODE_PLAYER_MOVE_RIGHT:
-                player->position->x += STEP_SIZE;
-                player->direction->angle = Direction::DIRECTION_RIGHT;
+                if (player->direction->directionEquals(Direction::DIRECTION_RIGHT)) {
+                    player->direction->angle = Direction::DIRECTION_RIGHT;
+                    translateDistance = STEP_SIZE;
+                } else if (player->direction->clockwiseCloser(Direction::DIRECTION_RIGHT)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                } else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                player->position->x += translateDistance;
                 break;
             case OPCODE_PLAYER_MOVE_UPPER_RIGHT:
-                player->position->z -= STEP_SIZE / SQRT2;
-                player->position->x += STEP_SIZE / SQRT2;
-                player->direction->angle = Direction::DIRECTION_UPPER_RIGHT;
+                if (player->direction->directionEquals(Direction::DIRECTION_UPPER_RIGHT)) {
+                    player->direction->angle = Direction::DIRECTION_UPPER_RIGHT;
+                    translateDistance = STEP_SIZE_DIAGONAL;
+                } else if (player->direction->clockwiseCloser(Direction::DIRECTION_UPPER_RIGHT)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE_DIAGONAL;
+                } else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                player->position->z -= translateDistance;
+                player->position->x += translateDistance;
                 break;
             case OPCODE_PLAYER_MOVE_UP:
-                player->position->z -= STEP_SIZE;
-                player->direction->angle = Direction::DIRECTION_UP;
+                if (player->direction->directionEquals(Direction::DIRECTION_UP)) {
+                    player->direction->angle = Direction::DIRECTION_UP;
+                    translateDistance = STEP_SIZE;
+                }
+                else if (player->direction->clockwiseCloser(Direction::DIRECTION_UP)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                player->position->z -= translateDistance;
                 break;
             case OPCODE_PLAYER_MOVE_UPPER_LEFT:
-                player->position->z -= STEP_SIZE / SQRT2;
-                player->position->x -= STEP_SIZE / SQRT2;
-                player->direction->angle = Direction::DIRECTION_UPPER_LEFT;
+                if (player->direction->directionEquals(Direction::DIRECTION_UPPER_LEFT)) {
+                    player->direction->angle = Direction::DIRECTION_UPPER_LEFT;
+                    translateDistance = STEP_SIZE_DIAGONAL;
+                }
+                else if (player->direction->clockwiseCloser(Direction::DIRECTION_UPPER_LEFT)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE_DIAGONAL;
+                }
+                else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                player->position->z -= translateDistance;
+                player->position->x -= translateDistance;
                 break;
             case OPCODE_PLAYER_MOVE_LEFT:
-                player->position->x -= STEP_SIZE;
-                player->direction->angle = Direction::DIRECTION_LEFT;
+                if (player->direction->directionEquals(Direction::DIRECTION_LEFT)) {
+                    player->direction->angle = Direction::DIRECTION_LEFT;
+                    translateDistance = STEP_SIZE;
+                }
+                else if (player->direction->clockwiseCloser(Direction::DIRECTION_LEFT)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                player->position->x -= translateDistance;
                 break;
             case OPCODE_PLAYER_MOVE_LOWER_LEFT:
-                player->position->z += STEP_SIZE / SQRT2;
-                player->position->x -= STEP_SIZE / SQRT2;
-                player->direction->angle = Direction::DIRECTION_LOWER_LEFT;
+                if (player->direction->directionEquals(Direction::DIRECTION_LOWER_LEFT)) {
+                    player->direction->angle = Direction::DIRECTION_LOWER_LEFT;
+                    translateDistance = STEP_SIZE_DIAGONAL;
+                }
+                else if (player->direction->clockwiseCloser(Direction::DIRECTION_LOWER_LEFT)) {
+                    player->direction->angle += Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE_DIAGONAL;
+                }
+                else {
+                    player->direction->angle -= Direction::ROTATION_SPEED;
+                    player->direction->constrainAngle();
+                    translateDistance = IN_ROTATION_STEP_SIZE;
+                }
+                player->position->z += translateDistance;
+                player->position->x -= translateDistance;
                 break;
         }
+        //std::cout << "After update angle = " << player->direction->angle << std::endl;
     }
 
     void addPlayer(Player *player) {
@@ -186,10 +286,7 @@ public:
         }
     }
 
-    bool directionEquals(float angle, float direction) {
-        return std::abs(angle - direction) < EPSILON
-            || std::abs(angle - direction + 2 * Direction::PI) < EPSILON;
-    }
+
 
     // We could use other data structures, for now use a list
 
