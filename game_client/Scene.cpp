@@ -29,9 +29,9 @@ Scene::Scene()
 	int particleInitNum = 100;
 	int particleMaxNum = 100;
 	float particleLifeSpan = 1000.0f;
-	glm::vec3 colorVariance(0.0f, 0.0f, 0.0f);
-	glm::vec3 velocityVariance(1.0f, 1.0f, 1.0f);
-	float particleSize = 1.0f;
+	glm::vec3 colorVariance(0.3f, 0.3f, 0.3f);
+	glm::vec3 velocityVariance(0.5f, 0.5f, 0.5f);
+	float particleSize = 0.6f;
 	glm::vec3 particlePosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	particleTest = new ParticleGroup(particleProgram->GetProgramID(), 
@@ -148,19 +148,19 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	return node;
 }
 
-void Scene::draw(const glm::mat4 &veiwProjMat)
+void Scene::draw(const glm::mat4 &viewProjMat)
 {
 
-	rootNode->draw(veiwProjMat);
+	rootNode->draw(viewProjMat);
 
 	// this is for testing we should be bale to remove at some point
 	SceneNode temp(NULL, std::string(""), 0);
 	temp.transform = glm::mat4(1.0);
 	for (Model * model : models) {
-		model->draw(temp, veiwProjMat);
+		model->draw(temp, viewProjMat);
 	}	
 
-	particleTest->draw(veiwProjMat);
+	particleTest->draw(viewProjMat);
 }
 
 // Update the current gamestate
