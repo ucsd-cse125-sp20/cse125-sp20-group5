@@ -5,7 +5,6 @@ ParticleGroup::ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 col
 	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance)
 {
 	// Setup variables
-
 	this->shader = shader;
 	this->groupModelMatrix = modelMatrix;
 	this->baseColor = color;
@@ -79,8 +78,6 @@ ParticleGroup::ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 col
 		glm::ivec3(6, 2, 1),
 	};
 
-	// Initialize the vao and vbos
-
 	// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(2, vbos);
@@ -122,17 +119,22 @@ ParticleGroup::~ParticleGroup()
 }
 
 // Draw all the children
-void ParticleGroup::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
+void ParticleGroup::draw(glm::mat4 viewProjMat)
 {
+	// std::cout << children.size() << " draw child!" << "\n";
 	for (Particle * child : children) {
-		child->draw(projectionMatrix, viewMatrix, groupModelMatrix, vao);
+		child->draw(viewProjMat, vao);
 	}
 }
 
 void ParticleGroup::update(float timeDifference)
 {
-	for (Particle* child : children) {
+	for (int i = 0; i < children.size(); i++) {
+		Particle * child = children[i];
 		child->update(timeDifference);
+		if (!child->isAlive()) {
+			children.erase(children.begin() + i);
+		}
 	}
 }
 

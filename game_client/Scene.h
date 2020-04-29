@@ -11,6 +11,7 @@
 #include "AnimatedAssimpModel.h"
 #include "Constants.h"
 #include "Shader.h"
+#include "ParticleGroup.h"
 
 class Scene
 {
@@ -39,6 +40,10 @@ private:
 	chrono::system_clock::time_point startTime;
 
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable * model);
+
+	// Particle effect
+	ParticleGroup* particleTest;
+	ShaderProgram* particleProgram;
 
 public:
 	Scene();

@@ -63,10 +63,10 @@
     <ClInclude Include="AnimatedAssimpModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="particle\ParticleGroup.h">
+    <ClInclude Include="Particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="particle\Particle.h">
+    <ClInclude Include="ParticleGroup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -110,10 +110,10 @@
     <ClCompile Include="AnimatedAssimpModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="particle\Particle.cpp">
+    <ClCompile Include="Particle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="particle\ParticleGroup.cpp">
+    <ClCompile Include="ParticleGroup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,7 +127,7 @@
     <None Include="AnimatedAssimpModel.glsl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="particle\Particle.glsl">
+    <None Include="Particle.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

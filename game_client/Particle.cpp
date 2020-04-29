@@ -1,10 +1,11 @@
 #include "Particle.h"
+#include <iostream>
 
 Particle::Particle(GLuint shader, glm::mat4 modelMatrix, glm::vec3 color,
 	glm::vec3 initialVelocity, glm::vec3 acceleration, int lifeSpan)
 {
     this->lifeLeft = lifeSpan;
-    this->velocity = velocity;
+    this->velocity = initialVelocity;
     this->acceleration = acceleration;
     
     this->shader = shader;
@@ -20,15 +21,11 @@ Particle::~Particle()
     // Clean up
 }
 
-void Particle::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, 
-    glm::mat4 parentModelMatrix, GLuint parentVAO)
+void Particle::draw(glm::mat4 viewProjMat, GLuint parentVAO)
 {
-    glm::mat4 combinedModelMatrix = parentModelMatrix * individualModelMatrix; // TODO: validate correctness
-
     glUseProgram(shader);
-    glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(shader, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(combinedModelMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "viewProjMat"), 1, GL_FALSE, glm::value_ptr(viewProjMat));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(individualModelMatrix));
     glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
     
 	// Bind to the VAO of the parrent.
@@ -42,8 +39,15 @@ void Particle::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix,
 
 void Particle::update(float timeDifference)
 {
+    // TODO: more percise speed calc
+    individualModelMatrix = glm::translate(individualModelMatrix, velocity * timeDifference);
     lifeLeft -= timeDifference;
-    velocity += acceleration;
-    individualModelMatrix = glm::translate(individualModelMatrix, velocity);
+    velocity += timeDifference * acceleration;
+}
+
+bool Particle::isAlive()
+{
+    if (lifeLeft > 0.0f) return true;
+    return false;
 }
 

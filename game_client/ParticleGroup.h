@@ -48,10 +48,10 @@ public:
 	ParticleGroup(GLuint shader, glm::mat4 modelMatrix, glm::vec3 color, glm::vec3 initialVelocity,
         glm::vec3 acceleration,  int initParicleNum, int maxParticleNum, float lifeSpan,
         glm::vec3 colorVariance, glm::vec3 initialVelocityVariance);
-	~ParticleGroup();
+    ~ParticleGroup();
     
     // Draw the whole particle group
-	void draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
+    void draw(glm::mat4 viewProjMatrix);
 	void update(float timeDifference);
 };
 
