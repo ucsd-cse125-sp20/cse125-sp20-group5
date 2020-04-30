@@ -156,7 +156,6 @@ glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
 	float yrand = (float)(rand() % 201 - 100) / 100.0f;
 	float zrand = (float)(rand() % 201 - 100) / 100.0f;
 
-	// TODO: delete
 	// std::cout << "randomized particle: " << xrand << " " << yrand << " " << zrand << "\n";
 
 	glm::vec3 diff = glm::vec3(xrand * variance.x, yrand * variance.y, zrand * variance.z);
@@ -169,7 +168,6 @@ void ParticleGroup::addChildParticle() {
 	glm::vec3 randInitialV = randomizeVec3(initialVelocity, initialVelocityVariance);
 
 	children.push_back(
-		// TODO: varify identity matrix
 		new Particle(this->shader, groupModelMatrix, randColor,
 			randInitialV, this->acceleration, this->particleLifeSpan)
 	);
