@@ -9,6 +9,7 @@
 #include "SeedShack.hpp"
 #include "WaterTap.hpp"
 #include "Message.hpp"
+#include "Floor.hpp"
 
 #include <cmath>
 #include <vector>
@@ -24,6 +25,11 @@ const float IN_ROTATION_STEP_SIZE_DIAGONAL = IN_ROTATION_STEP_SIZE / SQRT_2;
 class GameState {
 public:
     GameState() : seedShack(nullptr), waterTap(nullptr) {}
+
+    void init(int tick_rate) {
+        tickRate = tick_rate;
+        init();
+	}
 
     void init() {
         // Init the default state here
@@ -47,7 +53,7 @@ public:
         }
 
         // Init zombies
-        for (int i = 0; i < NUM_OF_ZOMBIE; i++) {
+        /*for (int i = 0; i < NUM_OF_ZOMBIE; i++) {
             Position* zombiePosition = new Position(i*3, 0, 5.0);
             Direction* zombieDirection = new Direction(0.0);
             Animation* zombieAnimation = new Animation(0, 0);
@@ -55,7 +61,7 @@ public:
                 new Zombie(zombiePosition, zombieDirection, zombieAnimation, objectCount)
             );
             objectCount++;
-        }
+        }*/
 
         // Init tools
         for (int i = 0; i < 2; i++) {
@@ -68,19 +74,8 @@ public:
             objectCount++;
         }
 
-        // Init tiles
-        // TODO: for now, do a 5x5, but change it later
-        for (int i = 0; i < 5; i++) {
-            std::vector<Tile*> row;
-            for (int j = 0; j < 5; j++) {
-                Position* tilePosition = new Position(i, j, 0);
-                Direction* tileDirection = new Direction(0);
-
-                row.push_back(new Tile(tilePosition, 0, tileDirection));
-            }
-            tiles.push_back(row);
-        }
-
+        floor = new Floor();
+        floor->init();
 
         // Init seed shack and water tap
         Position* seedShackPosition = new Position(3, 0, 3);
@@ -103,7 +98,7 @@ public:
         ar & plants;
         ar & zombies;
         ar & tools;
-        ar & tiles;
+        ar & floor;
         ar & seedShack;
         ar & waterTap;
     }
@@ -125,17 +120,12 @@ public:
             delete tool;
         }
 
-        for (std::vector<Tile*>& row : tiles) {
-            for (Tile* tile : row) {
-                delete tile;
-            }
-        }
-
+        delete floor;
         delete seedShack;
         delete waterTap;
     }
 
-    void update(int opCode, Player* player) {
+    void updatePlayer(int opCode, Player* player) {
         float translateDistance = 0.0f;
         //std::cout << "Before update angle = " << player->direction->angle << std::endl;
         switch (opCode) {
@@ -286,7 +276,55 @@ public:
         }
     }
 
+    void update() {
+        tick++;
+        updateZombie();
+    }
 
+    void updateZombie() {
+        // Spawn zombie every second
+        if (tick % tickRate == 0) {
+            // TODO: Need to find out the position of the tile
+            // Position right now uses indices
+            Position* zombieBasePos = floor->zombieBaseTile->position;
+            Direction* zombieBaseDir = floor->zombieBaseTile->direction;
+            Position* zombiePosition = new Position(
+                zombieBasePos->x + Tile::TILE_PAD_X,
+                zombieBasePos->y,
+                zombieBasePos->z + Tile::TILE_PAD_Z
+            );
+            Direction* zombieDirection = new Direction(
+                zombieBaseDir->angle
+            );
+            Animation* zombieAnimation = new Animation(0, 0);
+            Zombie* zombie = new Zombie(
+                zombiePosition, zombieDirection, zombieAnimation, objectCount++
+            );
+            zombies.push_back(zombie);
+		}
+
+        // Move zombies
+        for (Zombie* zombie : zombies) {
+            int row = zombie->position->z - Tile::TILE_PAD_Z;
+            int col = zombie->position->x - Tile::TILE_PAD_X;
+
+            Tile* currTile = floor->tiles[row][col];
+
+            Direction* currDir = zombie->direction;
+            if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
+                zombie->position->z += Zombie::STEP_SIZE;
+            } else if (currDir->directionEquals(Direction::DIRECTION_RIGHT)) {
+                zombie->position->x += Zombie::STEP_SIZE;
+            } else if (currDir->directionEquals(Direction::DIRECTION_UP)) {
+                zombie->position->z -= Zombie::STEP_SIZE;
+            } else if (currDir->directionEquals(Direction::DIRECTION_LEFT)) {
+                zombie->position->x -= Zombie::STEP_SIZE;
+            }
+
+            // Rotate zombie
+            zombie->direction->angle = currTile->direction->angle;
+        }
+    }
 
     // We could use other data structures, for now use a list
 
@@ -295,14 +333,17 @@ public:
     std::vector<Zombie*> zombies;
     std::vector<Tool*> tools;
 
-    // 2D array for tiles??
-    std::vector<std::vector<Tile*>> tiles;
-
+    Floor* floor;
     SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
 
     // start of at 100 so we can portnetially reserve special constants
     unsigned int objectCount = 100;
+
+    // tick count
+    long long tick = 0;
+    int tickRate;
+
 };
 
 #endif

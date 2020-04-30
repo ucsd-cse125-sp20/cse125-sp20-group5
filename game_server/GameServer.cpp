@@ -107,7 +107,7 @@ GameServer::GameServer(
     tcpAcceptor(io_context, tcp::endpoint(tcp::v4(), port_num)),
     tickTimer(boost::asio::steady_timer(io_context)),
     deltaTimeMicrosec(1000000 / tick_rate) {
-    gameState.init();
+    gameState.init(tick_rate);
     startAccept();
     sendToAll();
 }
@@ -131,6 +131,7 @@ void GameServer::handleAccept(PtrClientConnection newConnection, const boost::sy
 
 void GameServer::sendToAll() {
     if (!clients.empty()) {
+        gameState.update();
         char buffer[maxMsg];
 
         boost::iostreams::basic_array_sink<char> sr(buffer, maxMsg);
@@ -212,7 +213,7 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
     // TODO: Update gameState
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
-        gameState.update(msg.getOpCode(), player);
+        gameState.updatePlayer(msg.getOpCode(), player);
     }
 }
 

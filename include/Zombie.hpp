@@ -20,6 +20,8 @@ public:
     ~Zombie() {
 
     }
+
+    static constexpr const float STEP_SIZE = 0.05f;
 };
 
 #endif
