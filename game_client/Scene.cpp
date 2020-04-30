@@ -18,6 +18,10 @@ Scene::Scene()
 	rootNode->addChild(groundNode);
 
 	startTime = chrono::system_clock::now();
+
+	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
+	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
+	waterTapParticles = particleFactory->getWaterTapParticleGroup();
 }
 
 Scene::~Scene()
@@ -34,6 +38,10 @@ Scene::~Scene()
 	delete assimpProgram;
 	delete animationProgram;
 	delete rootNode;
+
+	delete particleFactory;
+	delete waterTapParticles;
+	delete particleProgram;
 }
 
 void Scene::update()
@@ -89,6 +97,8 @@ void Scene::update()
 		float runningTime = elapsed_seconds.count();
 		playerTemp->animationTime = runningTime+offestTime;
 		offestTime += 0.3;
+
+		waterTapParticles->update(0.1f);
 	}
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
@@ -132,17 +142,19 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	return node;
 }
 
-void Scene::draw(const glm::mat4 &veiwProjMat)
+void Scene::draw(const glm::mat4 &viewProjMat)
 {
 
-	rootNode->draw(veiwProjMat);
+	rootNode->draw(viewProjMat);
 
 	// this is for testing we should be bale to remove at some point
 	SceneNode temp(NULL, std::string(""), 0);
 	temp.transform = glm::mat4(1.0);
 	for (Model * model : models) {
-		model->draw(temp, veiwProjMat);
+		model->draw(temp, viewProjMat);
 	}	
+
+	waterTapParticles->draw(viewProjMat);
 }
 
 // Update the current gamestate

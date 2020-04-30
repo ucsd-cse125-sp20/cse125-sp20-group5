@@ -11,6 +11,7 @@
 #include "AnimatedAssimpModel.h"
 #include "Constants.h"
 #include "Shader.h"
+#include "ParticleFactory.hpp"
 
 class Scene
 {
@@ -40,6 +41,11 @@ private:
 	chrono::system_clock::time_point startTime;
 
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable * model);
+
+	// Particle effect
+	ParticleFactory* particleFactory;
+	ParticleGroup* waterTapParticles;
+	ShaderProgram* particleProgram;
 
 public:
 	Scene();

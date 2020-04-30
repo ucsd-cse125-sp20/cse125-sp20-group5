@@ -168,6 +168,9 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="NetworkClient.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="ParticleFactory.hpp" />
+    <ClInclude Include="ParticleGroup.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Shader.h" />
@@ -186,6 +189,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="NetworkClient.cpp" />
+    <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="ParticleGroup.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Shader.cpp" />
@@ -194,6 +199,7 @@
     <None Include="AnimatedAssimpModel.glsl" />
     <None Include="AssimpModel.glsl" />
     <None Include="Model.glsl" />
+    <None Include="Particle.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="default_texture.png" />

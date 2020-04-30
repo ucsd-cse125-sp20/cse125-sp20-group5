@@ -63,6 +63,15 @@
     <ClInclude Include="AnimatedAssimpModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleGroup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleFactory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -104,6 +113,12 @@
     <ClCompile Include="AnimatedAssimpModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleGroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Model.glsl">
@@ -113,6 +128,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="AnimatedAssimpModel.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Particle.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
