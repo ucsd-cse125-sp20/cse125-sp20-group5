@@ -43,9 +43,13 @@ public:
 	void mouseMotion(GLFWwindow* window, double x, double y);
 	void zoomScreen(GLFWwindow* window, double xoffset, double yoffset);
 
+	// getter
+	static int getWinX() { return winX; }
+	static int getWinY() { return winY; }
+
 private:
 	// Window management
-	int winX, winY;
+	static int winX, winY;
 
 	// Input
 	bool leftDown, middleDown, rightDown;

@@ -5,6 +5,8 @@ Scene::Scene()
 	program = new ShaderProgram("Model.glsl", ShaderProgram::eRender);
 	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
+	skyboxProgram = new ShaderProgram("Skybox.glsl", ShaderProgram::eRender);
+	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
@@ -16,6 +18,10 @@ Scene::Scene()
 	rootNode = new SceneNode(NULL, string("absoluteRoot"), 0);
 	groundNode = new SceneNode(ground, string("ground"), 1);
 	rootNode->addChild(groundNode);
+
+	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(30.0f)));
+
+	testUI = new Image2d(uiProgram->GetProgramID(), "texture/newheart.ppm", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
 
 	startTime = chrono::system_clock::now();
 
@@ -30,6 +36,8 @@ Scene::~Scene()
 		delete mod;
 	}
 	delete ground;
+	delete skybox;
+	delete testUI; //TODO to be removed
 
 	delete zombieModel;
 	delete playerModel;
@@ -37,6 +45,9 @@ Scene::~Scene()
 	delete program;
 	delete assimpProgram;
 	delete animationProgram;
+	delete skyboxProgram;
+	delete uiProgram;
+
 	delete rootNode;
 
 	delete particleFactory;
@@ -144,6 +155,7 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 
 void Scene::draw(const glm::mat4 &viewProjMat)
 {
+	skybox->draw(veiwProjMat);
 
 	rootNode->draw(viewProjMat);
 
@@ -155,6 +167,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	}	
 
 	waterTapParticles->draw(viewProjMat);
+	testUI->draw(); //TODO to be removed
 }
 
 // Update the current gamestate

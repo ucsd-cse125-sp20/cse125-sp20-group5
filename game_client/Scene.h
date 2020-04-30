@@ -9,6 +9,8 @@
 #include "Ground.h"
 #include "AssimpModel.h"
 #include "AnimatedAssimpModel.h"
+#include "Skybox.h"
+#include "Image2d.h"
 #include "Constants.h"
 #include "Shader.h"
 #include "ParticleFactory.hpp"
@@ -31,11 +33,15 @@ private:
 	AnimatedAssimpModel* playerModel;
 	AssimpModel* tapModel;
 	AssimpModel* toolModel;
+	Skybox* skybox;
+	Image2d* testUI; //TODO to be removed
 
 	// shaders
 	ShaderProgram * program;
 	ShaderProgram * assimpProgram;
 	ShaderProgram* animationProgram;
+	ShaderProgram* skyboxProgram;
+	ShaderProgram* uiProgram;
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;

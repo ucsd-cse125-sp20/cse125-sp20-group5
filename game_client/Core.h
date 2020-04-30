@@ -30,3 +30,5 @@ typedef unsigned int uint;
 #include <ctype.h>
 #include <chrono>
 #include <ctime>  
+#include <string>  
+#include <iostream>  
