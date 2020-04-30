@@ -70,6 +70,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleFactory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -124,6 +126,8 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleGroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Skybox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -142,6 +146,8 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Particle.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="Skybox.glsl">
       <Filter>Resource Files</Filter>
     </None>
