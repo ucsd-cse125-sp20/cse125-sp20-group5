@@ -16,7 +16,6 @@ out vec3 fragNormal;
 out vec2 fragTexture;
 
 out vec3 eyedir;
-out vec3 lightDirection;
 
 uniform mat4 model;
 uniform mat4 projectView;
@@ -39,7 +38,6 @@ void main()
 
 	vec3 mypos = vec3(gl_Position) / gl_Position.w; // Dehomogenize current location 
     vec3 eyedir = normalize(eyepos - mypos);
-	lightDirection=normalize(vec3(vec4(1,5,2,0)));
 }
 
 #endif
@@ -53,7 +51,6 @@ in vec3 fragPosition;
 in vec3 fragNormal;
 in vec2 fragTexture;
 in vec3 eyedir;
-in vec3 lightDirection;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
@@ -65,6 +62,7 @@ uniform vec3 ambientColor=vec3(0.0);
 uniform vec3 specularColor=vec3(0.0);
 
 uniform vec3 lightColor=vec3(1.0,1.0,1.0);
+uniform vec3 lightDirection=normalize(vec3(vec4(1,5,-2,0)));
 
 uniform int hasTexture;
 
@@ -110,9 +108,16 @@ void main() {
 	vec3 norm = normalize(fragNormal);
 	float diff = max(dot(norm, lightDirection), 0.0);
 	vec3 lightColor = vec3(1.0);
-	vec3 color = diff * diffuseColor * lightColor; //only calculates diffuse
+	vec3 diffuse = diff * diffuseColor * lightColor; //only calculates diffuse
+	
+	vec3 reflectdir = reflect(-lightDirection, norm);
+	float shininess = 0.5;
+	float spec = pow(max(dot(eyedir, reflectdir), 0.0), shininess);
+	vec3 specular = lightDirection * spec * specularColor;
 
-	vec4 finalColor = vec4(color + diffuseColor,1.0); // diffuseColor is added as ambient
+	vec3 ambient = diffuseColor; // diffuseColor is added as ambient
+
+	vec4 finalColor = vec4(diffuse + specular + ambient,1.0);
 	if (hasTexture == 1)
 		finalColor = finalColor * texture(texture_diffuse1, fragTexture);
 	gl_FragColor = finalColor;
