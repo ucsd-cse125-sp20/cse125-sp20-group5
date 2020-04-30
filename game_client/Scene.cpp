@@ -21,6 +21,8 @@ Scene::Scene()
 
 	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(30.0f)));
 
+	testUI = new Image2d(uiProgram->GetProgramID(), "texture/newheart.ppm", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
+
 	startTime = chrono::system_clock::now();
 }
 
@@ -31,6 +33,7 @@ Scene::~Scene()
 	}
 	delete ground;
 	delete skybox;
+	delete testUI; //TODO to be removed
 
 	delete zombieModel;
 	delete playerModel;
@@ -152,6 +155,8 @@ void Scene::draw(const glm::mat4 &veiwProjMat)
 	for (Model * model : models) {
 		model->draw(temp, veiwProjMat);
 	}	
+
+	testUI->draw(); //TODO to be removed
 }
 
 // Update the current gamestate

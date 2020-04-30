@@ -10,6 +10,7 @@
 #include "AssimpModel.h"
 #include "AnimatedAssimpModel.h"
 #include "Skybox.h"
+#include "Image2d.h"
 #include "Constants.h"
 #include "Shader.h"
 
@@ -32,6 +33,7 @@ private:
 	AssimpModel* tapModel;
 	AssimpModel* toolModel;
 	Skybox* skybox;
+	Image2d* testUI; //TODO to be removed
 
 	// shaders
 	ShaderProgram * program;

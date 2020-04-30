@@ -6,7 +6,10 @@
 #include "NetworkClient.h"
 #include "Message.hpp"
 
+// static
 Client * Client::CLIENT;
+int Client::winX;
+int Client::winY;
 
 Client::Client(GLFWwindow * window, int argc, char **argv) {
 	windowHandle = window;

@@ -167,6 +167,7 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="Image2d.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="NetworkClient.h" />
     <ClInclude Include="Scene.h" />
@@ -185,6 +186,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="Image2d.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="NetworkClient.cpp" />
