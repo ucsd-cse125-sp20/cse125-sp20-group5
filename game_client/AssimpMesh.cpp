@@ -124,5 +124,4 @@ void AssimpMesh::setupShadingAttributes(aiMaterial* material)
 	this->diffuse = glm::vec3(kd.r, kd.g, kd.b);
 	this->ambient = glm::vec3(ka.r, ka.g, ka.b);
 	this->specular = glm::vec3(ks.r, ks.g, ks.b);
-	std::cout << ks.r << ks.g << ks.b << std::endl;
 }

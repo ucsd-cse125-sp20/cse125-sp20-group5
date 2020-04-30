@@ -62,7 +62,7 @@ uniform vec3 ambientColor=vec3(0.0);
 uniform vec3 specularColor=vec3(0.0);
 
 uniform vec3 lightColor=vec3(1.0,1.0,1.0);
-uniform vec3 lightDirection=normalize(vec3(vec4(1,5,-2,0)));
+uniform vec3 lightDirection=normalize(vec3(vec4(0,0,1,0)));
 
 uniform int hasTexture;
 
@@ -113,7 +113,7 @@ void main() {
 	vec3 reflectdir = reflect(-lightDirection, norm);
 	float shininess = 0.5;
 	float spec = pow(max(dot(eyedir, reflectdir), 0.0), shininess);
-	vec3 specular = lightDirection * spec * specularColor;
+	vec3 specular = lightDirection * (spec * specularColor);
 
 	vec3 ambient = diffuseColor; // diffuseColor is added as ambient
 
