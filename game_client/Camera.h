@@ -30,6 +30,7 @@ public:
 	float GetDistance() { return Distance; }
 	float GetAzimuth() { return Azimuth; }
 	float GetIncline() { return Incline; }
+	glm::vec3 GetPosition();
 
 	const glm::mat4 &GetViewProjectMtx()	{return ViewProjectMtx;}
 

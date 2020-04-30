@@ -57,6 +57,7 @@ public:
 	Scene();
 	~Scene();
 
+	void setupDirectionalLighting(glm::vec3 eyePosition);
 	void setState(GameState * state);
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat); // renders everything

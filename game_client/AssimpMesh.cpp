@@ -102,6 +102,7 @@ void AssimpMesh::draw(uint shader)
 	glUniform3fv(glGetUniformLocation(shader, "diffuseColor"), 1, &diffuse[0]);
 	glUniform3fv(glGetUniformLocation(shader, "ambientColor"), 1, &ambient[0]);
 	glUniform3fv(glGetUniformLocation(shader, "specularColor"), 1, &specular[0]);
+	glUniform1f(glGetUniformLocation(shader, "shininess"), shininess);
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "meshTransform"), 1, false, (float*)&transform);
 
@@ -117,11 +118,13 @@ void AssimpMesh::draw(uint shader)
 
 void AssimpMesh::setupShadingAttributes(aiMaterial* material) 
 {
-	aiColor3D kd(0.f, 0.f, 0.f), ka(0), ks(0);
+	aiColor3D kd(0), ka(0), ks(0);
 	material->Get(AI_MATKEY_COLOR_DIFFUSE, kd);
 	material->Get(AI_MATKEY_COLOR_AMBIENT, ka);
 	material->Get(AI_MATKEY_COLOR_SPECULAR, ks);
 	this->diffuse = glm::vec3(kd.r, kd.g, kd.b);
 	this->ambient = glm::vec3(ka.r, ka.g, ka.b);
 	this->specular = glm::vec3(ks.r, ks.g, ks.b);
+
+	material->Get(AI_MATKEY_SHININESS, shininess);
 }
