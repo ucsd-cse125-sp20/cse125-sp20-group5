@@ -155,7 +155,7 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 
 void Scene::draw(const glm::mat4 &viewProjMat)
 {
-	skybox->draw(veiwProjMat);
+	skybox->draw(viewProjMat);
 
 	rootNode->draw(viewProjMat);
 
