@@ -11,7 +11,7 @@
 #include "AnimatedAssimpModel.h"
 #include "Constants.h"
 #include "Shader.h"
-#include "ParticleGroup.h"
+#include "ParticleFactory.hpp"
 
 class Scene
 {
@@ -42,7 +42,8 @@ private:
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable * model);
 
 	// Particle effect
-	ParticleGroup* particleTest;
+	ParticleFactory* particleFactory;
+	ParticleGroup* waterTapParticles;
 	ShaderProgram* particleProgram;
 
 public:

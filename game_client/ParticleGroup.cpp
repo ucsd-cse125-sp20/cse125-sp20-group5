@@ -3,8 +3,9 @@
 ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 particlePosition,
 	glm::vec3 color, glm::vec3 initialVelocity,
 	glm::vec3 acceleration, int initParicleNum, int maxParticleNum, float lifeSpan,
-	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance)
-{
+	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
+	float spawnTime) {
+
 	// Setup variables
 	this->shader = shader;
 
@@ -20,16 +21,12 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 	this->colorVariance = colorVariance;
 	this->initialVelocityVariance = initialVelocityVariance;
 
+	this->spawnTime = spawnTime;
+	this->timePastSinceLastSpawn = 0;
+
 	// Initialize children
 	for (int i = 0; i < initParicleNum; i++) {
-		glm::vec3 randColor = randomizeVec3(baseColor, colorVariance);
-		glm::vec3 randInitialV = randomizeVec3(initialVelocity, initialVelocityVariance);
-		
-		children.push_back(
-			// TODO: varify identity matrix
-			new Particle(this->shader, groupModelMatrix, randColor,
-			randInitialV, this->acceleration, this->particleLifeSpan)
-		);
+		addChildParticle();
 	}
 
 	// Setup the buffers for rendering
@@ -133,6 +130,13 @@ void ParticleGroup::draw(glm::mat4 viewProjMat)
 
 void ParticleGroup::update(float timeDifference)
 {
+	timePastSinceLastSpawn += timeDifference;
+
+	while (timePastSinceLastSpawn >= spawnTime && children.size() < maxParticleNum) {
+		timePastSinceLastSpawn -= spawnTime;
+		addChildParticle();
+	}
+
 	for (int i = 0; i < children.size(); i++) {
 		Particle * child = children[i];
 		child->update(timeDifference);
@@ -158,4 +162,15 @@ glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
 	glm::vec3 diff = glm::vec3(xrand * variance.x, yrand * variance.y, zrand * variance.z);
 
 	return base + diff;
+}
+
+void ParticleGroup::addChildParticle() {
+	glm::vec3 randColor = randomizeVec3(baseColor, colorVariance);
+	glm::vec3 randInitialV = randomizeVec3(initialVelocity, initialVelocityVariance);
+
+	children.push_back(
+		// TODO: varify identity matrix
+		new Particle(this->shader, groupModelMatrix, randColor,
+			randInitialV, this->acceleration, this->particleLifeSpan)
+	);
 }

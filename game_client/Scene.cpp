@@ -23,21 +23,8 @@ Scene::Scene()
 	startTime = chrono::system_clock::now();
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
-	glm::vec3 particleColor = glm::vec3(1.0f, 0.95f, 0.1f);
-	glm::vec3 particleInitVelocity(0.2f, 1.2f, 0.2f);
-	glm::vec3 particleAcceleration(0.0f, -0.1f, 0.0f);
-	int particleInitNum = 100;
-	int particleMaxNum = 100;
-	float particleLifeSpan = 1000.0f;
-	glm::vec3 colorVariance(0.3f, 0.3f, 0.3f);
-	glm::vec3 velocityVariance(0.5f, 0.5f, 0.5f);
-	float particleSize = 0.6f;
-	glm::vec3 particlePosition = glm::vec3(0.0f, 0.0f, 0.0f);
-
-	particleTest = new ParticleGroup(particleProgram->GetProgramID(), 
-		particleSize, particlePosition, particleColor, particleInitVelocity,
-		particleAcceleration, particleInitNum, particleMaxNum, particleLifeSpan, 
-		colorVariance, velocityVariance);
+	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
+	waterTapParticles = particleFactory->getWaterTapParticleGroup();
 }
 
 Scene::~Scene()
@@ -55,7 +42,9 @@ Scene::~Scene()
 	delete animationProgram;
 	delete rootNode;
 
-	delete particleTest;
+	delete particleFactory;
+	delete waterTapParticles;
+	delete particleProgram;
 }
 
 void Scene::update()
@@ -111,7 +100,7 @@ void Scene::update()
 		playerTemp->animationTime = runningTime+offestTime;
 		offestTime += 0.3;
 
-		particleTest->update(0.1f);
+		waterTapParticles->update(0.1f);
 	}
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
@@ -160,7 +149,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 		model->draw(temp, viewProjMat);
 	}	
 
-	particleTest->draw(viewProjMat);
+	waterTapParticles->draw(viewProjMat);
 }
 
 // Update the current gamestate

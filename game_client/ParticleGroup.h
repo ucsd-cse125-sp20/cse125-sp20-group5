@@ -44,11 +44,17 @@ private:
 
     // Helper functions
     glm::vec3 randomizeVec3(glm::vec3 base, glm::vec3 variance);
+    void addChildParticle();
+
+    float spawnTime;
+    float timePastSinceLastSpawn;
+
 public:
 	ParticleGroup(GLuint shader, float particleSize, glm::vec3 particlePosition,
         glm::vec3 color, glm::vec3 initialVelocity,
         glm::vec3 acceleration,  int initParicleNum, int maxParticleNum, float lifeSpan,
-        glm::vec3 colorVariance, glm::vec3 initialVelocityVariance);
+        glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
+        float spawnTime);
     ~ParticleGroup();
     
     // Draw the whole particle group

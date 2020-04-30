@@ -169,6 +169,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="NetworkClient.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="ParticleFactory.hpp" />
     <ClInclude Include="ParticleGroup.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
