@@ -19,8 +19,8 @@ public:
     }
 
     void init() {
-        int numRows = 5;
-        int numCols = 5;
+        int numRows = 10;
+        int numCols = 10;
         // Init tiles
         // TODO: for now, do a 5x5, but change it later
         for (int i = 0; i < numRows; i++) {
@@ -55,7 +55,8 @@ public:
             tiles.push_back(row);
         }
         zombieBaseTile = tiles[0][0];
-        zombieFinalTile = tiles[0][numCols - 1];
+        zombieFinalTileRow = 0;
+        zombieFinalTileCol = numCols - 1;
     }
 
     void setZombieBaseTile(int row, int col) {
@@ -69,7 +70,8 @@ public:
     }
 
     Tile* zombieBaseTile;
-    Tile* zombieFinalTile;
+    int zombieFinalTileRow;
+    int zombieFinalTileCol;
     std::vector<std::vector<Tile*>> tiles;
 };
 

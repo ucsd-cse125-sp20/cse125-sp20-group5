@@ -303,13 +303,21 @@ public:
             zombies.push_back(zombie);
 		}
 
-        // Move zombies
-        for (Zombie* zombie : zombies) {
+        auto i = std::begin(zombies);
+        while (i != std::end(zombies)) {
+            Zombie* zombie = (*i);
             int row = zombie->position->z - Tile::TILE_PAD_Z;
             int col = zombie->position->x - Tile::TILE_PAD_X;
 
-            Tile* currTile = floor->tiles[row][col];
+            // Check if remove current zombie (final tile / hp = 0, ...)
+            if (row == floor->zombieFinalTileRow
+                && col == floor->zombieFinalTileCol) {
+                i = zombies.erase(i);
+                continue;
+            }
 
+            // Move current zombie
+            Tile* currTile = floor->tiles[row][col];
             Direction* currDir = zombie->direction;
             if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
                 zombie->position->z += Zombie::STEP_SIZE;
@@ -321,8 +329,10 @@ public:
                 zombie->position->x -= Zombie::STEP_SIZE;
             }
 
-            // Rotate zombie
+            // Rotate current zombie
             zombie->direction->angle = currTile->direction->angle;
+
+            i++;
         }
     }
 
