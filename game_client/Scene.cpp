@@ -228,3 +228,18 @@ Scene* Scene::scene0() {
 	return scene;
 }
 
+void Scene::setupDirectionalLighting(glm::vec3 eyePosition) {
+	glm::vec3 lightColor = glm::vec3(1.0f);
+	glm::vec3 lightDirection = glm::normalize(glm::vec3(1, 5, 2));
+
+	vector<uint> shaderIDs;
+	shaderIDs.push_back(assimpProgram->GetProgramID());
+	shaderIDs.push_back(animationProgram->GetProgramID());
+	for (uint shader : shaderIDs) {
+		glUseProgram(shader);
+		glUniform3fv(glGetUniformLocation(shader, "eyepos"), 1, &eyePosition[0]);
+		glUniform3fv(glGetUniformLocation(shader, "lightColor"), 1, &lightColor[0]);
+		glUniform3fv(glGetUniformLocation(shader, "lightDirection"), 1, &lightDirection[0]);
+	}
+	glUseProgram(0);
+}

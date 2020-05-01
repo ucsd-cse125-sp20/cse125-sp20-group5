@@ -44,3 +44,12 @@ void Camera::Reset() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+glm::vec3 Camera::GetPosition() {
+	return glm::eulerAngleY(glm::radians(-Azimuth)) 
+		* glm::eulerAngleX(glm::radians(-Incline)) 
+		* glm::translate(glm::vec3(0, 0, Distance))
+		* glm::vec4(0, 0, 0, 1);
+}
+
+////////////////////////////////////////////////////////////////////////////////

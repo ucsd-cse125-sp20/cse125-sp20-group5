@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "Core.h"//#include <glad/glad.h> // holds all OpenGL type declarations
+#include "Core.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -92,6 +92,7 @@ private:
     glm::vec3 ambient; // Ka in .mat file
     glm::vec3 diffuse; // Kd
     glm::vec3 specular; // Ks
+    float shininess;
     /*
     // Refer to http://paulbourke.net/dataformats/mtl/
     glm::vec3 transmissionFilter; // Tf

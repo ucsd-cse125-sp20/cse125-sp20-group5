@@ -19,7 +19,7 @@ out vec3 eyedir;
 
 uniform mat4 model;
 uniform mat4 projectView;
-uniform vec3 eyepos=vec3(0);
+uniform vec3 eyepos=vec3(0,0,10);
 
 uniform mat4 meshTransform;
 
@@ -37,7 +37,7 @@ void main()
 
 
 	vec3 mypos = vec3(gl_Position) / gl_Position.w; // Dehomogenize current location 
-    vec3 eyedir = normalize(eyepos - mypos);
+    eyedir = normalize(eyepos - mypos);
 }
 
 #endif
@@ -60,9 +60,10 @@ uniform sampler2D texture_ambient1;
 uniform vec3 diffuseColor=vec3(0.0);
 uniform vec3 ambientColor=vec3(0.0);
 uniform vec3 specularColor=vec3(0.0);
+uniform float shininess=0.0;
 
 uniform vec3 lightColor=vec3(1.0,1.0,1.0);
-uniform vec3 lightDirection=normalize(vec3(vec4(1,5,-2,0)));
+uniform vec3 lightDirection=vec3(0,0,1);
 
 uniform int hasTexture;
 
@@ -107,13 +108,11 @@ void main() {
 
 	vec3 norm = normalize(fragNormal);
 	float diff = max(dot(norm, lightDirection), 0.0);
-	vec3 lightColor = vec3(1.0);
 	vec3 diffuse = diff * diffuseColor * lightColor; //only calculates diffuse
 	
 	vec3 reflectdir = reflect(-lightDirection, norm);
-	float shininess = 0.5;
 	float spec = pow(max(dot(eyedir, reflectdir), 0.0), shininess);
-	vec3 specular = lightDirection * spec * specularColor;
+	vec3 specular = spec * specularColor * lightColor;
 
 	vec3 ambient = diffuseColor; // diffuseColor is added as ambient
 
