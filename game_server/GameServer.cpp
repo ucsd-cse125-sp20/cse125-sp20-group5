@@ -132,9 +132,9 @@ void GameServer::handleAccept(PtrClientConnection newConnection, const boost::sy
 void GameServer::sendToAll() {
     if (!clients.empty()) {
         gameState.update();
-        char buffer[maxMsg];
+        char buffer[MAX_BUFFER_SIZE];
 
-        boost::iostreams::basic_array_sink<char> sr(buffer, maxMsg);
+        boost::iostreams::basic_array_sink<char> sr(buffer, MAX_BUFFER_SIZE);
         boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
 
         boost::archive::text_oarchive oa(source);
@@ -199,7 +199,7 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
     //std::cout << "Message received: " << pData << std::endl;
     //std::string msg(pData);
 
-    boost::iostreams::stream<boost::iostreams::array_source> is(pData, maxMsg);
+    boost::iostreams::stream<boost::iostreams::array_source> is(pData, MAX_BUFFER_SIZE);
     boost::archive::text_iarchive ia(is);
 
     Message msg;
