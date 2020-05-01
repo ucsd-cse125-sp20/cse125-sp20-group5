@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include <set>
 
 Scene::Scene()
 {
@@ -57,6 +58,11 @@ Scene::~Scene()
 
 void Scene::update()
 {
+	std::set<uint> unusedIds;
+	for (auto kvp : objectIdMap) {
+		unusedIds.insert(kvp.first);
+	}
+
 	// TODO refactor ground in gamestate and to simplify this
 	if (ground == NULL) {
 		ground = new Ground(state->tiles.size(), state->tiles[0].size(), 1.0, 10, 10, program->GetProgramID());
@@ -73,6 +79,7 @@ void Scene::update()
 
 		SceneNode* zombieTemp = getDrawableSceneNode(zombie->objectId, zombieModel);
 		zombieTemp->loadGameObject(zombie); // load new data
+		unusedIds.erase(zombie->objectId);
 
 		// this is only here becuase there server sint sending it right now
 		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
@@ -86,6 +93,7 @@ void Scene::update()
 		
 		SceneNode * playerTemp = getDrawableSceneNode(player->objectId, playerModel);
 		playerTemp->loadGameObject(player);
+		unusedIds.erase(player->objectId);
 
 		// here is wehre we handle stuff like making sure they are holding another object
 		if (player->holding) {
@@ -114,6 +122,7 @@ void Scene::update()
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
 	tapNode->loadGameObject(state->waterTap);
+	unusedIds.erase(state->waterTap->objectId);
 
 	for (Tool * tool : state->tools) {
 		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, toolModel);
@@ -124,9 +133,18 @@ void Scene::update()
 			}
 			toolTemp->loadGameObject(tool); // load new data
 		}
+		unusedIds.erase(tool->objectId);
 	}
 	
 	rootNode->update(glm::mat4(1.0));
+
+
+	// TODO WARNING this is not safe we need code hanlding palyyare disappearing
+	// while holding stuff. right now that will cuase an ERROR
+	for (uint id : unusedIds) {
+		delete objectIdMap[id];
+		objectIdMap.erase(id); 
+	}
 
 	// this is test sode remove it at some point;
 	for (Model* model : models) {
