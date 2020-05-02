@@ -66,7 +66,6 @@ void Scene::update()
 		offestTime += 4.0;
 	}
 
-
 	for (Player* player : state->players) {
 		
 		SceneNode * playerTemp = getDrawableSceneNode(player->objectId, playerModel);

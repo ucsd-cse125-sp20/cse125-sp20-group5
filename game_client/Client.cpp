@@ -163,7 +163,11 @@ void Client::keyboard(GLFWwindow* window, int key, int scancode, int action, int
 
 	if (action == GLFW_RELEASE && keyPresses->count((char)key) > 0) {
 		(*keyPresses)[key] = false;
+		if (key == GLFW_KEY_SPACE) {
+			netClient->sendMessage(OPCODE_PLAYER_INTERACT);
+		}
 	}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

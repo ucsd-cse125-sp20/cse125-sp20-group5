@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <vector>
+#include <unordered_map>
 #include <iostream>
 #include <boost/serialization/vector.hpp>
 
@@ -43,12 +44,14 @@ public:
             Direction* playerDirection = new Direction(0.0);
             Animation* playerAnimation = new Animation(0, 0);
             Color* playerColor = new Color(100, 100, 100);
+            float playerRadius = 1.0; // temp radius
             players.push_back(
                 new Player(
                     playerPosition, playerDirection,
-                    playerAnimation, objectCount, playerColor, i
+                    playerAnimation, objectCount, playerRadius, playerColor, i
                 )
             );
+            gameObjectMap[objectCount] = players[i];
             objectCount++;
         }
 
@@ -65,12 +68,16 @@ public:
 
         // Init tools
         for (int i = 0; i < 2; i++) {
-            Position* toolPosition = new Position(i, 1, 0);
+            Position* toolPosition = new Position(i, 0, i);
             Direction* toolDirection = new Direction(0.0);
             Animation* toolAnimation = new Animation(0, 0);
-            tools.push_back(new Tool(toolPosition, toolDirection, toolAnimation, objectCount, i, 0));
+            float toolRadius = 1.0f;
+            tools.push_back(new Tool(
+                toolPosition, toolDirection, toolAnimation, objectCount, toolRadius, i, 0
+            ));
             players[0]->holding = true;
             players[0]->heldObject = tools[0]->objectId;
+            gameObjectMap[objectCount] = tools[i];
             objectCount++;
         }
 
@@ -81,13 +88,23 @@ public:
         Position* seedShackPosition = new Position(3, 0, 3);
         Direction* seedShackDirection = new Direction(0);
         Animation* seedShackAnimation = new Animation(0, 0);
-        seedShack = new SeedShack(seedShackPosition, seedShackDirection, seedShackAnimation, objectCount);
+        float seedShackRadius = 1.0f;
+        seedShack = new SeedShack(
+            seedShackPosition, seedShackDirection, 
+            seedShackAnimation, objectCount, seedShackRadius
+        );
+        gameObjectMap[objectCount] = seedShack;
         objectCount++;
 
         Position* waterTapPosition = new Position(2, 0, 2);
         Direction* waterTapDirection = new Direction(0);
         Animation* waterTapAnimation = new Animation(0, 0);
-        waterTap = new WaterTap(waterTapPosition, waterTapDirection, waterTapAnimation, objectCount);
+        float waterTapRadius = 1.0f;
+        waterTap = new WaterTap(
+            waterTapPosition, waterTapDirection, 
+            waterTapAnimation, objectCount, waterTapRadius
+        );
+        gameObjectMap[objectCount] = waterTap;
         objectCount++;
     }
 
@@ -261,6 +278,41 @@ public:
                 player->position->z += translateDistance;
                 player->position->x -= translateDistance;
                 break;
+            case OPCODE_PLAYER_INTERACT:
+                if (player->holding) {
+                    // TODO: facing direction check to use tool or drop the tool
+
+                    // Drop tool
+                    Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
+                    tool->position->x = player->position->x;
+                    tool->position->y = player->position->y;
+                    tool->position->z = player->position->z;
+                    tool->heldBy = 0;
+                    player->heldObject = 0;
+                    player->holding = false;
+                }
+                else {
+                    // Loop through tools and check if player collides with them
+                    // Pick up the closest tool
+                    Tool* currTool = nullptr;
+                    float minDistance = std::numeric_limits<float>::max();
+                    for (Tool* tool: tools) {
+                        float dist = player->distanceTo(tool);
+                        std::cout << "Distance to tool is " << dist << std::endl;
+                        if (dist < minDistance) {
+                            currTool = tool;
+                            minDistance = dist;
+                        }
+                    }
+
+                    if (currTool && player->collideWith(currTool)) {
+                        std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+                        player->holding = true;
+                        player->heldObject = currTool->objectId;
+                        currTool->heldBy = player->objectId;
+                    }
+                }
+                break;
         }
         //std::cout << "After update angle = " << player->direction->angle << std::endl;
     }
@@ -278,10 +330,10 @@ public:
 
     void update() {
         tick++;
-        updateZombie();
+        updateZombies();
     }
 
-    void updateZombie() {
+    void updateZombies() {
         // Spawn zombie every second
         if (tick % tickRate == 0) {
             // TODO: Need to find out the position of the tile
@@ -297,8 +349,10 @@ public:
                 zombieBaseDir->angle
             );
             Animation* zombieAnimation = new Animation(0, 0);
+            float zombieRadius = 1.0f;
             Zombie* zombie = new Zombie(
-                zombiePosition, zombieDirection, zombieAnimation, objectCount++
+                zombiePosition, zombieDirection,
+                zombieAnimation, objectCount++, zombieRadius
             );
             zombies.push_back(zombie);
 		}
@@ -337,7 +391,6 @@ public:
     }
 
     // We could use other data structures, for now use a list
-
     std::vector<Player*> players; // Up to 4 players?
     std::vector<Plant*> plants;
     std::vector<Zombie*> zombies;
@@ -346,6 +399,9 @@ public:
     Floor* floor;
     SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
+
+    // GameObject Map
+    std::unordered_map<unsigned int, GameObject*> gameObjectMap;
 
     // start of at 100 so we can portnetially reserve special constants
     unsigned int objectCount = 100;

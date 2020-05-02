@@ -9,8 +9,10 @@ public:
     Player() : GameObject(), color(nullptr), playerId(0), holding(false), heldObject(0) {}
 
     Player(Position* position, Direction* direction,
-           Animation* animation, unsigned int objectId, Color* color, int playerId)
-            : GameObject(position, direction, animation, objectId), playerId(playerId) {
+           Animation* animation, unsigned int objectId, float boundingBoxRadius,
+           Color* color, int playerId)
+            : GameObject(position, direction, animation, objectId, boundingBoxRadius), 
+              playerId(playerId) {
 
         this->color = color;
     }

@@ -6,8 +6,8 @@
 class Zombie : public GameObject {
 public:
     Zombie() : GameObject() {}
-    Zombie(Position* position, Direction* direction, Animation* animation,
-        unsigned int objectId) : GameObject(position, direction, animation, objectId) {
+    Zombie(Position* position, Direction* direction, Animation* animation, unsigned int objectId,
+        float boundingBoxRadius) : GameObject(position, direction, animation, objectId, boundingBoxRadius) {
     }
 
     friend class boost::serialization::access;
