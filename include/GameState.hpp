@@ -305,7 +305,8 @@ public:
                         }
                     }
 
-                    if (currTool && player->collideWith(currTool)) {
+                    // Make sure tool is within collision range and is not held by others 
+                    if (currTool && player->collideWith(currTool) && currTool->heldBy != 0) {
                         std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                         player->holding = true;
                         player->heldObject = currTool->objectId;
