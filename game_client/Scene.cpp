@@ -24,8 +24,6 @@ Scene::Scene()
 
 	testUI = new Image2d(uiProgram->GetProgramID(), "texture/newheart.ppm", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
 
-	startTime = chrono::system_clock::now();
-
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
 	waterTapParticles = particleFactory->getWaterTapParticleGroup();
@@ -33,9 +31,6 @@ Scene::Scene()
 
 Scene::~Scene()
 {
-	for (Model* mod : models) {
-		delete mod;
-	}
 	delete ground;
 	delete skybox;
 	delete testUI; //TODO to be removed
@@ -74,24 +69,16 @@ void Scene::update()
 		}
 	}
 
-	float offestTime = 0;
-	for (Zombie* zombie : state->zombies) {
 
+	for (Zombie* zombie : state->zombies) {
 		SceneNode* zombieTemp = getDrawableSceneNode(zombie->objectId, zombieModel);
 		zombieTemp->loadGameObject(zombie); // load new data
 		unusedIds.erase(zombie->objectId);
-
-		// this is only here becuase there server sint sending it right now
-		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
-		float runningTime = elapsed_seconds.count();
-		zombieTemp->animationTime = runningTime + offestTime;
-		offestTime += 4.0;
 	}
 
 
 	for (Player* player : state->players) {
-		
-		SceneNode * playerTemp = getDrawableSceneNode(player->objectId, playerModel);
+		SceneNode* playerTemp = getDrawableSceneNode(player->objectId, playerModel);
 		playerTemp->loadGameObject(player);
 		unusedIds.erase(player->objectId);
 
@@ -104,25 +91,19 @@ void Scene::update()
 					if (heldNode->parent != playerHand) {
 						playerHand->addChild(heldNode);
 						// TODO the values will have to be a constant we need to figure out how to make it look held
-						heldNode->scaler = TOOL_SCALER/PLAYER_SCALER;
+						heldNode->scaler = TOOL_SCALER / PLAYER_SCALER;
 						heldNode->position = glm::vec3(-4.5,1.3,.5);
 					}
 				}
 			}
 		}
-
-		// this is only here becuase there server isnt sending it right now
-		chrono::duration<double> elapsed_seconds = chrono::system_clock::now() - startTime;
-		float runningTime = elapsed_seconds.count();
-		playerTemp->animationTime = runningTime+offestTime;
-		offestTime += 0.3;
-
-		waterTapParticles->update(0.1f);
 	}
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
 	tapNode->loadGameObject(state->waterTap);
 	unusedIds.erase(state->waterTap->objectId);
+
+	waterTapParticles->update(0.1f);
 
 	for (Tool * tool : state->tools) {
 		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, toolModel);
@@ -138,19 +119,12 @@ void Scene::update()
 	
 	rootNode->update(glm::mat4(1.0));
 
-
 	// TODO WARNING this is not safe we need code hanlding palyyare disappearing
 	// while holding stuff. right now that will cuase an ERROR
 	for (uint id : unusedIds) {
 		delete objectIdMap[id];
 		objectIdMap.erase(id); 
 	}
-
-	// this is test sode remove it at some point;
-	for (Model* model : models) {
-		model->update(NULL);
-	}
-
 }
 
 // gets or make sthe sceneNode for a given object id and model;
@@ -180,9 +154,6 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	// this is for testing we should be bale to remove at some point
 	SceneNode temp(NULL, std::string(""), 0);
 	temp.transform = glm::mat4(1.0);
-	for (Model * model : models) {
-		model->draw(temp, viewProjMat);
-	}	
 
 	waterTapParticles->draw(viewProjMat);
 	testUI->draw(); //TODO to be removed
@@ -196,34 +167,10 @@ void Scene::setState(GameState* state)
 
 // static function for a to create a specfic scene I imagine one of these for each level/screen
 
-// currently this is a test set up just testing drawing and input
-Scene * Scene::testScene() {
-	Scene * scene = new Scene;
-
-	Model * cube = new Model(scene->program->GetProgramID());
-	cube->makeBox(glm::vec3(-.25,0,-.25), glm::vec3(.25,.5,.25));
-
-	Model* floor = new Model(scene->program->GetProgramID());
-	floor->makeBox(glm::vec3(-2, -0.05, -2), glm::vec3(2, 0, 2));
-
-	Model* tile = new Model(scene->program->GetProgramID());
-	tile->makeTile(glm::vec3(0, -3, 0), glm::vec3(.1, -3, .1), glm::vec3(.8, .3, .12), "grass1tile.png");
-
-	scene->models.push_back(cube);
-	scene->models.push_back(floor);
-	scene->models.push_back(tile);
-	return scene;
-}
-
 Scene* Scene::scene0() {
 	Scene* scene = new Scene;
 
-	Model* cube = new Model(scene->program->GetProgramID());
-	cube->makeBox(glm::vec3(-.25, 0, -.25), glm::vec3(.25, .5, .25));
-
 	scene->ground = Ground::ground0(scene->program->GetProgramID());
-
-	scene->models.push_back(cube);
 
 	return scene;
 }

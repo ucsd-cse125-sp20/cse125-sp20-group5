@@ -1,6 +1,7 @@
 #pragma once
+
 #include "Drawable.h"
-#include "core.h"
+#include "Core.h"
 #include <unordered_map>
 #include <GameObject.hpp>
 
@@ -10,19 +11,17 @@ private:
 
 	/*not sure baout this*/
 	uint modelId;
-	std::string name;
 	uint childNum;
 	uint childCount;
 
 public:
 
+	std::string name;
 	uint objectId;
 	glm::mat4 transform;
 	SceneNode* parent;
 	std::unordered_map<uint, SceneNode*> children;
 	Drawable* obj;
-	uint animationId;
-	float animationTime;
 	bool updated;
 	glm::vec3 position;
 	float dir;
@@ -54,6 +53,19 @@ public:
 	// finds a sub noe with the given name and object id
 	// used for finding hands and such 
 	SceneNode* find(std::string name, uint objectId);
+
+
+	/* animation related */
+	uint numAnimation;  // TODO: to be removed if updating animation on the server side
+	uint animationId;
+	float animPlayedTime; // how many time has passed since animStartTime
+	std::chrono::system_clock::time_point animStartTime;  // TODO: to be removed if updating animation on the server side
+
+	// TODO: to be removed if updating animation on the server side
+	void updateAnimation();
+	void loadAnimData(uint numAnim, uint initialAnimID);
+	void switchAnim(uint newAnimID);
+
 
 	std::string getName() const;
 

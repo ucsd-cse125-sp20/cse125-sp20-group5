@@ -116,6 +116,13 @@ void Client::sendKeyboardEvents()
 	if ((*keyPresses)[GLFW_KEY_D]) {
 		netClient->sendMessage(OPCODE_PLAYER_MOVE_RIGHT);
 	}
+
+	/* For testing */
+	if ((*keyPresses)[GLFW_KEY_Z]) {
+		int player1_numAnim = 2;
+		Animation* player1_anim = currentGameState->players[0]->animation;
+		player1_anim->animationType = (player1_anim->animationType + 1) % player1_numAnim;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////

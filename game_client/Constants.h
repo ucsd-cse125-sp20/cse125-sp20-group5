@@ -6,7 +6,7 @@
 #define BASE_TEXTURE "texture/base_texture.jpg"
 
 #define ZOMBIE_MODEL "model/rabbit_simple_animation.fbx"
-#define PLAYER_MODEL "model/cat.fbx"
+#define PLAYER_MODEL "model/mul_anim_cat.fbx"
 #define CORN_MODEL "model/corn.fbx"
 #define WATER_TAP_MODEL "model/water_tap.fbx"
 #define WATERING_CAN_MODEL "model/watering_can.fbx"

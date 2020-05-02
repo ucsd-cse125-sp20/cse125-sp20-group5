@@ -79,13 +79,13 @@ void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			(float*)&(bones[i].finalTransformation));
 	}
 
-	const glm::mat4 model = glm::mat4(1.0);// node.transform* modelFixer;
+	const glm::mat4 model = glm::mat4(1.0);// node.transform * modelFixer;
 	// create a temp model mtx
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
 
 	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].draw(shader);
+		meshes[i]->draw(shader);
 
 	glUseProgram(0);
 }
@@ -93,7 +93,14 @@ void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 // this funciton needs to load the bone data from the Scene nodes
 void AnimatedAssimpModel::update(SceneNode* node)
 {
-	updateBoneTransform(node->animationId, node->animationTime);
+	if (node->animationId >= m_aiScene->mNumAnimations) {
+		std::cerr << "Scene node " << node->name
+			<< " does not have animation ID " << node->animationId
+			<< " (has only " << m_aiScene->mNumAnimations << " animations)" << std::endl;
+		return;
+	}
+
+	updateBoneTransform(node->animationId, node->animPlayedTime);
 	loadSceneNodes(node->children.begin()->second, node->objectId);
 }
 
@@ -116,6 +123,7 @@ void AnimatedAssimpModel::updateBoneTransform(int animId, float TimeInSeconds)
 SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId)
 {
 	SceneNode * newNode = new SceneNode(this, string("modelRoot"), objectId);
+	newNode->loadAnimData(m_aiScene->mNumAnimations, 0); // TODO: to be removed if updating animation on the server side
 	newNode->addChild(createSceneNodesRec(objectId, rootBone));
 	return newNode;
 }

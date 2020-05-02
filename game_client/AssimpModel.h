@@ -33,7 +33,7 @@ public:
 
     /*  Model Data */
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-    vector<AssimpMesh> meshes;
+    vector<AssimpMesh*> meshes;
     string directory;
     bool gammaCorrection;
 
@@ -53,7 +53,7 @@ protected:
     void importScene(const string& path, uint shader);
     void loadModelByNodeTraversal(aiNode* node, const glm::mat4& parentTransform);
 
-    AssimpMesh loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform);
+    AssimpMesh* loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform);
     virtual void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences);
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName); 
     

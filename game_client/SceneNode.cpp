@@ -10,9 +10,11 @@ SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 	childCount = 0;
 	transform = glm::mat4(1.0);
 	parent = NULL;
-	animationId = 0;
-	animationTime = 0.0;
 	updated = false; // dont' double update stuff
+
+	animationId = 0;
+	animPlayedTime = 0.0;
+	numAnimation = 0;
 
 	position = glm::vec3(0.0);
 	dir = 0.0;
@@ -66,6 +68,8 @@ void SceneNode::calcLocalTransform()
 
 void SceneNode::update(glm::mat4 world)
 {
+	updateAnimation();// TODO: to be removed if updating animation on the server side
+
 	if (obj != NULL) {
 		obj->update(this);
 	}
@@ -102,16 +106,16 @@ void SceneNode::draw(const glm::mat4& veiwProjMat)
 
 void SceneNode::loadGameObject(GameObject* gameObj) 
 {
-
 	position[0] = gameObj->position->x;
 	position[1] = gameObj->position->y;
 	position[2] = gameObj->position->z;
 
 	dir = gameObj->direction->angle;
 
-	animationId = gameObj->animation->animationType;
-	animationTime = gameObj->animation->animationFrame;
-
+	// TODO if use server to update anim, uncomment the below and delete swtichAnim
+	//animationId = gameObj->animation->animationType;
+	//animPlayedTime = gameObj->animation->animationFrame;
+	switchAnim(gameObj->animation->animationType);
 } 
 
 SceneNode* SceneNode::find(std::string name, uint objectId)
@@ -135,5 +139,40 @@ SceneNode* SceneNode::find(std::string name, uint objectId)
 std::string SceneNode::getName() const
 {
 	return name;
+}
+
+/* animation related done on client side */
+// TODO: to be removed if updating animation on the server side
+void SceneNode::updateAnimation() {
+	if (this->numAnimation <= 0) {
+		return;
+	}
+	
+	std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - this->animStartTime;
+	this->animPlayedTime = elapsed_seconds.count();
+}
+
+void SceneNode::loadAnimData(uint numAnim, uint initialAnimID) {
+	this->numAnimation = numAnim;
+	this->animationId = initialAnimID;
+	this->animStartTime = std::chrono::system_clock::now();
+}
+
+void SceneNode::switchAnim(uint newAnimID) {
+	if (this->numAnimation <= 0) {
+		return; // meaning no animation for this node/model
+	}
+	if (newAnimID >= this->numAnimation) {
+		std::cerr << "Scene node " << this->name 
+			<< " does not have animation ID " << newAnimID 
+			<< " (has only " << this->numAnimation <<" animations)" << std::endl;
+		return;
+	}
+	if (this->animationId == newAnimID) {
+		return; // no need to switch
+	}
+
+	this->animationId = newAnimID;
+	this->animStartTime = std::chrono::system_clock::now();
 }
 
