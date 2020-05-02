@@ -26,7 +26,6 @@ public:
         ar & direction;
         ar & animation;
         ar & objectId;
-        ar & boundingBoxRadius;
     }
 
     ~GameObject() {
