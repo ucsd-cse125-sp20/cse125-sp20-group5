@@ -3,6 +3,7 @@
 #define NO_TEXTURE "texture/default_texture.png"
 #define GRASS_TEXTURE "texture/grass_texture.jpg"
 #define WATER_TEXTURE "texture/water_texture.jpg"
+#define BASE_TEXTURE "texture/base_texture.jpg"
 
 #define ZOMBIE_MODEL "model/rabbit_simple_animation.fbx"
 #define PLAYER_MODEL "model/cat.fbx"

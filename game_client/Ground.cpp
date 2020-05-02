@@ -26,6 +26,11 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 	}
 
 	setPadding(TILE_TYPE::BLANK);
+
+	baseLayer = new Model(shader);
+	baseLayer->makeTile(glm::vec3(0, -0.01f, 0), glm::vec3(x * size, -0.01f, y * size), 
+		glm::vec3(1.0f), getTexture(Ground::TILE_TYPE::BASE_LAYER));
+
 }
 
 Ground::~Ground()
@@ -58,9 +63,12 @@ void Ground::update(SceneNode * node)
 
 void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
+
 	glm::mat4 handlePadding = node.transform;
-	handlePadding[3][0] = handlePadding[3][0] - (tileSize * padX);
-	handlePadding[3][2] = handlePadding[3][2] - (tileSize * padY);
+	handlePadding[3][0] = handlePadding[3][0] - (tileSize * (padX+1));
+	handlePadding[3][2] = handlePadding[3][2] - (tileSize * (padY+1));
+
+	baseLayer->draw(node, viewProjMtx);
 
 	glm::mat4 tileMat = handlePadding;
 	for (int i = 0; i < totalX; i++) {
@@ -70,9 +78,13 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			tileMat[3][2] += tileSize;
 			SceneNode temp(NULL, std::string(""), 0);
 			temp.transform = tileMat;
-			tiles[( (int)grid[(i*totalY) + j] )]->draw(temp, viewProjMtx);
+			// Don't draw the normal tiles to make it transparent. Display the base layer underneath
+			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL) {
+				tiles[((int)grid[(i * totalY) + j])]->draw(temp, viewProjMtx);
+			}
 		}
 	}
+
 }
 
 void Ground::setPadding(TILE_TYPE type) {
@@ -145,6 +157,8 @@ const char* Ground::getTexture(TILE_TYPE type)
 		return WATER_TEXTURE;
 	case TILE_TYPE::BLANK:
 		return NO_TEXTURE;
+	case TILE_TYPE::BASE_LAYER:
+		return BASE_TEXTURE;
 	}
 	return NULL;
 }
