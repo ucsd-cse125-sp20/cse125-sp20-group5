@@ -24,10 +24,14 @@ SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 SceneNode::~SceneNode()
 {
 	removeSelf();
-	std::unordered_map<uint, SceneNode*>::iterator children;
-	for (children = this->children.begin(); children != this->children.end(); children++) {
-		delete children->second;
+	
+	std::unordered_map<uint, SceneNode*>::iterator childrenItr = this->children.begin();
+	while (childrenItr != this->children.end()) {
+		auto toBeDeleted = childrenItr->second;
+		childrenItr++;
+		delete toBeDeleted;
 	}
+	this->children.clear();
 }
 
 void SceneNode::removeSelf()
