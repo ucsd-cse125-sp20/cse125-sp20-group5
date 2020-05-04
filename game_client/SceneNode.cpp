@@ -26,6 +26,7 @@ SceneNode::~SceneNode()
 	removeSelf();
 	std::unordered_map<uint, SceneNode*>::iterator children;
 	for (children = this->children.begin(); children != this->children.end(); children++) {
+		children->second->parent = NULL;
 		delete children->second;
 	}
 }
