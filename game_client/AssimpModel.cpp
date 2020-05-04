@@ -23,6 +23,11 @@ AssimpModel::~AssimpModel()
 	for (Texture tex : textures_loaded) {
 		glDeleteTextures(1, &(tex.id));
 	}
+
+	for (int i = 0; i < meshes.size(); i++) {
+		delete meshes[i];
+	}
+	meshes.clear();
 }
 
 // Because it is highly discouraged to call an overriden method in virtual, this method is created to avoid AnimatedAssimpModel 
