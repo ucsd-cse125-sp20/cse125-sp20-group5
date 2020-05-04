@@ -124,6 +124,9 @@ void Client::sendKeyboardEvents()
 	else if ((*keyPresses)[GLFW_KEY_D]) {
 		netClient->sendMessage(OPCODE_PLAYER_MOVE_RIGHT);
 	}
+	else {
+		netClient->sendMessage(OPCODE_PLAYER_MOVE_FREEZE);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
