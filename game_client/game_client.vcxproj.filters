@@ -63,6 +63,24 @@
     <ClInclude Include="AnimatedAssimpModel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleGroup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleFactory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Image2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -104,6 +122,18 @@
     <ClCompile Include="AnimatedAssimpModel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Particle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleGroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Image2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Model.glsl">
@@ -115,15 +145,24 @@
     <None Include="AnimatedAssimpModel.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Particle.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Skybox.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="UI.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="default_texture.png">
+    <Image Include="texture\default_texture.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="grass_texture.jpg">
+    <Image Include="texture\grass_texture.jpg">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="water_texture.jpg">
+    <Image Include="texture\water_texture.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

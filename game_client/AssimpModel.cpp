@@ -23,6 +23,11 @@ AssimpModel::~AssimpModel()
 	for (Texture tex : textures_loaded) {
 		glDeleteTextures(1, &(tex.id));
 	}
+
+	for (int i = 0; i < meshes.size(); i++) {
+		delete meshes[i];
+	}
+	meshes.clear();
 }
 
 // Because it is highly discouraged to call an overriden method in virtual, this method is created to avoid AnimatedAssimpModel 
@@ -54,7 +59,7 @@ void AssimpModel::loadModelByNodeTraversal(aiNode* node, const glm::mat4& parent
 		// the node object only contains indices to index the actual objects in the scene. 
 		// the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
 		aiMesh* mesh = m_aiScene->mMeshes[node->mMeshes[i]];
-		AssimpMesh loadedMesh = loadMesh(mesh, m_aiScene, globalTransformation);
+		AssimpMesh* loadedMesh = loadMesh(mesh, m_aiScene, globalTransformation);
 		meshes.push_back(loadedMesh);
 	}
 
@@ -65,7 +70,7 @@ void AssimpModel::loadModelByNodeTraversal(aiNode* node, const glm::mat4& parent
 }
 
 // create an AssimpMesh for each mesh
-AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform)
+AssimpMesh* AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform)
 {
 	// data to fill
 	vector<Vertex> vertices;
@@ -126,9 +131,8 @@ AssimpMesh AssimpModel::loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 m
 	textures.insert(textures.end(), ambientMaps.begin(), ambientMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	AssimpMesh resultMesh(vertices, indices, textures, meshTransform);
-	resultMesh.setupShadingAttributes(material);
-
+	AssimpMesh* resultMesh = new AssimpMesh(vertices, indices, textures, meshTransform);
+	resultMesh->setupShadingAttributes(material);
 	return resultMesh;
 }
 
@@ -173,23 +177,18 @@ SceneNode* AssimpModel::createSceneNodes(uint objectId)
 	return new SceneNode(this, std::string("assimpmodel"), objectId);
 }
 
-void AssimpModel::setModelFixer(glm::mat4 fixer)
-{
-	modelFixer = fixer;
-}
-
 // draws the model, and thus all its meshes
 void AssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
 	
-	const glm::mat4 model = node.transform *modelFixer;
+	const glm::mat4 model = node.transform;
 	// create a temp model mtx
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
 
 	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].draw(shader);
+		meshes[i]->draw(shader);
 
 	glUseProgram(0);
 

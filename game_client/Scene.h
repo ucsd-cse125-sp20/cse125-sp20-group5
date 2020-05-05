@@ -9,13 +9,15 @@
 #include "Ground.h"
 #include "AssimpModel.h"
 #include "AnimatedAssimpModel.h"
+#include "Skybox.h"
+#include "Image2d.h"
 #include "Constants.h"
 #include "Shader.h"
+#include "ParticleFactory.hpp"
 
 class Scene
 {
 private:
-	std::vector<Model*> models;
 	Ground * ground;
 
 	GameState * state;
@@ -29,24 +31,35 @@ private:
 	AnimatedAssimpModel * zombieModel;
 	AnimatedAssimpModel* playerModel;
 	AssimpModel* tapModel;
+	AssimpModel* toolModel;
+	Skybox* skybox;
+	Image2d* testUI; //TODO to be removed
 
 	// shaders
 	ShaderProgram * program;
 	ShaderProgram * assimpProgram;
 	ShaderProgram* animationProgram;
+	ShaderProgram* skyboxProgram;
+	ShaderProgram* uiProgram;
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
 
-	SceneNode* getDrawableSceneNode(uint objectId, Drawable * model);
+	// Particle effect
+	ParticleFactory* particleFactory;
+	ParticleGroup* waterTapParticles;
+	ShaderProgram* particleProgram;
 
 public:
 	Scene();
 	~Scene();
 
+	void setupDirectionalLighting(glm::vec3 eyePosition);
 	void setState(GameState * state);
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat); // renders everything
+
+	SceneNode* getDrawableSceneNode(uint objectId, Drawable* model);
 
 	// static function for a to create a specfic scene good for grahics testing
 	static Scene* testScene();

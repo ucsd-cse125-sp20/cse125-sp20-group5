@@ -33,11 +33,9 @@ public:
 
     /*  Model Data */
     vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-    vector<AssimpMesh> meshes;
+    vector<AssimpMesh*> meshes;
     string directory;
     bool gammaCorrection;
-
-    void setModelFixer(glm::mat4 fixer);
 
     virtual void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
     virtual void update(SceneNode * node) override;
@@ -50,16 +48,12 @@ protected:
     map<string, uint> boneMap; // maps a bone name to its index
     vector<Bone> bones;
 
-    // this is to handel nay model speifc issues
-    // scalign the model movign it sligghtly down rotaitng it
-    glm::mat4 modelFixer = glm::mat4(1.0);
-
     uint shader;
 
     void importScene(const string& path, uint shader);
     void loadModelByNodeTraversal(aiNode* node, const glm::mat4& parentTransform);
 
-    AssimpMesh loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform);
+    AssimpMesh* loadMesh(aiMesh* mesh, const aiScene* scene, glm::mat4 meshTransform);
     virtual void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences);
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName); 
     
