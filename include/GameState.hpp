@@ -229,9 +229,12 @@ public:
 
                     // Drop tool
                     Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
-                    tool->position->x = player->position->x;
+                    float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
+                    float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
+                    tool->position->x = player->position->x + x_offset;
                     tool->position->y = player->position->y;
-                    tool->position->z = player->position->z;
+                    tool->position->z = player->position->z + z_offset;
+                    tool->direction->angle = player->direction->angle;
                     tool->heldBy = 0;
                     tool->held = false;
                     player->heldObject = 0;
@@ -258,6 +261,7 @@ public:
                         player->heldObject = currTool->objectId;
                         currTool->heldBy = player->objectId;
                         currTool->held = true;
+                        currTool->direction->angle = player->direction->angle;
                     }
                 }
                 break;
@@ -278,9 +282,13 @@ public:
         // Drop tool if player disconnects
         if (player->heldObject != 0) {
             Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
-            tool->position->x = player->position->x;
+
+            float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
+            float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
+            tool->position->x = player->position->x + x_offset;
             tool->position->y = player->position->y;
-            tool->position->z = player->position->z;
+            tool->position->z = player->position->z + z_offset;
+            tool->direction->angle = player->direction->angle;
             tool->heldBy = 0;
             tool->held = false;
             player->heldObject = 0;
@@ -289,9 +297,22 @@ public:
     }
 
     void update() {
+        collisionDetection();
         updatePlayers();
         updateZombies();
         tick++;
+    }
+
+    void collisionDetection() {
+        for (Player* player : players) {
+            for (Tool* tool : tools) {
+
+            }
+            for (Zombie* zombie : zombies) {
+
+            }
+        }
+
     }
 
     void updatePlayers() {
