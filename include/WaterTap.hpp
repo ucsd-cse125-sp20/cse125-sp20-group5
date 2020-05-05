@@ -7,7 +7,7 @@ class WaterTap : public GameObject {
 public:
     WaterTap() : GameObject() {}
     WaterTap(Position* position, Direction* direction, Animation* animation,
-        unsigned int objectId) : GameObject(position, direction, animation, objectId) {}
+        unsigned int objectId, float boundingBoxRadius) : GameObject(position, direction, animation, objectId, boundingBoxRadius) {}
 
     friend class boost::serialization::access;
     template<class Archive>

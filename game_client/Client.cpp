@@ -104,17 +104,32 @@ void Client::draw() {
  */
 void Client::sendKeyboardEvents()
 {
-	if ((*keyPresses)[GLFW_KEY_W]) {
+	if ((*keyPresses)[GLFW_KEY_W] && (*keyPresses)[GLFW_KEY_A]) {
+		netClient->sendMessage(OPCODE_PLAYER_MOVE_UPPER_LEFT);
+	}
+	else if ((*keyPresses)[GLFW_KEY_W] && (*keyPresses)[GLFW_KEY_D]) {
+		netClient->sendMessage(OPCODE_PLAYER_MOVE_UPPER_RIGHT);
+	}
+	else if ((*keyPresses)[GLFW_KEY_S] && (*keyPresses)[GLFW_KEY_A]) {
+		netClient->sendMessage(OPCODE_PLAYER_MOVE_LOWER_LEFT);
+	}
+	else if ((*keyPresses)[GLFW_KEY_S] && (*keyPresses)[GLFW_KEY_D]) {
+		netClient->sendMessage(OPCODE_PLAYER_MOVE_LOWER_RIGHT);
+	}
+	else if ((*keyPresses)[GLFW_KEY_W]) {
         netClient->sendMessage(OPCODE_PLAYER_MOVE_UP);
 	}
-	if ((*keyPresses)[GLFW_KEY_A]) {
+	else if ((*keyPresses)[GLFW_KEY_A]) {
         netClient->sendMessage(OPCODE_PLAYER_MOVE_LEFT);
 	}
-	if ((*keyPresses)[GLFW_KEY_S]) {
+	else if ((*keyPresses)[GLFW_KEY_S]) {
         netClient->sendMessage(OPCODE_PLAYER_MOVE_DOWN);
 	}
-	if ((*keyPresses)[GLFW_KEY_D]) {
+	else if ((*keyPresses)[GLFW_KEY_D]) {
 		netClient->sendMessage(OPCODE_PLAYER_MOVE_RIGHT);
+	}
+	else {
+		netClient->sendMessage(OPCODE_PLAYER_MOVE_FREEZE);
 	}
 
 	/* For testing */
@@ -162,7 +177,11 @@ void Client::keyboard(GLFWwindow* window, int key, int scancode, int action, int
 
 	if (action == GLFW_RELEASE && keyPresses->count((char)key) > 0) {
 		(*keyPresses)[key] = false;
+		if (key == GLFW_KEY_SPACE) {
+			netClient->sendMessage(OPCODE_PLAYER_INTERACT);
+		}
 	}
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

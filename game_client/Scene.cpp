@@ -59,14 +59,15 @@ void Scene::update()
 	}
 
 	// TODO refactor ground in gamestate and to simplify this
+	Floor* floor = state->floor;
 	if (ground == NULL) {
-		ground = new Ground(state->tiles.size(), state->tiles[0].size(), 1.0, 10, 10, program->GetProgramID());
+		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID());
 		groundNode->obj = ground;
-		groundNode->position = glm::vec3(state->tiles.size()/(-2.0), 0, state->tiles[0].size()/(-1.5));
+		groundNode->position = glm::vec3(floor->tiles.size()/(-2.0), 0, floor->tiles[0].size()/(-1.5));
 	}
-	for (int i = 0; i < state->tiles.size(); i++) {
-		for (int j = 0; j < state->tiles[0].size(); j++) {
-			ground->setLoc(i,j,(Ground::TILE_TYPE)(state->tiles[i][j]->tileType));
+	for (int i = 0; i < floor->tiles.size(); i++) {
+		for (int j = 0; j < floor->tiles[0].size(); j++) {
+			ground->setLoc(j,i,(Ground::TILE_TYPE)(floor->tiles[i][j]->tileType));
 		}
 	}
 
@@ -77,7 +78,6 @@ void Scene::update()
 		zombieTemp->scaler = RABBIT_SCALER;
 		unusedIds.erase(zombie->objectId);
 	}
-
 
 	for (Player* player : state->players) {
 		SceneNode* playerTemp = getDrawableSceneNode(player->objectId, playerModel);

@@ -63,7 +63,7 @@ void SceneNode::calcLocalTransform()
 	transform = glm::mat4(scaler);
 	transform[3][3] = 1.0;
 
-	transform = transform * glm::eulerAngleZ(dir);
+	transform = transform * glm::eulerAngleY(dir);
 
 	transform[3][0] = position[0];
 	transform[3][1] = position[1];

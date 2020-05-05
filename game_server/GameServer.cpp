@@ -107,7 +107,7 @@ GameServer::GameServer(
     tcpAcceptor(io_context, tcp::endpoint(tcp::v4(), port_num)),
     tickTimer(boost::asio::steady_timer(io_context)),
     deltaTimeMicrosec(1000000 / tick_rate) {
-    gameState.init();
+    gameState.init(tick_rate);
     startAccept();
     sendToAll();
 }
@@ -131,9 +131,10 @@ void GameServer::handleAccept(PtrClientConnection newConnection, const boost::sy
 
 void GameServer::sendToAll() {
     if (!clients.empty()) {
-        char buffer[maxMsg];
+        gameState.update();
+        char buffer[MAX_BUFFER_SIZE];
 
-        boost::iostreams::basic_array_sink<char> sr(buffer, maxMsg);
+        boost::iostreams::basic_array_sink<char> sr(buffer, MAX_BUFFER_SIZE);
         boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
 
         boost::archive::text_oarchive oa(source);
@@ -158,6 +159,7 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
         new Direction(0),
         new Animation(0, 0),
         gameState.objectCount++,
+        1.0f,
         new Color(0, 0, 0), 1);
 
     pConn2Player.insert(std::make_pair(pConn, newPlayer));
@@ -198,21 +200,21 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
     //std::cout << "Message received: " << pData << std::endl;
     //std::string msg(pData);
 
-    boost::iostreams::stream<boost::iostreams::array_source> is(pData, maxMsg);
+    boost::iostreams::stream<boost::iostreams::array_source> is(pData, MAX_BUFFER_SIZE);
     boost::archive::text_iarchive ia(is);
 
     Message msg;
     ia >> msg; 
 
     // Do something with the message (update game state)
-    std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
+    // std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
     
     Player* player = pConn2Player[pConn];
     // critical section here
     // TODO: Update gameState
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
-        gameState.update(msg.getOpCode(), player);
+        gameState.updatePlayer(msg.getOpCode(), player);
     }
 }
 
