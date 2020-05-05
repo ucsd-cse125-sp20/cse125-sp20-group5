@@ -121,6 +121,7 @@ void NetworkClient::handleReceive(const boost::system::error_code& error, size_t
 
 NetworkClient::~NetworkClient() {
     socket.close();
+    t.join();
 }
 
 GameState* NetworkClient::getCurrentState() {
