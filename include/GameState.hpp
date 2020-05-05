@@ -65,13 +65,17 @@ public:
 
         // Init tiles
         // TODO: for now, do a 5x5, but change it later
-        for (int i = 0; i < 5; i++) {
+        int width = 20;
+        int height = 15;
+        for (int i = 0; i < width; i++) {
             std::vector<Tile*> row;
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < height; j++) {
                 Position* tilePosition = new Position(i, j, 0);
                 Direction* tileDirection = new Direction(0);
-
-                row.push_back(new Tile(tilePosition, 0, tileDirection));
+                if (i <= 1 || i >= width-2  || j >= height -2)
+                    row.push_back(new Tile(tilePosition, 1, tileDirection));
+                else
+                    row.push_back(new Tile(tilePosition, 0, tileDirection));
             }
             tiles.push_back(row);
         }

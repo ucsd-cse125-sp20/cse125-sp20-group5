@@ -18,7 +18,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 
 	for (int i = 0; i < NUM_TILES; i++) {
 		Model * temp = new Model(shader);
-		glm::vec3 color = getColor((TILE_TYPE)i);
+		glm::vec3 color = glm::vec3(1.0);//getColor((TILE_TYPE)i);
 		glm::vec3 min(0, 0, 0);
 		glm::vec3 max(size, 0, size);
 		temp->makeTile(min, max, color, getTexture((TILE_TYPE)i));
@@ -79,8 +79,11 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			SceneNode temp(NULL, std::string(""), 0);
 			temp.transform = tileMat;
 			// Don't draw the normal tiles to make it transparent. Display the base layer underneath
-			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL) {
-				tiles[((int)grid[(i * totalY) + j])]->draw(temp, viewProjMtx);
+			if (i == 20 && j == 20)
+				tiles[(int)Ground::TILE_TYPE::BLANK]->draw(temp, viewProjMtx);
+			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL &&
+				grid[(i * totalY) + j] != Ground::TILE_TYPE::BLANK) {
+				tiles[(int)grid[i*totalY + j]]->draw(temp, viewProjMtx);
 			}
 		}
 	}
@@ -148,7 +151,7 @@ const char* Ground::getTexture(TILE_TYPE type)
 {
 	switch (type) {
 	case TILE_TYPE::PATH:
-		return NO_TEXTURE;
+		return PATH_TEXTURE;
 	case TILE_TYPE::TILLED:
 		return NO_TEXTURE;
 	case TILE_TYPE::NORMAL:

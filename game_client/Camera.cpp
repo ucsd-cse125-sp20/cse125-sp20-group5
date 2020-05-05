@@ -28,6 +28,7 @@ void Camera::Update() {
 
 	// Compute final view-projection matrix
 	ViewProjectMtx = project * view;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,11 +37,11 @@ void Camera::Reset() {
 	FOV = 45.0f;
 	Aspect = 1.00f;
 	NearClip = 0.1f;
-	FarClip = 100.0f;
+	FarClip = 200.0f;
 
-	Distance = 35.0f;
+	Distance = 19.5f;
 	Azimuth = 0.0f;
-	Incline = 30.0f;
+	Incline = 54.0f;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@ Scene::Scene()
 	groundNode = new SceneNode(ground, string("ground"), 1);
 	rootNode->addChild(groundNode);
 
-	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(30.0f)));
+	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(100.0f)));
 
 	testUI = new Image2d(uiProgram->GetProgramID(), "texture/newheart.ppm", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
 
@@ -62,6 +62,7 @@ void Scene::update()
 	if (ground == NULL) {
 		ground = new Ground(state->tiles.size(), state->tiles[0].size(), 1.0, 10, 10, program->GetProgramID());
 		groundNode->obj = ground;
+		groundNode->position = glm::vec3(state->tiles.size()/(-2.0), 0, state->tiles[0].size()/(-1.5));
 	}
 	for (int i = 0; i < state->tiles.size(); i++) {
 		for (int j = 0; j < state->tiles[0].size(); j++) {
@@ -73,6 +74,7 @@ void Scene::update()
 	for (Zombie* zombie : state->zombies) {
 		SceneNode* zombieTemp = getDrawableSceneNode(zombie->objectId, zombieModel);
 		zombieTemp->loadGameObject(zombie); // load new data
+		zombieTemp->scaler = RABBIT_SCALER;
 		unusedIds.erase(zombie->objectId);
 	}
 
@@ -80,6 +82,7 @@ void Scene::update()
 	for (Player* player : state->players) {
 		SceneNode* playerTemp = getDrawableSceneNode(player->objectId, playerModel);
 		playerTemp->loadGameObject(player);
+		playerTemp->scaler = PLAYER_SCALER;
 		unusedIds.erase(player->objectId);
 
 		// here is wehre we handle stuff like making sure they are holding another object
