@@ -215,6 +215,18 @@ public:
         if (it != players.end()) {
             players.erase(it);
         }
+
+        // Drop tool if player disconnects
+        if (player->heldObject != 0) {
+            Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
+            tool->position->x = player->position->x;
+            tool->position->y = player->position->y;
+            tool->position->z = player->position->z;
+            tool->heldBy = 0;
+            tool->held = false;
+            player->heldObject = 0;
+            player->holding = false;
+        }
     }
 
     void update() {
