@@ -72,8 +72,25 @@ public:
             for (int j = 0; j < height; j++) {
                 Position* tilePosition = new Position(i, j, 0);
                 Direction* tileDirection = new Direction(0);
-                if (i <= 1 || i >= width-2  || j >= height -2)
+                // Draw the path here
+
+                // U shaped
+                // if (i <= 1 || i >= width-2  || j >= height -2) {
+                //     row.push_back(new Tile(tilePosition, 1, tileDirection));
+                // }
+
+                // -----|
+                //      |
+                //      |------ shaped
+                if (i <= 10 && j <= 1 || // upper left ---
+                    i > 10 && j >= 13 ||
+                    i == 9 ||
+                    i == 10
+                   ) {
                     row.push_back(new Tile(tilePosition, 1, tileDirection));
+                }
+
+                // The basic ground
                 else
                     row.push_back(new Tile(tilePosition, 0, tileDirection));
             }
