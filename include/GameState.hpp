@@ -79,6 +79,7 @@ public:
 
     void init(int tick_rate) {
         tickRate = tick_rate;
+        deltaTime = 1.0f / tickRate;
         floor = new Floor();
         seedShack = new SeedShack();
         waterTap = new WaterTap();
@@ -318,7 +319,7 @@ public:
     void updatePlayers() {
         for (Player* player : players) {
             // 1. Update position
-            player->move();
+            player->move(deltaTime);
         }
     }
 
@@ -353,19 +354,19 @@ public:
             // Move current zombie
             Direction* currDir = zombie->direction;
             if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
-                zombie->position->z += Zombie::STEP_SIZE;
+                zombie->position->z += Zombie::SPEED * deltaTime;
                 paddingZ -= Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_RIGHT)) {
-                zombie->position->x += Zombie::STEP_SIZE;
+                zombie->position->x += Zombie::SPEED * deltaTime;
                 paddingX -= Tile::TILE_PAD_X;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_UP)) {
-                zombie->position->z -= Zombie::STEP_SIZE;
+                zombie->position->z -= Zombie::SPEED * deltaTime;
                 paddingZ += Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_LEFT)) {
-                zombie->position->x -= Zombie::STEP_SIZE;
+                zombie->position->x -= Zombie::SPEED * deltaTime;
                 paddingX += Tile::TILE_PAD_X;
             }
 
@@ -404,9 +405,9 @@ public:
     unsigned int objectCount = 100;
 
     // tick count
-    long long tick = 0;
+    long long tick;
     int tickRate;
-
+    float deltaTime;
 };
 
 #endif
