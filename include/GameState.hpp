@@ -93,7 +93,8 @@ public:
         //int NUM_OF_ZOMBIE = 3;
 
         // Init players
-        /*for (int i = 0; i < NUM_OF_PLAYER; i++) {
+        /*
+        for (int i = 0; i < NUM_OF_PLAYER; i++) {
             Position* playerPosition = new Position(i*3, 0, 0);
             Direction* playerDirection = new Direction(0.0);
             Animation* playerAnimation = new Animation(0, 0);
@@ -298,28 +299,43 @@ public:
     }
 
     void update() {
-        collisionDetection();
-        updatePlayers();
         updateZombies();
+        updatePlayers();
         tick++;
     }
 
-    void collisionDetection() {
-        for (Player* player : players) {
-            for (Tool* tool : tools) {
-
-            }
-            for (Zombie* zombie : zombies) {
-
-            }
-        }
-
-    }
 
     void updatePlayers() {
         for (Player* player : players) {
+            Position prevPos(player->position);
             // 1. Update position
             player->move(deltaTime);
+
+            // 2. Check if collide with zombies
+            for (Zombie* zombie : zombies) {
+                if (player->collideWith(zombie)) {
+                    std::cout << "Collide with zombie" << std::endl;
+                    float dx = player->position->x - prevPos.x;
+                    float dz = player->position->z - prevPos.z;
+                    player->position->x = prevPos.x - 10 * dx;
+                    player->position->z = prevPos.z - 10 * dz;
+                    break;
+                }
+            }
+
+            // 3. Check if collide with wall
+            if (player->position->x < 0 || player->position->x > floor->tiles[0].size() * 1.0) {
+                std::cout << "Collide with wall" << std::endl;
+                player->position->x = prevPos.x;
+                continue;
+            }
+            if (player->position->z < 0 || player->position->z > floor->tiles.size() * 1.0) {
+                std::cout << "Collide with wall" << std::endl;
+                player->position->z = prevPos.z;
+                continue;
+            }
+
+            // 4. Check if collide with tools
         }
     }
 

@@ -158,7 +158,7 @@ void GameServer::sendToAll() {
 
 void GameServer::onClientConnected(PtrClientConnection pConn) {
     std::cout << "Client connected!" << std::endl;
-    Player* newPlayer = new Player(new Position(0,0,0),
+    Player* newPlayer = new Player(new Position(5,0,5),
         new Direction(0),
         new Animation(0, 0),
         gameState.objectCount++,
