@@ -232,7 +232,7 @@ public:
                     Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
                     float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
                     float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-                    tool->position->x = player->position->x + x_offset;
+                    tool->position->x = player->position->x - x_offset;
                     tool->position->y = player->position->y;
                     tool->position->z = player->position->z + z_offset;
                     tool->direction->angle = player->direction->angle;
@@ -286,7 +286,7 @@ public:
 
             float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
             float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-            tool->position->x = player->position->x + x_offset;
+            tool->position->x = player->position->x - x_offset;
             tool->position->y = player->position->y;
             tool->position->z = player->position->z + z_offset;
             tool->direction->angle = player->direction->angle;
