@@ -3,7 +3,8 @@
 #define NO_TEXTURE "texture/default_texture.png"
 #define GRASS_TEXTURE "texture/grass_texture.jpg"
 #define WATER_TEXTURE "texture/water_texture.jpg"
-#define BASE_TEXTURE "texture/base_texture.jpg"
+#define BASE_TEXTURE "texture/base_texture_1.jpg"
+#define PATH_TEXTURE "texture/ground_texture.jpg"
 
 #define ZOMBIE_MODEL "model/rabbit_simple_animation.fbx"
 #define PLAYER_MODEL "model/mul_anim_cat.fbx"
@@ -16,8 +17,8 @@
 #define PLAYER_SCALER_MAT glm::mat4(.5, 0, 0, 0,		0, .5, 0, 0,	0, 0, .5, 0,		0, 0, 0, 1.0)
 
 #define WATER_TAP_SCALER 0.5
-#define RABBIT_SCALER 0.5
-#define PLAYER_SCALER 0.5
+#define RABBIT_SCALER 0.40
+#define PLAYER_SCALER 0.30
 #define TOOL_SCALER 0.5
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"

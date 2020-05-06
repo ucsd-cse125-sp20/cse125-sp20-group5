@@ -5,7 +5,6 @@ Skybox::Skybox(uint shader, glm::mat4 modelMtx)
 	this->shader = shader;
 	this->modelMtx = modelMtx;
 
-	toWorld = glm::scale(glm::mat4(1.f), glm::vec3(400.f));
 	std::string directory = "texture/skybox/";
 	filePaths.push_back(directory + "starfield_rt.ppm");
 	filePaths.push_back(directory + "starfield_lf.ppm");
