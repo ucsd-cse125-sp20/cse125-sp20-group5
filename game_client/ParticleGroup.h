@@ -63,8 +63,8 @@ public:
     // Draw the whole particle group
     void draw(glm::mat4 viewProjMatrix);
 	void update(float timeDifference);
-    void pauseSpawning();
-    void resumeSpawning();
+    void toggleSpawning();
+    bool isSpawning();
 };
 
 #endif

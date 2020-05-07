@@ -141,26 +141,26 @@ void ParticleGroup::update(float timeDifference)
 			for (int i = 0; i < spawnNum; i++)
 				addChildParticle();
 		}
-
-		for (int i = 0; i < children.size(); i++) {
-			Particle* child = children[i];
-			child->update(timeDifference);
-			if (!child->isAlive()) {
-				children.erase(children.begin() + i);
-			}
+	}
+	for (int i = 0; i < children.size(); i++) {
+		Particle* child = children[i];
+		child->update(timeDifference);
+		if (!child->isAlive()) {
+			children.erase(children.begin() + i);
 		}
 	}
+	
 }
 
-void ParticleGroup::pauseSpawning()
+void ParticleGroup::toggleSpawning()
 {
-	spawning = false;
+	spawning = !spawning;
 }
 
-void ParticleGroup::resumeSpawning()
-{
-	spawning = true;
+bool ParticleGroup::isSpawning() {
+	return spawning;
 }
+
 
 glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
 {

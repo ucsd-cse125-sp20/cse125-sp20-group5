@@ -167,6 +167,14 @@ void Client::keyboard(GLFWwindow* window, int key, int scancode, int action, int
 		case GLFW_KEY_R:
 			reset();
 			break;
+		// TODO: Used to test firing particles
+		case GLFW_KEY_P:
+			if (action == GLFW_PRESS) {
+				cout << "toggle" << "\n";
+				for (ParticleGroup* p : scene->particleGroups) {
+					p->toggleSpawning();
+				}
+			}
 		default:
 			break;	
 	}
@@ -182,6 +190,7 @@ void Client::keyboard(GLFWwindow* window, int key, int scancode, int action, int
 		}
 	}
 
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////

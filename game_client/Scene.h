@@ -49,9 +49,10 @@ private:
 	ParticleFactory* particleFactory;
 	ShaderProgram* particleProgram;
 
-	std::vector<ParticleGroup*>  particleGroups;
 
 public:
+	std::vector<ParticleGroup*>  particleGroups;
+
 	Scene();
 	~Scene();
 

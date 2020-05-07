@@ -27,7 +27,7 @@ public:
 		// How many particles are rendered on the screen at the same time
 		int particleMaxNum = 20;
 		// How long each individual particle could live
-		float particleLifeSpan = 10.0f;
+		float particleLifeSpan = 8.0f;
 		// How much could each individual's color differ from each other randomly
 		glm::vec3 colorVariance(0.1f, 0.1f, 0.1f);
 		// How much could each individual's initial velocity differ from each other randomly
@@ -60,9 +60,9 @@ public:
 		// How much could each individual's color differ from each other randomly
 		glm::vec3 colorVariance(0.1f, 0.1f, 0.1f);
 		// How much could each individual's initial velocity differ from each other randomly
-		glm::vec3 velocityVariance(8.0f, 2.0f, 8.0f);
+		glm::vec3 velocityVariance(5.0f, 0.0f, 5.0f);
 		// The size of the particles
-		float particleSize = 0.3f;
+		float particleSize = 0.2f;
 		// How fast to spawn a new particle
 		float spawnTime = 2.0f;
 
