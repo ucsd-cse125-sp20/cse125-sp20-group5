@@ -8,8 +8,8 @@ class Plant : GameObject {
 public:
     Plant(): GameObject(), range(nullptr) {}
 
-    Plant(Position* position, Direction* direction, Animation* animation, unsigned int objectId, 
-        TowerRange* range) : GameObject(position, direction, animation, objectId) {
+    Plant(Position* position, Direction* direction, Animation* animation, unsigned int objectId, float boundingBoxRadius,
+        TowerRange* range) : GameObject(position, direction, animation, objectId, boundingBoxRadius) {
         this->range = range;
     }
 

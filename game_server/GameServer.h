@@ -46,10 +46,7 @@ private:
 
     tcp::socket socket_;
     IGameServer* server;
-    enum { maxMsg = 4096};
-    char readBuf[maxMsg];
     boost::asio::streambuf readStreamBuf;
-    char writeBuf[maxMsg];
 };
 
 class GameServer : public boost::enable_shared_from_this<GameServer>,
@@ -78,6 +75,6 @@ private:
     std::vector<std::string> messages;
     GameState gameState;
     boost::recursive_mutex m_guard;
-    enum { maxMsg = 4096 };
+    enum { MAX_BUFFER_SIZE = 65536 };
 };
 #endif

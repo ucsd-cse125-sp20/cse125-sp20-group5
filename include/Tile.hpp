@@ -31,9 +31,15 @@ public:
     Position* position; // Tile's position
     int tileType; // D/f types (e.g. normal, occupied by zombie, etc)
 
-    // bool tilled; // For normal tiles
-
     Direction* direction; // For zombie tiles (e.g. which direction do they go)
+
+    static constexpr const int TYPE_NORMAL = 0;
+    static constexpr const int TYPE_ZOMBIE = 1;
+
+    static constexpr const float TILE_SIZE = 1.0f;
+    static constexpr const float TILE_PAD_X = TILE_SIZE / 2;
+    static constexpr const float TILE_PAD_Y = TILE_SIZE / 2;
+    static constexpr const float TILE_PAD_Z = TILE_SIZE / 2;
 };
 
 #endif
