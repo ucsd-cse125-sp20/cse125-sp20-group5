@@ -30,8 +30,12 @@ private:
 	// models
 	AnimatedAssimpModel * zombieModel;
 	AnimatedAssimpModel* playerModel;
+	AssimpModel* cornModel;
 	AssimpModel* tapModel;
 	AssimpModel* toolModel;
+	AssimpModel* seedSourceModel;
+	AssimpModel* shovelModel;
+
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
 

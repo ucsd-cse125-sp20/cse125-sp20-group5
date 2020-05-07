@@ -4,7 +4,7 @@
 #include "GameObject.hpp"
 #include "TowerRange.hpp"
 
-class Plant : GameObject {
+class Plant : public GameObject {
 public:
     Plant(): GameObject(), range(nullptr) {}
 
