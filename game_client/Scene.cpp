@@ -26,7 +26,8 @@ Scene::Scene()
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
-	waterTapParticles = particleFactory->getWaterTapParticleGroup();
+	particleGroups.push_back(particleFactory->getWaterTapParticleGroup(glm::vec3(0, 0, 0)));
+	particleGroups.push_back(particleFactory->getCornAttackParticleGroup(glm::vec3(2, 0, 2)));
 }
 
 Scene::~Scene()
@@ -47,8 +48,9 @@ Scene::~Scene()
 	delete rootNode;
 
 	delete particleFactory;
-	delete waterTapParticles;
 	delete particleProgram;
+
+	for (ParticleGroup * p : particleGroups) delete p;
 }
 
 void Scene::update()
@@ -106,7 +108,7 @@ void Scene::update()
 	tapNode->loadGameObject(state->waterTap);
 	unusedIds.erase(state->waterTap->objectId);
 
-	waterTapParticles->update(0.1f);
+	for (ParticleGroup* p : particleGroups) p->update(0.1f);
 
 	for (Tool * tool : state->tools) {
 		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, toolModel);
@@ -158,7 +160,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	SceneNode temp(NULL, std::string(""), 0);
 	temp.transform = glm::mat4(1.0);
 
-	waterTapParticles->draw(viewProjMat);
+	for (ParticleGroup* p : particleGroups) p->draw(viewProjMat);
 	testUI->draw(); //TODO to be removed
 }
 

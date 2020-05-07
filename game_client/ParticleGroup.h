@@ -48,18 +48,23 @@ private:
 
     float spawnTime;
     float timePastSinceLastSpawn;
+    int spawnNum;
+
+    bool spawning;
 
 public:
 	ParticleGroup(GLuint shader, float particleSize, glm::vec3 particlePosition,
         glm::vec3 color, glm::vec3 initialVelocity,
         glm::vec3 acceleration,  int initParicleNum, int maxParticleNum, float lifeSpan,
         glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-        float spawnTime);
+        float spawnTime, int spawnNum);
     ~ParticleGroup();
     
     // Draw the whole particle group
     void draw(glm::mat4 viewProjMatrix);
 	void update(float timeDifference);
+    void pauseSpawning();
+    void resumeSpawning();
 };
 
 #endif

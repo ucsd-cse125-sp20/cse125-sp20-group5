@@ -47,8 +47,9 @@ private:
 
 	// Particle effect
 	ParticleFactory* particleFactory;
-	ParticleGroup* waterTapParticles;
 	ShaderProgram* particleProgram;
+
+	std::vector<ParticleGroup*>  particleGroups;
 
 public:
 	Scene();

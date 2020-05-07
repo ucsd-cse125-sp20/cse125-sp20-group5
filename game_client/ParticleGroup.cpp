@@ -4,7 +4,9 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 	glm::vec3 color, glm::vec3 initialVelocity,
 	glm::vec3 acceleration, int initParicleNum, int maxParticleNum, float lifeSpan,
 	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-	float spawnTime) {
+	float spawnTime, int spawnNum) {
+
+	this->spawning = true;
 
 	// Setup variables
 	this->shader = shader;
@@ -23,6 +25,7 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 
 	this->spawnTime = spawnTime;
 	this->timePastSinceLastSpawn = 0;
+	this->spawnNum = spawnNum;
 
 	// Initialize children
 	for (int i = 0; i < initParicleNum; i++) {
@@ -130,20 +133,33 @@ void ParticleGroup::draw(glm::mat4 viewProjMat)
 
 void ParticleGroup::update(float timeDifference)
 {
-	timePastSinceLastSpawn += timeDifference;
+	if (spawning) {
+		timePastSinceLastSpawn += timeDifference;
 
-	while (timePastSinceLastSpawn >= spawnTime && children.size() < maxParticleNum) {
-		timePastSinceLastSpawn -= spawnTime;
-		addChildParticle();
-	}
+		while (timePastSinceLastSpawn >= spawnTime && children.size() < maxParticleNum) {
+			timePastSinceLastSpawn -= spawnTime;
+			for (int i = 0; i < spawnNum; i++)
+				addChildParticle();
+		}
 
-	for (int i = 0; i < children.size(); i++) {
-		Particle * child = children[i];
-		child->update(timeDifference);
-		if (!child->isAlive()) {
-			children.erase(children.begin() + i);
+		for (int i = 0; i < children.size(); i++) {
+			Particle* child = children[i];
+			child->update(timeDifference);
+			if (!child->isAlive()) {
+				children.erase(children.begin() + i);
+			}
 		}
 	}
+}
+
+void ParticleGroup::pauseSpawning()
+{
+	spawning = false;
+}
+
+void ParticleGroup::resumeSpawning()
+{
+	spawning = true;
 }
 
 glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
