@@ -77,8 +77,8 @@ void Scene::update()
 	for (Zombie* zombie : state->zombies) {
 		SceneNode* zombieNode = getDrawableSceneNode(zombie->objectId, zombieModel);
 		zombieNode->loadGameObject(zombie); // load new data
-		zombieNode->scaler = RABBIT_SCALER;
-		unusedIds.erase(zombie->objectId);
+		zombieNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
+		unusedIds.erase(zombie->objectId);  // perhaps the server could provide it
 	}
 
 	for (Player* player : state->players) {
