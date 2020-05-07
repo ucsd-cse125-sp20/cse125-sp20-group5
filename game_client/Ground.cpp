@@ -134,13 +134,11 @@ glm::vec3 Ground::getColor(TILE_TYPE type)
 {
 	switch (type) {
 	case TILE_TYPE::PATH:
-		return glm::vec3(.5,.12,.12);
+		return glm::vec3(1.0);
 	case TILE_TYPE::TILLED:
-		return glm::vec3(.4, .25, .1);
+		return glm::vec3(1.0);
 	case TILE_TYPE::NORMAL:
-		return glm::vec3(.12, .8, .12);
-	case TILE_TYPE::WATER:
-		return glm::vec3(.12, .12, .8);
+		return glm::vec3(1.0);
 	case TILE_TYPE::BLANK:
 		return glm::vec3(1.0);
 	}
@@ -155,9 +153,7 @@ const char* Ground::getTexture(TILE_TYPE type)
 	case TILE_TYPE::TILLED:
 		return NO_TEXTURE;
 	case TILE_TYPE::NORMAL:
-		return GRASS_TEXTURE;
-	case TILE_TYPE::WATER:
-		return WATER_TEXTURE;
+		return NO_TEXTURE;
 	case TILE_TYPE::BLANK:
 		return NO_TEXTURE;
 	case TILE_TYPE::BASE_LAYER:
@@ -180,9 +176,6 @@ Ground * Ground::ground0(uint shader)
 		for (int j = 0; j < y; j++) {
 			if (i < 2 || i > x-3 || j > y-3) {
 				ground0->setLoc(i, j, TILE_TYPE::PATH);
-			}
-			else if (i > 9 && i < 13 && j > 9 && j < 13) {
-				ground0->setLoc(i,j,TILE_TYPE::WATER);
 			}
 			else {
 				ground0->setLoc(i,j,TILE_TYPE::NORMAL);
