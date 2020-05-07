@@ -11,6 +11,7 @@ Scene::Scene()
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
+	cornModel = new AssimpModel(CORN_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	toolModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
@@ -81,6 +82,14 @@ void Scene::update()
 		unusedIds.erase(zombie->objectId);  // perhaps the server could provide it
 	}
 
+	for (Plant* plant : state->plants) {
+		SceneNode* plantNode = getDrawableSceneNode(plant->objectId, cornModel);
+		plantNode->loadGameObject(plant); // load new data
+		plantNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
+		plantNode->position[1] = .7;
+		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
+	}
+
 	for (Player* player : state->players) {
 		SceneNode* playerNode = getDrawableSceneNode(player->objectId, playerModel);
 		playerNode->loadGameObject(player);
@@ -97,7 +106,7 @@ void Scene::update()
 						playerHand->addChild(heldNode);
 						// TODO the values will have to be a constant we need to figure out how to make it look held
 						heldNode->scaler = TOOL_SCALER / PLAYER_SCALER;
-						heldNode->position = glm::vec3(-4.5,1.3,.5);
+						heldNode->position = glm::vec3(-4.5,1.3,.5); // tODO should be a constant
 					}
 				}
 			}
