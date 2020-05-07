@@ -30,41 +30,44 @@ public:
 
         myfile.open(filename.c_str());
 
-        if (myfile.is_open()) {
-            std::string line;
-            std::string header;
-            bool readingMap = false;
-
-            // Run until end of file
-            while (myfile.good()) {
-                std::getline(myfile, line);
-
-                // Skip empty lines and comments
-                if (line.length() == 0 || line[0] == '#') {
-                    continue;
-                }
-
-                // Change the [header], call different functions depending on current header
-                if (line[0] == '[') {
-                    header = line.substr(1, line.length() - 2);
-                } else {
-                    size_t equalPos = line.find_first_of('=');
-                    std::string key = line.substr(0, equalPos);
-                    std::string value = line.substr(equalPos + 1);
-
-                    if (header == "Tools") {
-                        GameStateLoader::initTools(key, value, tools, objectCount);
-                    } else if (header == "Floor") {
-                        GameStateLoader::initFloor(key, value, floor, readingMap);
-                    } else if (header == "SeedShack") {
-                        GameStateLoader::initGameObject(key, value, seedShack, objectCount);
-                    } else if (header == "WaterTap") {
-                        GameStateLoader::initGameObject(key, value, waterTap, objectCount);
-                    }
-                }
-            }
-            myfile.close();
+        if (!myfile.is_open()) {
+            std::cerr << "Failed to open config file: " << filename << std::endl;
+            return;
         }
+
+		std::string line;
+		std::string header;
+		bool readingMap = false;
+
+		// Run until end of file
+		while (myfile.good()) {
+			std::getline(myfile, line);
+
+			// Skip empty lines and comments
+			if (line.length() == 0 || line[0] == '#') {
+				continue;
+			}
+
+			// Change the [header], call different functions depending on current header
+			if (line[0] == '[') {
+				header = line.substr(1, line.length() - 2);
+			} else {
+				size_t equalPos = line.find_first_of('=');
+				std::string key = line.substr(0, equalPos);
+				std::string value = line.substr(equalPos + 1);
+
+				if (header == "Tools") {
+					GameStateLoader::initTools(key, value, tools, objectCount);
+				} else if (header == "Floor") {
+					GameStateLoader::initFloor(key, value, floor, readingMap);
+				} else if (header == "SeedShack") {
+					GameStateLoader::initGameObject(key, value, seedShack, objectCount);
+				} else if (header == "WaterTap") {
+					GameStateLoader::initGameObject(key, value, waterTap, objectCount);
+				}
+			}
+		}
+		myfile.close();
 
         // Add tools, seed shack and water tap to game object id map
         for (Tool* tool : tools) {
