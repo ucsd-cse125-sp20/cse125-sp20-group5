@@ -2,6 +2,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <iostream>
 
+#include <boost/exception/diagnostic_information.hpp> 
 
 NetworkClient::NetworkClient(const char* host, const char* port) : socket(ioContext) {
 
@@ -115,7 +116,13 @@ void NetworkClient::handleReceive(const boost::system::error_code& error, size_t
                boost::asio::placeholders::bytes_transferred)); */
     }
     else {
-        socket.close();
+        try {
+            socket.close();
+        }
+        catch (boost::exception const& e) {
+            // If exception occurs, this might provide more information
+            std::cout << boost::diagnostic_information(e) << std::endl;
+        }
     }
 }
 
