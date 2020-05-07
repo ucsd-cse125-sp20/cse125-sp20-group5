@@ -10,30 +10,86 @@
 #include "WaterTap.hpp"
 #include "Message.hpp"
 #include "Floor.hpp"
+#include "GameStateLoader.hpp"
 
 #include <cmath>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <boost/serialization/vector.hpp>
 
 class GameState {
 public:
     GameState() : seedShack(nullptr), waterTap(nullptr) {}
 
+    void loadFromConfigFile(std::string filename) {
+        // load from file in here
+        std::ifstream myfile;
+
+        myfile.open(filename.c_str());
+
+        if (myfile.is_open()) {
+            std::string line;
+            std::string header;
+            bool readingMap = false;
+
+            // Run until end of file
+            while (myfile.good()) {
+                std::getline(myfile, line);
+
+                // Skip empty lines and comments
+                if (line.length() == 0 || line[0] == '#') {
+                    continue;
+                }
+
+                // Change the [header], call different functions depending on current header
+                if (line[0] == '[') {
+                    header = line.substr(1, line.length() - 2);
+                } else {
+                    size_t equalPos = line.find_first_of('=');
+                    std::string key = line.substr(0, equalPos);
+                    std::string value = line.substr(equalPos + 1);
+
+                    if (header == "Tools") {
+                        GameStateLoader::initTools(key, value, tools, objectCount);
+                    } else if (header == "Floor") {
+                        GameStateLoader::initFloor(key, value, floor, readingMap);
+                    } else if (header == "SeedShack") {
+                        GameStateLoader::initGameObject(key, value, seedShack, objectCount);
+                    } else if (header == "WaterTap") {
+                        GameStateLoader::initGameObject(key, value, waterTap, objectCount);
+                    }
+                }
+            }
+            myfile.close();
+        }
+
+        // Add tools, seed shack and water tap to game object id map
+        for (Tool* tool : tools) {
+            gameObjectMap[tool->objectId] = tool;
+        }
+        gameObjectMap[seedShack->objectId] = seedShack;
+        gameObjectMap[waterTap->objectId] = waterTap;
+    }
+
     void init(int tick_rate) {
         tickRate = tick_rate;
-        init();
+        floor = new Floor();
+        seedShack = new SeedShack();
+        waterTap = new WaterTap();
+        //init();
 	}
 
     void init() {
         // Init the default state here
         // TODO: change them later
-        int NUM_OF_PLAYER = 3;
-        int NUM_OF_ZOMBIE = 3;
+        //int NUM_OF_PLAYER = 3;
+        //int NUM_OF_ZOMBIE = 3;
 
         // Init players
-        for (int i = 0; i < NUM_OF_PLAYER; i++) {
+        /*for (int i = 0; i < NUM_OF_PLAYER; i++) {
             Position* playerPosition = new Position(i*3, 0, 0);
             Direction* playerDirection = new Direction(0.0);
             Animation* playerAnimation = new Animation(0, 0);
@@ -47,7 +103,7 @@ public:
             );
             gameObjectMap[objectCount] = players[i];
             objectCount++;
-        }
+        }*/
 
         // Init zombies
         /*for (int i = 0; i < NUM_OF_ZOMBIE; i++) {
