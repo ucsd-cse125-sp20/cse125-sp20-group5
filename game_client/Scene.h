@@ -32,6 +32,9 @@ private:
 	AnimatedAssimpModel* playerModel;
 	AssimpModel* tapModel;
 	AssimpModel* toolModel;
+	AssimpModel* seedSourceModel;
+	AssimpModel* shovelModel;
+
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
 
