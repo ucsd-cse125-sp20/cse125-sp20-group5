@@ -4,12 +4,12 @@
 
 #include <boost/exception/diagnostic_information.hpp> 
 
+
 NetworkClient::NetworkClient(const char* host, const char* port) : socket(ioContext) {
 
-
     // Init queue with game state
-    gameStates.push(new GameState());
-    gameStates.front()->init();
+    //gameStates.push(new GameState());
+    //gameStates.front()->init();
 
     boost::asio::ip::tcp::resolver resolver(ioContext);
     boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
@@ -135,6 +135,10 @@ GameState* NetworkClient::getCurrentState() {
     GameState* retVal;
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+
+        if (gameStates.size() < 1) {
+            return nullptr;
+        }
            
         while (gameStates.size() > 1) {
             //std::cout << "gameStates.length() > 1" << std::endl;
