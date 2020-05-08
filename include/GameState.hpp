@@ -325,11 +325,33 @@ public:
             zombies.push_back(zombie);
 		}
 
-        auto i = std::begin(zombies);
-        while (i != std::end(zombies)) {
+        for (auto i = std::begin(zombies); i != std::end(zombies); i++) {
             Zombie* zombie = (*i);
-            int row = zombie->position->z - Tile::TILE_PAD_Z;
-            int col = zombie->position->x - Tile::TILE_PAD_X;
+            float paddingZ = 0, paddingX = 0;
+
+            // Move current zombie
+            Direction* currDir = zombie->direction;
+            if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
+                zombie->position->z += Zombie::STEP_SIZE;
+                paddingZ -= Tile::TILE_PAD_Z;
+            } 
+            else if (currDir->directionEquals(Direction::DIRECTION_RIGHT)) {
+                zombie->position->x += Zombie::STEP_SIZE;
+                paddingX -= Tile::TILE_PAD_X;
+            } 
+            else if (currDir->directionEquals(Direction::DIRECTION_UP)) {
+                zombie->position->z -= Zombie::STEP_SIZE;
+                paddingZ += Tile::TILE_PAD_Z;
+            } 
+            else if (currDir->directionEquals(Direction::DIRECTION_LEFT)) {
+                zombie->position->x -= Zombie::STEP_SIZE;
+                paddingX += Tile::TILE_PAD_X;
+            }
+
+            // Calculate the current effecting tile's row&column
+            int row = zombie->position->z + paddingZ;
+            int col = zombie->position->x + paddingX;
+            Tile* currTile = floor->tiles[row][col];
 
             // Check if remove current zombie (final tile / hp = 0, ...)
             if (row == floor->zombieFinalTileRow
@@ -338,23 +360,9 @@ public:
                 continue;
             }
 
-            // Move current zombie
-            Tile* currTile = floor->tiles[row][col];
-            Direction* currDir = zombie->direction;
-            if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
-                zombie->position->z += Zombie::STEP_SIZE;
-            } else if (currDir->directionEquals(Direction::DIRECTION_RIGHT)) {
-                zombie->position->x += Zombie::STEP_SIZE;
-            } else if (currDir->directionEquals(Direction::DIRECTION_UP)) {
-                zombie->position->z -= Zombie::STEP_SIZE;
-            } else if (currDir->directionEquals(Direction::DIRECTION_LEFT)) {
-                zombie->position->x -= Zombie::STEP_SIZE;
-            }
-
             // Rotate current zombie
-            zombie->direction->angle = currTile->direction->angle;
-
-            i++;
+            if (currTile->tileType != Tile::TYPE_NORMAL)
+                zombie->direction->angle = currTile->direction->angle;
         }
     }
 
