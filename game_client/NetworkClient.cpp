@@ -117,7 +117,7 @@ void NetworkClient::handleReceive(const boost::system::error_code& error, size_t
     }
     else {
         try {
-            socket.close();
+            doClose();
         }
         catch (boost::exception const& e) {
             // If exception occurs, this might provide more information
@@ -127,7 +127,7 @@ void NetworkClient::handleReceive(const boost::system::error_code& error, size_t
 }
 
 NetworkClient::~NetworkClient() {
-    socket.close();
+    close();
     t.join();
 }
 
@@ -162,5 +162,4 @@ void NetworkClient::close() {
 
 void NetworkClient::doClose() {
     socket.close();
-    t.join();
 }
