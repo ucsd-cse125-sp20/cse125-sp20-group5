@@ -4,6 +4,7 @@
 #include <cmath>
 #include "GameObject.hpp"
 #include "Color.hpp"
+#include "Floor.hpp"
 
 class Player : public GameObject {
 public:
@@ -14,8 +15,9 @@ public:
            Color* color, int playerId)
             : GameObject(position, direction, animation, objectId, boundingBoxRadius), 
               playerId(playerId) {
-
         this->color = color;
+        currRow = position->z / Floor::TILE_SIZE;
+        currCol = position->x / Floor::TILE_SIZE;
     }
 
     friend class boost::serialization::access;
@@ -102,10 +104,22 @@ public:
 
     Color* color;
     int playerId;
+
+    // Tool
     bool holding;
     unsigned int heldObject;
+
+    // Movement
     enum class MoveState { FREEZE, UP, DOWN, LEFT, RIGHT, UPPER_LEFT, UPPER_RIGHT, LOWER_LEFT, LOWER_RIGHT };
     MoveState moveState;
+
+    // Board locaton index
+    int currRow;
+    int currCol;
+
+    // Should player perform action/interact in this tick
+    bool shouldPerformAction;
+    bool shouldInteract;
 
     static constexpr const float SQRT_2 = 1.41421356237309504880f;
     static constexpr const float SPEED = 4.8f;

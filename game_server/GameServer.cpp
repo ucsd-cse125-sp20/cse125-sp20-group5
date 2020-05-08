@@ -163,7 +163,7 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
         new Animation(0, 0),
         gameState.objectCount++,
         1.0f,
-        new Color(0, 0, 0), 1);
+        new Color(0, 0, 0), playerIdCounter++);
 
     pConn2Player.insert(std::make_pair(pConn, newPlayer));
     clients.push_back(pConn);
