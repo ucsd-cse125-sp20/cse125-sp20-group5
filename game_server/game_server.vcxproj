@@ -24,6 +24,9 @@
   <ItemGroup>
     <ClInclude Include="GameServer.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="InitGameState.ini" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{4AFFA3F2-E087-4892-84FF-15CA2AA477D7}</ProjectGuid>

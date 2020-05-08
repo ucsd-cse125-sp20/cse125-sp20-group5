@@ -107,7 +107,10 @@ GameServer::GameServer(
     tcpAcceptor(io_context, tcp::endpoint(tcp::v4(), port_num)),
     tickTimer(boost::asio::steady_timer(io_context)),
     deltaTimeMicrosec(1000000 / tick_rate) {
+
     gameState.init(tick_rate);
+    gameState.loadFromConfigFile("InitGameState.ini");
+
     startAccept();
     sendToAll();
 }

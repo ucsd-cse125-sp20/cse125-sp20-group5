@@ -75,7 +75,10 @@ void Client::loop() {
 
 void Client::update() {
 	cam->Update();
-	scene->update();
+	if (currentGameState != nullptr) {
+		scene->update();
+	}
+	// Maybe show a loading screen or something if gameState is nullptr (not yet received)?
 }
 
 ////////////////////////////////////////////////////////////////////////////////
