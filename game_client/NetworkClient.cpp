@@ -2,13 +2,14 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <iostream>
 
+#include <boost/exception/diagnostic_information.hpp> 
+
 
 NetworkClient::NetworkClient(const char* host, const char* port) : socket(ioContext) {
 
-
     // Init queue with game state
-    gameStates.push(new GameState());
-    gameStates.front()->init();
+    //gameStates.push(new GameState());
+    //gameStates.front()->init();
 
     boost::asio::ip::tcp::resolver resolver(ioContext);
     boost::asio::ip::tcp::resolver::results_type endpoints = resolver.resolve(host, port);
@@ -115,7 +116,13 @@ void NetworkClient::handleReceive(const boost::system::error_code& error, size_t
                boost::asio::placeholders::bytes_transferred)); */
     }
     else {
-        socket.close();
+        try {
+            socket.close();
+        }
+        catch (boost::exception const& e) {
+            // If exception occurs, this might provide more information
+            std::cout << boost::diagnostic_information(e) << std::endl;
+        }
     }
 }
 
@@ -128,6 +135,10 @@ GameState* NetworkClient::getCurrentState() {
     GameState* retVal;
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+
+        if (gameStates.size() < 1) {
+            return nullptr;
+        }
            
         while (gameStates.size() > 1) {
             //std::cout << "gameStates.length() > 1" << std::endl;

@@ -108,6 +108,7 @@ public:
     Tile* zombieBaseTile;
     int zombieFinalTileRow;
     int zombieFinalTileCol;
+    float tileSize;
     std::vector<std::vector<Tile*>> tiles;
 };
 
