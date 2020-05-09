@@ -6,13 +6,14 @@
 
 class Tile {
 public:
-    Tile() : position(nullptr), direction(nullptr) {}
+    Tile() : position(nullptr), direction(nullptr), plantId(0) {}
 
     Tile(Position* position, int tileType, Direction* direction)
         : tileType(tileType) {
         this->tileType = tileType;
         this->position = position;
         this->direction = direction;
+        this->plantId = 0;
     }
 
     template<class Archive>
@@ -21,6 +22,7 @@ public:
         ar & position;
         ar & tileType;
         ar & direction;
+        ar & plantId;
     }
 
     ~Tile() {
@@ -30,6 +32,7 @@ public:
 
     Position* position; // Tile's position
     int tileType; // D/f types (e.g. normal, occupied by zombie, etc)
+    int plantId;
 
     Direction* direction; // For zombie tiles (e.g. which direction do they go)
 
