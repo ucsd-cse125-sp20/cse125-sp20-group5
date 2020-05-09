@@ -39,7 +39,6 @@ private:
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
-	HealthBar* healthBar; //TODO to be removed
 
 	// shaders
 	ShaderProgram * program;
@@ -73,5 +72,6 @@ public:
 
 	// static function for a to create a specfic scene good for grahics testing
 	static Scene* scene0();
+	HealthBar* healthBar; //TODO to be removed
 };
 

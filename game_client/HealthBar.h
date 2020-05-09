@@ -31,7 +31,7 @@ class HealthBar
 {
 public:
 
-    HealthBar(uint shader, const char* texture_file, glm::vec3 barColor = glm::vec3(1.0f));
+    HealthBar(uint shader, const char* texture_file, float initFilledFraction = 1.0f, glm::vec3 barColor = glm::vec3(1.0f));
     ~HealthBar();
 
 	void draw(const glm::mat4& viewProjMtx);
@@ -46,6 +46,7 @@ public:
 	//glm::mat4 baseBarTransform;
 	glm::mat4 fillingTransform; // scale transform of the bar's filling portion 
 	float filledFraction = 0.0; // how much the bar is filled, between 0.0 & 1.0
+	float currFilledFraction;
 
 private:
 

@@ -5,14 +5,16 @@ using namespace std;
 
 // height and width = 2.0 always even after resize 
 
-HealthBar::HealthBar(uint shader, const char* iconFile, glm::vec3 barColor)
+HealthBar::HealthBar(uint shader, const char* iconFile, float initFilledFraction, glm::vec3 barColor)
 {
 	this->shader = shader;
 	this->modelMtx = scale(vec3(1.0f));
 
 	// Init the filling status
-	float init_filledFraction = 0.3f;
-	updateBar(init_filledFraction);
+	this->currFilledFraction = initFilledFraction;
+	this->filledFraction = initFilledFraction;
+	this->fillingTransform = translate(vec3(-0.5 * (1.0 - this->currFilledFraction), 0, 0))
+		* scale(vec3(this->currFilledFraction, 1, 1));
 
 	// Compute the transforms
 	float iconWidth = 1.0f;
@@ -88,8 +90,6 @@ HealthBar::HealthBar(uint shader, const char* iconFile, glm::vec3 barColor)
 
 HealthBar::~HealthBar()
 {
-	// Delete previously generated buffers. Note that forgetting to do this can waste GPU memory in a 
-	// large project! This could crash the graphics driver due to memory leaks, or slow down application performance!
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &VBO2);
@@ -135,13 +135,20 @@ void HealthBar::draw(const glm::mat4& viewProjMtx)
 }
 
 void HealthBar::updateBar(float filledFraction) {
-	if (this->filledFraction == filledFraction) {
+	if (this->currFilledFraction == filledFraction) {
 		return;
 	}
 
+	if (filledFraction > this->currFilledFraction) { // increasing bar
+		this->currFilledFraction = std::min(filledFraction, this->currFilledFraction + fillingStep);
+	}
+	else { // decreasing bar
+		this->currFilledFraction = std::max(filledFraction, this->currFilledFraction - fillingStep);
+	}
+
 	this->filledFraction = filledFraction;
-	this->fillingTransform = translate(vec3(-0.5 * (1.0 - filledFraction), 0, 0))
-		* scale(vec3(filledFraction, 1, 1));
+	this->fillingTransform = translate(vec3(-0.5 * (1.0 - this->currFilledFraction), 0, 0))
+		* scale(vec3(this->currFilledFraction, 1, 1));
 }
 
 void HealthBar::loadTexture(const char* textureFile, uint id)
