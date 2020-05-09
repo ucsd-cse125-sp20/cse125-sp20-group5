@@ -20,6 +20,7 @@
 #include <sstream>
 #include <boost/serialization/vector.hpp>
 
+
 class GameState {
 public:
     GameState() : seedShack(nullptr), waterTap(nullptr) {}
@@ -254,7 +255,6 @@ public:
 
             // Check if player is holding something
             if (!player->holding) {
-                // Check if player is interacting with seed plant
                 continue;
             }
             /*
@@ -302,36 +302,8 @@ public:
             case Tool::ToolType::PLOW:
                 break;
             
-            // TODO: need to generalize for all seeds
-            // SEED_CORN
+            // SEED
             case Tool::ToolType::SEED:
-                // Get player's tile (only plant on non-zombie and plowed tiles)
-                Tile* currTile = floor->tiles[player->currRow][player->currCol];
-                if (currTile->tileType != Tile::TYPE_ZOMBIE && currTile->plantId == 0) {
-                    // Delete the seed tool
-                    auto it = std::find(tools.begin(), tools.end(), tool);
-                    if (it != tools.end()) {
-                        tools.erase(it);
-                    }
-                    delete tool;
-
-                    // Replace it with a plant
-                    Position* plantPosition = new Position(currTile->position);
-                    plantPosition->x += Tile::TILE_PAD_X;
-                    plantPosition->z += Tile::TILE_PAD_Z;
-                    Plant* plant = new Plant(
-                        plantPosition,
-                        new Direction(player->direction), // ??
-                        new Animation(0, 0),
-                        objectCount,
-                        1.0f,
-                        new TowerRange(3.0f),
-                        Plant::PlantType::CORN,
-                        Plant::GrowStage::SEED
-                    );
-                    plants.push_back(plant);
-                    
-				}
                 break;
             }
         }
@@ -346,8 +318,8 @@ public:
             if (player->holding) {
                 // TODO: facing direction check to use tool or drop the tool
 
-                // drop tool
-                Tool* tool = (Tool*)gameObjectMap[player->heldObject];
+                // Drop tool
+                Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
                 float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
                 float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
                 tool->position->x = player->position->x - x_offset;
@@ -372,44 +344,15 @@ public:
                     }
                 }
 
-                // Check distance to seedShack as well
-                bool seedShackClosest = false;
-                float dist = player->distanceTo(seedShack);
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    seedShackClosest = true;
-                }
-
-                if (seedShackClosest && player->collideWith(seedShack)) {
-                    // Create a seed (Tool)
-                    Tool* seed = new Tool(
-                        new Position(player->position),
-                        new Direction(player->direction),
-                        new Animation(),
-                        objectCount,
-                        0.25f,
-                        Tool::ToolType::SEED,
-                        player->objectId,
-                        true
-                    );
-                    gameObjectMap[objectCount++] = seed;
-                    tools.push_back(seed);
+                // Make sure tool is within collision range and is not held by others 
+                if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
+                    std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                     player->holding = true;
-                    player->heldObject = seed->objectId;
+                    player->heldObject = currTool->objectId;
+                    currTool->heldBy = player->objectId;
+                    currTool->held = true;
+                    currTool->direction->angle = player->direction->angle;
                 }
-                else {
-                    // interacting with tools
-                    // Make sure tool is within collision range and is not held by others 
-                    if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
-                        std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
-                        player->holding = true;
-                        player->heldObject = currTool->objectId;
-                        currTool->heldBy = player->objectId;
-                        currTool->held = true;
-                        currTool->direction->angle = player->direction->angle;
-                    }
-                }
-
             }
         }
     }

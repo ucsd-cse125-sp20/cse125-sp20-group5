@@ -45,9 +45,6 @@ public:
     float growExpireTime;     // Time(s) need to grow in current stage
     float growProgressTime;   // Time(s) of current grow stage
     TowerRange* range; // Represents how far plant can reach to attack
-
-    unsigned int heldBy; // Player's objectId
-    bool held;
 };
 
 

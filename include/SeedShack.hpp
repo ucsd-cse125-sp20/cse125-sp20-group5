@@ -2,16 +2,13 @@
 #define _SEEDSHACK_H
 
 #include "GameObject.hpp"
-#include "Plant.hpp"
 
 class SeedShack : public GameObject {
 public:
-    SeedShack() : GameObject(), seedType(Plant::PlantType::CORN) {}
+    SeedShack() : GameObject() {}
 
     SeedShack(Position* position, Direction* direction, Animation* animation,
-        unsigned int objectId, float boundingBoxRadius, Plant::PlantType seedType) : GameObject(position, direction, animation, objectId, boundingBoxRadius) {
-        this->seedType = seedType;
-    }
+        unsigned int objectId, float boundingBoxRadius) : GameObject(position, direction, animation, objectId, boundingBoxRadius) {}
 
     friend class boost::serialization::access;
     template<class Archive>
@@ -24,7 +21,6 @@ public:
       
     }
 
-    Plant::PlantType seedType;
 };
 
 #endif
