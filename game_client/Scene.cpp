@@ -175,10 +175,6 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	rootNode->draw(viewProjMat);
 
-	// this is for testing we should be bale to remove at some point
-	SceneNode temp(NULL, std::string(""), 0);
-	temp.transform = glm::mat4(1.0);
-
 	testUI->draw(); //TODO to be removed
 }
 
