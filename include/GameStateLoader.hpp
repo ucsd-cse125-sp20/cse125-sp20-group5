@@ -66,7 +66,17 @@ public:
 			while (s_stream.good()) {
 				std::string substr;
 				std::getline(s_stream, substr, ','); //get first string delimited by comma
-				tools[i]->toolType = std::stoi(substr);
+				switch (std::stoi(substr)) {
+				case 0:
+					tools[i]->toolType = Tool::ToolType::WATER_CAN;
+					break;
+				case 1:
+					tools[i]->toolType = Tool::ToolType::PLOW;
+					break;
+				case 2:
+					tools[i]->toolType = Tool::ToolType::SEED;
+					break;
+				}
 				i++;
 			}
 		}

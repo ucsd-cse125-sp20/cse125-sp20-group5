@@ -84,7 +84,7 @@ public:
         floor = new Floor();
         seedShack = new SeedShack();
         waterTap = new WaterTap();
-        //init();
+        init();
 	}
 
     void init() {
@@ -131,45 +131,6 @@ public:
         corn->growExpireTime = 2.0f;
         plants.push_back(corn);
         gameObjectMap[objectCount] = corn;
-        objectCount++;
-
-        // Init tools
-        for (int i = 0; i < 2; i++) {
-            Position* toolPosition = new Position(i, 0, i);
-            Direction* toolDirection = new Direction(0.0);
-            Animation* toolAnimation = new Animation(0, 0);
-            float toolRadius = 1.0f;
-            tools.push_back(new Tool(
-                toolPosition, toolDirection, toolAnimation, objectCount, toolRadius, Tool::ToolType::WATER_CAN, 0, false
-            ));
-            gameObjectMap[objectCount] = tools[i];
-            objectCount++;
-        }
-
-        floor = new Floor();
-        floor->init();
-
-        // Init seed shack and water tap
-        Position* seedShackPosition = new Position(3, 0, 3);
-        Direction* seedShackDirection = new Direction(0);
-        Animation* seedShackAnimation = new Animation(0, 0);
-        float seedShackRadius = 1.0f;
-        seedShack = new SeedShack(
-            seedShackPosition, seedShackDirection, 
-            seedShackAnimation, objectCount, seedShackRadius
-        );
-        gameObjectMap[objectCount] = seedShack;
-        objectCount++;
-
-        Position* waterTapPosition = new Position(2, 0, 2);
-        Direction* waterTapDirection = new Direction(0);
-        Animation* waterTapAnimation = new Animation(0, 0);
-        float waterTapRadius = 1.0f;
-        waterTap = new WaterTap(
-            waterTapPosition, waterTapDirection, 
-            waterTapAnimation, objectCount, waterTapRadius
-        );
-        gameObjectMap[objectCount] = waterTap;
         objectCount++;
     }
 
