@@ -81,6 +81,9 @@
     <ClInclude Include="Image2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HealthBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -134,6 +137,9 @@
     <ClCompile Include="Image2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HealthBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Model.glsl">
@@ -152,6 +158,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="UI.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="HealthBar.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

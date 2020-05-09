@@ -167,6 +167,7 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Image2d.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="NetworkClient.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image2d.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -203,6 +205,7 @@
   <ItemGroup>
     <None Include="AnimatedAssimpModel.glsl" />
     <None Include="AssimpModel.glsl" />
+    <None Include="HealthBar.glsl" />
     <None Include="Model.glsl" />
     <None Include="Particle.glsl" />
     <None Include="Skybox.glsl" />

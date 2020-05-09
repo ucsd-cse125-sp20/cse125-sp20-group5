@@ -10,7 +10,8 @@
 #include "AssimpModel.h"
 #include "AnimatedAssimpModel.h"
 #include "Skybox.h"
-#include "Image2d.h"
+#include "Image2d.h" //TODO to be removed
+#include "HealthBar.h" //TODO to be removed
 #include "Constants.h"
 #include "Shader.h"
 #include "ParticleFactory.hpp"
@@ -38,6 +39,7 @@ private:
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
+	HealthBar* healthBar; //TODO to be removed
 
 	// shaders
 	ShaderProgram * program;
@@ -45,6 +47,7 @@ private:
 	ShaderProgram* animationProgram;
 	ShaderProgram* skyboxProgram;
 	ShaderProgram* uiProgram;
+	ShaderProgram* barProgram;
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
