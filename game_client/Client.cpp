@@ -135,6 +135,10 @@ void Client::sendKeyboardEvents()
 		netClient->sendMessage(OPCODE_PLAYER_MOVE_FREEZE);
 	}
 
+	if ((*keyPresses)[GLFW_KEY_E]) {
+		netClient->sendMessage(OPCODE_PLAYER_ACTION);
+	}
+
 	/* For testing */
 	if ((*keyPresses)[GLFW_KEY_Z]) {
 		int player1_numAnim = 2;

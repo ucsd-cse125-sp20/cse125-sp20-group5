@@ -96,6 +96,7 @@ void Scene::update()
 						// TODO the values will have to be a constant we need to figure out how to make it look held
 						heldNode->scaler = TOOL_SCALER / PLAYER_SCALER;
 						heldNode->position = glm::vec3(-4.5,1.3,.5);
+						heldNode->dir = 0;
 					}
 				}
 			}

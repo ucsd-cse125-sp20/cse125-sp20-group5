@@ -21,7 +21,7 @@ public:
 
     }
 
-    static constexpr const float STEP_SIZE = 0.05f;
+    static constexpr const float SPEED = 1.6f;
 };
 
 #endif

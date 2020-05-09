@@ -3,11 +3,14 @@
 
 #include "GameObject.hpp"
 
+
 class Tool : public GameObject {
 public:
-    Tool() : GameObject(), toolType(0), heldBy(0), held(false) {}
+    enum class ToolType;
+
+    Tool() : GameObject(), toolType(ToolType::WATER_CAN), heldBy(0), held(false) {}
     Tool(Position* position, Direction * direction, Animation * animation, 
-        unsigned int objectId, float boundingBoxRadius, int toolType, int heldBy, bool held)
+        unsigned int objectId, float boundingBoxRadius, ToolType toolType, int heldBy, bool held)
         : GameObject(position, direction, animation, objectId, boundingBoxRadius), toolType(toolType), heldBy(heldBy), held(held)  {
     }
 
@@ -24,7 +27,8 @@ public:
     ~Tool() {
     }
 
-    int toolType; // e.g. watering can, hoe, etc
+    static enum class ToolType { WATER_CAN = 0, PLOW = 1, SEED = 2 };
+    ToolType toolType; // e.g. watering can, hoe, etc
     unsigned int heldBy; // Player's objectId
     bool held;
 };
