@@ -49,7 +49,8 @@ public:
 	void draw(const glm::mat4& veiwProjMat);
 
 	void loadGameObject(GameObject * gameObj);
-
+	
+	int countChildern();
 	// finds a sub noe with the given name and object id
 	// used for finding hands and such 
 	SceneNode* find(std::string name, uint objectId);

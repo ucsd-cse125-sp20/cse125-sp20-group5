@@ -22,6 +22,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 		glm::vec3 min(0, 0, 0);
 		glm::vec3 max(size, 0, size);
 		temp->makeTile(min, max, color, getTexture((TILE_TYPE)i));
+
 		tiles.push_back(temp);
 	}
 
@@ -65,9 +66,12 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 
 	glm::mat4 handlePadding = node.transform;
+
+	// not sure why this +1 is needed
 	handlePadding[3][0] = handlePadding[3][0] - (tileSize * (padX+1));
 	handlePadding[3][2] = handlePadding[3][2] - (tileSize * (padY+1));
 
+	// the passed in location is the truw start of thgame board
 	baseLayer->draw(node, viewProjMtx);
 
 	glm::mat4 tileMat = handlePadding;
@@ -79,8 +83,6 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			SceneNode temp(NULL, std::string(""), 0);
 			temp.transform = tileMat;
 			// Don't draw the normal tiles to make it transparent. Display the base layer underneath
-			if (i == 20 && j == 20)
-				tiles[(int)Ground::TILE_TYPE::BLANK]->draw(temp, viewProjMtx);
 			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL &&
 				grid[(i * totalY) + j] != Ground::TILE_TYPE::BLANK) {
 				tiles[(int)grid[i*totalY + j]]->draw(temp, viewProjMtx);

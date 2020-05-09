@@ -116,11 +116,17 @@ void Scene::update()
 	}
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
+	if (tapNode->countChildern() == 0) {
+		ParticleGroup* pGroup = particleFactory->getWaterTapParticleGroup(glm::vec3(0, 0, 0));
+		SceneNode* waterNode = pGroup->createSceneNodes(state->waterTap->objectId);
+		waterNode->position = glm::vec3(0,6.0,-2.0);
+		tapNode->addChild(waterNode);
+	}
 	tapNode->loadGameObject(state->waterTap);
 	tapNode->scaler = WATER_TAP_SCALER;
 	unusedIds.erase(state->waterTap->objectId);
 
-	for (ParticleGroup* p : particleGroups) p->update(0.1f);
+	//for (ParticleGroup* p : particleGroups) p->update(0.1f);
 
 	for (Tool * tool : state->tools) {
 		SceneNode* toolNode = getDrawableSceneNode(tool->objectId, toolModel);
@@ -178,7 +184,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	SceneNode temp(NULL, std::string(""), 0);
 	temp.transform = glm::mat4(1.0);
 
-	for (ParticleGroup* p : particleGroups) p->draw(viewProjMat);
+	//for (ParticleGroup* p : particleGroups) p->draw(viewProjMat);
 	testUI->draw(); //TODO to be removed
 }
 

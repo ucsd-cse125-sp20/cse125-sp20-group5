@@ -21,11 +21,12 @@ Particle::~Particle()
     // Clean up
 }
 
-void Particle::draw(glm::mat4 viewProjMat, GLuint parentVAO)
+void Particle::draw(glm::mat4 model, const glm::mat4& viewProjMat, GLuint parentVAO)
 {
+    glm::mat4 modelMtx = individualModelMatrix * model;
     glUseProgram(shader);
     glUniformMatrix4fv(glGetUniformLocation(shader, "viewProjMat"), 1, GL_FALSE, glm::value_ptr(viewProjMat));
-    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(individualModelMatrix));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(modelMtx));
     glUniform3fv(glGetUniformLocation(shader, "color"), 1, glm::value_ptr(color));
     
 	// Bind to the VAO of the parrent.
