@@ -55,7 +55,6 @@ private:
 
 
 public:
-	std::vector<ParticleGroup*>  particleGroups;
 
 	Scene();
 	~Scene();
@@ -65,10 +64,11 @@ public:
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat); // renders everything
 
+	void toggleWater();
+
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable* model);
 
 	// static function for a to create a specfic scene good for grahics testing
-	static Scene* testScene();
 	static Scene* scene0();
 };
 

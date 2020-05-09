@@ -29,8 +29,6 @@ Scene::Scene()
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
-	particleGroups.push_back(particleFactory->getWaterTapParticleGroup(glm::vec3(0, 0, 0)));
-	particleGroups.push_back(particleFactory->getCornAttackParticleGroup(glm::vec3(2, 0, 2)));
 }
 
 Scene::~Scene()
@@ -53,7 +51,6 @@ Scene::~Scene()
 	delete particleFactory;
 	delete particleProgram;
 
-	for (ParticleGroup * p : particleGroups) delete p;
 }
 
 void Scene::update()
@@ -126,8 +123,6 @@ void Scene::update()
 	tapNode->scaler = WATER_TAP_SCALER;
 	unusedIds.erase(state->waterTap->objectId);
 
-	//for (ParticleGroup* p : particleGroups) p->update(0.1f);
-
 	for (Tool * tool : state->tools) {
 		SceneNode* toolNode = getDrawableSceneNode(tool->objectId, toolModel);
 		if (!tool->held) {
@@ -184,8 +179,14 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	SceneNode temp(NULL, std::string(""), 0);
 	temp.transform = glm::mat4(1.0);
 
-	//for (ParticleGroup* p : particleGroups) p->draw(viewProjMat);
 	testUI->draw(); //TODO to be removed
+}
+
+void Scene::toggleWater()
+{
+	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId, tapModel);
+	((ParticleGroup*)(tapNode->children.begin()->second->obj))->toggleSpawning();
+
 }
 
 // Update the current gamestate
