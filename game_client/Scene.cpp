@@ -13,7 +13,7 @@ Scene::Scene()
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
 	cornModel = new AssimpModel(CORN_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
-	toolModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
+	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
 
@@ -104,8 +104,14 @@ void Scene::update()
 					if (heldNode->parent != playerHand) {
 						playerHand->addChild(heldNode);
 						// TODO the values will have to be a constant we need to figure out how to make it look held
-						heldNode->scaler = TOOL_SCALER / PLAYER_SCALER;
-						heldNode->position = glm::vec3(-4.5,1.3,.5); // tODO should be a constant
+						if (heldNode->obj == wateringCanModel) {
+							heldNode->scaler = WATER_CAN_SCALER / PLAYER_SCALER;
+							heldNode->position = WATER_CAN_HOLD_VEC;
+						}
+						else if (heldNode->obj == shovelModel) {
+							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
+							heldNode->position = SHOVEL_HOLD_VEC;
+						}
 					}
 				}
 			}
@@ -124,13 +130,23 @@ void Scene::update()
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (Tool * tool : state->tools) {
-		SceneNode* toolNode = getDrawableSceneNode(tool->objectId, toolModel);
+		SceneNode* toolNode;
+		float toolScaler = 1.0;
+		if (tool->toolType == 1) { // TODO make this a constant
+			toolNode = getDrawableSceneNode(tool->objectId, wateringCanModel);
+			toolScaler = WATER_CAN_SCALER;
+		} 
+		else {
+			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
+			toolScaler = SHOVEL_SCALER;
+		}
+
 		if (!tool->held) {
 			if (toolNode->parent != groundNode) {
 				toolNode->setParent(groundNode);
 			}
 			toolNode->loadGameObject(tool); // load new data
-			toolNode->scaler = TOOL_SCALER;
+			toolNode->scaler = toolScaler;
 		}
 		unusedIds.erase(tool->objectId);
 	}

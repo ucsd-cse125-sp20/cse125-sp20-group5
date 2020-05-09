@@ -17,7 +17,11 @@
 #define WATER_TAP_SCALER 0.3
 #define RABBIT_SCALER 0.40
 #define PLAYER_SCALER 0.30
-#define TOOL_SCALER 0.40
+#define WATER_CAN_SCALER 0.40
+#define SHOVEL_SCALER 0.45
 #define SEED_SOURCE_SCALER 0.025;
+
+#define WATER_CAN_HOLD_VEC glm::vec3(-4.5, 1.3, .5);
+#define SHOVEL_HOLD_VEC glm::vec3(-5.5, 1.3, .7);
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"

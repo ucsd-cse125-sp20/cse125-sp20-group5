@@ -32,7 +32,7 @@ private:
 	AnimatedAssimpModel* playerModel;
 	AssimpModel* cornModel;
 	AssimpModel* tapModel;
-	AssimpModel* toolModel;
+	AssimpModel* wateringCanModel;
 	AssimpModel* seedSourceModel;
 	AssimpModel* shovelModel;
 
