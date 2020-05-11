@@ -10,13 +10,6 @@
 
 using boost::asio::ip::tcp;
 
-std::string make_daytime_string() {
-    using namespace std;
-    time_t now = time(0);
-    char buf[256];
-    ctime_s(buf, 256, &now);    // Already appended "\n"
-    return buf;
-}
 class ClientConnection;
 typedef boost::shared_ptr<ClientConnection> PtrClientConnection;
 
@@ -69,6 +62,7 @@ private:
 
     std::vector<PtrClientConnection> clients;
     boost::unordered::unordered_map<PtrClientConnection, Player*> pConn2Player;
+    unsigned int playerIdCounter;
 
     boost::asio::steady_timer tickTimer;
     int deltaTimeMicrosec;
