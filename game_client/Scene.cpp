@@ -112,7 +112,6 @@ void Scene::update()
 							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
 							heldNode->position = SHOVEL_HOLD_VEC;
 						}
-						heldNode->dir = 0;
 					}
 				}
 			}
@@ -137,7 +136,7 @@ void Scene::update()
 			toolNode = getDrawableSceneNode(tool->objectId, wateringCanModel);
 			toolScaler = WATER_CAN_SCALER;
 		} 
-		else if(tool->toolType == Tool::ToolType::PLOW) {
+		else {
 			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
 			toolScaler = SHOVEL_SCALER;
 		}
