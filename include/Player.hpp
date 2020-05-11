@@ -1,8 +1,10 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include <cmath>
 #include "GameObject.hpp"
 #include "Color.hpp"
+#include "Floor.hpp"
 
 class Player : public GameObject {
 public:
@@ -13,8 +15,9 @@ public:
            Color* color, int playerId)
             : GameObject(position, direction, animation, objectId, boundingBoxRadius), 
               playerId(playerId) {
-
         this->color = color;
+        currRow = position->z / Floor::TILE_SIZE;
+        currCol = position->x / Floor::TILE_SIZE;
     }
 
     friend class boost::serialization::access;
@@ -32,81 +35,97 @@ public:
         delete color;
     }
 
-    void move() {
+    void move(float deltaTime) {
         float translateDistance = 0.0f;
+        float speedX = 0.0f;
+        float speedZ = 0.0f;
         switch (moveState) {
         case MoveState::DOWN:
-            translateDistance = checkRotation(Direction::DIRECTION_DOWN, false);
-            position->z += translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_DOWN, false, deltaTime);
+            speedZ = 1.0f;
             break;
         case MoveState::LOWER_RIGHT:
-            translateDistance = checkRotation(Direction::DIRECTION_LOWER_RIGHT, true);
-            position->z += translateDistance;
-            position->x += translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_LOWER_RIGHT, true, deltaTime);
+            speedZ = 1.0f;
+            speedX = 1.0f;
             break;
         case MoveState::RIGHT:
-            translateDistance = checkRotation(Direction::DIRECTION_RIGHT, false);
-            position->x += translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_RIGHT, false, deltaTime);
+            speedX = 1.0f;
             break;
         case MoveState::UPPER_RIGHT:
-            translateDistance = checkRotation(Direction::DIRECTION_UPPER_RIGHT, true);
-            position->z -= translateDistance;
-            position->x += translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_UPPER_RIGHT, true, deltaTime);
+            speedZ = -1.0f;
+            speedX = 1.0f;
             break;
         case MoveState::UP:
-            translateDistance = checkRotation(Direction::DIRECTION_UP, false);
-            position->z -= translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_UP, false, deltaTime);
+            speedZ = -1.0f;
             break;
         case MoveState::UPPER_LEFT:
-            translateDistance = checkRotation(Direction::DIRECTION_UPPER_LEFT, true);
-            position->z -= translateDistance;
-            position->x -= translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_UPPER_LEFT, true, deltaTime);
+            speedZ = -1.0f;
+            speedX = -1.0f;
             break;
         case MoveState::LEFT:
-            translateDistance = checkRotation(Direction::DIRECTION_LEFT, false);
-            position->x -= translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_LEFT, false, deltaTime);
+            speedX = -1.0f;
             break;
         case MoveState::LOWER_LEFT:
-            translateDistance = checkRotation(Direction::DIRECTION_LOWER_LEFT, true);
-            position->z += translateDistance;
-            position->x -= translateDistance;
+            translateDistance = checkRotation(Direction::DIRECTION_LOWER_LEFT, true, deltaTime);
+            speedZ = 1.0f;
+            speedX = -1.0f;
             break;
         case MoveState::FREEZE:
             break;
         }
+        position->z += speedZ * translateDistance * deltaTime;
+        position->x += speedX * translateDistance * deltaTime;
     }
 
-    float checkRotation(float moveDirection, bool isDiagonal) {
+    float checkRotation(float moveDirection, bool isDiagonal, float deltaTime) {
         float translateDistance;
         if (direction->directionEquals(moveDirection)) {
             direction->angle = moveDirection;
-            translateDistance = isDiagonal ? STEP_SIZE_DIAGONAL : STEP_SIZE;
+            translateDistance = isDiagonal ? SPEED_DIAGONAL : SPEED;
         }
         else if (direction->clockwiseCloser(moveDirection)) {
-            direction->angle += Direction::ROTATION_SPEED;
+            direction->angle += Direction::ROTATION_SPEED * deltaTime;
             direction->constrainAngle();
-            translateDistance = isDiagonal ? IN_ROTATION_STEP_SIZE_DIAGONAL : IN_ROTATION_STEP_SIZE;
+            translateDistance = isDiagonal ? IN_ROTATION_SPEED_DIAGONAL : IN_ROTATION_SPEED;
         }
         else {
-            direction->angle -= Direction::ROTATION_SPEED;
+            direction->angle -= Direction::ROTATION_SPEED * deltaTime;
             direction->constrainAngle();
-            translateDistance = isDiagonal ? IN_ROTATION_STEP_SIZE_DIAGONAL : IN_ROTATION_STEP_SIZE;
+            translateDistance = isDiagonal ? IN_ROTATION_SPEED_DIAGONAL : IN_ROTATION_SPEED;
         }
         return translateDistance;
     }
 
     Color* color;
     int playerId;
+
+    // Tool
     bool holding;
     unsigned int heldObject;
+
+    // Movement
     enum class MoveState { FREEZE, UP, DOWN, LEFT, RIGHT, UPPER_LEFT, UPPER_RIGHT, LOWER_LEFT, LOWER_RIGHT };
     MoveState moveState;
 
+    // Board locaton index
+    int currRow;
+    int currCol;
+
+    // Should player perform action/interact in this tick
+    bool shouldPerformAction;
+    bool shouldInteract;
+
     static constexpr const float SQRT_2 = 1.41421356237309504880f;
-    static constexpr const float STEP_SIZE = 0.15f;
-    static constexpr const float STEP_SIZE_DIAGONAL = STEP_SIZE / SQRT_2;
-    static constexpr const float IN_ROTATION_STEP_SIZE = 0.05f;
-    static constexpr const float IN_ROTATION_STEP_SIZE_DIAGONAL = IN_ROTATION_STEP_SIZE / SQRT_2;
+    static constexpr const float SPEED = 4.8f;
+    static constexpr const float SPEED_DIAGONAL = SPEED / SQRT_2;
+    static constexpr const float IN_ROTATION_SPEED = 1.6f;
+    static constexpr const float IN_ROTATION_SPEED_DIAGONAL = IN_ROTATION_SPEED / SQRT_2;
 };
 
 #endif

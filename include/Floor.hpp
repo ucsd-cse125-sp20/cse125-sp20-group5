@@ -110,6 +110,8 @@ public:
     int zombieFinalTileCol;
     float tileSize;
     std::vector<std::vector<Tile*>> tiles;
+
+    static constexpr const float TILE_SIZE = 1.0f;
 };
 
 #endif
