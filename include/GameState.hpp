@@ -111,6 +111,7 @@ public:
             objectCount++;
         }*/
 
+        /*
         Position* plantPosition = new Position(4.0, 0, 4.0);
         Direction* plantDirection = new Direction(0.0);
         Animation* plantAnimation = new Animation(0, 0);
@@ -118,6 +119,7 @@ public:
         Plant* plant = new Plant(plantPosition, plantDirection, plantAnimation, objectCount, 0.5, plantRange);
         objectCount++;
         plants.push_back(plant);
+        */
 
         // Init zombies
         /*for (int i = 0; i < NUM_OF_ZOMBIE; i++) {

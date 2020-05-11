@@ -132,7 +132,7 @@ void Scene::update()
 	for (Tool * tool : state->tools) {
 		SceneNode* toolNode;
 		float toolScaler = 1.0;
-		if (tool->toolType == 1) { // TODO make this a constant
+		if (tool->toolType == Tool::ToolType::WATER_CAN) { // TODO make this a constant
 			toolNode = getDrawableSceneNode(tool->objectId, wateringCanModel);
 			toolScaler = WATER_CAN_SCALER;
 		} 
