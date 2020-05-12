@@ -20,6 +20,7 @@ public:
     {
         ar & boost::serialization::base_object<GameObject>(*this);
         ar & toolType;
+        ar & seedType;
         ar & heldBy;
         ar & held;
     }
@@ -29,6 +30,7 @@ public:
 
     static enum class ToolType { WATER_CAN = 0, PLOW = 1, SEED = 2 };
     ToolType toolType; // e.g. watering can, hoe, etc
+    Plant::PlantType seedType;      // only used when toolType is SEED
     unsigned int heldBy; // Player's objectId
     bool held;
 };

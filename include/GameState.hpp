@@ -20,7 +20,6 @@
 #include <sstream>
 #include <boost/serialization/vector.hpp>
 
-
 class GameState {
 public:
     GameState() : seedShack(nullptr), waterTap(nullptr) {}
@@ -110,16 +109,6 @@ public:
             gameObjectMap[objectCount] = players[i];
             objectCount++;
         }*/
-
-        /*
-        Position* plantPosition = new Position(4.0, 0, 4.0);
-        Direction* plantDirection = new Direction(0.0);
-        Animation* plantAnimation = new Animation(0, 0);
-        TowerRange* plantRange = new TowerRange(.5);
-        Plant* plant = new Plant(plantPosition, plantDirection, plantAnimation, objectCount, 0.5, plantRange);
-        objectCount++;
-        plants.push_back(plant);
-        */
 
         // Init zombies
         /*for (int i = 0; i < NUM_OF_ZOMBIE; i++) {
@@ -265,6 +254,7 @@ public:
 
             // Check if player is holding something
             if (!player->holding) {
+                // Check if player is interacting with seed plant
                 continue;
             }
             /*
@@ -312,8 +302,39 @@ public:
             case Tool::ToolType::PLOW:
                 break;
             
-            // SEED
+            // TODO: need to generalize for all seeds
+            // SEED_CORN
             case Tool::ToolType::SEED:
+                // Get player's tile (only plant on non-zombie and plowed tiles)
+                Tile* currTile = floor->tiles[player->currRow][player->currCol];
+                if (currTile->tileType != Tile::TYPE_ZOMBIE && currTile->plantId == 0) {
+                    // Delete the seed tool
+                    auto it = std::find(tools.begin(), tools.end(), tool);
+                    if (it != tools.end()) {
+                        tools.erase(it);
+                    }
+                    delete tool;
+                    player->holding = false;
+                    player->heldObject = 0;
+
+                    // Replace it with a plant
+                    Position* plantPosition = new Position(currTile->position);
+                    plantPosition->x += Tile::TILE_PAD_X;
+                    plantPosition->z += Tile::TILE_PAD_Z;
+                    Plant* plant = new Plant(
+                        plantPosition,
+                        new Direction(player->direction), // ??
+                        new Animation(0, 0),
+                        objectCount,
+                        1.0f,
+                        new TowerRange(3.0f),
+                        tool->seedType,
+                        Plant::GrowStage::SEED
+                    );
+                    plant->growExpireTime = 2.0f;
+                    plants.push_back(plant);
+                    std::cout << "Seed planted" << std::endl;
+				}
                 break;
             }
         }
@@ -328,8 +349,8 @@ public:
             if (player->holding) {
                 // TODO: facing direction check to use tool or drop the tool
 
-                // Drop tool
-                Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
+                // drop tool
+                Tool* tool = (Tool*)gameObjectMap[player->heldObject];
                 float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
                 float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
                 tool->position->x = player->position->x - x_offset;
@@ -354,15 +375,47 @@ public:
                     }
                 }
 
-                // Make sure tool is within collision range and is not held by others 
-                if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
-                    std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
-                    player->holding = true;
-                    player->heldObject = currTool->objectId;
-                    currTool->heldBy = player->objectId;
-                    currTool->held = true;
-                    currTool->direction->angle = player->direction->angle;
+                // Check distance to seedShack as well
+                bool seedShackClosest = false;
+                float dist = player->distanceTo(seedShack);
+                std::cout << "Distance to seedShack is " << dist << std::endl;
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    seedShackClosest = true;
                 }
+
+                if (seedShackClosest && player->collideWith(seedShack)) {
+                    // Create a seed (Tool)
+                    Tool* seed = new Tool(
+                        new Position(player->position),
+                        new Direction(player->direction),
+                        new Animation(),
+                        objectCount,
+                        0.25f,
+                        Tool::ToolType::SEED,
+                        player->objectId,
+                        true
+                    );
+                    seed->seedType = seedShack->seedType;
+                    gameObjectMap[objectCount++] = seed;
+                    tools.push_back(seed);
+                    player->holding = true;
+                    player->heldObject = seed->objectId;
+                    std::cout << "Pick up seed from seed shack at (" << seedShack->position->x << ", " << seedShack->position->z << ")" << std::endl;
+                }
+                else {
+                    // interacting with tools
+                    // Make sure tool is within collision range and is not held by others 
+                    if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
+                        std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+                        player->holding = true;
+                        player->heldObject = currTool->objectId;
+                        currTool->heldBy = player->objectId;
+                        currTool->held = true;
+                        currTool->direction->angle = player->direction->angle;
+                    }
+                }
+
             }
         }
     }
