@@ -14,6 +14,9 @@ Scene::Scene()
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
+	seedModel = new AssimpModel(SEED_MODEL, assimpProgram->GetProgramID());
+	saplingModel = new AssimpModel(SAPLING_MODEL, assimpProgram->GetProgramID());
+	babyCornModel = new AssimpModel(BABY_CORN_MODEL, assimpProgram->GetProgramID());	
 	cornModel = new AssimpModel(CORN_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
@@ -66,7 +69,7 @@ void Scene::update()
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
 	if (ground == NULL) {
-		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID());
+		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID(), assimpProgram->GetProgramID());
 		groundNode->obj = ground;
 		groundNode->position = glm::vec3(floor->tiles.size()/(-1.5), 0, floor->tiles[0].size()/(-2.0));
 	}
@@ -87,7 +90,7 @@ void Scene::update()
 	for (Plant* plant : state->plants) {
 		PlantController* plantWrapper = PlantController::getController(plant->objectId, this);
 
-		plantWrapper->update(plant);
+		plantWrapper->update(plant, this);
 
 		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
 	}
@@ -114,8 +117,9 @@ void Scene::update()
 						else if (heldNode->obj == shovelModel) {
 							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
 							heldNode->position = SHOVEL_HOLD_VEC;
+							heldNode->pose = SHOVEL_HOLD_ANGLE;
 						}
-						heldNode->dir = 0;
+						heldNode->pose[1] = 0;
 					}
 				}
 			}
@@ -123,11 +127,11 @@ void Scene::update()
 	}
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
-	if (tapNode->countChildern() == 0) {
+	if (!tapNode->hasParticle()) {
 		ParticleGroup* pGroup = particleFactory->getWaterTapParticleGroup(glm::vec3(0, 0, 0));
 		SceneNode* waterNode = pGroup->createSceneNodes(state->waterTap->objectId);
 		waterNode->position = glm::vec3(0,6.0,-2.0);
-		tapNode->addChild(waterNode);
+		tapNode->addParticle(waterNode);
 	}
 	tapNode->loadGameObject(state->waterTap);
 	tapNode->scaler = WATER_TAP_SCALER;
@@ -152,6 +156,8 @@ void Scene::update()
 		if (!tool->held) {
 			if (toolNode->parent != groundNode) {
 				toolNode->setParent(groundNode);
+				toolNode->pose[0] = 0;
+				toolNode->pose[2] = 0;
 			}
 			toolNode->loadGameObject(tool); // load new data
 			toolNode->scaler = toolScaler;
@@ -184,11 +190,17 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	if (objectIdMap.count(objectId) < 1) {
 		node = model->createSceneNodes(objectId);
 		objectIdMap[objectId] = node;
-		node->scaler = .5;
+		// node->scaler = .5;
 		groundNode->addChild(node); // this should be the ground or maybe a parameter
 	}
 	else { // if its made just get the ref
 		node = objectIdMap[objectId];
+		if (node->obj != model) {
+			delete node;
+			node = model->createSceneNodes(objectId);
+			objectIdMap[objectId] = node;
+			groundNode->addChild(node);
+		}
 	}
 	return node;
 }

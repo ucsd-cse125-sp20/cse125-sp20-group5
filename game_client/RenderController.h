@@ -18,6 +18,7 @@ public:
     RenderController() {}
 
     SceneNode* rootNode;
+    SceneNode* modelNode;
 
     static std::unordered_map<uint, RenderController*> controllerMap;
 

@@ -16,15 +16,17 @@ class PlantController : public RenderController {
 public:
     PlantController(uint objectId, Scene* scene) {
         // init node
-        rootNode = scene->getModel(ModelType::CORN)->createSceneNodes(objectId);
-        scene->getGroundNode()->addChild(rootNode); 
+        rootNode = new SceneNode(NULL, "PlantRootEmptyNode", objectId);
+        modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
+        modelNode->scaler = SEED_SCALER;
 
-        rootNode->scaler = .5;
-        rootNode->scaler = RABBIT_SCALER;
-        rootNode->position[1] = .7;
+        rootNode->addChild(modelNode);
+        scene->getGroundNode()->addChild(rootNode); 
+        currGrowStage = Plant::GrowStage::SEED;
+
 
         // init growth bar
-        float barTranslateY = 2.0f;
+        float barTranslateY = 1.3f;
         float initBarFilledFraction = 1.0f;
         glm::vec3 barColor = glm::vec3(0.1, 0.9, 1.0);
         growthBar = new HealthBar(
@@ -43,7 +45,13 @@ public:
         return (PlantController*) controllerMap[objectId];
     }
 
-    void update(Plant* plant) {
+    void update(Plant* plant, Scene* scene) {
+        // Update grown plant model
+        if (currGrowStage != plant->growStage) {
+            updatePlantModel(plant, scene);
+            currGrowStage = plant->growStage;
+        }
+
         // Load new data provided by server
         rootNode->loadGameObject(plant);
 
@@ -58,8 +66,46 @@ public:
             growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
         }
     }
+
+    void updatePlantModel(Plant* plant, Scene* scene) {
+        // Delete old model node
+        delete modelNode;
+
+        // Switch to new model
+        uint objectId = plant->objectId;
+        switch (plant->growStage) {
+            case Plant::GrowStage::SEED:
+                modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
+                modelNode->scaler = SEED_SCALER;
+                break;
+            case Plant::GrowStage::SAPLING:
+                modelNode = scene->getModel(ModelType::SAPLING)->createSceneNodes(objectId);
+                modelNode->scaler = SAPLING_SCALER;
+                break;
+            case Plant::GrowStage::BABY:
+                if (plant->plantType == Plant::PlantType::CORN) {
+                    modelNode = scene->getModel(ModelType::BABY_CORN)->createSceneNodes(objectId);
+                    modelNode->scaler = BABY_CORN_SCALER;
+                }
+                break;
+            case Plant::GrowStage::GROWN:
+                if (plant->plantType == Plant::PlantType::CORN) {
+                    modelNode = scene->getModel(ModelType::CORN)->createSceneNodes(objectId);
+                    modelNode->scaler = CORN_SCALER;
+                    if (!modelNode->hasParticle()) {
+                        ParticleGroup* pGroup = scene->getParticleFactory()->getCornAttackParticleGroup(glm::vec3(0, 0, 0));
+                        SceneNode* particleNode = pGroup->createSceneNodes(plant->objectId);
+                        particleNode->position = glm::vec3(0, 2, 0);
+                        modelNode->addParticle(particleNode);
+                    }
+                }
+                break;
+        }
+        rootNode->addChild(modelNode);
+    }
     
 private:
     HealthBar* growthBar;
     SceneNode* barNode;
+    Plant::GrowStage currGrowStage;
 };

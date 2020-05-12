@@ -1,6 +1,7 @@
 #pragma once
 #include "core.h"
 #include "Model.h"
+#include "AssimpModel.h"
 
 class Ground : public Drawable
 {
@@ -14,15 +15,18 @@ private:
 	float tileSize;
 
 	// this is a one dimensinal arrya that ill use as a two dimensional cuz c++ arrays are bad
-	std::vector<Model*> tiles;
 	TILE_TYPE* grid;
 
+	std::vector<Model*> tiles;
+	AssimpModel* tilled;
 	Model* baseLayer;
+	
+
 public:
 	static enum class TILE_TYPE { NORMAL = 0, PATH = 1, TILLED = 2, BLANK = 3, BASE_LAYER = 4};
 	static const int NUM_TILES = 5;
 
-	Ground(int x, int y, float size, int paddingX, int paddingY, uint shader);
+	Ground(int x, int y, float size, int paddingX, int paddingY, uint shader, uint assimpShader);
 	~Ground();
 	TILE_TYPE getLoc(int x, int y);
 	void setLoc(int x, int y, TILE_TYPE type);

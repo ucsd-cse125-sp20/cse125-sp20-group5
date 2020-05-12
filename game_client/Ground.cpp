@@ -1,7 +1,7 @@
 #include "Ground.h"
 #include <iostream>
 
-Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
+Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint assimpShader)
 {
 	tilesX = x;
 	tilesY = y;
@@ -32,6 +32,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader)
 	baseLayer->makeTile(glm::vec3(0, -0.01f, 0), glm::vec3(x * size, -0.01f, y * size), 
 		glm::vec3(1.0f), getTexture(Ground::TILE_TYPE::BASE_LAYER));
 
+	tilled = new AssimpModel(DIRT_MODEL, assimpShader);
 }
 
 Ground::~Ground()
@@ -85,7 +86,16 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			// Don't draw the normal tiles to make it transparent. Display the base layer underneath
 			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL &&
 				grid[(i * totalY) + j] != Ground::TILE_TYPE::BLANK) {
-				tiles[(int)grid[i*totalY + j]]->draw(temp, viewProjMtx);
+				if (grid[(i * totalY) + j] == Ground::TILE_TYPE::TILLED) {
+					temp.transform[0][0] = DIRT_SCALER;
+					temp.transform[1][1] = DIRT_SCALER;
+					temp.transform[2][2] = DIRT_SCALER;
+					tilled->draw(temp, viewProjMtx);
+				}
+				else {
+					tiles[(int)grid[i * totalY + j]]->draw(temp, viewProjMtx);
+				}
+
 			}
 		}
 	}
@@ -172,7 +182,7 @@ Ground * Ground::ground0(uint shader)
 	int padX = 2;
 	int padY = 2;
 
-	Ground * ground0 = new Ground(x, y, size, padX, padY, shader);
+	Ground * ground0 = new Ground(x, y, size, padX, padY, shader, shader);
 
 	for (int i = 0; i < x; i++) {
 		for (int j = 0; j < y; j++) {

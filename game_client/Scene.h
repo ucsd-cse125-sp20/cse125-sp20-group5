@@ -20,7 +20,7 @@ enum class ShaderType {
 };
 
 enum class ModelType {
-	CAT, PIG, RABBIT, CORN, WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL
+	CAT, PIG, RABBIT, CORN, WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL, SEED, SAPLING, BABY_CORN
 };
 
 class Scene
@@ -46,6 +46,10 @@ private:
 	// models
 	AnimatedAssimpModel* zombieModel;
 	AnimatedAssimpModel* playerModel;
+
+	AssimpModel* seedModel;
+	AssimpModel* saplingModel;
+	AssimpModel* babyCornModel;
 	AssimpModel* cornModel;
 	AssimpModel* tapModel;
 	AssimpModel* wateringCanModel;
@@ -83,6 +87,7 @@ public:
 
 	// getter & setter
 	SceneNode* getGroundNode() { return groundNode;  }
+	ParticleFactory* getParticleFactory() { return particleFactory; }
 	uint getShaderID(ShaderType type) {
 		switch (type) {
 			case ShaderType::DEFAULT:				return program->GetProgramID();
@@ -104,6 +109,9 @@ public:
 			case ModelType::WATERING_CAN:		return wateringCanModel;
 			case ModelType::SEED_SHACK:			return seedSourceModel;
 			case ModelType::SHOVEL:					return shovelModel;
+			case ModelType::SEED:						return seedModel;
+			case ModelType::SAPLING:					return saplingModel;
+			case ModelType::BABY_CORN:			return babyCornModel;
 		}
 	}
 };

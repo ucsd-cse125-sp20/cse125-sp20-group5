@@ -11,7 +11,7 @@ uint HealthBar::numHealthBar = 0;
 HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float initFilledFraction, glm::vec3 barColor)
 {
 	this->shader = shader;
-	this->modelMtx = translate(vec3(0, translateY, 0)) * scale(vec3(0.5f));
+	this->modelMtx = translate(vec3(0, translateY, 0)) * scale(vec3(0.3f));
 
 	// Init the filling status
 	resetBar(initFilledFraction);

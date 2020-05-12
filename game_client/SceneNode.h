@@ -13,6 +13,7 @@ private:
 	uint modelId;
 	uint childNum;
 	uint childCount;
+	bool hasParticleBool;
 
 public:
 
@@ -24,7 +25,7 @@ public:
 	Drawable* obj;
 	bool updated;
 	glm::vec3 position;
-	float dir;
+	glm::vec3 pose;
 	float scaler;
 
 	SceneNode(Drawable * myO, std::string name, uint objectId);
@@ -67,6 +68,8 @@ public:
 	void loadAnimData(uint numAnim, uint initialAnimID);
 	void switchAnim(uint newAnimID);
 
+	bool hasParticle();
+	void addParticle(SceneNode * particleNode);
 
 	std::string getName() const;
 
