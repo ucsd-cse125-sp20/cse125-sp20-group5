@@ -1,4 +1,6 @@
 #include "Scene.h"
+#include "RenderController.h"
+#include "PlantController.h"
 #include <set>
 
 Scene::Scene()
@@ -27,7 +29,6 @@ Scene::Scene()
 	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(100.0f)));
 
 	testUI = new Image2d(uiProgram->GetProgramID(), "texture/newheart.ppm", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
-	healthBar = new HealthBar(barProgram->GetProgramID(), "texture/newheart.ppm", 1.0f, glm::vec3(1,0,0));  //TODO to be removed
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
@@ -84,10 +85,10 @@ void Scene::update()
 	}
 
 	for (Plant* plant : state->plants) {
-		SceneNode* plantNode = getDrawableSceneNode(plant->objectId, cornModel);
-		plantNode->loadGameObject(plant); // load new data
-		plantNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
-		plantNode->position[1] = .7;
+		PlantController* plantWrapper = PlantController::getController(plant->objectId, this);
+
+		plantWrapper->update(plant);
+
 		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
 	}
 
@@ -198,7 +199,6 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	rootNode->draw(viewProjMat);
 
-	healthBar->draw(viewProjMat); //TODO to be removed
 	testUI->draw(); //TODO to be removed
 }
 

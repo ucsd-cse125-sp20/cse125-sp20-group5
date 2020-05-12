@@ -11,10 +11,17 @@
 #include "AnimatedAssimpModel.h"
 #include "Skybox.h"
 #include "Image2d.h" //TODO to be removed
-#include "HealthBar.h" //TODO to be removed
 #include "Constants.h"
 #include "Shader.h"
 #include "ParticleFactory.hpp"
+
+enum class ShaderType {
+	DEFAULT, ASSIMP, ANIMATED, SKYBOX, UI, HEALTH_BAR
+};
+
+enum class ModelType {
+	CAT, PIG, RABBIT, CORN, WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL
+};
 
 class Scene
 {
@@ -28,8 +35,16 @@ private:
 	SceneNode* groundNode;
 	std::unordered_map<uint, SceneNode*> objectIdMap;
 
+	// shaders
+	ShaderProgram* program;
+	ShaderProgram* assimpProgram;
+	ShaderProgram* animationProgram;
+	ShaderProgram* skyboxProgram;
+	ShaderProgram* uiProgram;
+	ShaderProgram* barProgram;
+
 	// models
-	AnimatedAssimpModel * zombieModel;
+	AnimatedAssimpModel* zombieModel;
 	AnimatedAssimpModel* playerModel;
 	AssimpModel* cornModel;
 	AssimpModel* tapModel;
@@ -39,14 +54,6 @@ private:
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
-
-	// shaders
-	ShaderProgram * program;
-	ShaderProgram * assimpProgram;
-	ShaderProgram* animationProgram;
-	ShaderProgram* skyboxProgram;
-	ShaderProgram* uiProgram;
-	ShaderProgram* barProgram;
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
@@ -72,6 +79,32 @@ public:
 
 	// static function for a to create a specfic scene good for grahics testing
 	static Scene* scene0();
-	HealthBar* healthBar; //TODO to be removed
+
+
+	// getter & setter
+	SceneNode* getGroundNode() { return groundNode;  }
+	uint getShaderID(ShaderType type) {
+		switch (type) {
+			case ShaderType::DEFAULT:				return program->GetProgramID();
+			case ShaderType::ASSIMP:				return assimpProgram->GetProgramID();
+			case ShaderType::ANIMATED:			return animationProgram->GetProgramID();
+			case ShaderType::SKYBOX:				return skyboxProgram->GetProgramID();
+			case ShaderType::UI:						return uiProgram->GetProgramID();
+			case ShaderType::HEALTH_BAR:		return barProgram->GetProgramID();
+		}
+	}
+
+	Drawable* getModel(ModelType type) {
+		switch (type) {
+			case ModelType::CAT:							return playerModel;
+			case ModelType::PIG:							return playerModel;
+			case ModelType::RABBIT:					return zombieModel;
+			case ModelType::CORN:						return cornModel;
+			case ModelType::WATER_TAP:			return tapModel;
+			case ModelType::WATERING_CAN:		return wateringCanModel;
+			case ModelType::SEED_SHACK:			return seedSourceModel;
+			case ModelType::SHOVEL:					return shovelModel;
+		}
+	}
 };
 

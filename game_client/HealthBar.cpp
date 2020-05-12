@@ -8,10 +8,10 @@ GLuint HealthBar::VBO, HealthBar::VBO2, HealthBar::VAO, HealthBar::EBO;
 uint HealthBar::shader;
 uint HealthBar::numHealthBar = 0;
 
-HealthBar::HealthBar(uint shader, const char* iconFile, float initFilledFraction, glm::vec3 barColor)
+HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float initFilledFraction, glm::vec3 barColor)
 {
 	this->shader = shader;
-	this->modelMtx = scale(vec3(1.0f));
+	this->modelMtx = translate(vec3(0, translateY, 0)) * scale(vec3(0.5f));
 
 	// Init the filling status
 	resetBar(initFilledFraction);
@@ -33,7 +33,7 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float initFilledFraction
 
 	// Init each bar components
 	barComponents.resize(3);
-	barComponents[ICON] = BarComponent(ICON, iconMtx, whiteColor);
+	barComponents[ICON] = BarComponent(ICON, iconMtx, barColor);
 	barComponents[BAR_BOX] = BarComponent(BAR_BOX, barBoxMtx, whiteColor);
 	barComponents[BAR] = BarComponent(BAR, barMtx, barColor);
 
@@ -91,15 +91,12 @@ HealthBar::~HealthBar()
 	}
 }
 
-void HealthBar::draw(const glm::mat4& viewProjMtx)
+void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
-	// Animate the decrease of the bar if filledFraction got updated before
-	updateBar(this->filledFraction);
-
 	glUseProgram(shader);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glEnable(GL_BLEND); 
-	glDisable(GL_DEPTH_TEST); // to allow overlap
+	glEnable(GL_BLEND); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // to allow transparent
+	glDepthFunc(GL_ALWAYS); // to allow overlap
 	glBindVertexArray(VAO);
 
 
@@ -110,7 +107,7 @@ void HealthBar::draw(const glm::mat4& viewProjMtx)
 
 		glBindTexture(GL_TEXTURE_2D, textureIDs[bc.id]);
 
-		mat4 model = modelMtx * bc.localMtx;
+		mat4 model = node.transform * scale(vec3(1/node.scaler)) * modelMtx * bc.localMtx;
 		if (bc.id == BAR) {
 			model = model * this->fillingTransform;
 		}
@@ -124,8 +121,8 @@ void HealthBar::draw(const glm::mat4& viewProjMtx)
 
 
 	glBindVertexArray(0); 
-	glEnable(GL_DEPTH_TEST);
-	//glDisable(GL_BLEND);
+	glDepthFunc(GL_LESS);
+	glDisable(GL_BLEND);
 	glUseProgram(0);
 }
 
@@ -158,7 +155,7 @@ void HealthBar::loadTexture(const char* textureFile, uint id)
 	int width, height, nrComponents;
 	unsigned char* tdata;  // texture pixel data
 
-	tdata = stbi_load(textureFile, &width, &height, &nrComponents, 0);
+	tdata = stbi_load(textureFile, &width, &height, &nrComponents, STBI_rgb_alpha);
 	if (tdata == NULL) return;
 
 	// Create ID for texture
@@ -168,10 +165,19 @@ void HealthBar::loadTexture(const char* textureFile, uint id)
 	glBindTexture(GL_TEXTURE_2D, textureIDs[id]);
 
 	// Generate the texture
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tdata);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// Set bi-linear filtering for both minification and magnification
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
+
+void HealthBar::update(SceneNode* node) {
+	// Animate the decrease of the bar if filledFraction got updated before
+	updateBar(this->filledFraction);
+}
+
+SceneNode* HealthBar::createSceneNodes(uint objectId) {
+	return new SceneNode(this, std::string("healthBar"), objectId);
+}
