@@ -120,7 +120,12 @@ void SceneNode::loadGameObject(GameObject* gameObj)
 	//animationId = gameObj->animation->animationType;
 	//animPlayedTime = gameObj->animation->animationFrame;
 	switchAnim(gameObj->animation->animationType);
-} 
+}
+int SceneNode::countChildern()
+{
+	return children.size();
+}
+
 
 SceneNode* SceneNode::find(std::string name, uint objectId)
 {

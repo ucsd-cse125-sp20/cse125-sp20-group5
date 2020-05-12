@@ -4,13 +4,16 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 	glm::vec3 color, glm::vec3 initialVelocity,
 	glm::vec3 acceleration, int initParicleNum, int maxParticleNum, float lifeSpan,
 	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-	float spawnTime) {
+	float spawnTime, int spawnNum) {
 
+	this->spawning = true;
+
+	this->particleSize = particleSize;
 	// Setup variables
 	this->shader = shader;
 
-	this->groupModelMatrix = glm::scale(glm::vec3(particleSize / 2.f));
-	this->groupModelMatrix = glm::translate(this->groupModelMatrix, particlePosition / (particleSize / 2.f));
+	//this->groupModelMatrix = glm::scale(glm::vec3(particleSize / 2.f));
+	this->groupModelMatrix = glm::mat4(1);//glm::translate(this->groupModelMatrix, particlePosition / (particleSize / 2.f));
 
 	this->baseColor = color;
 	this->initialVelocity = initialVelocity;
@@ -23,6 +26,7 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 
 	this->spawnTime = spawnTime;
 	this->timePastSinceLastSpawn = 0;
+	this->spawnNum = spawnNum;
 
 	// Initialize children
 	for (int i = 0; i < initParicleNum; i++) {
@@ -120,31 +124,52 @@ ParticleGroup::~ParticleGroup()
 }
 
 // Draw all the children
-void ParticleGroup::draw(glm::mat4 viewProjMat)
+void ParticleGroup::draw(SceneNode& node, const glm::mat4& viewProjMat)
 {
 	// std::cout << children.size() << " draw child!" << "\n";
 	for (Particle * child : children) {
-		child->draw(viewProjMat, vao);
+		child->draw(node.transform, viewProjMat, vao);
 	}
 }
 
-void ParticleGroup::update(float timeDifference)
+void ParticleGroup::update(SceneNode * node)
 {
-	timePastSinceLastSpawn += timeDifference;
+	float timeDifference = 0.1f;
+	if (spawning) {
+		timePastSinceLastSpawn += timeDifference;
 
-	while (timePastSinceLastSpawn >= spawnTime && children.size() < maxParticleNum) {
-		timePastSinceLastSpawn -= spawnTime;
-		addChildParticle();
+		while (timePastSinceLastSpawn >= spawnTime && children.size() < maxParticleNum) {
+			timePastSinceLastSpawn -= spawnTime;
+			for (int i = 0; i < spawnNum; i++)
+				addChildParticle();
+		}
 	}
-
 	for (int i = 0; i < children.size(); i++) {
-		Particle * child = children[i];
+		Particle* child = children[i];
 		child->update(timeDifference);
 		if (!child->isAlive()) {
 			children.erase(children.begin() + i);
 		}
 	}
+	
 }
+
+SceneNode* ParticleGroup::createSceneNodes(uint objectId)
+{
+	SceneNode* node = new SceneNode(this, "group", objectId);
+	node->scaler = particleSize;
+	return node;
+}
+
+void ParticleGroup::toggleSpawning()
+{
+	spawning = !spawning;
+}
+
+bool ParticleGroup::isSpawning() {
+	return spawning;
+}
+
 
 glm::vec3 ParticleGroup::randomizeVec3(glm::vec3 base, glm::vec3 variance)
 {

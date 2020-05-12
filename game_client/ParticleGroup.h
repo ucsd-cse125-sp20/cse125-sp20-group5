@@ -15,11 +15,13 @@
 #include <glm/gtx/transform.hpp>
 
 #include "Particle.h"
+#include "Drawable.h"
+#include "SceneNode.h"
 
 /**
     This class would be responsable for creating, managing, rendering a group of particles.
 */
-class ParticleGroup
+class ParticleGroup : public Drawable
 {
 private:
     std::vector<Particle*> children;
@@ -48,18 +50,26 @@ private:
 
     float spawnTime;
     float timePastSinceLastSpawn;
+    int spawnNum;
+
+    bool spawning;
+
+    float particleSize;
 
 public:
 	ParticleGroup(GLuint shader, float particleSize, glm::vec3 particlePosition,
         glm::vec3 color, glm::vec3 initialVelocity,
         glm::vec3 acceleration,  int initParicleNum, int maxParticleNum, float lifeSpan,
         glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-        float spawnTime);
+        float spawnTime, int spawnNum);
     ~ParticleGroup();
     
     // Draw the whole particle group
-    void draw(glm::mat4 viewProjMatrix);
-	void update(float timeDifference);
+    void draw(SceneNode& node, const glm::mat4& viewProjMatrix) override;
+	void update(SceneNode * node) override;
+    SceneNode * createSceneNodes(uint objectId) override;
+    void toggleSpawning();
+    bool isSpawning();
 };
 
 #endif

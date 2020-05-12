@@ -19,8 +19,8 @@ private:
 
 	Model* baseLayer;
 public:
-	static enum class TILE_TYPE { NORMAL = 0, PATH = 1, TILLED = 2, WATER = 3, BLANK = 4, BASE_LAYER = 5};
-	static const int NUM_TILES = 6;
+	static enum class TILE_TYPE { NORMAL = 0, PATH = 1, TILLED = 2, BLANK = 3, BASE_LAYER = 4};
+	static const int NUM_TILES = 5;
 
 	Ground(int x, int y, float size, int paddingX, int paddingY, uint shader);
 	~Ground();

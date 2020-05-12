@@ -11,8 +11,11 @@ Scene::Scene()
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
+	cornModel = new AssimpModel(CORN_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
-	toolModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
+	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
+	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
+	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
 
@@ -26,7 +29,6 @@ Scene::Scene()
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
-	waterTapParticles = particleFactory->getWaterTapParticleGroup();
 }
 
 Scene::~Scene()
@@ -47,8 +49,8 @@ Scene::~Scene()
 	delete rootNode;
 
 	delete particleFactory;
-	delete waterTapParticles;
 	delete particleProgram;
+
 }
 
 void Scene::update()
@@ -63,7 +65,7 @@ void Scene::update()
 	if (ground == NULL) {
 		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID());
 		groundNode->obj = ground;
-		groundNode->position = glm::vec3(floor->tiles.size()/(-2.0), 0, floor->tiles[0].size()/(-1.5));
+		groundNode->position = glm::vec3(floor->tiles.size()/(-1.5), 0, floor->tiles[0].size()/(-2.0));
 	}
 	for (int i = 0; i < floor->tiles.size(); i++) {
 		for (int j = 0; j < floor->tiles[0].size(); j++) {
@@ -73,29 +75,43 @@ void Scene::update()
 
 
 	for (Zombie* zombie : state->zombies) {
-		SceneNode* zombieTemp = getDrawableSceneNode(zombie->objectId, zombieModel);
-		zombieTemp->loadGameObject(zombie); // load new data
-		zombieTemp->scaler = RABBIT_SCALER;
-		unusedIds.erase(zombie->objectId);
+		SceneNode* zombieNode = getDrawableSceneNode(zombie->objectId, zombieModel);
+		zombieNode->loadGameObject(zombie); // load new data
+		zombieNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
+		unusedIds.erase(zombie->objectId);  // perhaps the server could provide it
+	}
+
+	for (Plant* plant : state->plants) {
+		SceneNode* plantNode = getDrawableSceneNode(plant->objectId, cornModel);
+		plantNode->loadGameObject(plant); // load new data
+		plantNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
+		plantNode->position[1] = .7;
+		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
 	}
 
 	for (Player* player : state->players) {
-		SceneNode* playerTemp = getDrawableSceneNode(player->objectId, playerModel);
-		playerTemp->loadGameObject(player);
-		playerTemp->scaler = PLAYER_SCALER;
+		SceneNode* playerNode = getDrawableSceneNode(player->objectId, playerModel);
+		playerNode->loadGameObject(player);
+		playerNode->scaler = PLAYER_SCALER;
 		unusedIds.erase(player->objectId);
 
 		// here is wehre we handle stuff like making sure they are holding another object
 		if (player->holding) {
 			if (objectIdMap.count(player->heldObject) > 0) {
 				SceneNode * heldNode = objectIdMap[player->heldObject];
-				SceneNode * playerHand = playerTemp->find(std::string("j_r_arm_$AssimpFbx$_Translation"), playerTemp->objectId); 
+				SceneNode * playerHand = playerNode->find(std::string("j_r_arm_$AssimpFbx$_Translation"), playerNode->objectId);
 				if (heldNode != NULL && playerHand != NULL) {
 					if (heldNode->parent != playerHand) {
 						playerHand->addChild(heldNode);
 						// TODO the values will have to be a constant we need to figure out how to make it look held
-						heldNode->scaler = TOOL_SCALER / PLAYER_SCALER;
-						heldNode->position = glm::vec3(-4.5,1.3,.5);
+						if (heldNode->obj == wateringCanModel) {
+							heldNode->scaler = WATER_CAN_SCALER / PLAYER_SCALER;
+							heldNode->position = WATER_CAN_HOLD_VEC;
+						}
+						else if (heldNode->obj == shovelModel) {
+							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
+							heldNode->position = SHOVEL_HOLD_VEC;
+						}
 						heldNode->dir = 0;
 					}
 				}
@@ -104,22 +120,47 @@ void Scene::update()
 	}
 
 	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
+	if (tapNode->countChildern() == 0) {
+		ParticleGroup* pGroup = particleFactory->getWaterTapParticleGroup(glm::vec3(0, 0, 0));
+		SceneNode* waterNode = pGroup->createSceneNodes(state->waterTap->objectId);
+		waterNode->position = glm::vec3(0,6.0,-2.0);
+		tapNode->addChild(waterNode);
+	}
 	tapNode->loadGameObject(state->waterTap);
+	tapNode->scaler = WATER_TAP_SCALER;
 	unusedIds.erase(state->waterTap->objectId);
 
-	waterTapParticles->update(0.1f);
-
 	for (Tool * tool : state->tools) {
-		SceneNode* toolTemp = getDrawableSceneNode(tool->objectId, toolModel);
+		SceneNode* toolNode;
+		float toolScaler = 1.0;
+		if (tool->toolType == Tool::ToolType::WATER_CAN) { // TODO make this a constant
+			toolNode = getDrawableSceneNode(tool->objectId, wateringCanModel);
+			toolScaler = WATER_CAN_SCALER;
+		} 
+		else if (tool->toolType == Tool::ToolType::PLOW) {
+			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
+			toolScaler = SHOVEL_SCALER;
+		}
+		else {
+			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
+			toolScaler = SHOVEL_SCALER;
+		}
+
 		if (!tool->held) {
-			if (toolTemp->parent != groundNode) {
-				toolTemp->setParent(groundNode);
-				toolTemp->scaler = TOOL_SCALER;
+			if (toolNode->parent != groundNode) {
+				toolNode->setParent(groundNode);
 			}
-			toolTemp->loadGameObject(tool); // load new data
+			toolNode->loadGameObject(tool); // load new data
+			toolNode->scaler = toolScaler;
 		}
 		unusedIds.erase(tool->objectId);
 	}
+
+	SceneNode* seedShackNode = getDrawableSceneNode(state->seedShack->objectId, seedSourceModel);
+	seedShackNode->loadGameObject(state->seedShack);
+	seedShackNode->scaler = SEED_SOURCE_SCALER;
+	seedShackNode->position[1] = .65; // TODO MAKE THIS A CONSTANT WHEN THE SIZES ARE SET
+	unusedIds.erase(state->seedShack->objectId);
 	
 	rootNode->update(glm::mat4(1.0));
 
@@ -155,12 +196,14 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	rootNode->draw(viewProjMat);
 
-	// this is for testing we should be bale to remove at some point
-	SceneNode temp(NULL, std::string(""), 0);
-	temp.transform = glm::mat4(1.0);
-
-	waterTapParticles->draw(viewProjMat);
 	testUI->draw(); //TODO to be removed
+}
+
+void Scene::toggleWater()
+{
+	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId, tapModel);
+	((ParticleGroup*)(tapNode->children.begin()->second->obj))->toggleSpawning();
+
 }
 
 // Update the current gamestate

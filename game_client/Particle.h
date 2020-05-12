@@ -16,6 +16,7 @@
 /**
     This class define each individual particle
 */
+
 class Particle
 {
 private:
@@ -32,7 +33,7 @@ public:
        glm::vec3 initialVelocity, glm::vec3 acceleration, int lifeSpan);
     ~Particle();
 
-    void draw(glm::mat4 viewProjMat, GLuint parentVAO);
+    void draw(glm::mat4 model, const glm::mat4& viewProjMat, GLuint parentVAO);
     // Update all the children and check if the die
     void update(float timeDifference);
     bool isAlive();

@@ -30,8 +30,12 @@ private:
 	// models
 	AnimatedAssimpModel * zombieModel;
 	AnimatedAssimpModel* playerModel;
+	AssimpModel* cornModel;
 	AssimpModel* tapModel;
-	AssimpModel* toolModel;
+	AssimpModel* wateringCanModel;
+	AssimpModel* seedSourceModel;
+	AssimpModel* shovelModel;
+
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
 
@@ -47,10 +51,11 @@ private:
 
 	// Particle effect
 	ParticleFactory* particleFactory;
-	ParticleGroup* waterTapParticles;
 	ShaderProgram* particleProgram;
 
+
 public:
+
 	Scene();
 	~Scene();
 
@@ -59,10 +64,11 @@ public:
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat); // renders everything
 
+	void toggleWater();
+
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable* model);
 
 	// static function for a to create a specfic scene good for grahics testing
-	static Scene* testScene();
 	static Scene* scene0();
 };
 
