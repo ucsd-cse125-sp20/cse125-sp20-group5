@@ -109,14 +109,14 @@ void Scene::update()
 				if (!plantNode->hasParticle()) {
 					ParticleGroup* pGroup = particleFactory->getCornAttackParticleGroup(glm::vec3(0, 0, 0));
 					SceneNode* particleNode = pGroup->createSceneNodes(plant->objectId);
-					particleNode->position = glm::vec3(0, 0, 0);
+					particleNode->position = glm::vec3(0, 2, 0);
 					plantNode->addParticle(particleNode);
 				}
 			}
 		}
 
 		plantNode->loadGameObject(plant); // load new data
-		plantNode->position[1] = .7;
+		// plantNode->position[1] = .7;
 		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
 	}
 
