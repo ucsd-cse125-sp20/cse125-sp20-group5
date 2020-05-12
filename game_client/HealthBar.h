@@ -36,11 +36,13 @@ public:
 
 	void draw(const glm::mat4& viewProjMtx);
 	void updateBar(float filledFraction);
+	void resetBar(float defaultFilledFraction);
 
 	// These variables are needed for the shader program
-	GLuint VBO, VBO2, VAO, EBO;
+	static GLuint VBO, VBO2, VAO, EBO;
 	GLuint textureIDs[3];
-	uint shader;
+	static uint shader;
+	static uint numHealthBar;
 
 	glm::mat4 modelMtx;
 	//glm::mat4 baseBarTransform;
