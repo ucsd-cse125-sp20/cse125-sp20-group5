@@ -273,6 +273,15 @@ public:
 
             // WATER_CAN
             case Tool::ToolType::WATER_CAN: {
+                if (player->collideWith(waterTap) && tool->remainingWater < tool->capacity) {
+                    tool->remainingWater += deltaTime;
+                    std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                    break;
+				}
+                if (tool->remainingWater <= 0) {
+                    std::cout << "Not enough to watering plants" << std::endl;
+                    break;
+                }
                 Plant* currPlant = nullptr;
                 float minDistance = std::numeric_limits<float>::max();
                 for (Plant* plant : plants) {
@@ -289,7 +298,9 @@ public:
                     std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
                     if (currPlant->growStage != Plant::GrowStage::GROWN) {
                         currPlant->growProgressTime += deltaTime;
+                        tool->remainingWater -= deltaTime;
                         std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
+                        std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     }
                     else {
                         std::cout << "Plant is already grown" << std::endl;
@@ -308,12 +319,6 @@ public:
                 // Get player's tile (only plant on non-zombie and plowed tiles)
                 Tile* currTile = floor->tiles[player->currRow][player->currCol];
                 if (currTile->tileType != Tile::TYPE_ZOMBIE && currTile->plantId == 0) {
-                    // Delete the seed tool
-                    auto it = std::find(tools.begin(), tools.end(), tool);
-                    if (it != tools.end()) {
-                        tools.erase(it);
-                    }
-                    delete tool;
                     player->holding = false;
                     player->heldObject = 0;
 
@@ -332,8 +337,19 @@ public:
                         Plant::GrowStage::SEED
                     );
                     plant->growExpireTime = 2.0f;
+                    plant->attackPower = 50;
+                    plant->currAttackTime = 0.0f;
+                    plant->attackInterval = 1.0f;
                     plants.push_back(plant);
                     std::cout << "Seed planted" << std::endl;
+
+                    // Delete the seed tool
+                    auto it = std::find(tools.begin(), tools.end(), tool);
+                    if (it != tools.end()) {
+                        tools.erase(it);
+                    }
+                    delete tool;
+
 				}
                 break;
             }
@@ -435,6 +451,10 @@ public:
                 }
 
             }
+
+            // Attack zombies
+            attackZombies(plant);
+
             // TODO: handle spawn bullets
         }
     }
@@ -495,6 +515,8 @@ public:
                 zombiePosition, zombieDirection,
                 zombieAnimation, objectCount++, zombieRadius
             );
+            zombie->health = 100;
+            zombie->maxHealth = 100;
             zombies.push_back(zombie);
 		}
 
@@ -527,8 +549,10 @@ public:
             Tile* currTile = floor->tiles[row][col];
 
             // Check if remove current zombie (final tile / hp = 0, ...)
-            if (row == floor->zombieFinalTileRow
-                && col == floor->zombieFinalTileCol) {
+            bool reachedFinalTile = row == floor->zombieFinalTileRow
+                && col == floor->zombieFinalTileCol;
+
+            if (reachedFinalTile || zombie->health <= 0) {
                 i = zombies.erase(i);
                 continue;
             }
@@ -537,6 +561,30 @@ public:
             if (currTile->tileType != Tile::TYPE_NORMAL)
                 zombie->direction->angle = currTile->direction->angle;
         }
+    }
+
+    void attackZombies(Plant* plant) {
+        if (plant->growStage != Plant::GrowStage::GROWN) {
+            return;
+        }
+
+        if (plant->currAttackTime < plant->attackInterval) {
+            plant->currAttackTime += deltaTime;
+            return;
+        }
+
+        std::cout << "Perform attack to zombies" << std::endl;
+        for (Zombie* zombie : zombies) {
+            switch (plant->plantType) {
+            case Plant::PlantType::CORN:
+                //std::cout << "Distance to zombie is " << zombie->distanceTo(plant) << std::endl;
+                if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
+                    zombie->health -= plant->attackPower;
+                }
+                break;
+            }
+        }
+        plant->currAttackTime = 0.0f;
     }
 
     // We could use other data structures, for now use a list
@@ -560,5 +608,4 @@ public:
     int tickRate;
     float deltaTime;
 };
-
 #endif

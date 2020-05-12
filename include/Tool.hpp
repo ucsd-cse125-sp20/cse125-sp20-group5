@@ -31,6 +31,10 @@ public:
     static enum class ToolType { WATER_CAN = 0, PLOW = 1, SEED = 2 };
     ToolType toolType; // e.g. watering can, hoe, etc
     Plant::PlantType seedType;      // only used when toolType is SEED
+    
+    float remainingWater; // only used when toolType is WATER_CAN
+    float capacity;       // only used when toolTye is WATER_CAN
+
     unsigned int heldBy; // Player's objectId
     bool held;
 };

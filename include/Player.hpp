@@ -107,6 +107,9 @@ public:
     Color* color;
     int playerId;
 
+    int health;
+    int maxHealth;
+
     // Tool
     bool holding;
     unsigned int heldObject;

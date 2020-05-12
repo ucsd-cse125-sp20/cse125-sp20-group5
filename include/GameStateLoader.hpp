@@ -6,6 +6,7 @@
 #include "GameObject.hpp"
 #include "Message.hpp"
 #include "Floor.hpp"
+#include "Plant.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -69,6 +70,7 @@ public:
 				switch (std::stoi(substr)) {
 				case 0:
 					tools[i]->toolType = Tool::ToolType::WATER_CAN;
+					tools[i]->capacity = 3.0f;
 					break;
 				case 1:
 					tools[i]->toolType = Tool::ToolType::PLOW;
@@ -172,6 +174,14 @@ public:
 			obj->animation = new Animation(animationType, animationFrame);
 		} else if (key == "Radius") {
 			obj->boundingBoxRadius = std::stof(value);
+		} else if (key == "SeedType") {
+			// SeedShack only
+			SeedShack* seedShack = (SeedShack*)obj;
+			if (value == "CORN") {
+				seedShack->seedType = Plant::PlantType::CORN;
+			} else if (value == "PEA") {
+				seedShack->seedType = Plant::PlantType::PEA_SHOOTER;
+            }
 		}
 	}
 };
