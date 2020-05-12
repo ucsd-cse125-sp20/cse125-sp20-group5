@@ -24,7 +24,7 @@ public:
 	Drawable* obj;
 	bool updated;
 	glm::vec3 position;
-	float dir;
+	glm::vec3 pose;
 	float scaler;
 
 	SceneNode(Drawable * myO, std::string name, uint objectId);

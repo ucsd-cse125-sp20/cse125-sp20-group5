@@ -87,9 +87,9 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL &&
 				grid[(i * totalY) + j] != Ground::TILE_TYPE::BLANK) {
 				if (grid[(i * totalY) + j] == Ground::TILE_TYPE::TILLED) {
-					temp.transform[0][0] = .05;
-					temp.transform[1][1] = .05;
-					temp.transform[2][2] = .05;
+					temp.transform[0][0] = DIRT_SCALER;
+					temp.transform[1][1] = DIRT_SCALER;
+					temp.transform[2][2] = DIRT_SCALER;
 					tilled->draw(temp, viewProjMtx);
 				}
 				else {

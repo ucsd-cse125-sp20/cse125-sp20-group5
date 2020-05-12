@@ -111,8 +111,9 @@ void Scene::update()
 						else if (heldNode->obj == shovelModel) {
 							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
 							heldNode->position = SHOVEL_HOLD_VEC;
+							heldNode->pose = SHOVEL_HOLD_ANGLE;
 						}
-						heldNode->dir = 0;
+						heldNode->pose[1] = 0;
 					}
 				}
 			}
@@ -149,6 +150,8 @@ void Scene::update()
 		if (!tool->held) {
 			if (toolNode->parent != groundNode) {
 				toolNode->setParent(groundNode);
+				toolNode->pose[0] = 0;
+				toolNode->pose[2] = 0;
 			}
 			toolNode->loadGameObject(tool); // load new data
 			toolNode->scaler = toolScaler;

@@ -17,7 +17,7 @@ SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 	numAnimation = 0;
 
 	position = glm::vec3(0.0);
-	dir = 0.0;
+	pose = glm::vec3(0.0);
 	scaler = 1.0;
 }
 
@@ -63,7 +63,9 @@ void SceneNode::calcLocalTransform()
 	transform = glm::mat4(scaler);
 	transform[3][3] = 1.0;
 
-	transform = transform * glm::eulerAngleY(dir);
+	transform = transform * glm::eulerAngleX(pose[0]);
+	transform = transform * glm::eulerAngleY(pose[1]);
+	transform = transform * glm::eulerAngleZ(pose[2]);
 
 	transform[3][0] = position[0];
 	transform[3][1] = position[1];
@@ -114,7 +116,7 @@ void SceneNode::loadGameObject(GameObject* gameObj)
 	position[1] = gameObj->position->y;
 	position[2] = gameObj->position->z;
 
-	dir = gameObj->direction->angle;
+	pose[1] = gameObj->direction->angle;
 
 	// TODO if use server to update anim, uncomment the below and delete swtichAnim
 	//animationId = gameObj->animation->animationType;
