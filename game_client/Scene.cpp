@@ -63,7 +63,7 @@ void Scene::update()
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
 	if (ground == NULL) {
-		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID());
+		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID(), assimpProgram->GetProgramID());
 		groundNode->obj = ground;
 		groundNode->position = glm::vec3(floor->tiles.size()/(-1.5), 0, floor->tiles[0].size()/(-2.0));
 	}

@@ -13,6 +13,8 @@
 #define WATERING_CAN_MODEL "model/watering_can.fbx"
 #define SEED_SOURCE_MODEL "model/box.fbx"
 #define SHOVEL_MODEL "model/shovel.fbx"
+#define SHOVEL_MODEL "model/shovel.fbx"
+#define DIRT_MODEL "model/dirt.fbx"
 
 #define WATER_TAP_SCALER 0.3
 #define RABBIT_SCALER 0.40
