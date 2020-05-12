@@ -13,6 +13,7 @@ private:
 	uint modelId;
 	uint childNum;
 	uint childCount;
+	bool hasParticleBool;
 
 public:
 
@@ -67,6 +68,8 @@ public:
 	void loadAnimData(uint numAnim, uint initialAnimID);
 	void switchAnim(uint newAnimID);
 
+	bool hasParticle();
+	void addParticle(SceneNode * particleNode);
 
 	std::string getName() const;
 
