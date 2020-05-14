@@ -5,6 +5,9 @@ class Direction {
 public:
     Direction() : angle(0) {}
     Direction(float angle): angle(angle) {}
+    Direction(const Direction* that) {
+        this->angle = that->angle;
+    }
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)

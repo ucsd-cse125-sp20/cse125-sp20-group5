@@ -12,7 +12,6 @@ public:
         ar & rangeDistance;
     }
 
-private:
     float rangeDistance;
 };
 
