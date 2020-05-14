@@ -1,4 +1,6 @@
 #include "Scene.h"
+#include "RenderController.h"
+#include "PlantController.h"
 #include <set>
 
 Scene::Scene()
@@ -8,6 +10,7 @@ Scene::Scene()
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
 	skyboxProgram = new ShaderProgram("Skybox.glsl", ShaderProgram::eRender);
 	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
+	barProgram = new ShaderProgram("HealthBar.glsl", ShaderProgram::eRender);
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
@@ -86,38 +89,10 @@ void Scene::update()
 	}
 
 	for (Plant* plant : state->plants) {
-		Plant::GrowStage growStage = plant->growStage;
-		SceneNode* plantNode = NULL;
+		PlantController* plantWrapper = PlantController::getController(plant->objectId, this);
 
-		if (growStage == Plant::GrowStage::SEED) {
-			plantNode = getDrawableSceneNode(plant->objectId, seedModel);
-			plantNode->scaler = SEED_SCALER;
-		}
-		else if (growStage == Plant::GrowStage::SAPLING) {
-			plantNode = getDrawableSceneNode(plant->objectId, saplingModel);
-			plantNode->scaler = SAPLING_SCALER;
-		}
-		else if (growStage == Plant::GrowStage::BABY) {
-			if (plant->plantType == Plant::PlantType::CORN) {
-				plantNode = getDrawableSceneNode(plant->objectId, babyCornModel);
-				plantNode->scaler = BABY_CORN_SCALER;
-			}
-		}
-		else if (growStage == Plant::GrowStage::GROWN) {
-			if (plant->plantType == Plant::PlantType::CORN) {
-				plantNode = getDrawableSceneNode(plant->objectId, cornModel);
-				plantNode->scaler = CORN_SCALER;
-				if (!plantNode->hasParticle()) {
-					ParticleGroup* pGroup = particleFactory->getCornAttackParticleGroup(glm::vec3(0, 0, 0));
-					SceneNode* particleNode = pGroup->createSceneNodes(plant->objectId);
-					particleNode->position = glm::vec3(0, 2, 0);
-					plantNode->addParticle(particleNode);
-				}
-			}
-		}
+		plantWrapper->update(plant, this);
 
-		plantNode->loadGameObject(plant); // load new data
-		// plantNode->position[1] = .7;
 		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
 	}
 

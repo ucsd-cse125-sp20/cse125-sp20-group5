@@ -167,12 +167,14 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Image2d.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="NetworkClient.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleFactory.hpp" />
     <ClInclude Include="ParticleGroup.h" />
+    <ClInclude Include="PlantController.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Shader.h" />
@@ -180,6 +182,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
+    <ClInclude Include="RenderController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimatedAssimpModel.cpp" />
@@ -189,6 +192,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image2d.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -203,6 +207,7 @@
   <ItemGroup>
     <None Include="AnimatedAssimpModel.glsl" />
     <None Include="AssimpModel.glsl" />
+    <None Include="HealthBar.glsl" />
     <None Include="Model.glsl" />
     <None Include="Particle.glsl" />
     <None Include="Skybox.glsl" />

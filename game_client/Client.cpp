@@ -140,10 +140,13 @@ void Client::sendKeyboardEvents()
 	}
 
 	/* For testing */
-	if ((*keyPresses)[GLFW_KEY_Z]) {
+	if ((*keyPresses)[GLFW_KEY_1]) {
 		int player1_numAnim = 2;
 		Animation* player1_anim = currentGameState->players[0]->animation;
 		player1_anim->animationType = (player1_anim->animationType + 1) % player1_numAnim;
+	}
+	if ((*keyPresses)[GLFW_KEY_2]) {
+		//scene->healthBar->updateBar(std::fmod(scene->healthBar->filledFraction + 0.3, 1.0));
 	}
 }
 
