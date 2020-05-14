@@ -29,6 +29,7 @@ public:
         ar & playerId;
         ar & holding;
         ar & heldObject;
+        ar & highlightObjectId;
     }
 
     ~Player() {
@@ -125,6 +126,9 @@ public:
     // Should player perform action/interact in this tick
     bool shouldPerformAction;
     bool shouldInteract;
+    
+    // Highlighting object
+    unsigned int highlightObjectId;
 
     static constexpr const float SQRT_2 = 1.41421356237309504880f;
     static constexpr const float SPEED = 4.8f;

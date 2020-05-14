@@ -253,6 +253,7 @@ public:
         updatePlants();
         updateZombies();
         updatePlayersPosition();
+        updatePlayersHighlight();
         tick++;
     }
 
@@ -581,7 +582,7 @@ public:
                     homeBase->health--;
                     std::cout << "Health of base is " << homeBase->health << "/" << homeBase->maxHealth << std::endl;
 				}
-                if (health <= 0) {
+                if (homeBase->health <= 0) {
                     isGameOver = true;
                 }
                 i = zombies.erase(i);
@@ -616,6 +617,86 @@ public:
             }
         }
         plant->currAttackTime = 0.0f;
+    }
+
+    void updatePlayersHighlight() {
+        for (Player* player: players) {
+            if (player->holding) {
+                // highlight interactable objects
+                Tool* currTool = (Tool*)gameObjectMap[player->heldObject];
+                switch (currTool->toolType) {
+                case Tool::ToolType::WATER_CAN:
+                    // highlight plants or water tap
+                    break;
+
+                case Tool::ToolType::PLOW:
+                    // highlight normal tiles
+                    break;
+
+                case Tool::ToolType::SEED:
+                    // highlight tilled tiles
+                    break;
+				}
+            }
+            else {
+                // highlight tools
+                // Loop through tools and check if player collides with them
+                // Highlight the closest tool that is in front direction of the player
+                Tool* currTool = nullptr;
+                float minDistance = std::numeric_limits<float>::max();
+                for (Tool* tool : tools) {
+                    float dist = player->distanceTo(tool);
+                    std::cout << "Distance to tool is " << dist << std::endl;
+
+                   Position playerToolVec = Position(
+                        tool->position->x - player->position->x,
+                        tool->position->y - player->position->y,
+                        tool->position->z - player->position->z
+                    );
+                    float angle = player->direction->getAngleBetween(playerToolVec);
+
+                    if (dist < minDistance && angle <= Direction::PI_2) {
+                        currTool = tool;
+                        minDistance = dist;
+                    }
+                }
+
+                // Check distance to seedShack as well
+                bool seedShackClosest = false;
+                float dist = player->distanceTo(seedShack);
+                   Position playerSeedShackVec = Position(
+                        seedShack->position->x - player->position->x,
+                        seedShack->position->y - player->position->y,
+                        seedShack->position->z - player->position->z
+                    );
+                float angle = player->direction->getAngleBetween(playerSeedShackVec);
+                std::cout << "Distance to seedShack is " << dist << std::endl;
+
+                if (dist < minDistance && angle <= Direction::PI_2) {
+                    minDistance = dist;
+                    seedShackClosest = true;
+                }
+
+                if (seedShackClosest && player->collideWith(seedShack)) {
+                    player->highlightObjectId = seedShack->objectId;
+                    std::cout << "Highlighting seedShack" << std::endl;
+                }
+                else {
+                    // interacting with tools
+                    // Make sure tool is within collision range and is not held by others 
+                    if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
+                        player->highlightObjectId = currTool->objectId;
+                        std::cout << "Highlighting tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+                    }
+                }
+
+                if (!currTool && !seedShackClosest) {
+                    player->highlightObjectId = 0;
+                    std::cout << "Nothing is highlighted" << std::endl;
+                }
+            }   
+            
+		}
     }
 
     // We could use other data structures, for now use a list

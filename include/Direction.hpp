@@ -40,7 +40,16 @@ public:
         return opposite < 0 ? opposite + TWO_PI : opposite;
     }
 
-    float angle; // The angle that the plant is facing??
+    float getAngleBetween(Position& vec) {
+        Position playerDirVec = Position(std::sin(angle), 0, std::cos(angle));
+
+        // for vectors A, B, cos(theta) = (A . B) / (|A| * |B|)
+        float dotProduct = vec.x * playerDirVec.x + vec.z * playerDirVec.z;
+        float vecMagnitude = std::sqrt(vec.x * vec.x + vec.z * vec.z);
+        return std::acos(dotProduct / vecMagnitude);
+    }
+
+    float angle; // The angle that the object is facing
 
     static constexpr const float EPSILON = 0.001f;
     static constexpr const float PI = 3.14159265358979323846f;

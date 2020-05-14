@@ -1,5 +1,6 @@
 #ifndef _POSITION_H
 #define _POSITION_H
+#include <iostream>
 
 class Position {
 public:
@@ -29,6 +30,12 @@ public:
         this->y = that.y;
         this->z = that.z;
     }
+
+    /*
+    std::ostream& operator<<(std::ostream& os, const Position& pos) {
+        os << "(" << pos.x << ", " << pos.y << ", " << pos.z << ")";
+        return os;
+    }*/
 
     float x, y, z;
 };
