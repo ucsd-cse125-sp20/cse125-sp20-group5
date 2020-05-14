@@ -35,6 +35,7 @@ private:
 	AssimpModel* wateringCanModel;
 	AssimpModel* seedSourceModel;
 	AssimpModel* shovelModel;
+	AssimpModel* seedBagModel;
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed

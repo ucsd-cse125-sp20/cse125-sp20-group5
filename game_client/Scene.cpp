@@ -16,6 +16,7 @@ Scene::Scene()
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
+	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
 
@@ -112,6 +113,9 @@ void Scene::update()
 							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
 							heldNode->position = SHOVEL_HOLD_VEC;
 							heldNode->pose = SHOVEL_HOLD_ANGLE;
+						} else if (heldNode->obj == seedBagModel) {
+							heldNode->scaler = SEED_BAG_SCALER / PLAYER_SCALER;
+							heldNode->position = WATER_CAN_HOLD_VEC;
 						}
 						heldNode->pose[1] = 0;
 					}
@@ -143,8 +147,8 @@ void Scene::update()
 			toolScaler = SHOVEL_SCALER;
 		}
 		else {
-			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
-			toolScaler = SHOVEL_SCALER;
+			toolNode = getDrawableSceneNode(tool->objectId, seedBagModel);
+			toolScaler = SEED_BAG_SCALER;
 		}
 
 		if (!tool->held) {
