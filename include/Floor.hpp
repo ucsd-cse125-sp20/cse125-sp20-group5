@@ -82,7 +82,7 @@ public:
                     tileType = Tile::TYPE_ZOMBIE;
                 }
                 else { // The basic ground
-                    tileDirection = new Direction(0);
+                    tileDirection = new Direction(Direction::DIRECTION_DOWN);
                     tileType = Tile::TYPE_NORMAL;
                 }
                 row.push_back(new Tile(tilePosition, tileType, tileDirection));

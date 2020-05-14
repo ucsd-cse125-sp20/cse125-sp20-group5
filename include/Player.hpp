@@ -81,6 +81,8 @@ public:
         }
         position->z += speedZ * translateDistance * deltaTime;
         position->x += speedX * translateDistance * deltaTime;
+        currRow = position->z / Floor::TILE_SIZE;
+        currCol = position->x / Floor::TILE_SIZE;
     }
 
     float checkRotation(float moveDirection, bool isDiagonal, float deltaTime) {
@@ -104,6 +106,9 @@ public:
 
     Color* color;
     int playerId;
+
+    int health;
+    int maxHealth;
 
     // Tool
     bool holding;
