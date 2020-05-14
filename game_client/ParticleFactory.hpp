@@ -36,14 +36,15 @@ public:
 		float particleSize = 0.2f;
 		// How fast to spawn a new particle
 		float spawnTime = .1f;
-
+		int spawnNum = 1;
+		float maxDistance = 1000;
 		return new ParticleGroup(shaderID,
 			particleSize, particlePosition, particleColor, particleInitVelocity,
 			particleAcceleration, particleInitNum, particleMaxNum, particleLifeSpan,
-			colorVariance, velocityVariance, spawnTime, 1);
+			colorVariance, velocityVariance, spawnTime, spawnNum, maxDistance);
 	}
 
-	ParticleGroup* getCornAttackParticleGroup(glm::vec3 particlePosition) {
+	ParticleGroup* getCornAttackParticleGroup(glm::vec3 particlePosition, float maxDistance) {
 		// The color of the particles
 		glm::vec3 particleColor = glm::vec3(1.0f, 0.95f, 0.2f);
 		// The initial velocity of the newly spawned particles
@@ -54,9 +55,9 @@ public:
 		// very beginning
 		int particleInitNum = 1;
 		// How many particles are rendered on the screen at the same time
-		int particleMaxNum = 40;
+		int particleMaxNum = 100;
 		// How long each individual particle could live
-		float particleLifeSpan = 2.0f;
+		float particleLifeSpan = 1000.0f;
 		// How much could each individual's color differ from each other randomly
 		glm::vec3 colorVariance(0.1f, 0.1f, 0.1f);
 		// How much could each individual's initial velocity differ from each other randomly
@@ -64,11 +65,11 @@ public:
 		// The size of the particles
 		float particleSize = 0.2f;
 		// How fast to spawn a new particle
-		float spawnTime = 0.05f;
-
+		float spawnTime = 0.01f;
+		int spawnNum = 1;
 		return new ParticleGroup(shaderID,
 			particleSize, particlePosition, particleColor, particleInitVelocity,
 			particleAcceleration, particleInitNum, particleMaxNum, particleLifeSpan,
-			colorVariance, velocityVariance, spawnTime, 1);
+			colorVariance, velocityVariance, spawnTime, spawnNum, maxDistance);
 	}
 };

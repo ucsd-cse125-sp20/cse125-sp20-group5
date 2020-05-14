@@ -28,9 +28,11 @@ private:
     glm::vec3 acceleration;
     float lifeLeft;
 
+    float distanceLeft;
+
 public:
     Particle(GLuint shader, glm::mat4 modelMatrix, glm::vec3 color, 
-       glm::vec3 initialVelocity, glm::vec3 acceleration, int lifeSpan);
+       glm::vec3 initialVelocity, glm::vec3 acceleration, int lifeSpan, float maxDistance);
     ~Particle();
 
     void draw(glm::mat4 model, const glm::mat4& viewProjMat, GLuint parentVAO);

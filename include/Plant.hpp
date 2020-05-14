@@ -31,6 +31,7 @@ public:
         ar & growStage;
         ar & growExpireTime;
         ar & growProgressTime;
+        ar & range;
     }
 
     ~Plant() {
