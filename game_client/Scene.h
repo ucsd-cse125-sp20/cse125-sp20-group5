@@ -30,6 +30,10 @@ private:
 	// models
 	AnimatedAssimpModel * zombieModel;
 	AnimatedAssimpModel* playerModel;
+
+	AssimpModel* seedModel;
+	AssimpModel* saplingModel;
+	AssimpModel* babyCornModel;
 	AssimpModel* cornModel;
 	AssimpModel* tapModel;
 	AssimpModel* wateringCanModel;
