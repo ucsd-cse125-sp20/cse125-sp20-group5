@@ -90,6 +90,7 @@ public:
     void init(int tick_rate) {
         tickRate = tick_rate;
         deltaTime = 1.0f / tickRate;
+        isGameOver = false;
         floor = new Floor();
         seedShack = new SeedShack();
         waterTap = new WaterTap();
@@ -280,6 +281,7 @@ public:
             */
 
             Tool* tool = (Tool*)gameObjectMap[player->heldObject];
+            Tile* currTile = floor->tiles[player->currRow][player->currCol];
             switch (tool->toolType) {
 
             // WATER_CAN
@@ -322,26 +324,35 @@ public:
 
             // PLOW
             case Tool::ToolType::PLOW:
+
+                // Should be normal tile without any plants on it
+                if (currTile->tileType == Tile::TYPE_NORMAL && currTile->plantId == 0) {
+                    if (currTile->plowProgressTime < floor->plowExpireTime) {
+                        currTile->plowProgressTime += deltaTime;
+                        std::cout << "Current tile plowing progress: " << currTile->plowProgressTime << std::endl;
+                    }
+                    else {
+                        currTile->tileType = Tile::TYPE_TILLED;
+                        std::cout << "Tile is plowed" << std::endl;
+                    }
+                }
                 break;
             
             // TODO: need to generalize for all seeds
             // SEED_CORN
             case Tool::ToolType::SEED:
                 // Get player's tile (only plant on non-zombie and plowed tiles)
-                Tile* currTile = floor->tiles[player->currRow][player->currCol];
-                if (currTile->tileType != Tile::TYPE_ZOMBIE && currTile->plantId == 0) {
+                if (currTile->tileType == Tile::TYPE_TILLED && currTile->plantId == 0) {
                     player->holding = false;
                     player->heldObject = 0;
 
                     // Replace it with a plant
-                    Position* plantPosition = new Position(currTile->position);
-                    plantPosition->x += Tile::TILE_PAD_X;
-                    plantPosition->z += Tile::TILE_PAD_Z;
+                    Position* plantPosition = new Position(currTile->getCenterPosition());
                     Plant* plant = new Plant(
                         plantPosition,
                         new Direction(player->direction), // ??
                         new Animation(0, 0),
-                        objectCount,
+                        objectCount++,
                         1.0f,
                         new TowerRange(3.0f),
                         tool->seedType,
@@ -352,6 +363,8 @@ public:
                     plant->currAttackTime = 0.0f;
                     plant->attackInterval = 1.0f;
                     plants.push_back(plant);
+                    gameObjectMap[plant->objectId] = plant;
+                    currTile->plantId = plant->objectId;
                     std::cout << "Seed planted" << std::endl;
 
                     // Delete the seed tool
@@ -568,6 +581,9 @@ public:
                     homeBase->health--;
                     std::cout << "Health of base is " << homeBase->health << "/" << homeBase->maxHealth << std::endl;
 				}
+                if (health <= 0) {
+                    isGameOver = true;
+                }
                 i = zombies.erase(i);
                 continue;
             }
@@ -612,6 +628,9 @@ public:
     SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
     HomeBase* homeBase;
+
+    // Game status losing/not losing
+    bool isGameOver;
 
     // GameObject Map
     std::unordered_map<unsigned int, GameObject*> gameObjectMap;

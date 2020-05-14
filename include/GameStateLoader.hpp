@@ -124,7 +124,10 @@ public:
 					default:
 						tile->direction = new Direction(0.0);
 						tile->tileType = Tile::TYPE_NORMAL;
+
 				}
+                // Set progress time
+                tile->plowProgressTime = 0.0f;
 				row.push_back(tile);
 				currCol++;
 			}
@@ -148,6 +151,8 @@ public:
 				// Now get row and col
 				floor->zombieFinalTileRow = std::stoi(rowCol.substr(0, commaPos));
 				floor->zombieFinalTileCol = std::stoi(rowCol.substr(commaPos + 1));
+			} else if (key == "PlowExpireTime") {
+				floor->plowExpireTime = std::stof(value);
 			}
 		}
 	}

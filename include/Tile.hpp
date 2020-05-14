@@ -23,6 +23,7 @@ public:
         ar & tileType;
         ar & direction;
         ar & plantId;
+        ar & plowProgressTime;
     }
 
     ~Tile() {
@@ -39,6 +40,8 @@ public:
     int plantId;
 
     Direction* direction; // For zombie tiles (e.g. which direction do they go)
+
+    float plowProgressTime; // For normal tiles
 
     static constexpr const int TYPE_NORMAL = 0;
     static constexpr const int TYPE_ZOMBIE = 1;
