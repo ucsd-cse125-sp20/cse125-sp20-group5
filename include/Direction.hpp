@@ -35,6 +35,11 @@ public:
             angle += TWO_PI;
     }
 
+    float getOppositeDirection() {
+        float opposite = angle - PI;
+        return opposite < 0 ? opposite + TWO_PI : opposite;
+    }
+
     float angle; // The angle that the plant is facing??
 
     static constexpr const float EPSILON = 0.001f;

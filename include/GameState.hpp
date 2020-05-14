@@ -11,6 +11,7 @@
 #include "Message.hpp"
 #include "Floor.hpp"
 #include "GameStateLoader.hpp"
+#include "HomeBase.hpp"
 
 #include <cmath>
 #include <vector>
@@ -64,10 +65,18 @@ public:
                     GameStateLoader::initGameObject(key, value, seedShack, objectCount);
                 } else if (header == "WaterTap") {
                     GameStateLoader::initGameObject(key, value, waterTap, objectCount);
+                } else if (header == "HomeBase") {
+                    GameStateLoader::initGameObject(key, value, homeBase, objectCount);
                 }
             }
         }
         myfile.close();
+
+        // Initialize HomeBase position using the zombie final tile
+        Tile* baseTile = floor->tiles[floor->zombieFinalTileRow][floor->zombieFinalTileCol];
+        homeBase->position = new Position(baseTile->getCenterPosition());
+        homeBase->direction = new Direction(baseTile->direction->getOppositeDirection());
+        homeBase->animation = new Animation(0, 0);
 
         // Add tools, seed shack and water tap to game object id map
         for (Tool* tool : tools) {
@@ -75,6 +84,7 @@ public:
         }
         gameObjectMap[seedShack->objectId] = seedShack;
         gameObjectMap[waterTap->objectId] = waterTap;
+        gameObjectMap[homeBase->objectId] = homeBase;
     }
 
     void init(int tick_rate) {
@@ -83,6 +93,7 @@ public:
         floor = new Floor();
         seedShack = new SeedShack();
         waterTap = new WaterTap();
+        homeBase = new HomeBase();
         init();
 	}
 
@@ -553,6 +564,10 @@ public:
                 && col == floor->zombieFinalTileCol;
 
             if (reachedFinalTile || zombie->health <= 0) {
+                if (reachedFinalTile) {
+                    homeBase->health--;
+                    std::cout << "Health of base is " << homeBase->health << "/" << homeBase->maxHealth << std::endl;
+				}
                 i = zombies.erase(i);
                 continue;
             }
@@ -596,6 +611,7 @@ public:
     Floor* floor;
     SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
+    HomeBase* homeBase;
 
     // GameObject Map
     std::unordered_map<unsigned int, GameObject*> gameObjectMap;

@@ -30,6 +30,10 @@ public:
         delete direction;
     }
 
+    Position getCenterPosition() {
+        return Position(position->x + TILE_PAD_X, 0, position->z + TILE_PAD_Z);
+    }
+
     Position* position; // Tile's position
     int tileType; // D/f types (e.g. normal, occupied by zombie, etc)
     int plantId;

@@ -7,6 +7,7 @@
 #include "Message.hpp"
 #include "Floor.hpp"
 #include "Plant.hpp"
+#include "HomeBase.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -182,6 +183,10 @@ public:
 			} else if (value == "PEA") {
 				seedShack->seedType = Plant::PlantType::PEA_SHOOTER;
             }
+		} else if (key == "MaxHealth") {
+			HomeBase* homeBase = (HomeBase*)obj;
+			homeBase->maxHealth = std::stoi(value);
+			homeBase->health = homeBase->maxHealth;
 		}
 	}
 };
