@@ -12,6 +12,7 @@
 #include "Floor.hpp"
 #include "GameStateLoader.hpp"
 #include "HomeBase.hpp"
+#include "ServerParams.h"
 
 #include <cmath>
 #include <vector>
@@ -87,8 +88,9 @@ public:
         gameObjectMap[homeBase->objectId] = homeBase;
     }
 
-    void init(int tick_rate) {
-        tickRate = tick_rate;
+    void init(ServerParams &config) {
+        this->config = config;
+        tickRate = config.tickrate;
         deltaTime = 1.0f / tickRate;
         isGameOver = false;
         floor = new Floor();
@@ -489,7 +491,7 @@ public:
         for (Player* player : players) {
             Position prevPos(player->position);
             // 1. Update position
-            player->move(deltaTime);
+            movePlayer(player);
 
             // 2. Check if collide with zombies
             for (Zombie* zombie : zombies) {
@@ -517,6 +519,75 @@ public:
 
             // 4. Check if collide with tools
         }
+    }
+
+    void movePlayer(Player* player) {
+        float translateDistance = 0.0f;
+        float speedX = 0.0f;
+        float speedZ = 0.0f;
+        switch (player->moveState) {
+        case Player::MoveState::DOWN:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_DOWN, false);
+            speedZ = 1.0f;
+            break;
+        case Player::MoveState::LOWER_RIGHT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_LOWER_RIGHT, true);
+            speedZ = 1.0f;
+            speedX = 1.0f;
+            break;
+        case Player::MoveState::RIGHT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_RIGHT, false);
+            speedX = 1.0f;
+            break;
+        case Player::MoveState::UPPER_RIGHT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_UPPER_RIGHT, true);
+            speedZ = -1.0f;
+            speedX = 1.0f;
+            break;
+        case Player::MoveState::UP:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_UP, false);
+            speedZ = -1.0f;
+            break;
+        case Player::MoveState::UPPER_LEFT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_UPPER_LEFT, true);
+            speedZ = -1.0f;
+            speedX = -1.0f;
+            break;
+        case Player::MoveState::LEFT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_LEFT, false);
+            speedX = -1.0f;
+            break;
+        case Player::MoveState::LOWER_LEFT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_LOWER_LEFT, true);
+            speedZ = 1.0f;
+            speedX = -1.0f;
+            break;
+        case Player::MoveState::FREEZE:
+            break;
+        }
+        player->position->z += speedZ * translateDistance * deltaTime;
+        player->position->x += speedX * translateDistance * deltaTime;
+        player->currRow = player->position->z / Floor::TILE_SIZE;
+        player->currCol = player->position->x / Floor::TILE_SIZE;
+    }
+
+    float checkRotation(Direction* playerDirection, float moveDirection, bool isDiagonal) {
+        float translateDistance;
+        if (playerDirection->directionEquals(moveDirection)) {
+            playerDirection->angle = moveDirection;
+            translateDistance = isDiagonal ? config.playerDiagonalMoveSpeed : config.playerMoveSpeed;
+        }
+        else if (playerDirection->clockwiseCloser(moveDirection)) {
+            playerDirection->angle += config.playerRotationSpeed * deltaTime;
+            playerDirection->constrainAngle();
+            translateDistance = isDiagonal ? config.playerInRotationDiagonalMoveSpeed : config.playerInRotationMoveSpeed;
+        }
+        else {
+            playerDirection->angle -= config.playerRotationSpeed * deltaTime;
+            playerDirection->constrainAngle();
+            translateDistance = isDiagonal ? config.playerInRotationDiagonalMoveSpeed : config.playerInRotationMoveSpeed;
+        }
+        return translateDistance;
     }
 
     void updateZombies() {
@@ -552,19 +623,19 @@ public:
             // Move current zombie
             Direction* currDir = zombie->direction;
             if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
-                zombie->position->z += Zombie::SPEED * deltaTime;
+                zombie->position->z += config.zombieRabbitMoveSpeed * deltaTime;
                 paddingZ -= Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_RIGHT)) {
-                zombie->position->x += Zombie::SPEED * deltaTime;
+                zombie->position->x += config.zombieRabbitMoveSpeed * deltaTime;
                 paddingX -= Tile::TILE_PAD_X;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_UP)) {
-                zombie->position->z -= Zombie::SPEED * deltaTime;
+                zombie->position->z -= config.zombieRabbitMoveSpeed * deltaTime;
                 paddingZ += Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_LEFT)) {
-                zombie->position->x -= Zombie::SPEED * deltaTime;
+                zombie->position->x -= config.zombieRabbitMoveSpeed * deltaTime;
                 paddingX += Tile::TILE_PAD_X;
             }
 
@@ -721,5 +792,8 @@ public:
     long long tick;
     int tickRate;
     float deltaTime;
+
+    // Configs
+    ServerParams config;
 };
 #endif

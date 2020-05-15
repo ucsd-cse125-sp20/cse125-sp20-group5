@@ -36,75 +36,6 @@ public:
         delete color;
     }
 
-    void move(float deltaTime) {
-        float translateDistance = 0.0f;
-        float speedX = 0.0f;
-        float speedZ = 0.0f;
-        switch (moveState) {
-        case MoveState::DOWN:
-            translateDistance = checkRotation(Direction::DIRECTION_DOWN, false, deltaTime);
-            speedZ = 1.0f;
-            break;
-        case MoveState::LOWER_RIGHT:
-            translateDistance = checkRotation(Direction::DIRECTION_LOWER_RIGHT, true, deltaTime);
-            speedZ = 1.0f;
-            speedX = 1.0f;
-            break;
-        case MoveState::RIGHT:
-            translateDistance = checkRotation(Direction::DIRECTION_RIGHT, false, deltaTime);
-            speedX = 1.0f;
-            break;
-        case MoveState::UPPER_RIGHT:
-            translateDistance = checkRotation(Direction::DIRECTION_UPPER_RIGHT, true, deltaTime);
-            speedZ = -1.0f;
-            speedX = 1.0f;
-            break;
-        case MoveState::UP:
-            translateDistance = checkRotation(Direction::DIRECTION_UP, false, deltaTime);
-            speedZ = -1.0f;
-            break;
-        case MoveState::UPPER_LEFT:
-            translateDistance = checkRotation(Direction::DIRECTION_UPPER_LEFT, true, deltaTime);
-            speedZ = -1.0f;
-            speedX = -1.0f;
-            break;
-        case MoveState::LEFT:
-            translateDistance = checkRotation(Direction::DIRECTION_LEFT, false, deltaTime);
-            speedX = -1.0f;
-            break;
-        case MoveState::LOWER_LEFT:
-            translateDistance = checkRotation(Direction::DIRECTION_LOWER_LEFT, true, deltaTime);
-            speedZ = 1.0f;
-            speedX = -1.0f;
-            break;
-        case MoveState::FREEZE:
-            break;
-        }
-        position->z += speedZ * translateDistance * deltaTime;
-        position->x += speedX * translateDistance * deltaTime;
-        currRow = position->z / Floor::TILE_SIZE;
-        currCol = position->x / Floor::TILE_SIZE;
-    }
-
-    float checkRotation(float moveDirection, bool isDiagonal, float deltaTime) {
-        float translateDistance;
-        if (direction->directionEquals(moveDirection)) {
-            direction->angle = moveDirection;
-            translateDistance = isDiagonal ? SPEED_DIAGONAL : SPEED;
-        }
-        else if (direction->clockwiseCloser(moveDirection)) {
-            direction->angle += Direction::ROTATION_SPEED * deltaTime;
-            direction->constrainAngle();
-            translateDistance = isDiagonal ? IN_ROTATION_SPEED_DIAGONAL : IN_ROTATION_SPEED;
-        }
-        else {
-            direction->angle -= Direction::ROTATION_SPEED * deltaTime;
-            direction->constrainAngle();
-            translateDistance = isDiagonal ? IN_ROTATION_SPEED_DIAGONAL : IN_ROTATION_SPEED;
-        }
-        return translateDistance;
-    }
-
     Color* color;
     int playerId;
 
@@ -129,12 +60,6 @@ public:
     
     // Highlighting object
     unsigned int highlightObjectId;
-
-    static constexpr const float SQRT_2 = 1.41421356237309504880f;
-    static constexpr const float SPEED = 4.8f;
-    static constexpr const float SPEED_DIAGONAL = SPEED / SQRT_2;
-    static constexpr const float IN_ROTATION_SPEED = 1.6f;
-    static constexpr const float IN_ROTATION_SPEED_DIAGONAL = IN_ROTATION_SPEED / SQRT_2;
 };
 
 #endif

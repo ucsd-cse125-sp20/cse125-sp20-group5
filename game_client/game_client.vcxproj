@@ -197,6 +197,7 @@
     <ClCompile Include="ParticleGroup.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneNode.cpp" />
+    <ClCompile Include="ServerParams.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
   </ItemGroup>

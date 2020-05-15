@@ -66,8 +66,6 @@ public:
     static constexpr const float DIRECTION_UPPER_LEFT = 5 * PI_4;
     static constexpr const float DIRECTION_LEFT = 3 * PI_2;
     static constexpr const float DIRECTION_LOWER_LEFT = 7 * PI_4;
-
-    static constexpr const float ROTATION_SPEED = 4 * PI;
 };
 
 #endif
