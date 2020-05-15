@@ -38,11 +38,15 @@ public:
         rootNode->addChild(barNode);
     }
 
-    static PlantController* getController(uint objectId, Scene* scene) {
-        if (controllerMap.find(objectId) == controllerMap.end()) {
-            controllerMap[objectId] = new PlantController(objectId, scene); // TODO we should have an intialization network connection to do this
-        }
-        return (PlantController*) controllerMap[objectId];
+    ~PlantController() {
+        // TODO: NOT relaly tho ideally we would need this but then we have to refactor particle group and growthbar and sceneNode
+        // as of right now we need a new model for each instance which isn't great but eh what can you do?
+        delete growthBar;
+        delete pGroup;
+    }
+
+    void update(GameObject * gameObject, Scene* scene) override {
+        update(((Plant*)gameObject), scene);
     }
 
     void update(Plant* plant, Scene* scene) {
@@ -106,7 +110,6 @@ public:
 private:
     HealthBar* growthBar;
 
-    float growth;
     SceneNode* barNode;
     SceneNode* particleNode;
     ParticleGroup* pGroup; 

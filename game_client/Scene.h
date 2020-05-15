@@ -67,6 +67,7 @@ private:
 	ParticleFactory* particleFactory;
 	ShaderProgram* particleProgram;
 
+	std::unordered_map<uint, RenderController> controllers;
 
 public:
 

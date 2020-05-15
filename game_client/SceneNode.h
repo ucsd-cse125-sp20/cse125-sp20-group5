@@ -23,6 +23,7 @@ public:
 	SceneNode* parent;
 	std::unordered_map<uint, SceneNode*> children;
 	Drawable* obj;
+
 	bool updated;
 	glm::vec3 position;
 	glm::vec3 pose;

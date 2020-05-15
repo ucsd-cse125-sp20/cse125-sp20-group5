@@ -187,14 +187,3 @@ void SceneNode::switchAnim(uint newAnimID) {
 	this->animStartTime = std::chrono::system_clock::now();
 }
 
-bool SceneNode::hasParticle()
-{
-	return hasParticleBool;
-}
-
-void SceneNode::addParticle(SceneNode* particleNode)
-{
-	this->hasParticleBool = true;
-	addChild(particleNode);
-}
-

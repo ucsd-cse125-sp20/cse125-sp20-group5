@@ -20,9 +20,6 @@ public:
     SceneNode* rootNode;
     SceneNode* modelNode;
 
-    static std::unordered_map<uint, RenderController*> controllerMap;
-
+    void virtual update(GameObject * gameObject, Scene * scene) = 0;
 private:
 };
-
-std::unordered_map<uint, RenderController*> RenderController::controllerMap;

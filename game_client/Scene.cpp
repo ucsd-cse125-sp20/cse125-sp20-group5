@@ -36,6 +36,7 @@ Scene::Scene()
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
+
 }
 
 Scene::~Scene()
@@ -99,9 +100,12 @@ void Scene::update()
 	}
 
 	for (Plant* plant : state->plants) {
-		PlantController* plantWrapper = PlantController::getController(plant->objectId, this);
+		if (controllers.find(plant->objectId) == controllers.end()) {
+			controllers[plant->objectId] = PlantController(plant->objectId, this);
+			objectIdMap[plant->objectId] = controllers[plant->objectId].rootNode;
+		}
 
-		plantWrapper->update(plant, this);
+		controllers[plant->objectId].update(plant, this);
 
 		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
 	}
