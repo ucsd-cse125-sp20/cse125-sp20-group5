@@ -92,7 +92,6 @@ void Scene::update()
 		}
 	}
 
-
 	for (Zombie* zombie : state->zombies) {
 		SceneNode* zombieNode = getDrawableSceneNode(zombie->objectId, zombieModel);
 		zombieNode->loadGameObject(zombie); // load new data
@@ -118,25 +117,17 @@ void Scene::update()
 
 		// here is wehre we handle stuff like making sure they are holding another object
 		if (player->holding) {
-			if (objectIdMap.count(player->heldObject) > 0) {
-				SceneNode * heldNode = objectIdMap[player->heldObject];
+			if (controllers.count(player->heldObject) > 0) {
+				ToolController * controller = (ToolController*)controllers[player->heldObject];
 				SceneNode * playerHand = playerNode->find(std::string("j_r_arm_$AssimpFbx$_Translation"), playerNode->objectId);
-				if (heldNode != NULL && playerHand != NULL) {
-					if (heldNode->parent != playerHand) {
-						playerHand->addChild(heldNode);
-						if (heldNode->obj == wateringCanModel) {
-							heldNode->scaler = 1.0 / PLAYER_SCALER;
-							heldNode->position = WATER_CAN_HOLD_VEC;
-						}
-						else if (heldNode->obj == shovelModel) {
-							heldNode->scaler = 1.0 / PLAYER_SCALER;
-							heldNode->position = SHOVEL_HOLD_VEC;
-							heldNode->pose = SHOVEL_HOLD_ANGLE;
-						} else if (heldNode->obj == seedBagModel) {
-							heldNode->scaler = 1.0 / PLAYER_SCALER;
-							heldNode->position = WATER_CAN_HOLD_VEC;
-						}
-						heldNode->pose[1] = 0;
+				if (playerHand != NULL) {
+					if (controller->type == Tool::ToolType::WATER_CAN) {
+						controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), this);
+					}
+					else if (controller->type == Tool::ToolType::PLOW) {
+						controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, this);
+					} else if (controller->type == Tool::ToolType::SEED) {
+							controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), this);
 					}
 				}
 			}
