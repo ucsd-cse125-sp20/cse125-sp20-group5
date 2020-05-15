@@ -58,6 +58,9 @@ public:
 	void update(SceneNode* node) override;
 	SceneNode* createSceneNodes(uint objectId) override;
 
+	// Used to postpone drawing to the last for the sake of blending
+	static bool canDraw;
+
 private:
 
 	std::vector<BarComponent> barComponents;

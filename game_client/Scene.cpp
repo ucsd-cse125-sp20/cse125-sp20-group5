@@ -215,6 +215,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	rootNode->draw(viewProjMat);
 
+	RenderController::drawUI(viewProjMat);
 	testUI->draw(); //TODO to be removed
 }
 
