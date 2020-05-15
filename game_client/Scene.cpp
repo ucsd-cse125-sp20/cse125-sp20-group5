@@ -47,6 +47,16 @@ Scene::~Scene()
 	delete zombieModel;
 	delete playerModel;
 
+	delete seedModel;
+	delete saplingModel;
+	delete babyCornModel;
+	delete cornModel;
+	delete tapModel;
+	delete wateringCanModel;
+	delete seedSourceModel;
+	delete shovelModel;
+	delete seedBagModel;
+
 	delete program;
 	delete assimpProgram;
 	delete animationProgram;

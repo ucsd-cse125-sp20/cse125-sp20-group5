@@ -92,13 +92,11 @@ public:
                 if (plant->plantType == Plant::PlantType::CORN) {
                     modelNode = scene->getModel(ModelType::CORN)->createSceneNodes(objectId);
                     modelNode->scaler = CORN_SCALER;
-                    if (!modelNode->hasParticle()) {
-                        float attackRange = plant->range->rangeDistance;
-                        ParticleGroup* pGroup = scene->getParticleFactory()->getCornAttackParticleGroup(glm::vec3(0, 0, 0), attackRange);
-                        SceneNode* particleNode = pGroup->createSceneNodes(plant->objectId);
-                        particleNode->position = glm::vec3(0, 2, 0);
-                        modelNode->addParticle(particleNode);
-                    }
+                    float attackRange = plant->range->rangeDistance;
+                    pGroup = scene->getParticleFactory()->getCornAttackParticleGroup(glm::vec3(0, 0, 0), attackRange);
+                    particleNode = pGroup->createSceneNodes(plant->objectId);
+                    particleNode->position = glm::vec3(0, 2, 0); // TODO MAKE CONSTANT
+                    rootNode->addChild(particleNode);
                 }
                 break;
         }
@@ -107,6 +105,10 @@ public:
     
 private:
     HealthBar* growthBar;
+
+    float growth;
     SceneNode* barNode;
+    SceneNode* particleNode;
+    ParticleGroup* pGroup; 
     Plant::GrowStage currGrowStage;
 };
