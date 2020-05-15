@@ -7,6 +7,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include "GameState.hpp"
 #include "Message.hpp"
+#include <inih/INIReader.h>
 
 
 PtrClientConnection ClientConnection::create(boost::asio::io_context& io_context, IGameServer* ptrServer) {
@@ -100,13 +101,23 @@ void ClientConnection::handleWrite(const boost::system::error_code& error, size_
 }
 
 GameServer::GameServer(
-    boost::asio::io_context& io_context,
-    int port_num,
-    int tick_rate)
-  : ioContext(io_context),
-    tcpAcceptor(io_context, tcp::endpoint(tcp::v4(), port_num)),
-    tickTimer(boost::asio::steady_timer(io_context)),
-    deltaTimeMicrosec(1000000 / tick_rate) {
+    INIReader& config,
+    boost::asio::io_context& io_context)
+  : config(config),
+    ioContext(io_context),
+    tcpAcceptor(io_context),
+    tickTimer(boost::asio::steady_timer(io_context)) {
+
+    int tick_rate = config.GetInteger("GameServer", "tickrate", 32);
+    int port_num = config.GetInteger("GameServer", "port", 10032);
+
+    tcp::endpoint endpoint = tcp::endpoint(tcp::v4(), port_num);
+    tcpAcceptor.open(endpoint.protocol());
+    tcpAcceptor.set_option(boost::asio::socket_base::reuse_address(true));
+    tcpAcceptor.bind(endpoint);
+    tcpAcceptor.listen();
+
+    deltaTimeMicrosec = 1000000 / tick_rate;
 
     gameState.init(tick_rate);
     gameState.loadFromConfigFile("InitGameState.ini");
@@ -222,18 +233,21 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: game_server <port> <tickrate>" << std::endl;
+    if (argc != 2) {
+        std::cerr << "Usage: game_server <config_file>" << std::endl;
         return 1;
     }
-    int port = std::atoi(argv[1]);
-    int tickrate = std::atoi(argv[2]);
+    INIReader config(argv[1]);
+
+    if (config.ParseError() != 0) {
+        std::cerr << "Can't load " << argv[1] << std::endl;
+    }
 
     try {
         boost::asio::io_context io_context;
 
         boost::shared_ptr<GameServer> server;
-        server.reset(new GameServer(io_context, port, tickrate));
+        server.reset(new GameServer(config, io_context));
 
         io_context.run();
     } catch (std::exception& e) {

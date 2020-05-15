@@ -646,7 +646,6 @@ public:
                 float minDistance = std::numeric_limits<float>::max();
                 for (Tool* tool : tools) {
                     float dist = player->distanceTo(tool);
-                    std::cout << "Distance to tool is " << dist << std::endl;
 
                    Position playerToolVec = Position(
                         tool->position->x - player->position->x,
@@ -670,7 +669,6 @@ public:
                         seedShack->position->z - player->position->z
                     );
                 float angle = player->direction->getAngleBetween(playerSeedShackVec);
-                std::cout << "Distance to seedShack is " << dist << std::endl;
 
                 if (dist < minDistance && angle <= Direction::PI_2) {
                     minDistance = dist;
