@@ -23,7 +23,7 @@ enum class ShaderType {
 };
 
 enum class ModelType {
-	CAT, PIG, RABBIT, CORN, WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL, SEED, SAPLING, BABY_CORN
+	CAT, PIG, RABBIT, CORN, WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL, SEED_BAG, SEED, SAPLING, BABY_CORN
 };
 
 class Scene
@@ -95,27 +95,28 @@ public:
 	ParticleFactory* getParticleFactory() { return particleFactory; }
 	uint getShaderID(ShaderType type) {
 		switch (type) {
-			case ShaderType::DEFAULT:				return program->GetProgramID();
-			case ShaderType::ASSIMP:				return assimpProgram->GetProgramID();
+			case ShaderType::DEFAULT:			return program->GetProgramID();
+			case ShaderType::ASSIMP:			return assimpProgram->GetProgramID();
 			case ShaderType::ANIMATED:			return animationProgram->GetProgramID();
-			case ShaderType::SKYBOX:				return skyboxProgram->GetProgramID();
-			case ShaderType::UI:						return uiProgram->GetProgramID();
+			case ShaderType::SKYBOX:			return skyboxProgram->GetProgramID();
+			case ShaderType::UI:				return uiProgram->GetProgramID();
 			case ShaderType::HEALTH_BAR:		return barProgram->GetProgramID();
 		}
 	}
 
 	Drawable* getModel(ModelType type) {
 		switch (type) {
-			case ModelType::CAT:							return playerModel;
-			case ModelType::PIG:							return playerModel;
-			case ModelType::RABBIT:					return zombieModel;
-			case ModelType::CORN:						return cornModel;
+			case ModelType::CAT:				return playerModel;
+			case ModelType::PIG:				return playerModel;
+			case ModelType::RABBIT:				return zombieModel;
+			case ModelType::CORN:				return cornModel;
 			case ModelType::WATER_TAP:			return tapModel;
 			case ModelType::WATERING_CAN:		return wateringCanModel;
 			case ModelType::SEED_SHACK:			return seedSourceModel;
-			case ModelType::SHOVEL:					return shovelModel;
-			case ModelType::SEED:						return seedModel;
-			case ModelType::SAPLING:					return saplingModel;
+			case ModelType::SHOVEL:				return shovelModel;
+			case ModelType::SEED_BAG:			return seedBagModel;
+			case ModelType::SEED:				return seedModel;
+			case ModelType::SAPLING:			return saplingModel;
 			case ModelType::BABY_CORN:			return babyCornModel;
 		}
 	}

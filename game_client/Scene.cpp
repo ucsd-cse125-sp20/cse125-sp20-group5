@@ -2,6 +2,7 @@
 #include "RenderController.h"
 #include "PlantController.h"
 #include "TapController.h"
+#include "ToolController.h"
 
 Scene::Scene()
 {
@@ -101,7 +102,7 @@ void Scene::update()
 
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
-			controllers[plant->objectId] = new PlantController(plant->objectId, this);
+			controllers[plant->objectId] = new PlantController(plant, this);
 			objectIdMap[plant->objectId] = controllers[plant->objectId]->rootNode;
 		}
 		controllers[plant->objectId]->update(plant, this);
@@ -123,17 +124,16 @@ void Scene::update()
 				if (heldNode != NULL && playerHand != NULL) {
 					if (heldNode->parent != playerHand) {
 						playerHand->addChild(heldNode);
-						// TODO the values will have to be a constant we need to figure out how to make it look held
 						if (heldNode->obj == wateringCanModel) {
-							heldNode->scaler = WATER_CAN_SCALER / PLAYER_SCALER;
+							heldNode->scaler = 1.0 / PLAYER_SCALER;
 							heldNode->position = WATER_CAN_HOLD_VEC;
 						}
 						else if (heldNode->obj == shovelModel) {
-							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
+							heldNode->scaler = 1.0 / PLAYER_SCALER;
 							heldNode->position = SHOVEL_HOLD_VEC;
 							heldNode->pose = SHOVEL_HOLD_ANGLE;
 						} else if (heldNode->obj == seedBagModel) {
-							heldNode->scaler = SEED_BAG_SCALER / PLAYER_SCALER;
+							heldNode->scaler = 1.0 / PLAYER_SCALER;
 							heldNode->position = WATER_CAN_HOLD_VEC;
 						}
 						heldNode->pose[1] = 0;
@@ -152,30 +152,12 @@ void Scene::update()
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (Tool * tool : state->tools) {
-		SceneNode* toolNode;
-		float toolScaler = 1.0;
-		if (tool->toolType == Tool::ToolType::WATER_CAN) { // TODO make this a constant
-			toolNode = getDrawableSceneNode(tool->objectId, wateringCanModel);
-			toolScaler = WATER_CAN_SCALER;
-		} 
-		else if (tool->toolType == Tool::ToolType::PLOW) {
-			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
-			toolScaler = SHOVEL_SCALER;
+		if (controllers.find(tool->objectId) == controllers.end()) {
+			controllers[tool->objectId] = new ToolController(tool, this);
+			objectIdMap[tool->objectId] = controllers[tool->objectId]->rootNode;
 		}
-		else {
-			toolNode = getDrawableSceneNode(tool->objectId, seedBagModel);
-			toolScaler = SEED_BAG_SCALER;
-		}
+		controllers[tool->objectId]->update(tool, this);
 
-		if (!tool->held) {
-			if (toolNode->parent != groundNode) {
-				toolNode->setParent(groundNode);
-				toolNode->pose[0] = 0;
-				toolNode->pose[2] = 0;
-			}
-			toolNode->loadGameObject(tool); // load new data
-			toolNode->scaler = toolScaler;
-		}
 		unusedIds.erase(tool->objectId);
 	}
 
@@ -189,6 +171,7 @@ void Scene::update()
 
 	// TODO WARNING this is not safe we need code hanlding palyyare disappearing
 	// while holding stuff. right now that will cuase an ERROR
+	// will handle in the controller
 	for (uint id : unusedIds) {
 		if (controllers.find(id) != controllers.end()) { // first delete the controller if it exists
 			delete controllers[id];

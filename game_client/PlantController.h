@@ -23,10 +23,10 @@
 
 class PlantController : public RenderController {
 public:
-    PlantController(uint objectId, Scene* scene) {
+    PlantController(Plant * plant, Scene* scene) {
         // init node
-        rootNode = new SceneNode(NULL, "PlantRootEmptyNode", objectId);
-        modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
+        rootNode = new SceneNode(NULL, "PlantRootEmptyNode", plant->objectId);
+        modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(plant->objectId);
         modelNode->scaler = SEED_SCALER;
 
         rootNode->addChild(modelNode);
@@ -69,6 +69,8 @@ public:
 
         // Load new data provided by server
         rootNode->loadGameObject(plant);
+
+        barNode->pose[1] = -rootNode->pose[1];
 
         // Update growth bar
         if (plant->growStage == Plant::GrowStage::GROWN) {
