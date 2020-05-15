@@ -7,6 +7,7 @@ using namespace std;
 GLuint HealthBar::VBO, HealthBar::VBO2, HealthBar::VAO, HealthBar::EBO;
 uint HealthBar::shader;
 uint HealthBar::numHealthBar = 0;
+bool HealthBar::canDraw = false;
 
 HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float initFilledFraction, glm::vec3 barColor)
 {
@@ -26,7 +27,8 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 	mat4 iconMtx = translate(vec3(-(barWidth + gap) / 2.0f, 0, 0))
 		* scale(vec3(iconWidth, iconWidth, 1));
 	mat4 barBoxMtx = translate(vec3((iconWidth + gap) / 2.0f, 0, 0)) * scale(vec3(barWidth, barHeight, 1));
-	mat4 barMtx = barBoxMtx
+	mat4 barMtx = translate(vec3(0, 0, 0.005f)) // to make the bar overlap on barbox
+		* barBoxMtx
 		* scale(vec3((barWidth - 2.0f * barEdgePad) / barWidth, (barHeight - 2.0f * barEdgePad) / barHeight, 1)); // shrink a little from the box
 
 	vec3 whiteColor = vec3(1,1,1);
@@ -93,24 +95,25 @@ HealthBar::~HealthBar()
 
 void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
+	if (!canDraw) { return; } // canDraw is toggled when drawing all UI at the end of render pass for the sake of alpha blending
+
 	glUseProgram(shader);
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // to allow transparent
-	glDepthFunc(GL_ALWAYS); // to allow overlap
 	glBindVertexArray(VAO);
 
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
 
 	for (BarComponent bc : barComponents) {
-		//glUniform1i(glGetUniformLocation(shader, "myTexture"), textureIDs[bc->id]);
-
 		glBindTexture(GL_TEXTURE_2D, textureIDs[bc.id]);
 
-		mat4 model = node.transform * scale(vec3(1/node.scaler)) * modelMtx * bc.localMtx;
+		mat4 model = translate(vec3(node.transform[3])) // only apply parent translate
+			* modelMtx 	* bc.localMtx; // apply local transform
 		if (bc.id == BAR) {
 			model = model * this->fillingTransform;
 		}
+
 		glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 		glUniform3fv(glGetUniformLocation(shader, "color"), 1, &bc.color[0]);
 
@@ -121,7 +124,6 @@ void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 
 
 	glBindVertexArray(0); 
-	glDepthFunc(GL_LESS);
 	glDisable(GL_BLEND);
 	glUseProgram(0);
 }

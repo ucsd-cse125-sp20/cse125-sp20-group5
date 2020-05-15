@@ -10,6 +10,7 @@
 #include "AssimpModel.h"
 #include "AnimatedAssimpModel.h"
 #include "Skybox.h"
+#include "HealthBar.h"
 #include "Image2d.h" //TODO to be removed
 #include "Constants.h"
 #include "Shader.h"
