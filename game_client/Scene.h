@@ -36,7 +36,6 @@ private:
 	// scene gprah values
 	SceneNode* rootNode;
 	SceneNode* groundNode;
-	std::unordered_map<uint, SceneNode*> objectIdMap;
 
 	// shaders
 	ShaderProgram* program;
@@ -70,9 +69,10 @@ private:
 	ParticleFactory* particleFactory;
 	ShaderProgram* particleProgram;
 
-	std::unordered_map<uint, RenderController*> controllers;
-
 public:
+
+	std::unordered_map<uint, SceneNode*> objectIdMap;
+	std::unordered_map<uint, RenderController*> controllers;
 
 	Scene();
 	~Scene();

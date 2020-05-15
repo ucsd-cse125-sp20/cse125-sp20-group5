@@ -72,12 +72,19 @@ public:
 			}
 		}
 		if (tool->toolType == Tool::ToolType::WATER_CAN) { 
-			//std::cout << tool->remainingWater << " " << tool->capacity << std::endl;
 			if (tool->remainingWater == 0.0f) {
 				filledBar->resetBar(0.0f);
 			}
 			else {
 				filledBar->updateBar(tool->remainingWater / tool->capacity);
+			}
+			if (tool->held) {
+				if (scene->objectIdMap.find(holderId) != scene->objectIdMap.end()) {
+					barNode->pose[1] = -scene->objectIdMap[holderId]->pose[1];
+				}
+			}
+			else {
+				barNode->pose[1] = -rootNode->pose[1];
 			}
 		}
 		else if (tool->toolType == Tool::ToolType::PLOW) {
@@ -90,6 +97,7 @@ public:
 
 	void putInHand(SceneNode * handNode, float scaler, glm::vec3 holdVec, glm::vec3 holdPose, Scene * scene) {
 		if (rootNode->parent != handNode) {
+			holderId = handNode->objectId;
 			handNode->addChild(rootNode);
 			rootNode->scaler = 1.0/scaler;
 			rootNode->position = holdVec;
@@ -117,6 +125,7 @@ public:
 Tool::ToolType type;
 
 private:
+	uint holderId;
 	HealthBar* filledBar;
 	SceneNode* barNode;
 	SceneNode* particleNode;
