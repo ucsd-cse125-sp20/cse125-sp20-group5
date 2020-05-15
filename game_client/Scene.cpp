@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "RenderController.h"
 #include "PlantController.h"
-#include <set>
+#include "TapController.h"
 
 Scene::Scene()
 {
@@ -101,13 +101,12 @@ void Scene::update()
 
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
-			controllers[plant->objectId] = PlantController(plant->objectId, this);
-			objectIdMap[plant->objectId] = controllers[plant->objectId].rootNode;
+			controllers[plant->objectId] = new PlantController(plant->objectId, this);
+			objectIdMap[plant->objectId] = controllers[plant->objectId]->rootNode;
 		}
+		controllers[plant->objectId]->update(plant, this);
 
-		controllers[plant->objectId].update(plant, this);
-
-		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
+		unusedIds.erase(plant->objectId);
 	}
 
 	for (Player* player : state->players) {
@@ -144,15 +143,12 @@ void Scene::update()
 		}
 	}
 
-	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
-	if (!tapNode->hasParticle()) {
-		ParticleGroup* pGroup = particleFactory->getWaterTapParticleGroup(glm::vec3(0, 0, 0));
-		SceneNode* waterNode = pGroup->createSceneNodes(state->waterTap->objectId);
-		waterNode->position = glm::vec3(0,6.0,-2.0);
-		tapNode->addParticle(waterNode);
+	if (controllers.find(state->waterTap->objectId) == controllers.end()) {
+		controllers[state->waterTap->objectId] = new TapController(state->waterTap->objectId, this);
+		objectIdMap[state->waterTap->objectId] = controllers[state->waterTap->objectId]->rootNode;
 	}
-	tapNode->loadGameObject(state->waterTap);
-	tapNode->scaler = WATER_TAP_SCALER;
+	controllers[state->waterTap->objectId]->update(state->waterTap, this);
+
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (Tool * tool : state->tools) {
@@ -194,6 +190,10 @@ void Scene::update()
 	// TODO WARNING this is not safe we need code hanlding palyyare disappearing
 	// while holding stuff. right now that will cuase an ERROR
 	for (uint id : unusedIds) {
+		if (controllers.find(id) != controllers.end()) { // first delete the controller if it exists
+			delete controllers[id];
+			controllers.erase(id);
+		}
 		delete objectIdMap[id];
 		objectIdMap.erase(id); 
 	}
@@ -234,9 +234,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 void Scene::toggleWater()
 {
-	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId, tapModel);
-	((ParticleGroup*)(tapNode->children.begin()->second->obj))->toggleSpawning();
-
+	((TapController*)controllers[state->waterTap->objectId])->toggleWater();
 }
 
 // Update the current gamestate

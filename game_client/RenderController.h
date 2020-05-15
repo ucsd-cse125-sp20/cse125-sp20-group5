@@ -8,10 +8,10 @@
 
 #include "Core.h"
 #include "Constants.h"
-
 #include "SceneNode.h"
 #include "Drawable.h"
 
+class Scene; //  put declaration here to sidestep header issues
 
 class RenderController {
 public:
@@ -20,6 +20,6 @@ public:
     SceneNode* rootNode;
     SceneNode* modelNode;
 
-    void virtual update(GameObject * gameObject, Scene * scene) = 0;
+    virtual void update(GameObject* gameObject, Scene* scene) {};
 private:
 };

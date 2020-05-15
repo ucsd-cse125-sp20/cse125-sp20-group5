@@ -11,6 +11,15 @@
 #include "HealthBar.h" //TODO to be removed
 #include "Scene.h"
 
+#define SEED_SCALER 0.03
+#define SAPLING_SCALER 0.06
+
+#define BABY_CORN_SCALER 0.3
+#define CORN_SCALER 0.45
+#define CORN_PARTICLE_HEIGHT glm::vec3(0, 2, 0)
+
+#define BAR_COLOR glm::vec3(0.1, 0.9, 1.0)
+#define BAR_TRANSLATE_Y 1.3;
 
 class PlantController : public RenderController {
 public:
@@ -26,9 +35,9 @@ public:
 
 
         // init growth bar
-        float barTranslateY = 1.3f;
+        float barTranslateY = BAR_TRANSLATE_Y;
         float initBarFilledFraction = 1.0f;
-        glm::vec3 barColor = glm::vec3(0.1, 0.9, 1.0);
+        glm::vec3 barColor = BAR_COLOR;
         growthBar = new HealthBar(
             scene->getShaderID(ShaderType::HEALTH_BAR),
             "texture/water_icon.png", 
@@ -39,13 +48,15 @@ public:
     }
 
     ~PlantController() {
-        // TODO: NOT relaly tho ideally we would need this but then we have to refactor particle group and growthbar and sceneNode
+        // TODO: (not really tho) ideally we wouldn't need this but then we have to refactor particle group 
+        // and growthbar and sceneNode
         // as of right now we need a new model for each instance which isn't great but eh what can you do?
         delete growthBar;
         delete pGroup;
     }
 
     void update(GameObject * gameObject, Scene* scene) override {
+        // TODO maybe do some ceck here to see if we can cast
         update(((Plant*)gameObject), scene);
     }
 
@@ -99,8 +110,8 @@ public:
                     float attackRange = plant->range->rangeDistance;
                     pGroup = scene->getParticleFactory()->getCornAttackParticleGroup(glm::vec3(0, 0, 0), attackRange);
                     particleNode = pGroup->createSceneNodes(plant->objectId);
-                    particleNode->position = glm::vec3(0, 2, 0); // TODO MAKE CONSTANT
-                    rootNode->addChild(particleNode);
+                    particleNode->position = CORN_PARTICLE_HEIGHT;
+                    modelNode->addChild(particleNode);
                 }
                 break;
         }

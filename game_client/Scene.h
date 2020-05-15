@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <glm\gtx\euler_angles.hpp>
+#include <set>
 
 #include <GameState.hpp>
 #include "Model.h"
@@ -14,6 +15,8 @@
 #include "Constants.h"
 #include "Shader.h"
 #include "ParticleFactory.hpp"
+
+class RenderController; //  put declaration here to sidestep header issues
 
 enum class ShaderType {
 	DEFAULT, ASSIMP, ANIMATED, SKYBOX, UI, HEALTH_BAR
@@ -67,7 +70,7 @@ private:
 	ParticleFactory* particleFactory;
 	ShaderProgram* particleProgram;
 
-	std::unordered_map<uint, RenderController> controllers;
+	std::unordered_map<uint, RenderController*> controllers;
 
 public:
 
