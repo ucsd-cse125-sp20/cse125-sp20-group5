@@ -71,12 +71,15 @@ public:
         // Load new data provided by server
         rootNode->loadGameObject(plant);
 
-        barNode->pose[1] = -rootNode->pose[1];
+        //barNode->pose[1] = -rootNode->pose[1];
 
         // Update growth bar
         if (plant->growStage == Plant::GrowStage::GROWN) {
-            barNode->removeSelf();
-            //uiNodes.erase(barNode);
+            if (barNode) {
+                barNode->removeSelf();
+                uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
+                barNode = nullptr;
+            }
         }
         else {
             if (plant->growProgressTime == 0.0f) {
