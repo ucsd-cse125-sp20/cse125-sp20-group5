@@ -6,6 +6,7 @@
 
 #define PLAYER_SCALER 0.30
 #define WATER_CAN_HOLD_VEC glm::vec3(-4.5, 1.3, .5)
+#define SEED_BAG__HOLD_VEC glm::vec3(-3.0,0.0,0.0)
 #define SHOVEL_HOLD_VEC glm::vec3(-2.5, 1.7, .7)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
 #define CAT_ARM "j_r_arm_$AssimpFbx$_Translation"
@@ -39,7 +40,7 @@ public:
 						controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
 					}
 					else if (controller->type == Tool::ToolType::SEED) {
-						controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
+						controller->putInHand(playerHand, PLAYER_SCALER, SEED_BAG__HOLD_VEC, glm::vec3(0), scene);
 					}
 				}
 			}
