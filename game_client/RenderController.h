@@ -17,7 +17,7 @@ class Scene; //  put declaration here to sidestep header issues
 
 struct z_compare {
     bool operator() (const SceneNode* lhs, const SceneNode* rhs) const {
-        return lhs->position.z < rhs->position.z;
+        return lhs->transform[3].z < rhs->transform[3].z;
     }
 };
 
@@ -31,9 +31,10 @@ public:
 
     virtual void update(GameObject* gameObject, Scene* scene) {};
    
-    static std::set<SceneNode*, z_compare> uiNodes;
+    static std::vector<SceneNode*> uiNodes;
 
     static void drawUI(const glm::mat4& viewProjMtx) {
+        std::sort(uiNodes.begin(), uiNodes.end(), z_compare());
         HealthBar::canDraw = true;
         for (SceneNode* uiNode : uiNodes) {
             uiNode->draw(viewProjMtx);
@@ -44,4 +45,4 @@ public:
 private:
 };
 
-std::set<SceneNode*, z_compare> RenderController::uiNodes;
+std::vector<SceneNode*> RenderController::uiNodes;

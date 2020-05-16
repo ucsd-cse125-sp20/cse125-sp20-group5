@@ -45,7 +45,7 @@ public:
         ); 
         barNode = growthBar->createSceneNodes(rootNode->objectId);
         rootNode->addChild(barNode);
-        uiNodes.insert(barNode);
+        uiNodes.push_back(barNode);
     }
 
     ~PlantController() {
@@ -78,11 +78,13 @@ public:
             //uiNodes.erase(uiNodes.find(barNode));
             barNode->removeSelf();
         }
-        else if (plant->growProgressTime == 0.0f) {
-            growthBar->resetBar(0.0f);
-        }
         else {
-            growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
+            if (plant->growProgressTime == 0.0f) {
+                growthBar->resetBar(0.0f);
+            }
+            else {
+                growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
+            }
         }
     }
 
