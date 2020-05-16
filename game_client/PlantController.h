@@ -75,8 +75,8 @@ public:
 
         // Update growth bar
         if (plant->growStage == Plant::GrowStage::GROWN) {
-            //uiNodes.erase(uiNodes.find(barNode));
             barNode->removeSelf();
+            //uiNodes.erase(barNode);
         }
         else {
             if (plant->growProgressTime == 0.0f) {

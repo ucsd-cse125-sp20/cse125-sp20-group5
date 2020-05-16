@@ -35,6 +35,7 @@ public:
 				barTranslateY, initBarFilledFraction, barColor
 			);
 			barNode = filledBar->createSceneNodes(rootNode->objectId);
+			uiNodes.push_back(barNode);
 			rootNode->addChild(barNode);
 		}
 		else if (type == Tool::ToolType::PLOW) {

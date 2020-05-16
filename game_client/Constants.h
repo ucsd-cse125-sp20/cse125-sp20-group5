@@ -22,7 +22,7 @@
 #define SAPLING_MODEL "model/sapling.fbx"
 
 #define RABBIT_SCALER 0.40
-#define SEED_SOURCE_SCALER 0.025
+#define SEED_SOURCE_SCALER 0.020
 #define DIRT_SCALER 0.05
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"
