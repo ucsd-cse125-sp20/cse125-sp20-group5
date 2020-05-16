@@ -16,11 +16,10 @@
 #define SEED_SOURCE_MODEL "model/box.fbx"
 #define SHOVEL_MODEL "model/shovel.fbx"
 #define DIRT_MODEL "model/dirt.fbx"
-#define SEED_BAG_MODEL "model/seed_bag.fbx"
+#define SEED_BAG_MODEL "model/basket.fbx"
 
 #define SEED_MODEL "model/seed.fbx"
 #define SAPLING_MODEL "model/sapling.fbx"
-
 
 #define RABBIT_SCALER 0.40
 #define PLAYER_SCALER 0.30
@@ -30,5 +29,6 @@
 #define WATER_CAN_HOLD_VEC glm::vec3(-4.5, 1.3, .5)
 #define SHOVEL_HOLD_VEC glm::vec3(-2.5, 1.7, .7)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
+#define SEED_HOLD_VEC glm::vec3(-3.0,0.0,0.0)
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"

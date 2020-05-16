@@ -4,7 +4,7 @@
 #include "Scene.h"
 #include "HealthBar.h"
 
-#define SEED_BAG_SCALER 0.05
+#define SEED_BAG_SCALER 0.2
 #define WATER_CAN_SCALER 0.35
 #define SHOVEL_SCALER 0.35
 

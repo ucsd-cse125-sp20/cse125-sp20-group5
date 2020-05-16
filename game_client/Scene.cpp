@@ -127,7 +127,7 @@ void Scene::update()
 					else if (controller->type == Tool::ToolType::PLOW) {
 						controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, this);
 					} else if (controller->type == Tool::ToolType::SEED) {
-							controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), this);
+							controller->putInHand(playerHand, PLAYER_SCALER, SEED_HOLD_VEC, glm::vec3(0), this);
 					}
 				}
 			}
