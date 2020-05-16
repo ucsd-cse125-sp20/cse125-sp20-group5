@@ -7,6 +7,7 @@
 #include "Message.hpp"
 #include "Floor.hpp"
 #include "Plant.hpp"
+#include "HomeBase.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -125,7 +126,10 @@ public:
 					default:
 						tile->direction = new Direction(0.0);
 						tile->tileType = Tile::TYPE_NORMAL;
+
 				}
+                // Set progress time
+                tile->plowProgressTime = 0.0f;
 				row.push_back(tile);
 				currCol++;
 			}
@@ -149,6 +153,8 @@ public:
 				// Now get row and col
 				floor->zombieFinalTileRow = std::stoi(rowCol.substr(0, commaPos));
 				floor->zombieFinalTileCol = std::stoi(rowCol.substr(commaPos + 1));
+			} else if (key == "PlowExpireTime") {
+				floor->plowExpireTime = std::stof(value);
 			}
 		}
 	}
@@ -184,6 +190,10 @@ public:
 			} else if (value == "PEA") {
 				seedShack->seedType = Plant::PlantType::PEA_SHOOTER;
             }
+		} else if (key == "MaxHealth") {
+			HomeBase* homeBase = (HomeBase*)obj;
+			homeBase->maxHealth = std::stoi(value);
+			homeBase->health = homeBase->maxHealth;
 		}
 	}
 };

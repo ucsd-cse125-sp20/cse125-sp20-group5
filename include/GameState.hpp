@@ -11,6 +11,8 @@
 #include "Message.hpp"
 #include "Floor.hpp"
 #include "GameStateLoader.hpp"
+#include "HomeBase.hpp"
+#include "ServerParams.h"
 
 #include <cmath>
 #include <vector>
@@ -64,10 +66,18 @@ public:
                     GameStateLoader::initGameObject(key, value, seedShack, objectCount);
                 } else if (header == "WaterTap") {
                     GameStateLoader::initGameObject(key, value, waterTap, objectCount);
+                } else if (header == "HomeBase") {
+                    GameStateLoader::initGameObject(key, value, homeBase, objectCount);
                 }
             }
         }
         myfile.close();
+
+        // Initialize HomeBase position using the zombie final tile
+        Tile* baseTile = floor->tiles[floor->zombieFinalTileRow][floor->zombieFinalTileCol];
+        homeBase->position = new Position(baseTile->getCenterPosition());
+        homeBase->direction = new Direction(baseTile->direction->getOppositeDirection());
+        homeBase->animation = new Animation(0, 0);
 
         // Add tools, seed shack and water tap to game object id map
         for (Tool* tool : tools) {
@@ -75,14 +85,18 @@ public:
         }
         gameObjectMap[seedShack->objectId] = seedShack;
         gameObjectMap[waterTap->objectId] = waterTap;
+        gameObjectMap[homeBase->objectId] = homeBase;
     }
 
-    void init(int tick_rate) {
-        tickRate = tick_rate;
+    void init(ServerParams &config) {
+        this->config = config;
+        tickRate = config.tickrate;
         deltaTime = 1.0f / tickRate;
+        isGameOver = false;
         floor = new Floor();
         seedShack = new SeedShack();
         waterTap = new WaterTap();
+        homeBase = new HomeBase();
         init();
 	}
 
@@ -241,6 +255,7 @@ public:
         updatePlants();
         updateZombies();
         updatePlayersPosition();
+        updatePlayersHighlight();
         tick++;
     }
 
@@ -269,6 +284,7 @@ public:
             */
 
             Tool* tool = (Tool*)gameObjectMap[player->heldObject];
+            Tile* currTile = floor->tiles[player->currRow][player->currCol];
             switch (tool->toolType) {
 
             // WATER_CAN
@@ -278,6 +294,7 @@ public:
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     break;
 				}
+
                 if (tool->remainingWater <= 0) {
                     std::cout << "Not enough to watering plants" << std::endl;
                     break;
@@ -295,12 +312,17 @@ public:
 
                 // Water the nearest plant
                 if (currPlant && player->collideWith(currPlant)) {
-                    std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
                     if (currPlant->growStage != Plant::GrowStage::GROWN) {
-                        currPlant->growProgressTime += deltaTime;
-                        tool->remainingWater -= deltaTime;
-                        std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
-                        std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                        if (currPlant->growCooldownTime <= 0) {
+                            currPlant->growProgressTime += deltaTime;
+                            tool->remainingWater -= deltaTime;
+                            std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
+                            std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
+                            std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                        }
+                        else {
+                            std::cout << "Plant growing in cooldown. Cannot water" << std::endl;
+                        }
                     }
                     else {
                         std::cout << "Plant is already grown" << std::endl;
@@ -311,21 +333,30 @@ public:
 
             // PLOW
             case Tool::ToolType::PLOW:
+
+                // Should be normal tile without any plants on it
+                if (currTile->tileType == Tile::TYPE_NORMAL && currTile->plantId == 0) {
+                    if (currTile->plowProgressTime < floor->plowExpireTime) {
+                        currTile->plowProgressTime += deltaTime;
+                        std::cout << "Current tile plowing progress: " << currTile->plowProgressTime << std::endl;
+                    }
+                    else {
+                        currTile->tileType = Tile::TYPE_TILLED;
+                        std::cout << "Tile is plowed" << std::endl;
+                    }
+                }
                 break;
             
             // TODO: need to generalize for all seeds
             // SEED_CORN
             case Tool::ToolType::SEED:
                 // Get player's tile (only plant on non-zombie and plowed tiles)
-                Tile* currTile = floor->tiles[player->currRow][player->currCol];
-                if (currTile->tileType != Tile::TYPE_ZOMBIE && currTile->plantId == 0) {
+                if (currTile->tileType == Tile::TYPE_TILLED && currTile->plantId == 0) {
                     player->holding = false;
                     player->heldObject = 0;
 
                     // Replace it with a plant
-                    Position* plantPosition = new Position(currTile->position);
-                    plantPosition->x += Tile::TILE_PAD_X;
-                    plantPosition->z += Tile::TILE_PAD_Z;
+                    Position* plantPosition = new Position(currTile->getCenterPosition());
                     Plant* plant = new Plant(
                         plantPosition,
                         new Direction(player->direction), // ??
@@ -340,7 +371,10 @@ public:
                     plant->attackPower = 50;
                     plant->currAttackTime = 0.0f;
                     plant->attackInterval = 1.0f;
+                    plant->growCooldownTime = 2.0f;
                     plants.push_back(plant);
+                    gameObjectMap[plant->objectId] = plant;
+                    currTile->plantId = plant->objectId;
                     std::cout << "Seed planted" << std::endl;
 
                     // Delete the seed tool
@@ -448,6 +482,11 @@ public:
                     plant->growStage++;
                     plant->growExpireTime = 2.0f;
                     plant->growProgressTime = 0.0f;
+                    plant->growCooldownTime = 2.0f;
+                }
+
+                if (plant->growCooldownTime > 0) {
+                    plant->growCooldownTime -= deltaTime;
                 }
 
             }
@@ -464,7 +503,7 @@ public:
         for (Player* player : players) {
             Position prevPos(player->position);
             // 1. Update position
-            player->move(deltaTime);
+            movePlayer(player);
 
             // 2. Check if collide with zombies
             for (Zombie* zombie : zombies) {
@@ -492,6 +531,75 @@ public:
 
             // 4. Check if collide with tools
         }
+    }
+
+    void movePlayer(Player* player) {
+        float translateDistance = 0.0f;
+        float speedX = 0.0f;
+        float speedZ = 0.0f;
+        switch (player->moveState) {
+        case Player::MoveState::DOWN:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_DOWN, false);
+            speedZ = 1.0f;
+            break;
+        case Player::MoveState::LOWER_RIGHT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_LOWER_RIGHT, true);
+            speedZ = 1.0f;
+            speedX = 1.0f;
+            break;
+        case Player::MoveState::RIGHT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_RIGHT, false);
+            speedX = 1.0f;
+            break;
+        case Player::MoveState::UPPER_RIGHT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_UPPER_RIGHT, true);
+            speedZ = -1.0f;
+            speedX = 1.0f;
+            break;
+        case Player::MoveState::UP:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_UP, false);
+            speedZ = -1.0f;
+            break;
+        case Player::MoveState::UPPER_LEFT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_UPPER_LEFT, true);
+            speedZ = -1.0f;
+            speedX = -1.0f;
+            break;
+        case Player::MoveState::LEFT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_LEFT, false);
+            speedX = -1.0f;
+            break;
+        case Player::MoveState::LOWER_LEFT:
+            translateDistance = checkRotation(player->direction, Direction::DIRECTION_LOWER_LEFT, true);
+            speedZ = 1.0f;
+            speedX = -1.0f;
+            break;
+        case Player::MoveState::FREEZE:
+            break;
+        }
+        player->position->z += speedZ * translateDistance * deltaTime;
+        player->position->x += speedX * translateDistance * deltaTime;
+        player->currRow = player->position->z / Floor::TILE_SIZE;
+        player->currCol = player->position->x / Floor::TILE_SIZE;
+    }
+
+    float checkRotation(Direction* playerDirection, float moveDirection, bool isDiagonal) {
+        float translateDistance;
+        if (playerDirection->directionEquals(moveDirection)) {
+            playerDirection->angle = moveDirection;
+            translateDistance = isDiagonal ? config.playerDiagonalMoveSpeed : config.playerMoveSpeed;
+        }
+        else if (playerDirection->clockwiseCloser(moveDirection)) {
+            playerDirection->angle += config.playerRotationSpeed * deltaTime;
+            playerDirection->constrainAngle();
+            translateDistance = isDiagonal ? config.playerInRotationDiagonalMoveSpeed : config.playerInRotationMoveSpeed;
+        }
+        else {
+            playerDirection->angle -= config.playerRotationSpeed * deltaTime;
+            playerDirection->constrainAngle();
+            translateDistance = isDiagonal ? config.playerInRotationDiagonalMoveSpeed : config.playerInRotationMoveSpeed;
+        }
+        return translateDistance;
     }
 
     void updateZombies() {
@@ -527,19 +635,19 @@ public:
             // Move current zombie
             Direction* currDir = zombie->direction;
             if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
-                zombie->position->z += Zombie::SPEED * deltaTime;
+                zombie->position->z += config.zombieRabbitMoveSpeed * deltaTime;
                 paddingZ -= Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_RIGHT)) {
-                zombie->position->x += Zombie::SPEED * deltaTime;
+                zombie->position->x += config.zombieRabbitMoveSpeed * deltaTime;
                 paddingX -= Tile::TILE_PAD_X;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_UP)) {
-                zombie->position->z -= Zombie::SPEED * deltaTime;
+                zombie->position->z -= config.zombieRabbitMoveSpeed * deltaTime;
                 paddingZ += Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_LEFT)) {
-                zombie->position->x -= Zombie::SPEED * deltaTime;
+                zombie->position->x -= config.zombieRabbitMoveSpeed * deltaTime;
                 paddingX += Tile::TILE_PAD_X;
             }
 
@@ -553,6 +661,13 @@ public:
                 && col == floor->zombieFinalTileCol;
 
             if (reachedFinalTile || zombie->health <= 0) {
+                if (reachedFinalTile) {
+                    homeBase->health--;
+                    std::cout << "Health of base is " << homeBase->health << "/" << homeBase->maxHealth << std::endl;
+				}
+                if (homeBase->health <= 0) {
+                    isGameOver = true;
+                }
                 i = zombies.erase(i);
                 continue;
             }
@@ -587,6 +702,183 @@ public:
         plant->currAttackTime = 0.0f;
     }
 
+    void updatePlayersHighlight() {
+        for (Player* player: players) {
+            if (player->holding) {
+                // highlight interactable objects
+                Tool* currTool = (Tool*)gameObjectMap[player->heldObject];
+                switch (currTool->toolType) {
+                case Tool::ToolType::WATER_CAN: {
+                    // highlight plants or water tap
+                    float minDistance = std::numeric_limits<float>::max();
+                    Plant* highlightPlant = nullptr;
+                    for (Plant* plant : plants) {
+                        float dist = player->distanceTo(plant);
+
+                        Position playerPlantVec = Position(
+                            plant->position->x - player->position->x,
+                            plant->position->y - player->position->y,
+                            plant->position->z - player->position->z
+                        );
+                        float angle = player->direction->getAngleBetween(playerPlantVec);
+
+                        if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                            highlightPlant = plant;
+                            minDistance = dist;
+                        }
+                    }
+
+                    // Check distance to waterTap as well
+                    bool waterTapClosest = false;
+                    float dist = player->distanceTo(waterTap);
+                    Position playerWaterTapVec = Position(
+                        waterTap->position->x - player->position->x,
+                        waterTap->position->y - player->position->y,
+                        waterTap->position->z - player->position->z
+                    );
+                    float angle = player->direction->getAngleBetween(playerWaterTapVec);
+
+                    if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                        minDistance = dist;
+                        waterTapClosest = true;
+                    }
+
+                    if (waterTapClosest && player->collideWith(waterTap) && currTool->remainingWater < currTool->capacity) {
+                        player->highlightObjectId = waterTap->objectId;
+                        std::cout << "Highlighting WaterTap" << std::endl;
+                    }
+                    else {
+                        // interacting with tools
+                        // Make sure tool is within collision range and is not held by others 
+                        if (highlightPlant && player->collideWith(highlightPlant)) {
+                            player->highlightObjectId = highlightPlant->objectId;
+                            std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
+                        } else {
+                            player->highlightObjectId = 0;
+                            std::cout << "Nothing is highlighted" << std::endl;
+						}
+                    }
+                    player->highlightTileRow = -1;
+                    player->highlightTileCol = -1;
+                    break;
+                }
+
+                case Tool::ToolType::PLOW: {
+                    checkTileHighlight(player, Tile::TYPE_NORMAL);
+                    break;
+                }
+
+                case Tool::ToolType::SEED:
+                    // highlight tilled tiles
+                    checkTileHighlight(player, Tile::TYPE_TILLED);
+                    break;
+				}
+            }
+            else {
+                // highlight tools when not holding anything
+                // Loop through tools and check if player collides with them
+                // Highlight the closest tool that is in front direction of the player
+                Tool* currTool = nullptr;
+                float minDistance = std::numeric_limits<float>::max();
+                for (Tool* tool : tools) {
+                    float dist = player->distanceTo(tool);
+
+                   Position playerToolVec = Position(
+                        tool->position->x - player->position->x,
+                        tool->position->y - player->position->y,
+                        tool->position->z - player->position->z
+                    );
+                    float angle = player->direction->getAngleBetween(playerToolVec);
+
+                    if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                        currTool = tool;
+                        minDistance = dist;
+                    }
+                }
+
+                // Check distance to seedShack as well
+                bool seedShackClosest = false;
+                float dist = player->distanceTo(seedShack);
+                   Position playerSeedShackVec = Position(
+                        seedShack->position->x - player->position->x,
+                        seedShack->position->y - player->position->y,
+                        seedShack->position->z - player->position->z
+                    );
+                float angle = player->direction->getAngleBetween(playerSeedShackVec);
+
+                if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                    minDistance = dist;
+                    seedShackClosest = true;
+                }
+
+                if (seedShackClosest && player->collideWith(seedShack)) {
+                    player->highlightObjectId = seedShack->objectId;
+                    std::cout << "Highlighting seedShack" << std::endl;
+                }
+                else {
+                    // interacting with tools
+                    // Make sure tool is within collision range and is not held by others 
+                    if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
+                        player->highlightObjectId = currTool->objectId;
+                        std::cout << "Highlighting tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+                    } else {
+                        player->highlightObjectId = 0;
+                        std::cout << "Nothing is highlighted" << std::endl;
+					}
+                }
+
+                // Turn off tile highlighting
+                player->highlightTileRow = -1;
+                player->highlightTileCol = -1;
+            }   
+            
+		}
+    }
+
+    void checkTileHighlight(Player* player, const int TILE_TYPE) {
+        // highlight normal tiles
+        int highlightRow = -1;
+        int highlightCol = -1;
+        float minDistance = std::numeric_limits<float>::max();
+
+        for (int row = player->currRow - 1; row <= player->currRow + 1; row++) {
+            for (int col = player->currCol - 1; col <= player->currRow + 1; col++) {
+                // Check out of bounds
+                if (row < 0 || row >= floor->tiles.size() || col < 0 || col >= floor->tiles[0].size()) continue;
+
+                Tile* currTile = floor->tiles[row][col];
+                Position centerPosition = currTile->getCenterPosition();
+                float dist = player->distanceTo(centerPosition);
+
+                Position playerTileVec = Position(
+                    currTile->position->x - player->position->x,
+                    currTile->position->y - player->position->y,
+                    currTile->position->z - player->position->z
+                );
+                float angle = player->direction->getAngleBetween(playerTileVec);
+                if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                    highlightRow = row;
+                    highlightCol = col;
+                    minDistance = dist;
+                }
+            }
+        }
+
+        // If the tile to highlight isn't normal, then don't highlight anything
+        if (highlightRow != -1 && highlightCol != -1 &&
+            floor->tiles[highlightRow][highlightCol]->tileType == TILE_TYPE) {
+            std::cout << "Player at (" << player->currRow << ", " << player->currCol << ")" << std::endl;
+            std::cout << "Highlighting tile at (" << highlightRow << ", " << highlightCol << ")" << std::endl;
+            player->highlightTileRow = highlightRow;
+            player->highlightTileCol = highlightCol;
+        }
+        else {
+            std::cout << "No Tile highlighting" << std::endl;
+            player->highlightTileRow = -1;
+            player->highlightTileCol = -1;
+        }
+	}
+
     // We could use other data structures, for now use a list
     std::vector<Player*> players; // Up to 4 players?
     std::vector<Plant*> plants;
@@ -596,6 +888,10 @@ public:
     Floor* floor;
     SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
+    HomeBase* homeBase;
+
+    // Game status losing/not losing
+    bool isGameOver;
 
     // GameObject Map
     std::unordered_map<unsigned int, GameObject*> gameObjectMap;
@@ -607,5 +903,8 @@ public:
     long long tick;
     int tickRate;
     float deltaTime;
+
+    // Configs
+    ServerParams config;
 };
 #endif

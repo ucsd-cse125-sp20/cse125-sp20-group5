@@ -23,8 +23,6 @@ public:
 
     int health;
     int maxHealth;
-
-    static constexpr const float SPEED = 1.6f;
 };
 
 #endif

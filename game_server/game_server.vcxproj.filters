@@ -18,6 +18,9 @@
     <ClCompile Include="GameServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ServerParams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameServer.h">
@@ -26,6 +29,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="InitGameState.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ServerConfig.ini">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

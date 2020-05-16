@@ -7,6 +7,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/thread.hpp>
 #include "GameState.hpp"
+#include "ServerParams.h"
 
 using boost::asio::ip::tcp;
 
@@ -45,7 +46,7 @@ private:
 class GameServer : public boost::enable_shared_from_this<GameServer>,
                    public IGameServer {
 public:
-    GameServer(boost::asio::io_context& io_context, int port_num, int tick_rate);
+    GameServer(ServerParams& config, boost::asio::io_context& io_context);
     void startAccept();
 
 private:
@@ -58,6 +59,7 @@ private:
     void onDataRead(PtrClientConnection pConn, const char* pData, size_t bytes_transferred);
 
     boost::asio::io_context& ioContext;
+    ServerParams& config;
     tcp::acceptor tcpAcceptor;
 
     std::vector<PtrClientConnection> clients;

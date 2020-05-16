@@ -34,8 +34,14 @@ public:
         delete animation;
     }
 
+    float distanceTo(Position& pos) {
+        return std::sqrt((position->x - pos.x) * (position->x - pos.x) + (position->z - pos.z) * (position->z - pos.z));
+    
+    }
+
     float distanceTo(GameObject* that) {
-        return std::sqrt((position->x - that->position->x) * (position->x - that->position->x) + (position->z - that->position->z) * (position->z - that->position->z));
+        //return std::sqrt((position->x - that->position->x) * (position->x - that->position->x) + (position->z - that->position->z) * (position->z - that->position->z));
+        return distanceTo(*(that->position));
     }
 
     bool collideWith(GameObject* that) {
