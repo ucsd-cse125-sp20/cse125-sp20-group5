@@ -36,6 +36,8 @@ public:
     }
 
     void move(float deltaTime) {
+        this->animation->animationType = PlayerAnimation::MOVE; // move
+
         float translateDistance = 0.0f;
         float speedX = 0.0f;
         float speedZ = 0.0f;
@@ -77,6 +79,7 @@ public:
             speedX = -1.0f;
             break;
         case MoveState::FREEZE:
+            this->animation->animationType = PlayerAnimation::IDLE;
             break;
         }
         position->z += speedZ * translateDistance * deltaTime;
@@ -125,6 +128,9 @@ public:
     // Should player perform action/interact in this tick
     bool shouldPerformAction;
     bool shouldInteract;
+
+    // Animation Type
+    enum PlayerAnimation { IDLE, MOVE };
 
     static constexpr const float SQRT_2 = 1.41421356237309504880f;
     static constexpr const float SPEED = 4.8f;

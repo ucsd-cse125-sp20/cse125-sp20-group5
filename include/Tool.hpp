@@ -23,6 +23,8 @@ public:
         ar & seedType;
         ar & heldBy;
         ar & held;
+        ar & remainingWater;
+        ar& capacity;
     }
 
     ~Tool() {

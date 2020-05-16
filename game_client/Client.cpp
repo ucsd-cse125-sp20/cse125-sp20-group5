@@ -95,7 +95,6 @@ void Client::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	scene->draw(cam->GetViewProjectMtx());
-	// scene->draw(cam->GetViewProjectMtx(), program->GetProgramID());
 	
 	// Finish drawing scene
 	glFinish();
@@ -140,10 +139,13 @@ void Client::sendKeyboardEvents()
 	}
 
 	/* For testing */
-	if ((*keyPresses)[GLFW_KEY_Z]) {
+	if ((*keyPresses)[GLFW_KEY_1]) {
 		int player1_numAnim = 2;
 		Animation* player1_anim = currentGameState->players[0]->animation;
 		player1_anim->animationType = (player1_anim->animationType + 1) % player1_numAnim;
+	}
+	if ((*keyPresses)[GLFW_KEY_2]) {
+		//scene->healthBar->updateBar(std::fmod(scene->healthBar->filledFraction + 0.3, 1.0));
 	}
 }
 

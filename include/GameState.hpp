@@ -330,7 +330,7 @@ public:
                         plantPosition,
                         new Direction(player->direction), // ??
                         new Animation(0, 0),
-                        objectCount,
+                        objectCount++,
                         1.0f,
                         new TowerRange(3.0f),
                         tool->seedType,

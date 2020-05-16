@@ -1,5 +1,9 @@
 #include "Scene.h"
-#include <set>
+#include "RenderController.h"
+#include "PlantController.h"
+#include "TapController.h"
+#include "ToolController.h"
+#include "PlayerController.hpp"
 
 Scene::Scene()
 {
@@ -8,14 +12,19 @@ Scene::Scene()
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
 	skyboxProgram = new ShaderProgram("Skybox.glsl", ShaderProgram::eRender);
 	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
+	barProgram = new ShaderProgram("HealthBar.glsl", ShaderProgram::eRender);
 	
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
 	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
+	seedModel = new AssimpModel(SEED_MODEL, assimpProgram->GetProgramID());
+	saplingModel = new AssimpModel(SAPLING_MODEL, assimpProgram->GetProgramID());
+	babyCornModel = new AssimpModel(BABY_CORN_MODEL, assimpProgram->GetProgramID());	
 	cornModel = new AssimpModel(CORN_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
+	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
 
@@ -29,6 +38,7 @@ Scene::Scene()
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
+
 }
 
 Scene::~Scene()
@@ -39,6 +49,16 @@ Scene::~Scene()
 
 	delete zombieModel;
 	delete playerModel;
+
+	delete seedModel;
+	delete saplingModel;
+	delete babyCornModel;
+	delete cornModel;
+	delete tapModel;
+	delete wateringCanModel;
+	delete seedSourceModel;
+	delete shovelModel;
+	delete seedBagModel;
 
 	delete program;
 	delete assimpProgram;
@@ -63,7 +83,7 @@ void Scene::update()
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
 	if (ground == NULL) {
-		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID());
+		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID(), assimpProgram->GetProgramID());
 		groundNode->obj = ground;
 		groundNode->position = glm::vec3(floor->tiles.size()/(-1.5), 0, floor->tiles[0].size()/(-2.0));
 	}
@@ -73,7 +93,6 @@ void Scene::update()
 		}
 	}
 
-
 	for (Zombie* zombie : state->zombies) {
 		SceneNode* zombieNode = getDrawableSceneNode(zombie->objectId, zombieModel);
 		zombieNode->loadGameObject(zombie); // load new data
@@ -82,77 +101,40 @@ void Scene::update()
 	}
 
 	for (Plant* plant : state->plants) {
-		SceneNode* plantNode = getDrawableSceneNode(plant->objectId, cornModel);
-		plantNode->loadGameObject(plant); // load new data
-		plantNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
-		plantNode->position[1] = .7;
-		unusedIds.erase(plant->objectId);  // perhaps the server could provide it
+		if (controllers.find(plant->objectId) == controllers.end()) {
+			controllers[plant->objectId] = new PlantController(plant, this);
+			objectIdMap[plant->objectId] = controllers[plant->objectId]->rootNode;
+		}
+		controllers[plant->objectId]->update(plant, this);
+
+		unusedIds.erase(plant->objectId);
 	}
 
 	for (Player* player : state->players) {
-		SceneNode* playerNode = getDrawableSceneNode(player->objectId, playerModel);
-		playerNode->loadGameObject(player);
-		playerNode->scaler = PLAYER_SCALER;
-		unusedIds.erase(player->objectId);
-
-		// here is wehre we handle stuff like making sure they are holding another object
-		if (player->holding) {
-			if (objectIdMap.count(player->heldObject) > 0) {
-				SceneNode * heldNode = objectIdMap[player->heldObject];
-				SceneNode * playerHand = playerNode->find(std::string("j_r_arm_$AssimpFbx$_Translation"), playerNode->objectId);
-				if (heldNode != NULL && playerHand != NULL) {
-					if (heldNode->parent != playerHand) {
-						playerHand->addChild(heldNode);
-						// TODO the values will have to be a constant we need to figure out how to make it look held
-						if (heldNode->obj == wateringCanModel) {
-							heldNode->scaler = WATER_CAN_SCALER / PLAYER_SCALER;
-							heldNode->position = WATER_CAN_HOLD_VEC;
-						}
-						else if (heldNode->obj == shovelModel) {
-							heldNode->scaler = SHOVEL_SCALER / PLAYER_SCALER;
-							heldNode->position = SHOVEL_HOLD_VEC;
-						}
-						heldNode->dir = 0;
-					}
-				}
-			}
+		if (controllers.find(player->objectId) == controllers.end()) {
+			controllers[player->objectId] = new PlayerController(player, this);
+			objectIdMap[player->objectId] = controllers[player->objectId]->rootNode;
 		}
+		controllers[player->objectId]->update(player, this);
+
+		unusedIds.erase(player->objectId);
 	}
 
-	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId,tapModel);
-	if (tapNode->countChildern() == 0) {
-		ParticleGroup* pGroup = particleFactory->getWaterTapParticleGroup(glm::vec3(0, 0, 0));
-		SceneNode* waterNode = pGroup->createSceneNodes(state->waterTap->objectId);
-		waterNode->position = glm::vec3(0,6.0,-2.0);
-		tapNode->addChild(waterNode);
+	if (controllers.find(state->waterTap->objectId) == controllers.end()) {
+		controllers[state->waterTap->objectId] = new TapController(state->waterTap->objectId, this);
+		objectIdMap[state->waterTap->objectId] = controllers[state->waterTap->objectId]->rootNode;
 	}
-	tapNode->loadGameObject(state->waterTap);
-	tapNode->scaler = WATER_TAP_SCALER;
+	controllers[state->waterTap->objectId]->update(state->waterTap, this);
+
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (Tool * tool : state->tools) {
-		SceneNode* toolNode;
-		float toolScaler = 1.0;
-		if (tool->toolType == Tool::ToolType::WATER_CAN) { // TODO make this a constant
-			toolNode = getDrawableSceneNode(tool->objectId, wateringCanModel);
-			toolScaler = WATER_CAN_SCALER;
-		} 
-		else if (tool->toolType == Tool::ToolType::PLOW) {
-			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
-			toolScaler = SHOVEL_SCALER;
+		if (controllers.find(tool->objectId) == controllers.end()) {
+			controllers[tool->objectId] = new ToolController(tool, this);
+			objectIdMap[tool->objectId] = controllers[tool->objectId]->rootNode;
 		}
-		else {
-			toolNode = getDrawableSceneNode(tool->objectId, shovelModel);
-			toolScaler = SHOVEL_SCALER;
-		}
+		controllers[tool->objectId]->update(tool, this);
 
-		if (!tool->held) {
-			if (toolNode->parent != groundNode) {
-				toolNode->setParent(groundNode);
-			}
-			toolNode->loadGameObject(tool); // load new data
-			toolNode->scaler = toolScaler;
-		}
 		unusedIds.erase(tool->objectId);
 	}
 
@@ -166,7 +148,12 @@ void Scene::update()
 
 	// TODO WARNING this is not safe we need code hanlding palyyare disappearing
 	// while holding stuff. right now that will cuase an ERROR
+	// will handle in the controller
 	for (uint id : unusedIds) {
+		if (controllers.find(id) != controllers.end()) { // first delete the controller if it exists
+			delete controllers[id];
+			controllers.erase(id);
+		}
 		delete objectIdMap[id];
 		objectIdMap.erase(id); 
 	}
@@ -181,11 +168,17 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	if (objectIdMap.count(objectId) < 1) {
 		node = model->createSceneNodes(objectId);
 		objectIdMap[objectId] = node;
-		node->scaler = .5;
+		// node->scaler = .5;
 		groundNode->addChild(node); // this should be the ground or maybe a parameter
 	}
 	else { // if its made just get the ref
 		node = objectIdMap[objectId];
+		if (node->obj != model) {
+			delete node;
+			node = model->createSceneNodes(objectId);
+			objectIdMap[objectId] = node;
+			groundNode->addChild(node);
+		}
 	}
 	return node;
 }
@@ -196,14 +189,13 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	rootNode->draw(viewProjMat);
 
+	RenderController::drawUI(viewProjMat);
 	testUI->draw(); //TODO to be removed
 }
 
 void Scene::toggleWater()
 {
-	SceneNode* tapNode = getDrawableSceneNode(state->waterTap->objectId, tapModel);
-	((ParticleGroup*)(tapNode->children.begin()->second->obj))->toggleSpawning();
-
+	((TapController*)controllers[state->waterTap->objectId])->toggleWater();
 }
 
 // Update the current gamestate

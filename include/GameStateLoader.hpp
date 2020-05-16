@@ -118,7 +118,9 @@ public:
 						tile->direction = new Direction(Direction::DIRECTION_LEFT);
 						tile->tileType = Tile::TYPE_ZOMBIE;
 						break;
-
+					case 'T':
+						tile->tileType = Tile::TYPE_TILLED;
+						break;
 					case '*':
 					default:
 						tile->direction = new Direction(0.0);
