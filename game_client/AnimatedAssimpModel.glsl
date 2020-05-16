@@ -120,6 +120,9 @@ void main() {
 	float diff = max(dot(norm, lightDirection), 0.0);
 	vec3 diffuse = diff * diffuseColor * lightColor; //only calculates diffuse
 	
+	int levels = 3;
+	diffuse = floor(diffuse * levels)/levels + vec3(0.05,0.05,0.05);
+
 	vec3 reflectdir = reflect(-lightDirection, norm);
 	float spec = pow(max(dot(eyedir, reflectdir), 0.0), shininess);
 	vec3 specular = spec * specularColor * lightColor;
@@ -130,6 +133,12 @@ void main() {
 	if (hasTexture == 1)
 		finalColor = finalColor * texture(texture_diffuse1, fragTexture);
 	gl_FragColor = finalColor;
+
+	// Add outline 
+	float edge = max(0.0, dot(norm, normalize(eyedir)));
+    if (edge < 0.2) {
+        gl_FragColor = vec4(0.0,0.0,0.0,0.0f);
+    }
 }
 
 #endif

@@ -16,11 +16,10 @@
 #define SEED_SOURCE_MODEL "model/box.fbx"
 #define SHOVEL_MODEL "model/shovel.fbx"
 #define DIRT_MODEL "model/dirt.fbx"
-#define SEED_BAG_MODEL "model/seed_bag.fbx"
+#define SEED_BAG_MODEL "model/basket.fbx"
 
 #define SEED_MODEL "model/seed.fbx"
 #define SAPLING_MODEL "model/sapling.fbx"
-
 
 #define RABBIT_SCALER 0.40
 #define SEED_SOURCE_SCALER 0.025
