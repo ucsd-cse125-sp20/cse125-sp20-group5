@@ -17,4 +17,5 @@ ServerParams::ServerParams() {
     playerInRotationDiagonalMoveSpeed = playerInRotationMoveSpeed / SQRT_2;
     playerRotationSpeed = config.GetInteger("PhysicsParams", "PlayerRotationSpeed", 4) * PI;
     zombieRabbitMoveSpeed = config.GetFloat("PhysicsParams", "ZombieRabbitMoveSpeed", 1.6f);
+    highlightFOVAngle = PI / config.GetInteger("PhysicsParams", "HighlightFOVAngle", 3);
 }

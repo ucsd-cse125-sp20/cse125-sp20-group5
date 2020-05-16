@@ -15,6 +15,7 @@ public:
     float playerInRotationDiagonalMoveSpeed;
     float playerRotationSpeed;
     float zombieRabbitMoveSpeed;
+    float highlightFOVAngle;
 
     ServerParams();
 

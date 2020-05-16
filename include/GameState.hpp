@@ -696,9 +696,58 @@ public:
                 // highlight interactable objects
                 Tool* currTool = (Tool*)gameObjectMap[player->heldObject];
                 switch (currTool->toolType) {
-                case Tool::ToolType::WATER_CAN:
+                case Tool::ToolType::WATER_CAN: {
                     // highlight plants or water tap
+                    float minDistance = std::numeric_limits<float>::max();
+                    Plant* highlightPlant = nullptr;
+                    for (Plant* plant : plants) {
+                        float dist = player->distanceTo(plant);
+
+                        Position playerPlantVec = Position(
+                            plant->position->x - player->position->x,
+                            plant->position->y - player->position->y,
+                            plant->position->z - player->position->z
+                        );
+                        float angle = player->direction->getAngleBetween(playerPlantVec);
+
+                        if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                            highlightPlant = plant;
+                            minDistance = dist;
+                        }
+                    }
+
+                    // Check distance to waterTap as well
+                    bool waterTapClosest = false;
+                    float dist = player->distanceTo(waterTap);
+                    Position playerWaterTapVec = Position(
+                        waterTap->position->x - player->position->x,
+                        waterTap->position->y - player->position->y,
+                        waterTap->position->z - player->position->z
+                    );
+                    float angle = player->direction->getAngleBetween(playerWaterTapVec);
+
+                    if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                        minDistance = dist;
+                        waterTapClosest = true;
+                    }
+
+                    if (waterTapClosest && player->collideWith(waterTap) && currTool->remainingWater < currTool->capacity) {
+                        player->highlightObjectId = waterTap->objectId;
+                        std::cout << "Highlighting WaterTap" << std::endl;
+                    }
+                    else {
+                        // interacting with tools
+                        // Make sure tool is within collision range and is not held by others 
+                        if (highlightPlant && player->collideWith(highlightPlant)) {
+                            player->highlightObjectId = highlightPlant->objectId;
+                            std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
+                        } else {
+                            player->highlightObjectId = 0;
+                            std::cout << "Nothing is highlighted" << std::endl;
+						}
+                    }
                     break;
+                }
 
                 case Tool::ToolType::PLOW:
                     // highlight normal tiles
@@ -725,7 +774,7 @@ public:
                     );
                     float angle = player->direction->getAngleBetween(playerToolVec);
 
-                    if (dist < minDistance && angle <= Direction::PI_2) {
+                    if (dist < minDistance && angle <= config.highlightFOVAngle) {
                         currTool = tool;
                         minDistance = dist;
                     }
@@ -741,7 +790,7 @@ public:
                     );
                 float angle = player->direction->getAngleBetween(playerSeedShackVec);
 
-                if (dist < minDistance && angle <= Direction::PI_2) {
+                if (dist < minDistance && angle <= config.highlightFOVAngle) {
                     minDistance = dist;
                     seedShackClosest = true;
                 }
@@ -756,12 +805,10 @@ public:
                     if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
                         player->highlightObjectId = currTool->objectId;
                         std::cout << "Highlighting tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
-                    }
-                }
-
-                if (!currTool && !seedShackClosest) {
-                    player->highlightObjectId = 0;
-                    std::cout << "Nothing is highlighted" << std::endl;
+                    } else {
+                        player->highlightObjectId = 0;
+                        std::cout << "Nothing is highlighted" << std::endl;
+					}
                 }
             }   
             
