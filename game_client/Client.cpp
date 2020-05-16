@@ -95,7 +95,6 @@ void Client::draw() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	scene->draw(cam->GetViewProjectMtx());
-	// scene->draw(cam->GetViewProjectMtx(), program->GetProgramID());
 	
 	// Finish drawing scene
 	glFinish();

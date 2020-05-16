@@ -45,6 +45,7 @@ public:
         ); 
         barNode = growthBar->createSceneNodes(rootNode->objectId);
         rootNode->addChild(barNode);
+        uiNodes.insert(barNode);
     }
 
     ~PlantController() {
@@ -74,6 +75,7 @@ public:
 
         // Update growth bar
         if (plant->growStage == Plant::GrowStage::GROWN) {
+            //uiNodes.erase(uiNodes.find(barNode));
             barNode->removeSelf();
         }
         else if (plant->growProgressTime == 0.0f) {

@@ -83,7 +83,6 @@ void SceneNode::update(glm::mat4 world)
 	// if updated externally by another animation function;
 	if (!updated) {
 		calcLocalTransform();
-
 	}
 
 	transform = world * transform;
