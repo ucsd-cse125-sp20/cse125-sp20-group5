@@ -23,6 +23,7 @@ public:
         ar & tileType;
         ar & direction;
         ar & plantId;
+        ar & plowProgressTime;
     }
 
     ~Tile() {
@@ -30,11 +31,17 @@ public:
         delete direction;
     }
 
+    Position getCenterPosition() {
+        return Position(position->x + TILE_PAD_X, 0, position->z + TILE_PAD_Z);
+    }
+
     Position* position; // Tile's position
     int tileType; // D/f types (e.g. normal, occupied by zombie, etc)
     int plantId;
 
     Direction* direction; // For zombie tiles (e.g. which direction do they go)
+
+    float plowProgressTime; // For normal tiles
 
     static constexpr const int TYPE_NORMAL = 0;
     static constexpr const int TYPE_ZOMBIE = 1;

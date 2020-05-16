@@ -24,7 +24,7 @@ public:
         ar & heldBy;
         ar & held;
         ar & remainingWater;
-        ar& capacity;
+        ar & capacity;
     }
 
     ~Tool() {

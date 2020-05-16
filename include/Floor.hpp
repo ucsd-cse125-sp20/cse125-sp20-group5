@@ -103,12 +103,14 @@ public:
     template<class Archive>
     void serialize(Archive& ar, const unsigned int version) {
         ar & tiles;
+        ar & plowExpireTime;
     }
 
     Tile* zombieBaseTile;
     int zombieFinalTileRow;
     int zombieFinalTileCol;
     float tileSize;
+    float plowExpireTime;   // For normal tiles
     std::vector<std::vector<Tile*>> tiles;
 
     static constexpr const float TILE_SIZE = 1.0f;

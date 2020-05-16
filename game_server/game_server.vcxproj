@@ -20,12 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="ServerParams.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameServer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="InitGameState.ini" />
+    <None Include="ServerConfig.ini" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

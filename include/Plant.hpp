@@ -41,11 +41,13 @@ public:
     static enum class PlantType { CORN = 0, PEA_SHOOTER = 1 };
     static enum class GrowStage { SEED = 0, SAPLING = 1, BABY = 2, GROWN = 3 };
 
+    TowerRange* range; // Represents how far plant can reach to attack
+
     PlantType plantType;
     GrowStage growStage;
     float growExpireTime;     // Time(s) need to grow in current stage
     float growProgressTime;   // Time(s) of current grow stage
-    TowerRange* range; // Represents how far plant can reach to attack
+    float growCooldownTime;   // Time(s) for cooldown time between grow interactions (watering, etc.
 
     int attackPower;
     float currAttackTime;

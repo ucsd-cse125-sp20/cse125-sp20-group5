@@ -7,7 +7,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include "GameState.hpp"
 #include "Message.hpp"
-
+#include "ServerParams.h"
 
 PtrClientConnection ClientConnection::create(boost::asio::io_context& io_context, IGameServer* ptrServer) {
     return PtrClientConnection(new ClientConnection(io_context, ptrServer));
@@ -100,15 +100,15 @@ void ClientConnection::handleWrite(const boost::system::error_code& error, size_
 }
 
 GameServer::GameServer(
-    boost::asio::io_context& io_context,
-    int port_num,
-    int tick_rate)
-  : ioContext(io_context),
-    tcpAcceptor(io_context, tcp::endpoint(tcp::v4(), port_num)),
+    ServerParams& config,
+    boost::asio::io_context& io_context)
+  : config(config),
+    ioContext(io_context),
+    tcpAcceptor(io_context, tcp::endpoint(tcp::v4(), config.port)),
     tickTimer(boost::asio::steady_timer(io_context)),
-    deltaTimeMicrosec(1000000 / tick_rate) {
+    deltaTimeMicrosec(1000000 / config.tickrate) {
 
-    gameState.init(tick_rate);
+    gameState.init(config);
     gameState.loadFromConfigFile("InitGameState.ini");
 
     startAccept();
@@ -222,18 +222,13 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: game_server <port> <tickrate>" << std::endl;
-        return 1;
-    }
-    int port = std::atoi(argv[1]);
-    int tickrate = std::atoi(argv[2]);
 
     try {
-        boost::asio::io_context io_context;
+        ServerParams serverParams;
 
+        boost::asio::io_context io_context;
         boost::shared_ptr<GameServer> server;
-        server.reset(new GameServer(io_context, port, tickrate));
+        server.reset(new GameServer(serverParams, io_context));
 
         io_context.run();
     } catch (std::exception& e) {
