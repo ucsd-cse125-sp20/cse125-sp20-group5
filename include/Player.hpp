@@ -60,6 +60,8 @@ public:
     
     // Highlighting object
     unsigned int highlightObjectId;
+    int highlightTileRow;           // -1 indicates not highlighting
+    int highlightTileCol;           // -1 indicates not highlighting
 };
 
 #endif

@@ -294,6 +294,7 @@ public:
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     break;
 				}
+
                 if (tool->remainingWater <= 0) {
                     std::cout << "Not enough to watering plants" << std::endl;
                     break;
@@ -311,12 +312,17 @@ public:
 
                 // Water the nearest plant
                 if (currPlant && player->collideWith(currPlant)) {
-                    std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
                     if (currPlant->growStage != Plant::GrowStage::GROWN) {
-                        currPlant->growProgressTime += deltaTime;
-                        tool->remainingWater -= deltaTime;
-                        std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
-                        std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                        if (currPlant->growCooldownTime <= 0) {
+                            currPlant->growProgressTime += deltaTime;
+                            tool->remainingWater -= deltaTime;
+                            std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
+                            std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
+                            std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                        }
+                        else {
+                            std::cout << "Plant growing in cooldown. Cannot water" << std::endl;
+                        }
                     }
                     else {
                         std::cout << "Plant is already grown" << std::endl;
@@ -365,6 +371,7 @@ public:
                     plant->attackPower = 50;
                     plant->currAttackTime = 0.0f;
                     plant->attackInterval = 1.0f;
+                    plant->growCooldownTime = 2.0f;
                     plants.push_back(plant);
                     gameObjectMap[plant->objectId] = plant;
                     currTile->plantId = plant->objectId;
@@ -475,6 +482,11 @@ public:
                     plant->growStage++;
                     plant->growExpireTime = 2.0f;
                     plant->growProgressTime = 0.0f;
+                    plant->growCooldownTime = 2.0f;
+                }
+
+                if (plant->growCooldownTime > 0) {
+                    plant->growCooldownTime -= deltaTime;
                 }
 
             }
@@ -746,20 +758,24 @@ public:
                             std::cout << "Nothing is highlighted" << std::endl;
 						}
                     }
+                    player->highlightTileRow = -1;
+                    player->highlightTileCol = -1;
                     break;
                 }
 
-                case Tool::ToolType::PLOW:
-                    // highlight normal tiles
+                case Tool::ToolType::PLOW: {
+                    checkTileHighlight(player, Tile::TYPE_NORMAL);
                     break;
+                }
 
                 case Tool::ToolType::SEED:
                     // highlight tilled tiles
+                    checkTileHighlight(player, Tile::TYPE_TILLED);
                     break;
 				}
             }
             else {
-                // highlight tools
+                // highlight tools when not holding anything
                 // Loop through tools and check if player collides with them
                 // Highlight the closest tool that is in front direction of the player
                 Tool* currTool = nullptr;
@@ -810,10 +826,58 @@ public:
                         std::cout << "Nothing is highlighted" << std::endl;
 					}
                 }
+
+                // Turn off tile highlighting
+                player->highlightTileRow = -1;
+                player->highlightTileCol = -1;
             }   
             
 		}
     }
+
+    void checkTileHighlight(Player* player, const int TILE_TYPE) {
+        // highlight normal tiles
+        int highlightRow = -1;
+        int highlightCol = -1;
+        float minDistance = std::numeric_limits<float>::max();
+
+        for (int row = player->currRow - 1; row <= player->currRow + 1; row++) {
+            for (int col = player->currCol - 1; col <= player->currRow + 1; col++) {
+                // Check out of bounds
+                if (row < 0 || row >= floor->tiles.size() || col < 0 || col >= floor->tiles[0].size()) continue;
+
+                Tile* currTile = floor->tiles[row][col];
+                Position centerPosition = currTile->getCenterPosition();
+                float dist = player->distanceTo(centerPosition);
+
+                Position playerTileVec = Position(
+                    currTile->position->x - player->position->x,
+                    currTile->position->y - player->position->y,
+                    currTile->position->z - player->position->z
+                );
+                float angle = player->direction->getAngleBetween(playerTileVec);
+                if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                    highlightRow = row;
+                    highlightCol = col;
+                    minDistance = dist;
+                }
+            }
+        }
+
+        // If the tile to highlight isn't normal, then don't highlight anything
+        if (highlightRow != -1 && highlightCol != -1 &&
+            floor->tiles[highlightRow][highlightCol]->tileType == TILE_TYPE) {
+            std::cout << "Player at (" << player->currRow << ", " << player->currCol << ")" << std::endl;
+            std::cout << "Highlighting tile at (" << highlightRow << ", " << highlightCol << ")" << std::endl;
+            player->highlightTileRow = highlightRow;
+            player->highlightTileCol = highlightCol;
+        }
+        else {
+            std::cout << "No Tile highlighting" << std::endl;
+            player->highlightTileRow = -1;
+            player->highlightTileCol = -1;
+        }
+	}
 
     // We could use other data structures, for now use a list
     std::vector<Player*> players; // Up to 4 players?
