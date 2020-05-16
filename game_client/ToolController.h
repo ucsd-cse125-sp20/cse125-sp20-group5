@@ -20,6 +20,7 @@ public:
 		pGroup = NULL;
 		filledBar;
 		type = tool->toolType;
+		holderId = 0;
 
 		if (type == Tool::ToolType::WATER_CAN) { // TODO make this a constant
 			modelNode = scene->getModel(ModelType::WATERING_CAN)->createSceneNodes(tool->objectId);

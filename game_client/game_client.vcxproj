@@ -167,6 +167,7 @@
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="PlayerController.hpp" />
     <ClInclude Include="ToolController.h" />
     <ClInclude Include="TapController.h" />
     <ClInclude Include="HealthBar.h" />

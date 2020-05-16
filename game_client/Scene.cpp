@@ -3,6 +3,7 @@
 #include "PlantController.h"
 #include "TapController.h"
 #include "ToolController.h"
+#include "PlayerController.hpp"
 
 Scene::Scene()
 {
@@ -110,28 +111,13 @@ void Scene::update()
 	}
 
 	for (Player* player : state->players) {
-		SceneNode* playerNode = getDrawableSceneNode(player->objectId, playerModel);
-		playerNode->loadGameObject(player);
-		playerNode->scaler = PLAYER_SCALER;
-		unusedIds.erase(player->objectId);
-
-		// here is wehre we handle stuff like making sure they are holding another object
-		if (player->holding) {
-			if (controllers.count(player->heldObject) > 0) {
-				ToolController * controller = (ToolController*)controllers[player->heldObject];
-				SceneNode * playerHand = playerNode->find(std::string("j_r_arm_$AssimpFbx$_Translation"), playerNode->objectId);
-				if (playerHand != NULL) {
-					if (controller->type == Tool::ToolType::WATER_CAN) {
-						controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), this);
-					}
-					else if (controller->type == Tool::ToolType::PLOW) {
-						controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, this);
-					} else if (controller->type == Tool::ToolType::SEED) {
-							controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), this);
-					}
-				}
-			}
+		if (controllers.find(player->objectId) == controllers.end()) {
+			controllers[player->objectId] = new PlayerController(player, this);
+			objectIdMap[player->objectId] = controllers[player->objectId]->rootNode;
 		}
+		controllers[player->objectId]->update(player, this);
+
+		unusedIds.erase(player->objectId);
 	}
 
 	if (controllers.find(state->waterTap->objectId) == controllers.end()) {
