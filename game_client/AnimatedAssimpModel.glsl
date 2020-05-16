@@ -121,7 +121,7 @@ void main() {
 	vec3 diffuse = diff * diffuseColor * lightColor; //only calculates diffuse
 	
 	int levels = 3;
-	diffuse = floor(diffuse * levels)/levels + vec3(0.06,0.06,0.06);
+	diffuse = floor(diffuse * levels)/levels + vec3(0.05,0.05,0.05);
 
 	vec3 reflectdir = reflect(-lightDirection, norm);
 	float spec = pow(max(dot(eyedir, reflectdir), 0.0), shininess);
