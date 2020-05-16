@@ -18,7 +18,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 	for (int i = 0; i < NUM_TILES; i++) {
 		Model * temp = new Model(shader);
-		glm::vec3 color = glm::vec3(1.0);//getColor((TILE_TYPE)i);
+		glm::vec3 color = getColor((TILE_TYPE)i);
 		glm::vec3 min(0, 0, 0);
 		glm::vec3 max(size, 0, size);
 		temp->makeTile(min, max, color, getTexture((TILE_TYPE)i));
@@ -30,7 +30,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 	baseLayer = new Model(shader);
 	baseLayer->makeTile(glm::vec3(0, -0.01f, 0), glm::vec3(x * size, -0.01f, y * size), 
-		glm::vec3(1.0f), getTexture(Ground::TILE_TYPE::BASE_LAYER));
+		getColor(TILE_TYPE::BASE_LAYER), getTexture(Ground::TILE_TYPE::BASE_LAYER));
 
 	tilled = new AssimpModel(DIRT_MODEL, assimpShader);
 }
@@ -152,6 +152,8 @@ glm::vec3 Ground::getColor(TILE_TYPE type)
 	case TILE_TYPE::NORMAL:
 		return glm::vec3(1.0);
 	case TILE_TYPE::BLANK:
+		return glm::vec3(1.0);
+	case TILE_TYPE::BASE_LAYER:
 		return glm::vec3(1.0);
 	}
 	return glm::vec3(0);
