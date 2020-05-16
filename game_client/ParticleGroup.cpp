@@ -4,7 +4,7 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 	glm::vec3 color, glm::vec3 initialVelocity,
 	glm::vec3 acceleration, int initParicleNum, int maxParticleNum, float lifeSpan,
 	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-	float spawnTime, int spawnNum) {
+	float spawnTime, int spawnNum, float maxDistance) {
 
 	this->spawning = true;
 
@@ -27,6 +27,8 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 	this->spawnTime = spawnTime;
 	this->timePastSinceLastSpawn = 0;
 	this->spawnNum = spawnNum;
+
+	this->maxDistance = maxDistance;
 
 	// Initialize children
 	for (int i = 0; i < initParicleNum; i++) {
@@ -194,6 +196,6 @@ void ParticleGroup::addChildParticle() {
 
 	children.push_back(
 		new Particle(this->shader, groupModelMatrix, randColor,
-			randInitialV, this->acceleration, this->particleLifeSpan)
+			randInitialV, this->acceleration, this->particleLifeSpan, this->maxDistance)
 	);
 }

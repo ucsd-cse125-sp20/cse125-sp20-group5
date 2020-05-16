@@ -191,7 +191,6 @@ void AssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 		meshes[i]->draw(shader);
 
 	glUseProgram(0);
-
 }
 
 ////////////////////////////////////////////////////////////////////////

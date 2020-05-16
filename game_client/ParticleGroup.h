@@ -56,12 +56,14 @@ private:
 
     float particleSize;
 
+    float maxDistance;
+
 public:
 	ParticleGroup(GLuint shader, float particleSize, glm::vec3 particlePosition,
         glm::vec3 color, glm::vec3 initialVelocity,
         glm::vec3 acceleration,  int initParicleNum, int maxParticleNum, float lifeSpan,
         glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-        float spawnTime, int spawnNum);
+        float spawnTime, int spawnNum, float maxDistance);
     ~ParticleGroup();
     
     // Draw the whole particle group

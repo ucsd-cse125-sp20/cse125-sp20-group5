@@ -2,7 +2,7 @@
 #include <iostream>
 
 Particle::Particle(GLuint shader, glm::mat4 modelMatrix, glm::vec3 color,
-	glm::vec3 initialVelocity, glm::vec3 acceleration, int lifeSpan)
+	glm::vec3 initialVelocity, glm::vec3 acceleration, int lifeSpan, float maxDistance)
 {
     this->lifeLeft = lifeSpan;
     this->velocity = initialVelocity;
@@ -14,6 +14,8 @@ Particle::Particle(GLuint shader, glm::mat4 modelMatrix, glm::vec3 color,
     
 	// The color of the particle
 	this->color = color;
+
+    this->distanceLeft = maxDistance;
 }
 
 Particle::~Particle()
@@ -40,15 +42,21 @@ void Particle::draw(glm::mat4 model, const glm::mat4& viewProjMat, GLuint parent
 
 void Particle::update(float timeDifference)
 {
-    // TODO: more percise speed calc
-    individualModelMatrix = glm::translate(individualModelMatrix, velocity * timeDifference);
+    // Displacement
+    glm::vec3 d = velocity * timeDifference;
+    // Add distance to traveled distance
+    distanceLeft -= glm::length(d);
+    // Translate the particle
+    individualModelMatrix = glm::translate(individualModelMatrix, d);
+
+    // update life and V
     lifeLeft -= timeDifference;
     velocity += timeDifference * acceleration;
 }
 
 bool Particle::isAlive()
 {
-    if (lifeLeft > 0.0f) return true;
+    if (lifeLeft > 0.0f && distanceLeft > 0.0f ) return true;
     return false;
 }
 
