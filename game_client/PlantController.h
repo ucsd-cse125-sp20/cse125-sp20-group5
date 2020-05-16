@@ -73,8 +73,6 @@ public:
         // Load new data provided by server
         rootNode->loadGameObject(plant);
 
-        //barNode->pose[1] = -rootNode->pose[1];
-
         // Update growth bar
         if (plant->growStage == Plant::GrowStage::GROWN) {
             if (barNode) {
