@@ -179,6 +179,7 @@ public:
         delete floor;
         delete seedShack;
         delete waterTap;
+        delete homeBase;
     }
 
     void updatePlayer(int opCode, Player* player) {
