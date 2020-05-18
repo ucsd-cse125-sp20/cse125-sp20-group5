@@ -294,7 +294,7 @@ public:
                     tool->remainingWater += deltaTime;
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     break;
-				}
+                }
 
                 if (tool->remainingWater <= 0) {
                     std::cout << "Not enough to watering plants" << std::endl;
@@ -378,69 +378,69 @@ public:
                     }
                     delete tool;
 
-				}
+                }
                 break;
             }
         }
     }
 
-	void playersInteract() {
-		for (Player* player : players) {
-			if (!player->shouldInteract) {
-				continue;
-			}
-			player->shouldInteract = false;
-			if (player->holding) {
-				// TODO: facing direction check to use tool or drop the tool
+    void playersInteract() {
+        for (Player* player : players) {
+            if (!player->shouldInteract) {
+                continue;
+            }
+            player->shouldInteract = false;
+            if (player->holding) {
+                // TODO: facing direction check to use tool or drop the tool
 
-				// drop tool
-				Tool* tool = (Tool*)gameObjectMap[player->heldObject];
-				float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
-				float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-				tool->position->x = player->position->x - x_offset;
-				tool->position->y = player->position->y;
-				tool->position->z = player->position->z + z_offset;
-				tool->direction->angle = player->direction->angle;
-				tool->heldBy = 0;
-				tool->held = false;
-				player->heldObject = 0;
-				player->holding = false;
-			}
-			else if (player->highlightObjectId != 0) {
+                // drop tool
+                Tool* tool = (Tool*)gameObjectMap[player->heldObject];
+                float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
+                float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
+                tool->position->x = player->position->x - x_offset;
+                tool->position->y = player->position->y;
+                tool->position->z = player->position->z + z_offset;
+                tool->direction->angle = player->direction->angle;
+                tool->heldBy = 0;
+                tool->held = false;
+                player->heldObject = 0;
+                player->holding = false;
+            }
+            else if (player->highlightObjectId != 0) {
                 // Get seed if highlighted id is seedshack
-				if (player->highlightObjectId == seedShack->objectId) {
-					Tool* seed = new Tool(
-						new Position(player->position),
-						new Direction(player->direction),
-						new Animation(),
-						objectCount,
-						0.25f,
-						Tool::ToolType::SEED,
-						player->objectId,
-						true
-						);
-					seed->seedType = seedShack->seedType;
-					gameObjectMap[objectCount++] = seed;
-					tools.push_back(seed);
-					player->holding = true;
-					player->heldObject = seed->objectId;
-					std::cout << "Pick up seed from seed shack at (" << seedShack->position->x << ", " << seedShack->position->z << ")" << std::endl;
-				}
-				else {
-					Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
-					std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
-					player->holding = true;
-					player->heldObject = currTool->objectId;
-					currTool->heldBy = player->objectId;
-					currTool->held = true;
-					currTool->direction->angle = player->direction->angle;
-				}
+                if (player->highlightObjectId == seedShack->objectId) {
+                    Tool* seed = new Tool(
+                        new Position(player->position),
+                        new Direction(player->direction),
+                        new Animation(),
+                        objectCount,
+                        0.25f,
+                        Tool::ToolType::SEED,
+                        player->objectId,
+                        true
+                    );
+                    seed->seedType = seedShack->seedType;
+                    gameObjectMap[objectCount++] = seed;
+                    tools.push_back(seed);
+                    player->holding = true;
+                    player->heldObject = seed->objectId;
+                    std::cout << "Pick up seed from seed shack at (" << seedShack->position->x << ", " << seedShack->position->z << ")" << std::endl;
+                }
+                else {
+                Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
+                    std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+                    player->holding = true;
+                    player->heldObject = currTool->objectId;
+                    currTool->heldBy = player->objectId;
+                    currTool->held = true;
+                    currTool->direction->angle = player->direction->angle;
+                }
 
-				// Reset highlight id when a tool is picked up
-				player->highlightObjectId = 0;
-			}
-		}
-	}
+                // Reset highlight id when a tool is picked up
+                player->highlightObjectId = 0;
+            }
+        }
+    }
 
     void updatePlants() {
         for (Plant* plant : plants) {
