@@ -284,12 +284,12 @@ public:
             */
 
             Tool* tool = (Tool*)gameObjectMap[player->heldObject];
-            Tile* currTile = floor->tiles[player->currRow][player->currCol];
             switch (tool->toolType) {
 
             // WATER_CAN
             case Tool::ToolType::WATER_CAN: {
-                if (player->collideWith(waterTap) && tool->remainingWater < tool->capacity) {
+                // Check if player is highlighting water tap
+                if (player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
                     tool->remainingWater += deltaTime;
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     break;
@@ -299,19 +299,10 @@ public:
                     std::cout << "Not enough to watering plants" << std::endl;
                     break;
                 }
-                Plant* currPlant = nullptr;
-                float minDistance = std::numeric_limits<float>::max();
-                for (Plant* plant : plants) {
-                    float dist = player->distanceTo(plant);
-                    std::cout << "Distance to plant is " << dist << std::endl;
-                    if (dist < minDistance) {
-                        currPlant = plant;
-                        minDistance = dist;
-                    }
-                }
 
-                // Water the nearest plant
-                if (currPlant && player->collideWith(currPlant)) {
+                // Here if player holds watering can, nonzero object ids must refer to Plant
+                if (player->highlightObjectId != 0) {
+                    Plant* currPlant = (Plant*)gameObjectMap[player->highlightObjectId];
                     if (currPlant->growStage != Plant::GrowStage::GROWN) {
                         if (currPlant->growCooldownTime <= 0) {
                             currPlant->growProgressTime += deltaTime;
@@ -333,9 +324,9 @@ public:
 
             // PLOW
             case Tool::ToolType::PLOW:
-
-                // Should be normal tile without any plants on it
-                if (currTile->tileType == Tile::TYPE_NORMAL && currTile->plantId == 0) {
+                // Attempt to plow if a tile is highlighted
+                if (player->highlightTileRow != -1 && player->highlightTileCol != -1) {
+                    Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
                     if (currTile->plowProgressTime < floor->plowExpireTime) {
                         currTile->plowProgressTime += deltaTime;
                         std::cout << "Current tile plowing progress: " << currTile->plowProgressTime << std::endl;
@@ -350,12 +341,14 @@ public:
             // TODO: need to generalize for all seeds
             // SEED_CORN
             case Tool::ToolType::SEED:
-                // Get player's tile (only plant on non-zombie and plowed tiles)
-                if (currTile->tileType == Tile::TYPE_TILLED && currTile->plantId == 0) {
+                // Attempt to plant seed if tile is highlighted
+                if (player->highlightTileRow != -1 && player->highlightTileCol != -1) {
+                    Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
+
                     player->holding = false;
                     player->heldObject = 0;
 
-                    // Replace it with a plant
+                    // Replace seed with a plant
                     Position* plantPosition = new Position(currTile->getCenterPosition());
                     Plant* plant = new Plant(
                         plantPosition,
@@ -390,85 +383,63 @@ public:
         }
     }
 
-    void playersInteract() {
-        for (Player* player : players) {
-            if (!player->shouldInteract) {
-                continue;
-            }
-            player->shouldInteract = false;
-            if (player->holding) {
-                // TODO: facing direction check to use tool or drop the tool
+	void playersInteract() {
+		for (Player* player : players) {
+			if (!player->shouldInteract) {
+				continue;
+			}
+			player->shouldInteract = false;
+			if (player->holding) {
+				// TODO: facing direction check to use tool or drop the tool
 
-                // drop tool
-                Tool* tool = (Tool*)gameObjectMap[player->heldObject];
-                float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
-                float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-                tool->position->x = player->position->x - x_offset;
-                tool->position->y = player->position->y;
-                tool->position->z = player->position->z + z_offset;
-                tool->direction->angle = player->direction->angle;
-                tool->heldBy = 0;
-                tool->held = false;
-                player->heldObject = 0;
-                player->holding = false;
-            } else {
-                // Loop through tools and check if player collides with them
-                // Pick up the closest tool
-                Tool* currTool = nullptr;
-                float minDistance = std::numeric_limits<float>::max();
-                for (Tool* tool : tools) {
-                    float dist = player->distanceTo(tool);
-                    std::cout << "Distance to tool is " << dist << std::endl;
-                    if (dist < minDistance) {
-                        currTool = tool;
-                        minDistance = dist;
-                    }
-                }
+				// drop tool
+				Tool* tool = (Tool*)gameObjectMap[player->heldObject];
+				float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
+				float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
+				tool->position->x = player->position->x - x_offset;
+				tool->position->y = player->position->y;
+				tool->position->z = player->position->z + z_offset;
+				tool->direction->angle = player->direction->angle;
+				tool->heldBy = 0;
+				tool->held = false;
+				player->heldObject = 0;
+				player->holding = false;
+			}
+			else if (player->highlightObjectId != 0) {
+                // Get seed if highlighted id is seedshack
+				if (player->highlightObjectId == seedShack->objectId) {
+					Tool* seed = new Tool(
+						new Position(player->position),
+						new Direction(player->direction),
+						new Animation(),
+						objectCount,
+						0.25f,
+						Tool::ToolType::SEED,
+						player->objectId,
+						true
+						);
+					seed->seedType = seedShack->seedType;
+					gameObjectMap[objectCount++] = seed;
+					tools.push_back(seed);
+					player->holding = true;
+					player->heldObject = seed->objectId;
+					std::cout << "Pick up seed from seed shack at (" << seedShack->position->x << ", " << seedShack->position->z << ")" << std::endl;
+				}
+				else {
+					Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
+					std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+					player->holding = true;
+					player->heldObject = currTool->objectId;
+					currTool->heldBy = player->objectId;
+					currTool->held = true;
+					currTool->direction->angle = player->direction->angle;
+				}
 
-                // Check distance to seedShack as well
-                bool seedShackClosest = false;
-                float dist = player->distanceTo(seedShack);
-                std::cout << "Distance to seedShack is " << dist << std::endl;
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    seedShackClosest = true;
-                }
-
-                if (seedShackClosest && player->collideWith(seedShack)) {
-                    // Create a seed (Tool)
-                    Tool* seed = new Tool(
-                        new Position(player->position),
-                        new Direction(player->direction),
-                        new Animation(),
-                        objectCount,
-                        0.25f,
-                        Tool::ToolType::SEED,
-                        player->objectId,
-                        true
-                    );
-                    seed->seedType = seedShack->seedType;
-                    gameObjectMap[objectCount++] = seed;
-                    tools.push_back(seed);
-                    player->holding = true;
-                    player->heldObject = seed->objectId;
-                    std::cout << "Pick up seed from seed shack at (" << seedShack->position->x << ", " << seedShack->position->z << ")" << std::endl;
-                }
-                else {
-                    // interacting with tools
-                    // Make sure tool is within collision range and is not held by others 
-                    if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
-                        std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
-                        player->holding = true;
-                        player->heldObject = currTool->objectId;
-                        currTool->heldBy = player->objectId;
-                        currTool->held = true;
-                        currTool->direction->angle = player->direction->angle;
-                    }
-                }
-
-            }
-        }
-    }
+				// Reset highlight id when a tool is picked up
+				player->highlightObjectId = 0;
+			}
+		}
+	}
 
     void updatePlants() {
         for (Plant* plant : plants) {
@@ -864,9 +835,12 @@ public:
             }
         }
 
-        // If the tile to highlight isn't normal, then don't highlight anything
-        if (highlightRow != -1 && highlightCol != -1 &&
-            floor->tiles[highlightRow][highlightCol]->tileType == TILE_TYPE) {
+        bool validIndices = highlightRow != -1 && highlightCol != -1;
+        bool tileTypeMatch = validIndices && floor->tiles[highlightRow][highlightCol]->tileType == TILE_TYPE;
+        bool plantNotOnTile = validIndices && floor->tiles[highlightRow][highlightCol]->plantId == 0;
+
+        // Highlight tile if types match and no plant is on it (latter condition affects planting seeds)
+        if (tileTypeMatch && plantNotOnTile) {
             std::cout << "Player at (" << player->currRow << ", " << player->currCol << ")" << std::endl;
             std::cout << "Highlighting tile at (" << highlightRow << ", " << highlightCol << ")" << std::endl;
             player->highlightTileRow = highlightRow;
