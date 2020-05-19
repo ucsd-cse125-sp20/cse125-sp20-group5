@@ -102,6 +102,8 @@ void SceneNode::draw(const glm::mat4& veiwProjMat)
 	// mark stuff with update 
 	if (obj != NULL) {
 		obj->draw(*this, veiwProjMat);
+		// Reset highlight
+		obj->setHighlight(false);
 	}
 	std::unordered_map<uint, SceneNode*>::iterator it;
 	for (it = children.begin(); it != children.end(); it++) {

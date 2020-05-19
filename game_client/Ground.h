@@ -16,11 +16,12 @@ private:
 
 	// this is a one dimensinal arrya that ill use as a two dimensional cuz c++ arrays are bad
 	TILE_TYPE* grid;
+	bool* highlighted_grid;
 
 	std::vector<Model*> tiles;
 	AssimpModel* tilled;
 	Model* baseLayer;
-	
+	Model* outlineBox;
 
 public:
 	static enum class TILE_TYPE { NORMAL = 0, PATH = 1, TILLED = 2, BLANK = 3, BASE_LAYER = 4};
@@ -44,5 +45,7 @@ public:
 	static const char* getTexture(TILE_TYPE type);
 
 	static Ground * ground0(uint shader);
+
+	void highlightTile(int x, int y);
 };
 

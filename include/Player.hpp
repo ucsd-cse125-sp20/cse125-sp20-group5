@@ -30,6 +30,8 @@ public:
         ar & holding;
         ar & heldObject;
         ar & highlightObjectId;
+        ar & highlightTileRow;
+        ar & highlightTileCol;
     }
 
     ~Player() {

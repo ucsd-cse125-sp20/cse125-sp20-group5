@@ -110,6 +110,16 @@ void Scene::update()
 		unusedIds.erase(plant->objectId);
 	}
 
+	for (Tool* tool : state->tools) {
+		if (controllers.find(tool->objectId) == controllers.end()) {
+			controllers[tool->objectId] = new ToolController(tool, this);
+			objectIdMap[tool->objectId] = controllers[tool->objectId]->rootNode;
+		}
+		controllers[tool->objectId]->update(tool, this);
+
+		unusedIds.erase(tool->objectId);
+	}
+
 	for (Player* player : state->players) {
 		if (controllers.find(player->objectId) == controllers.end()) {
 			controllers[player->objectId] = new PlayerController(player, this);
@@ -127,16 +137,6 @@ void Scene::update()
 	controllers[state->waterTap->objectId]->update(state->waterTap, this);
 
 	unusedIds.erase(state->waterTap->objectId);
-
-	for (Tool * tool : state->tools) {
-		if (controllers.find(tool->objectId) == controllers.end()) {
-			controllers[tool->objectId] = new ToolController(tool, this);
-			objectIdMap[tool->objectId] = controllers[tool->objectId]->rootNode;
-		}
-		controllers[tool->objectId]->update(tool, this);
-
-		unusedIds.erase(tool->objectId);
-	}
 
 	SceneNode* seedShackNode = getDrawableSceneNode(state->seedShack->objectId, seedSourceModel);
 	seedShackNode->loadGameObject(state->seedShack);
