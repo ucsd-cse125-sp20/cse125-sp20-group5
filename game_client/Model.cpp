@@ -163,6 +163,35 @@ void Model::makeTile(const glm::vec3& tileMin, const glm::vec3& tileMax, const g
 	setBuffers(vtx, idx, texturefile);
 }
 
+void Model::makeOutline(float xSize, float ySize, float lineWidth, const glm::vec3& color) {
+	std::vector<ModelVertex> vtx = {
+		{{0.0,0.0,0.0},	{0,1,0}, color, {0,1.0}},
+		{{0.0,0.0,ySize},	{0,1,0}, color, {1.0,1.0}},
+		{{xSize,0.0,0.0},	{0,1,0}, color, {1.0,0}},
+		{{xSize,0.0,ySize},	{0,1,0}, color, {0,0}},
+
+		{{lineWidth,0.0,lineWidth},	{0,1,0}, color, {0,1.0}},
+		{{lineWidth,0.0,ySize-lineWidth},	{0,1,0}, color, {1.0,1.0}},
+		{{xSize-lineWidth,0.0,lineWidth},	{0,1,0}, color, {1.0,0}},
+		{{xSize-lineWidth,0.0,ySize-lineWidth},	{0,1,0}, color, {0,0}},
+
+		{{0.0,0.0,lineWidth},	{0,1,0}, color, {0,1.0}},
+		{{xSize,0.0,lineWidth},	{0,1,0}, color, {1.0,1.0}},
+		{{0.0,0.0,ySize-lineWidth},	{0,1,0}, color, {1.0,0}},
+		{{xSize,0.0,ySize - lineWidth},	{0,1,0}, color, {0,0}},
+	};
+
+	// Specify indices
+	std::vector<uint> idx = {
+		0,8,2,     8,9,2,    // 0 2 8 9
+		10,1,3,    10,3,11,   // 10 1 3 11
+		4,8,5,     5,8,10,   // 8 4 5 10
+		6,7,9,     9,7,11    // 6 7 9 11
+	};
+
+	setBuffers(vtx, idx, NO_TEXTURE);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void Model::setBuffers(const std::vector<ModelVertex>& vtx, const std::vector<uint>& idx, const char * texturefile) {

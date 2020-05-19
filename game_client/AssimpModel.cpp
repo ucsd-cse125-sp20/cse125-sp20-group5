@@ -186,6 +186,8 @@ void AssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 	// create a temp model mtx
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
+	glUniform1i(glGetUniformLocation(shader, "highlighted"), highlighted);
+
 
 	for (unsigned int i = 0; i < meshes.size(); i++)
 		meshes[i]->draw(shader);

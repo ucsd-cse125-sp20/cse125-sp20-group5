@@ -12,6 +12,7 @@
 #include "Scene.h"
 
 #define SEED_SCALER 0.03
+#define SEED_VEC glm::vec3(0.0, 0.2, 0.0)
 #define SAPLING_SCALER 0.06
 
 #define BABY_CORN_SCALER 0.3
@@ -28,6 +29,7 @@ public:
         rootNode = new SceneNode(NULL, "PlantRootEmptyNode", plant->objectId);
         modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(plant->objectId);
         modelNode->scaler = SEED_SCALER;
+        modelNode->position = SEED_VEC;
 
         rootNode->addChild(modelNode);
         scene->getGroundNode()->addChild(rootNode); 
@@ -71,12 +73,15 @@ public:
         // Load new data provided by server
         rootNode->loadGameObject(plant);
 
-        barNode->pose[1] = -rootNode->pose[1];
+        //barNode->pose[1] = -rootNode->pose[1];
 
         // Update growth bar
         if (plant->growStage == Plant::GrowStage::GROWN) {
-            barNode->removeSelf();
-            //uiNodes.erase(barNode);
+            if (barNode) {
+                barNode->removeSelf();
+                uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
+                barNode = nullptr;
+            }
         }
         else {
             if (plant->growProgressTime == 0.0f) {
@@ -98,6 +103,7 @@ public:
             case Plant::GrowStage::SEED:
                 modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
                 modelNode->scaler = SEED_SCALER;
+                modelNode->position = SEED_VEC;
                 break;
             case Plant::GrowStage::SAPLING:
                 modelNode = scene->getModel(ModelType::SAPLING)->createSceneNodes(objectId);

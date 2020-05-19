@@ -15,6 +15,12 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 	grid = new TILE_TYPE[gridsize];
 
+	int hgridsize = x * y;
+	highlighted_grid = new bool[hgridsize];
+	// std::fill(highlighted_grid, highlighted_grid + hgridsize * sizeof(bool), false);
+	for (int i = 0; i < hgridsize; i++) {
+		highlighted_grid[i] = false;
+	}
 
 	for (int i = 0; i < NUM_TILES; i++) {
 		Model * temp = new Model(shader);
@@ -25,6 +31,11 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 		tiles.push_back(temp);
 	}
+
+	// Make outline box
+	Model* temp = new Model(shader);
+	temp->makeOutline(1,1,0.05,glm::vec3(1.0,1.0,0.0));
+	outlineBox = temp;
 
 	setPadding(TILE_TYPE::BLANK);
 
@@ -87,6 +98,8 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL &&
 				grid[(i * totalY) + j] != Ground::TILE_TYPE::BLANK) {
 				if (grid[(i * totalY) + j] == Ground::TILE_TYPE::TILLED) {
+					float offset = tileSize / 2.0;
+					temp.transform = glm::translate(temp.transform, glm::vec3(offset, 0.0, offset));
 					temp.transform[0][0] = DIRT_SCALER;
 					temp.transform[1][1] = DIRT_SCALER;
 					temp.transform[2][2] = DIRT_SCALER;
@@ -95,11 +108,24 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 				else {
 					tiles[(int)grid[i * totalY + j]]->draw(temp, viewProjMtx);
 				}
-
 			}
 		}
 	}
-
+	// Draw outline boxes
+	tileMat = node.transform;
+	for (int i = 0; i < tilesX; i++) {
+		tileMat[3][2] = node.transform[3][2];
+		for (int j = 0; j < tilesY; j++) {
+			if (highlighted_grid[i * tilesY + j]) {
+				SceneNode temp(NULL, std::string(""), 0);
+				temp.transform = tileMat;
+				outlineBox->draw(temp, viewProjMtx);
+				highlighted_grid[i * tilesY + j] = false;
+			}
+			tileMat[3][2] += tileSize;
+		}
+		tileMat[3][0] += tileSize;
+	}
 }
 
 void Ground::setPadding(TILE_TYPE type) {
@@ -197,4 +223,9 @@ Ground * Ground::ground0(uint shader)
 		}
 	}
 	return ground0;
+}
+
+void Ground::highlightTile(int x, int y) {
+	if (x == -1 || y == -1) return;
+	highlighted_grid[x * tilesY + y] = true;
 }
