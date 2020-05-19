@@ -478,13 +478,94 @@ public:
             movePlayer(player);
 
             // 2. Check if collide with zombies
+            bool collideWithZombie = false;
             for (Zombie* zombie : zombies) {
-                if (player->collideWith(zombie)) {
-                    std::cout << "Collide with zombie" << std::endl;
-                    float dx = player->position->x - prevPos.x;
-                    float dz = player->position->z - prevPos.z;
-                    player->position->x = prevPos.x - 10 * dx;
-                    player->position->z = prevPos.z - 10 * dz;
+                if (player->collideWith(zombie) ) {
+                    if (player -> invincibleTime <= 0) {
+                        // player position bounce back
+                        std::cout << "Collide with zombie" << std::endl;
+                        float dir = player->direction->getOppositeDirection();
+                        float dz = std::cos(dir);
+                        float dx = std::sin(dir);
+
+                        // Check x axis hit boundary
+                        float playerToBoundX;
+                        if (dx >= 0) {
+                            // get distance from player to the bottom boundary
+                            playerToBoundX = floor->boundMaxX - player->position->x;
+                        }
+                        else {
+                            // get distance from player to the top boundary
+                            playerToBoundX = floor->boundMinX - player->position->x;
+                        }
+
+                        // Check z axis hit boundary
+                        float playerToBoundZ;
+                        if (dz >= 0) {
+                            // get distance from player to the bottom boundary
+                            playerToBoundZ = floor->boundMaxZ - player->position->z;
+                        }
+                        else {
+                            // get distance from player to the top boundary
+                            playerToBoundZ = floor->boundMinZ - player->position->z;
+                        }
+
+                        std::cout << "Player to z boundary is " << playerToBoundZ << std::endl;
+                        std::cout << "cos(dir) is " << dz << std::endl;
+                        std::cout << "Player to x boundary is " << playerToBoundX << std::endl;
+                        std::cout << "sin(dir) is " << dx << std::endl;
+
+                        float knockBackDist = config.playerKnockBackMaxDistance;
+                        if (playerToBoundZ / dz < knockBackDist) {
+                            knockBackDist = playerToBoundZ / dz;
+                        }
+                        if (playerToBoundX / dx < knockBackDist) {
+                            knockBackDist = playerToBoundX / dx;
+                        }
+
+                        player->position->x = prevPos.x + knockBackDist * dx;
+                        player->position->z = prevPos.z + knockBackDist * dz;
+
+                        // Look for nearest non-zombie tile
+                        int nextRow = player->position->z / Floor::TILE_SIZE;
+                        int nextCol = player->position->x / Floor::TILE_SIZE;
+
+                        std::vector<Tile*> nearTiles;
+                        for (int row = nextRow - 1; row <= nextRow + 1; row++) {
+                           for (int col = nextCol - 1; col <= nextCol + 1; col++) {
+                               if (row >= 0 && row < floor->tiles.size() && col >= 0 && col < floor->tiles[0].size()) {
+                                   nearTiles.push_back(floor->tiles[row][col]);
+                               }
+                           }
+                        }
+                        
+                        float minDistanceToTile = std::numeric_limits<float>::max();
+                        Tile* translateTile = nullptr;
+                        for (Tile* tile : nearTiles) {
+                            Position tilePos = tile->getCenterPosition();
+                            float tileDist = player->distanceTo(tilePos);
+                            if (tileDist < minDistanceToTile && tile->tileType != Tile::TYPE_ZOMBIE) {
+                                minDistanceToTile = tileDist;
+                                translateTile = tile;
+                            }
+                        }
+
+                        if (translateTile) {
+                            Position translateTilePos = translateTile->getCenterPosition();
+                            player->position->x = translateTilePos.x;
+                            player->position->z = translateTilePos.z;
+                            player->currRow = player->position->z / Floor::TILE_SIZE;
+                            player->currCol = player->position->x / Floor::TILE_SIZE;
+                        }
+
+
+                        player->invincibleTime = config.playerRespawnInvincibleTime;
+                    } else {
+                        // In invincible mode player stays in previous position when collide with zombie
+                        player->position->x = prevPos.x;
+                        player->position->z = prevPos.z;
+                    }
+
                     break;
                 }
             }
@@ -493,13 +574,15 @@ public:
             if (player->position->x < 0 || player->position->x > floor->tiles[0].size() * 1.0) {
                 std::cout << "Collide with wall" << std::endl;
                 player->position->x = prevPos.x;
-                continue;
             }
             if (player->position->z < 0 || player->position->z > floor->tiles.size() * 1.0) {
                 std::cout << "Collide with wall" << std::endl;
                 player->position->z = prevPos.z;
-                continue;
             }
+
+            if (player->invincibleTime > 0) {
+                player->invincibleTime -= deltaTime;
+			}
 
             // 4. Check if collide with tools
         }
@@ -590,10 +673,9 @@ public:
                 zombieBaseDir->angle
             );
             Animation* zombieAnimation = new Animation(0, 0);
-            float zombieRadius = 1.0f;
             Zombie* zombie = new Zombie(
                 zombiePosition, zombieDirection,
-                zombieAnimation, objectCount++, zombieRadius
+                zombieAnimation, objectCount++, config.zombieRabbitRadius
             );
             zombie->health = 100;
             zombie->maxHealth = 100;

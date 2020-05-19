@@ -30,6 +30,9 @@ public:
         ar & holding;
         ar & heldObject;
         ar & highlightObjectId;
+        ar & highlightTileRow;
+        ar & highlightTileCol;
+        ar & invincibleTime;
     }
 
     ~Player() {
@@ -59,9 +62,12 @@ public:
     bool shouldInteract;
     
     // Highlighting object
-    unsigned int highlightObjectId;
+    unsigned int highlightObjectId; //  0 indicates not highlighting
     int highlightTileRow;           // -1 indicates not highlighting
     int highlightTileCol;           // -1 indicates not highlighting
+
+    // Invincible time after hitting by zombie
+    float invincibleTime;
 
     // Animation Type
     enum PlayerAnimation { IDLE, MOVE };

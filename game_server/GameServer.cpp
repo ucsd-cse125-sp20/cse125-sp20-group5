@@ -162,7 +162,7 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
         new Direction(Direction::DIRECTION_DOWN),
         new Animation(0, 0),
         gameState.objectCount++,
-        1.0f,
+        config.playerCatRadius, // TODO: we might have other radii for other players?
         new Color(0, 0, 0), playerIdCounter++);
 
     pConn2Player.insert(std::make_pair(pConn, newPlayer));
