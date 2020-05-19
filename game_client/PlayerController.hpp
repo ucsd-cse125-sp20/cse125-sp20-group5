@@ -56,5 +56,8 @@ public:
 		else if (scene->objectIdMap.find(hightlightObjectId) != scene->objectIdMap.end()) {
 			scene->objectIdMap[hightlightObjectId]->obj->setHighlight(true);
 		}
+
+		// Set highlight tiles
+		((Ground*)(scene->getGroundNode()->obj))->highlightTile(player->highlightTileCol, player->highlightTileRow);
 	}
 };

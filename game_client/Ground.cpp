@@ -15,8 +15,7 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 	grid = new TILE_TYPE[gridsize];
 
-
-	for (int i = 0; i < NUM_TILES; i++) {
+	for (int i = 0; i < NUM_TILES - 1; i++) {
 		Model * temp = new Model(shader);
 		glm::vec3 color = getColor((TILE_TYPE)i);
 		glm::vec3 min(0, 0, 0);
@@ -25,6 +24,10 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 		tiles.push_back(temp);
 	}
+	// Make outline box
+	Model* temp = new Model(shader);
+	temp->makeOutline(1,1,0.05,glm::vec3(0.8,0.8,0.0));
+	tiles.push_back(temp);
 
 	setPadding(TILE_TYPE::BLANK);
 
@@ -199,4 +202,9 @@ Ground * Ground::ground0(uint shader)
 		}
 	}
 	return ground0;
+}
+
+void Ground::highlightTile(int x, int y) {
+	if (x == -1 || y == -1) return;
+	setLoc(x, y, TILE_TYPE::HIGHLIGHTED);
 }

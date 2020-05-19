@@ -31,7 +31,7 @@ public:
 	void makeBox(const glm::vec3 &boxMin,const glm::vec3 &boxMax);
 	void makeTile(const glm::vec3& tileMin, const glm::vec3& tileMax, const glm::vec3& color, const char* texturefile);
 	void setBuffers(const std::vector<ModelVertex> &vtx,const std::vector<uint> &idx, const char* texturefile);
-
+	void makeOutline(float xSize, float ySize, float lineWidth, const glm::vec3& color);
 private:
 	uint VertexBuffer;
 	uint IndexBuffer;

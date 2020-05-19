@@ -20,11 +20,10 @@ private:
 	std::vector<Model*> tiles;
 	AssimpModel* tilled;
 	Model* baseLayer;
-	
 
 public:
-	static enum class TILE_TYPE { NORMAL = 0, PATH = 1, TILLED = 2, BLANK = 3, BASE_LAYER = 4};
-	static const int NUM_TILES = 5;
+	static enum class TILE_TYPE { NORMAL = 0, PATH = 1, TILLED = 2, BLANK = 3, BASE_LAYER = 4, HIGHLIGHTED = 5};
+	static const int NUM_TILES = 6;
 
 	Ground(int x, int y, float size, int paddingX, int paddingY, uint shader, uint assimpShader);
 	~Ground();
@@ -44,5 +43,7 @@ public:
 	static const char* getTexture(TILE_TYPE type);
 
 	static Ground * ground0(uint shader);
+
+	void highlightTile(int x, int y);
 };
 
