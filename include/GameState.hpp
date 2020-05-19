@@ -896,7 +896,7 @@ public:
         float minDistance = std::numeric_limits<float>::max();
 
         for (int row = player->currRow - 1; row <= player->currRow + 1; row++) {
-            for (int col = player->currCol - 1; col <= player->currRow + 1; col++) {
+            for (int col = player->currCol - 1; col <= player->currCol + 1; col++) {
                 // Check out of bounds
                 if (row < 0 || row >= floor->tiles.size() || col < 0 || col >= floor->tiles[0].size()) continue;
 
