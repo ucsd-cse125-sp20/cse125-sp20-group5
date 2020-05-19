@@ -135,7 +135,7 @@ public:
             objectCount++;
         }*/
         // Init Corn
-        Position* cornPosition = new Position(5, 0, 5);
+        Position* cornPosition = new Position(5.5, 0, 5.5);
         Direction* cornDirection = new Direction(0.0);
         Animation* cornAnimation = new Animation(0, 0);
         TowerRange* cornRange = new TowerRange(3);
@@ -797,23 +797,29 @@ public:
                         waterTapClosest = true;
                     }
 
+                    player->highlightTileRow = -1;
+                    player->highlightTileCol = -1;
                     if (waterTapClosest && player->collideWith(waterTap) && currTool->remainingWater < currTool->capacity) {
                         player->highlightObjectId = waterTap->objectId;
+                        player->highlightTileRow = waterTap->position->z / Floor::TILE_SIZE;
+                        player->highlightTileCol = waterTap->position->x / Floor::TILE_SIZE;
                         std::cout << "Highlighting WaterTap" << std::endl;
                     }
                     else {
                         // interacting with tools
                         // Make sure tool is within collision range and is not held by others 
-                        if (highlightPlant && player->collideWith(highlightPlant)) {
+                        if (highlightPlant && highlightPlant->growStage != Plant::GrowStage::GROWN && player->collideWith(highlightPlant)) {
                             player->highlightObjectId = highlightPlant->objectId;
+                            if (currTool->remainingWater > 0) {
+                                player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
+                                player->highlightTileCol = highlightPlant->position->x / Floor::TILE_SIZE;
+                            }
                             std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
                         } else {
                             player->highlightObjectId = 0;
                             std::cout << "Nothing is highlighted" << std::endl;
 						}
                     }
-                    player->highlightTileRow = -1;
-                    player->highlightTileCol = -1;
                     break;
                 }
 
