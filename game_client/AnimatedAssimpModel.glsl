@@ -77,6 +77,8 @@ uniform vec3 lightDirection=vec3(0,0,1);
 
 uniform int hasTexture;
 
+uniform bool highlighted;
+
 out vec4 fragColor;
 
 

@@ -67,6 +67,8 @@ uniform vec3 lightDirection=vec3(0,0,1);
 
 uniform int hasTexture;
 
+uniform bool highlighted;
+
 out vec4 fragColor;
 
 
@@ -124,10 +126,14 @@ void main() {
 		finalColor = finalColor * texture(texture_diffuse1, fragTexture);
 	gl_FragColor = finalColor;
 
+	if (highlighted) {
+		gl_FragColor += vec4(0.3,0.3,0.3,1.0);
+	}
+
 	// Add outline 
 	float edge = max(0.0, dot(norm, normalize(eyedir)));
     if (edge < 0.2) {
-        gl_FragColor = vec4(0.0,0.0,0.0,0.0f);
+        gl_FragColor = vec4(0.0,0.0,0.0,1.0f);
     }
 }
 

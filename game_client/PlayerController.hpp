@@ -45,5 +45,16 @@ public:
 				}
 			}
 		}
+
+		// Read the objectID for highlighting
+		uint hightlightObjectId = player->highlightObjectId;
+		// Set highlight
+
+		if (scene->controllers.find(hightlightObjectId) != scene->controllers.end()) {
+			scene->controllers[hightlightObjectId]->modelNode->obj->setHighlight(true);
+		}
+		else if (scene->objectIdMap.find(hightlightObjectId) != scene->objectIdMap.end()) {
+			scene->objectIdMap[hightlightObjectId]->obj->setHighlight(true);
+		}
 	}
 };
