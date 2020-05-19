@@ -15,7 +15,14 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 	grid = new TILE_TYPE[gridsize];
 
-	for (int i = 0; i < NUM_TILES - 1; i++) {
+	int hgridsize = x * y;
+	highlighted_grid = new bool[hgridsize];
+	// std::fill(highlighted_grid, highlighted_grid + hgridsize * sizeof(bool), false);
+	for (int i = 0; i < hgridsize; i++) {
+		highlighted_grid[i] = false;
+	}
+
+	for (int i = 0; i < NUM_TILES; i++) {
 		Model * temp = new Model(shader);
 		glm::vec3 color = getColor((TILE_TYPE)i);
 		glm::vec3 min(0, 0, 0);
@@ -24,10 +31,11 @@ Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint 
 
 		tiles.push_back(temp);
 	}
+
 	// Make outline box
 	Model* temp = new Model(shader);
-	temp->makeOutline(1,1,0.05,glm::vec3(0.8,0.8,0.0));
-	tiles.push_back(temp);
+	temp->makeOutline(1,1,0.05,glm::vec3(1.0,1.0,0.0));
+	outlineBox = temp;
 
 	setPadding(TILE_TYPE::BLANK);
 
@@ -100,11 +108,24 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 				else {
 					tiles[(int)grid[i * totalY + j]]->draw(temp, viewProjMtx);
 				}
-
 			}
 		}
 	}
-
+	// Draw outline boxes
+	tileMat = node.transform;
+	for (int i = 0; i < tilesX; i++) {
+		tileMat[3][2] = node.transform[3][2];
+		for (int j = 0; j < tilesY; j++) {
+			if (highlighted_grid[i * tilesY + j]) {
+				SceneNode temp(NULL, std::string(""), 0);
+				temp.transform = tileMat;
+				outlineBox->draw(temp, viewProjMtx);
+				highlighted_grid[i * tilesY + j] = false;
+			}
+			tileMat[3][2] += tileSize;
+		}
+		tileMat[3][0] += tileSize;
+	}
 }
 
 void Ground::setPadding(TILE_TYPE type) {
@@ -206,5 +227,5 @@ Ground * Ground::ground0(uint shader)
 
 void Ground::highlightTile(int x, int y) {
 	if (x == -1 || y == -1) return;
-	setLoc(x, y, TILE_TYPE::HIGHLIGHTED);
+	highlighted_grid[x * tilesY + y] = true;
 }

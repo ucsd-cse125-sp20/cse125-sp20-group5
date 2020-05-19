@@ -132,7 +132,8 @@ void main() {
 
 	// Add outline 
 	float edge = max(0.0, dot(norm, normalize(eyedir)));
-    if (edge < 0.2) {
+    if (highlighted && edge < 0.5 || 
+		edge < 0.2) {
         gl_FragColor = vec4(0.0,0.0,0.0,1.0f);
     }
 }
