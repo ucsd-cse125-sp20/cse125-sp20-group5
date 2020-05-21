@@ -14,8 +14,13 @@ public:
     float playerInRotationMoveSpeed;
     float playerInRotationDiagonalMoveSpeed;
     float playerRotationSpeed;
+    float playerCatRadius;
     float zombieRabbitMoveSpeed;
+    float zombieRabbitRadius;
     float highlightFOVAngle;
+    float playerKnockBackMaxDistance;
+    float playerRespawnInvincibleTime;
+
 
     ServerParams();
 
