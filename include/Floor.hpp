@@ -113,6 +113,11 @@ public:
     float plowExpireTime;   // For normal tiles
     std::vector<std::vector<Tile*>> tiles;
 
+    float boundMinX;
+    float boundMaxX;
+    float boundMinZ;
+    float boundMaxZ;
+
     static constexpr const float TILE_SIZE = 1.0f;
 };
 

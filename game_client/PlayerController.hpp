@@ -51,10 +51,10 @@ public:
 		// Set highlight
 
 		if (scene->controllers.find(hightlightObjectId) != scene->controllers.end()) {
-			scene->controllers[hightlightObjectId]->modelNode->obj->setHighlight(true);
+			scene->controllers[hightlightObjectId]->modelNode->highlighted = true;
 		}
 		else if (scene->objectIdMap.find(hightlightObjectId) != scene->objectIdMap.end()) {
-			scene->objectIdMap[hightlightObjectId]->obj->setHighlight(true);
+			scene->objectIdMap[hightlightObjectId]->highlighted = true;
 		}
 
 		// Set highlight tiles

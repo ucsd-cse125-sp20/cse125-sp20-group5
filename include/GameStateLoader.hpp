@@ -89,6 +89,10 @@ public:
 		if (key == "MapBegin") {
 			readingMap = true;
 		} else if (key == "MapEnd") {
+			floor->boundMinX = 0;
+			floor->boundMaxX = floor->tiles[0].size() * Floor::TILE_SIZE;
+			floor->boundMinZ = 0;
+			floor->boundMaxZ = floor->tiles.size() * Floor::TILE_SIZE;
 			readingMap = false;
 		} else if (readingMap) {
 			// Parse the map

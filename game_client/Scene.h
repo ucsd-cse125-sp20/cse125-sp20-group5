@@ -59,6 +59,7 @@ private:
 	AssimpModel* seedSourceModel;
 	AssimpModel* shovelModel;
 	AssimpModel* seedBagModel;
+	AssimpModel* baseModel;
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
