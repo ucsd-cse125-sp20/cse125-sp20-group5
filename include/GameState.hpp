@@ -779,7 +779,7 @@ public:
 
                     player->highlightTileRow = -1;
                     player->highlightTileCol = -1;
-                    if (waterTapClosest && player->collideWith(waterTap) && currTool->remainingWater < currTool->capacity) {
+                    if (waterTapClosest && player->highlightCollideWith(waterTap) && currTool->remainingWater < currTool->capacity) {
                         player->highlightObjectId = waterTap->objectId;
                         player->highlightTileRow = waterTap->position->z / Floor::TILE_SIZE;
                         player->highlightTileCol = waterTap->position->x / Floor::TILE_SIZE;
@@ -788,7 +788,7 @@ public:
                     else {
                         // interacting with tools
                         // Make sure tool is within collision range and is not held by others 
-                        if (highlightPlant && highlightPlant->growStage != Plant::GrowStage::GROWN && player->collideWith(highlightPlant)) {
+                        if (highlightPlant && highlightPlant->growStage != Plant::GrowStage::GROWN && player->highlightCollideWith(highlightPlant)) {
                             player->highlightObjectId = highlightPlant->objectId;
                             if (currTool->remainingWater > 0) {
                                 player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
@@ -851,14 +851,14 @@ public:
                     seedShackClosest = true;
                 }
 
-                if (seedShackClosest && player->collideWith(seedShack)) {
+                if (seedShackClosest && player->highlightCollideWith(seedShack)) {
                     player->highlightObjectId = seedShack->objectId;
                     std::cout << "Highlighting seedShack" << std::endl;
                 }
                 else {
                     // interacting with tools
                     // Make sure tool is within collision range and is not held by others 
-                    if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
+                    if (currTool && player->highlightCollideWith(currTool) && currTool->heldBy == 0) {
                         player->highlightObjectId = currTool->objectId;
                         std::cout << "Highlighting tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                     } else {
