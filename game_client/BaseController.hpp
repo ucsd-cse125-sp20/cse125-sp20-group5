@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene.h"
-#include "RenderController.h"
+#include "RenderController.hpp"
 
 #define HOME_BASE_SCALER 0.15
 
@@ -21,7 +21,7 @@ public:
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
 
-		// init growth bar
+		// init hp bar
 		float initBarFilledFraction = 1.0f;
 		HealthBarSetting barSetting(
 			"texture/hp_icon.png", HP_BAR_TRANSLATE_Y, initBarFilledFraction, HP_BAR_COLOR
@@ -29,14 +29,19 @@ public:
 		std::tie(hpBar, barNode) = createHealthBar(barSetting, scene);
 	}
 
-	void update(GameObject* gameObject, Scene* scene) override {
-		update((HomeBase*)gameObject, scene);
+	~BaseController() {
+		if (hpBar) { delete hpBar; }
 	}
 
-	void update(HomeBase* homeBase, Scene* scene) {
+	void update(GameObject* gameObject, Scene* scene) override {
+		HomeBase* homeBase = (HomeBase*) gameObject;
+
 		rootNode->loadGameObject(homeBase);
 
-		// Update growth bar
+		updateHpBar(homeBase, scene);
+	}
+
+	void updateHpBar(HomeBase* homeBase, Scene* scene) {
 		if (homeBase->maxHealth <= 0) {
 			return; // data hasn't been received from server yet
 		}
@@ -46,9 +51,8 @@ public:
 				barNode = nullptr;
 			}
 		}
-		else {	
+		else {
 			hpBar->updateBar((float)homeBase->health / (float)homeBase->maxHealth);
 		}
 	}
-
 };

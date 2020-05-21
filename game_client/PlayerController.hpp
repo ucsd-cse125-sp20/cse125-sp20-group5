@@ -1,7 +1,7 @@
 #pragma once
 #include "Scene.h"
-#include "RenderController.h"
-#include "ToolController.h"
+#include "RenderController.hpp"
+#include "ToolController.hpp"
 
 
 #define PLAYER_SCALER 0.30
@@ -21,33 +21,42 @@ public:
 		scene->getGroundNode()->addChild(rootNode);
 	}
 
-	void update(GameObject * gameObject, Scene * scene) override {
-		update((Player*)gameObject, scene);
-	}
+	~PlayerController() {}
 
-	void update(Player* player, Scene* scene) {
+	void update(GameObject * gameObject, Scene * scene) override {
+		Player* player = (Player*) gameObject;
+
 		rootNode->loadGameObject(player);
 		modelNode->switchAnim(player->animation->animationType);
 
-		// here is wehre we handle stuff like making sure they are holding another object
-		if (player->holding) {
-			if (scene->controllers.count(player->heldObject) > 0) {
-				ToolController* controller = (ToolController*)(scene->controllers[player->heldObject]);
-				SceneNode* playerHand = modelNode->findHand(modelNode->objectId);
-				if (playerHand != NULL) {
-					if (controller->type == Tool::ToolType::WATER_CAN) {
-						controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
-					}
-					else if (controller->type == Tool::ToolType::PLOW) {
-						controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
-					}
-					else if (controller->type == Tool::ToolType::SEED) {
-						controller->putInHand(playerHand, PLAYER_SCALER, SEED_BAG__HOLD_VEC, glm::vec3(0), scene);
-					}
+		handleHoldingAction(player, scene);
+		handleHighlighting(player, scene);
+	}
+
+	// here is wehre we handle stuff like making sure they are holding another object
+	void handleHoldingAction(Player* player, Scene* scene) {
+		if (!player->holding) {
+			return;
+		}
+
+		if (scene->controllers.count(player->heldObject) > 0) {
+			ToolController* controller = (ToolController*)(scene->controllers[player->heldObject]);
+			SceneNode* playerHand = modelNode->findHand(modelNode->objectId);
+			if (playerHand != NULL) {
+				if (controller->type == Tool::ToolType::WATER_CAN) {
+					controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
+				}
+				else if (controller->type == Tool::ToolType::PLOW) {
+					controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
+				}
+				else if (controller->type == Tool::ToolType::SEED) {
+					controller->putInHand(playerHand, PLAYER_SCALER, SEED_BAG__HOLD_VEC, glm::vec3(0), scene);
 				}
 			}
 		}
+	}
 
+	void handleHighlighting(Player* player, Scene* scene) {
 		// Read the objectID for highlighting
 		uint hightlightObjectId = player->highlightObjectId;
 		// Set highlight

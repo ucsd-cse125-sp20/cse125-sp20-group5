@@ -1,5 +1,5 @@
 ////////////////////////////////////////
-// RenderController.h
+// RenderController.hpp
 // 
 // Class that wraps the scene node and model of a game object
 ////////////////////////////////////////
@@ -34,6 +34,9 @@ struct HealthBarSetting {
 class RenderController {
 public:
     RenderController() {}
+
+    ~RenderController() {
+    }
 
     SceneNode* rootNode;
     SceneNode* modelNode;

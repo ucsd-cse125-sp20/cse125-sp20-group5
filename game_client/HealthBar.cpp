@@ -22,7 +22,7 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 	float gap = 0.25f;
 	float barWidth = 4.0f;
 	float barHeight = 0.5f;
-	float barEdgePad = barHeight * 0.1f;
+	float barEdgePad = barHeight * 0.125f;
 
 	mat4 iconMtx = translate(vec3(-(barWidth + gap) / 2.0f, 0, 0))
 		* scale(vec3(iconWidth, iconWidth, 1));

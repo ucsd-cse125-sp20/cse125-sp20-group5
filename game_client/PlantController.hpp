@@ -1,12 +1,12 @@
 ////////////////////////////////////////
-// PlantController.h
+// PlantController.hpp
 // 
 // Class that wraps and controls the rendering attributes of Plant
 ////////////////////////////////////////
 
 #pragma once
 
-#include "RenderController.h"
+#include "RenderController.hpp"
 #include <Plant.hpp>
 #include "HealthBar.h" //TODO to be removed
 #include "Scene.h"
@@ -60,10 +60,8 @@ public:
 
     void update(GameObject * gameObject, Scene* scene) override {
         // TODO maybe do some ceck here to see if we can cast
-        update(((Plant*)gameObject), scene);
-    }
+        Plant* plant = (Plant*) gameObject;
 
-    void update(Plant* plant, Scene* scene) {
         // Update grown plant model
         if (currGrowStage != plant->growStage) {
             updatePlantModel(plant, scene);
@@ -74,20 +72,7 @@ public:
         rootNode->loadGameObject(plant);
 
         // Update growth bar
-        if (plant->growStage == Plant::GrowStage::GROWN) {
-            if (barNode) {
-                uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
-                barNode = nullptr;
-            }
-        }
-        else {
-            if (plant->growProgressTime == 0.0f) {
-                growthBar->resetBar(0.0f);
-            }
-            else {
-                growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
-            }
-        }
+        updateGrowthBar(plant, scene);
     }
 
     void updatePlantModel(Plant* plant, Scene* scene) {
@@ -125,6 +110,23 @@ public:
                 break;
         }
         rootNode->addChild(modelNode);
+    }
+
+    void updateGrowthBar(Plant* plant, Scene* scene) {
+        if (plant->growStage == Plant::GrowStage::GROWN) {
+            if (barNode) {
+                uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
+                barNode = nullptr;
+            }
+        }
+        else {
+            if (plant->growProgressTime == 0.0f) {
+                growthBar->resetBar(0.0f);
+            }
+            else {
+                growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
+            }
+        }
     }
    
 };
