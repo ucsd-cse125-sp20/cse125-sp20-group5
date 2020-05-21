@@ -26,7 +26,6 @@ AnimatedAssimpModel::AnimatedAssimpModel(string const& path, uint shader) : Assi
 	// fin the root bone
 	// teh root bone is direct child of the scene's root node hte top of the bone structure
 	setRootBone();
-	std::cout << rootBone->mName.C_Str() << std::endl;
 
 	startTime = chrono::system_clock::now();
 }
