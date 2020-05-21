@@ -40,15 +40,13 @@ public:
 
 	// straight forward;
 	void setParent(SceneNode * newParent);
-
 	void addChild(SceneNode* newChild);
-
 	void calcLocalTransform();
 
 	// update the matrices recursive
 	void update(glm::mat4 world);
 
-	// draw teh matrices recursive
+	// draw the matrices recursive
 	void draw(const glm::mat4& veiwProjMat);
 
 	void loadGameObject(GameObject * gameObj);
@@ -65,11 +63,13 @@ public:
 	uint animationId;
 	float animPlayedTime; // how many time has passed since animStartTime
 	std::chrono::system_clock::time_point animStartTime;  // TODO: to be removed if updating animation on the server side
+	bool loopAnimation = true;
+	bool playedOneAnimCycle = false;
 
 	// TODO: to be removed if updating animation on the server side
 	void updateAnimation();
-	void loadAnimData(uint numAnim, uint initialAnimID);
-	void switchAnim(uint newAnimID);
+	void loadAnimData(uint numAnim, uint initialAnimID, bool alwaysLoop = true);
+	void switchAnim(uint newAnimID, bool alwaysLoop = true);
 
 	std::string getName() const;
 

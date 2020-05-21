@@ -15,6 +15,8 @@ SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 	animationId = 0;
 	animPlayedTime = 0.0;
 	numAnimation = 0;
+	loopAnimation = true;
+	playedOneAnimCycle = false;
 
 	position = glm::vec3(0.0);
 	pose = glm::vec3(0.0);
@@ -125,7 +127,7 @@ void SceneNode::loadGameObject(GameObject* gameObj)
 	// TODO if use server to update anim, uncomment the below and delete swtichAnim
 	//animationId = gameObj->animation->animationType;
 	//animPlayedTime = gameObj->animation->animationFrame;
-	switchAnim(gameObj->animation->animationType);
+	//switchAnim(gameObj->animation->animationType); // moved to controller classes
 }
 int SceneNode::countChildern()
 {
@@ -183,13 +185,15 @@ void SceneNode::updateAnimation() {
 	this->animPlayedTime = elapsed_seconds.count();
 }
 
-void SceneNode::loadAnimData(uint numAnim, uint initialAnimID) {
+void SceneNode::loadAnimData(uint numAnim, uint initialAnimID, bool alwaysLoop) {
 	this->numAnimation = numAnim;
 	this->animationId = initialAnimID;
 	this->animStartTime = std::chrono::system_clock::now();
+	this->loopAnimation = alwaysLoop;
+	this->playedOneAnimCycle = false;
 }
 
-void SceneNode::switchAnim(uint newAnimID) {
+void SceneNode::switchAnim(uint newAnimID, bool alwaysLoop) {
 	if (this->numAnimation <= 0) {
 		return; // meaning no animation for this node/model
 	}
@@ -205,5 +209,7 @@ void SceneNode::switchAnim(uint newAnimID) {
 
 	this->animationId = newAnimID;
 	this->animStartTime = std::chrono::system_clock::now();
+	this->loopAnimation = alwaysLoop;
+	this->playedOneAnimCycle = false;
 }
 

@@ -186,6 +186,7 @@
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="RenderController.h" />
+    <ClInclude Include="ZombieController.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimatedAssimpModel.cpp" />

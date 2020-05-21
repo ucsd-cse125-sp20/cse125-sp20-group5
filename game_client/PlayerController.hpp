@@ -14,7 +14,7 @@
 class PlayerController : public RenderController {
 public:
 	PlayerController(Player* player, Scene* scene) {
-		rootNode = new SceneNode(NULL, "PlaeryRootEmpty", player->objectId);
+		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + player->objectId, player->objectId);
 		modelNode = scene->getModel(ModelType::CAT)->createSceneNodes(player->objectId);
 		rootNode->addChild(modelNode);
 		rootNode->scaler = PLAYER_SCALER;

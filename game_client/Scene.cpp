@@ -4,6 +4,7 @@
 #include "TapController.h"
 #include "ToolController.h"
 #include "PlayerController.hpp"
+#include "ZombieController.hpp"
 
 Scene::Scene()
 {
@@ -95,10 +96,13 @@ void Scene::update()
 	}
 
 	for (Zombie* zombie : state->zombies) {
-		SceneNode* zombieNode = getDrawableSceneNode(zombie->objectId, zombieModel);
-		zombieNode->loadGameObject(zombie); // load new data
-		zombieNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
-		unusedIds.erase(zombie->objectId);  // perhaps the server could provide it
+		if (controllers.find(zombie->objectId) == controllers.end()) {
+			controllers[zombie->objectId] = new ZombieController(zombie, this);
+			objectIdMap[zombie->objectId] = controllers[zombie->objectId]->rootNode;
+		}
+		controllers[zombie->objectId]->update(zombie, this);
+
+		unusedIds.erase(zombie->objectId);
 	}
 
 	SceneNode* homeNode = getDrawableSceneNode(state->homeBase->objectId, baseModel);
