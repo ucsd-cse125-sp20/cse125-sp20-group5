@@ -5,9 +5,9 @@
 
 
 #define PLAYER_SCALER 0.30
-#define WATER_CAN_HOLD_VEC glm::vec3(-4.5, 1.3, .5)
+#define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
 #define SEED_BAG__HOLD_VEC glm::vec3(-3.0,0.0,0.0)
-#define SHOVEL_HOLD_VEC glm::vec3(-2.5, 1.7, .7)
+#define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
 #define CAT_ARM "j_r_arm_$AssimpFbx$_Translation"
 
@@ -31,7 +31,7 @@ public:
 		if (player->holding) {
 			if (scene->controllers.count(player->heldObject) > 0) {
 				ToolController* controller = (ToolController*)(scene->controllers[player->heldObject]);
-				SceneNode* playerHand = modelNode->find(CAT_ARM, modelNode->objectId);
+				SceneNode* playerHand = modelNode->findHand(modelNode->objectId);
 				if (playerHand != NULL) {
 					if (controller->type == Tool::ToolType::WATER_CAN) {
 						controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);

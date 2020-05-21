@@ -53,6 +53,7 @@ public:
 	void loadGameObject(GameObject * gameObj);
 	
 	int countChildern();
+	SceneNode* findHand(uint objectId);
 	// finds a sub noe with the given name and object id
 	// used for finding hands and such 
 	SceneNode* find(std::string name, uint objectId);

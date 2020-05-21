@@ -7,7 +7,7 @@
 #define PATH_TEXTURE "texture/ground_texture.jpg"
 
 #define ZOMBIE_MODEL "model/rabbit.fbx"
-#define PLAYER_MODEL "model/mul_anim_cat.fbx"
+#define PLAYER_MODEL "model/chicken.fbx"
 #define CORN_MODEL "model/corn.fbx"
 #define BABY_CORN_MODEL "model/baby_corn.fbx"
 
