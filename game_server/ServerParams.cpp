@@ -23,4 +23,10 @@ ServerParams::ServerParams() {
     playerKnockBackMaxDistance = config.GetFloat("PhysicsParams", "PlayerKnockBackMaxDistance", 5.0f);
     playerRespawnInvincibleTime = config.GetFloat("PhysicsParams", "PlayerRespawnInvincibleTime", 2.0f);
 
+    // Zombie wave parameters
+    waveDefaultNumZombies = config.GetInteger("ZombieWaves", "WaveDefaultNumZombies", 1);
+    waveDeltaNumZombies = config.GetInteger("ZombieWaves", "WaveDeltaNumZombies", 2);
+    zombieDefaultHealth = config.GetInteger("ZombieWaves", "ZombieDefaultHealth", 100);
+    zombieDeltaHealth = config.GetInteger("ZombieWaves", "ZombieDeltaHealth", 20);
+    waveStartTime = config.GetFloat("ZombieWaves", "WaveStartTime", 5.0f);
 }

@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="GameServer.cpp" />
     <ClCompile Include="ServerParams.cpp" />
+    <ClCompile Include="ZombieWaveManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameServer.h" />

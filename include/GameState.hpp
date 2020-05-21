@@ -12,6 +12,7 @@
 #include "Floor.hpp"
 #include "GameStateLoader.hpp"
 #include "HomeBase.hpp"
+#include "ZombieWaveManager.h"
 #include "ServerParams.h"
 
 #include <cmath>
@@ -97,6 +98,7 @@ public:
         seedShack = new SeedShack();
         waterTap = new WaterTap();
         homeBase = new HomeBase();
+        zombieWaveManager = new ZombieWaveManager(this);
 	}
 
 
@@ -211,6 +213,7 @@ public:
         updatePlayersPosition();
         updatePlayersHighlight();
         tick++;
+        currentTime += deltaTime;
     }
 
     void playersPerformAction() {
@@ -638,29 +641,7 @@ public:
     }
 
     void updateZombies() {
-        // Spawn zombie every second
-        if (tick % tickRate == 0) {
-            // TODO: Need to find out the position of the tile
-            // Position right now uses indices
-            Position* zombieBasePos = floor->zombieBaseTile->position;
-            Direction* zombieBaseDir = floor->zombieBaseTile->direction;
-            Position* zombiePosition = new Position(
-                zombieBasePos->x + Tile::TILE_PAD_X,
-                zombieBasePos->y,
-                zombieBasePos->z + Tile::TILE_PAD_Z
-            );
-            Direction* zombieDirection = new Direction(
-                zombieBaseDir->angle
-            );
-            Animation* zombieAnimation = new Animation(0, 0);
-            Zombie* zombie = new Zombie(
-                zombiePosition, zombieDirection,
-                zombieAnimation, objectCount++, config.zombieRabbitRadius
-            );
-            zombie->health = 100;
-            zombie->maxHealth = 100;
-            zombies.push_back(zombie);
-		}
+        zombieWaveManager->handleZombieWaves();
 
         for (auto i = std::begin(zombies); i != std::end(zombies); i++) {
             Zombie* zombie = (*i);
@@ -933,6 +914,9 @@ public:
     WaterTap* waterTap;
     HomeBase* homeBase;
 
+    // Zombie Spawn Manager
+    ZombieWaveManager* zombieWaveManager;
+
     // Game status losing/not losing
     bool isGameOver;
 
@@ -946,6 +930,7 @@ public:
     long long tick;
     int tickRate;
     float deltaTime;
+    float currentTime;
 
     // Configs
     ServerParams config;

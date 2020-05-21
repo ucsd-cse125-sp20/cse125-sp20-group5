@@ -22,6 +22,13 @@ public:
     float playerRespawnInvincibleTime;
 
 
+    // Zombie Waves related
+    int waveDefaultNumZombies;
+    int waveDeltaNumZombies;
+    int zombieDefaultHealth;
+    int zombieDeltaHealth;
+    float waveStartTime;
+
     ServerParams();
 
     // Math constants
