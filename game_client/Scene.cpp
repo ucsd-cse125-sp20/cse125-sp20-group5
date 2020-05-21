@@ -5,6 +5,7 @@
 #include "ToolController.h"
 #include "PlayerController.hpp"
 #include "ZombieController.hpp"
+#include "BaseController.hpp"
 
 Scene::Scene()
 {
@@ -105,10 +106,14 @@ void Scene::update()
 		unusedIds.erase(zombie->objectId);
 	}
 
-	SceneNode* homeNode = getDrawableSceneNode(state->homeBase->objectId, baseModel);
-	homeNode->loadGameObject(state->homeBase); // load new data
-	homeNode->scaler = HOME_BASE_SCALER;
-	unusedIds.erase(state->homeBase->objectId);
+	
+	HomeBase* homeBase = state->homeBase;
+	if (controllers.find(homeBase->objectId) == controllers.end()) {
+		controllers[homeBase->objectId] = new BaseController(homeBase, this);
+		objectIdMap[homeBase->objectId] = controllers[homeBase->objectId]->rootNode;
+	}
+	controllers[homeBase->objectId]->update(homeBase, this);
+	unusedIds.erase(homeBase->objectId);
 	
 
 	for (Plant* plant : state->plants) {

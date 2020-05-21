@@ -171,6 +171,7 @@ void HealthBar::loadTexture(const char* textureFile, uint id)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// Set bi-linear filtering for both minification and magnification
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 

@@ -21,6 +21,16 @@ struct z_compare {
     }
 };
 
+struct HealthBarSetting {
+    const char* iconFile;
+    float translateY;
+    float initFilledFraction;
+    glm::vec3 barColor;
+
+    HealthBarSetting(const char* iconFile, float translateY, float initFilledFraction, glm::vec3 barColor)
+        : iconFile(iconFile), translateY(translateY), initFilledFraction(initFilledFraction), barColor(barColor) {}
+};
+
 class RenderController {
 public:
     RenderController() {}
@@ -40,6 +50,19 @@ public:
             uiNode->draw(viewProjMtx);
         }
         HealthBar::canDraw = false;
+    }
+
+    // Init the healthbar object and add its node to the scene graph and the uiNode vector
+    std::pair<HealthBar*, SceneNode*> createHealthBar(HealthBarSetting barSetting, Scene* scene) {
+        HealthBar* barObject = new HealthBar(
+            scene->getShaderID(ShaderType::HEALTH_BAR),
+            barSetting.iconFile, barSetting.translateY, barSetting.initFilledFraction, barSetting.barColor
+        );
+        SceneNode* barNode = barObject->createSceneNodes(rootNode->objectId);
+        this->rootNode->addChild(barNode);
+        uiNodes.push_back(barNode);
+
+        return std::pair<HealthBar*, SceneNode*>(barObject, barNode);
     }
 
 private:

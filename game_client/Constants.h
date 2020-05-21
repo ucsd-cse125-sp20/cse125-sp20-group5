@@ -27,7 +27,6 @@
 
 #define SEED_SOURCE_SCALER 0.020
 #define DIRT_SCALER 0.05
-#define HOME_BASE_SCALER 0.15
 
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"

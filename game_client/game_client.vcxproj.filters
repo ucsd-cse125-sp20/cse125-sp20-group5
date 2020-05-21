@@ -102,6 +102,9 @@
     <ClInclude Include="ZombieController.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BaseController.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
