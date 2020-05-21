@@ -19,6 +19,7 @@ SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 	position = glm::vec3(0.0);
 	pose = glm::vec3(0.0);
 	scaler = 1.0;
+	highlighted = false;
 }
 
 SceneNode::~SceneNode()
@@ -101,9 +102,11 @@ void SceneNode::draw(const glm::mat4& veiwProjMat)
 	// actually stack the transfroms
 	// mark stuff with update 
 	if (obj != NULL) {
+		obj->setHighlight(highlighted);
 		obj->draw(*this, veiwProjMat);
 		// Reset highlight
 		obj->setHighlight(false);
+		highlighted = false;
 	}
 	std::unordered_map<uint, SceneNode*>::iterator it;
 	for (it = children.begin(); it != children.end(); it++) {

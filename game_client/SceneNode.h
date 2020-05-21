@@ -28,6 +28,7 @@ public:
 	glm::vec3 position;
 	glm::vec3 pose;
 	float scaler;
+	bool highlighted;
 
 	SceneNode(Drawable * myO, std::string name, uint objectId);
 
