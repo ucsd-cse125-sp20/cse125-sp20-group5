@@ -36,7 +36,7 @@ Scene::Scene()
 
 	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(100.0f)));
 
-	testUI = new Image2d(uiProgram->GetProgramID(), "texture/newheart.ppm", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
+	testUI = new Image2d(uiProgram->GetProgramID(), "texture/player_one.png", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
