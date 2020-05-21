@@ -26,8 +26,10 @@ public:
 	}
 
 	void update(Player* player, Scene* scene) {
-		// here is wehre we handle stuff like making sure they are holding another object
 		rootNode->loadGameObject(player);
+		modelNode->switchAnim(player->animation->animationType);
+
+		// here is wehre we handle stuff like making sure they are holding another object
 		if (player->holding) {
 			if (scene->controllers.count(player->heldObject) > 0) {
 				ToolController* controller = (ToolController*)(scene->controllers[player->heldObject]);

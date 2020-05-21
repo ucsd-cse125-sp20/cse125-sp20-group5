@@ -70,7 +70,7 @@ public:
     float invincibleTime;
 
     // Animation Type
-    enum PlayerAnimation { IDLE, MOVE };
+    enum PlayerAnimation { IDLE, MOVE, WATER, PLOUGH };
 };
 
 #endif
