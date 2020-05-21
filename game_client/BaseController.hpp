@@ -30,6 +30,9 @@ public:
 	}
 
 	~BaseController() {
+		if (barNode) {
+			barNode = RenderController::deleteBarNode(barNode);
+		}
 		if (hpBar) { delete hpBar; }
 	}
 
@@ -45,10 +48,10 @@ public:
 		if (homeBase->maxHealth <= 0) {
 			return; // data hasn't been received from server yet
 		}
-		if (homeBase->health <= 0) {
+
+		if (hpBar->currFilledFraction <= 0.0) {
 			if (barNode) {
-				uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
-				barNode = nullptr;
+				barNode = RenderController::deleteBarNode(barNode);
 			}
 		}
 		else {

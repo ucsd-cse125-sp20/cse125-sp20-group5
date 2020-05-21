@@ -80,6 +80,9 @@ void Scene::update()
 {
 	std::set<uint> unusedIds;
 	for (auto kvp : objectIdMap) {
+		if (objectIdMap[kvp.first]->name.find("Zombie") != -1) {
+			continue;
+		}
 		unusedIds.insert(kvp.first);
 	}
 
@@ -102,9 +105,8 @@ void Scene::update()
 			objectIdMap[zombie->objectId] = controllers[zombie->objectId]->rootNode;
 		}
 		controllers[zombie->objectId]->update(zombie, this);
-
-		unusedIds.erase(zombie->objectId);
 	}
+	ZombieController::processZombieDeath(this);
 
 	
 	HomeBase* homeBase = state->homeBase;

@@ -44,17 +44,6 @@ public:
 
     virtual void update(GameObject* gameObject, Scene* scene) {};
    
-    static std::vector<SceneNode*> uiNodes;
-
-    static void drawUI(const glm::mat4& viewProjMtx) {
-        std::sort(uiNodes.begin(), uiNodes.end(), z_compare());
-        HealthBar::canDraw = true;
-        for (SceneNode* uiNode : uiNodes) {
-            uiNode->draw(viewProjMtx);
-        }
-        HealthBar::canDraw = false;
-    }
-
     // Init the healthbar object and add its node to the scene graph and the uiNode vector
     std::pair<HealthBar*, SceneNode*> createHealthBar(HealthBarSetting barSetting, Scene* scene) {
         HealthBar* barObject = new HealthBar(
@@ -66,6 +55,25 @@ public:
         uiNodes.push_back(barNode);
 
         return std::pair<HealthBar*, SceneNode*>(barObject, barNode);
+    }
+
+    static std::vector<SceneNode*> uiNodes;
+
+    static void drawUI(const glm::mat4& viewProjMtx) {
+        std::sort(uiNodes.begin(), uiNodes.end(), z_compare());
+        HealthBar::isDrawUiMode = true;
+        for (SceneNode* uiNode : uiNodes) {
+            uiNode->draw(viewProjMtx);
+        }
+        HealthBar::isDrawUiMode = false;
+    }
+
+    // Always return nullptr which should be assigned to the original barNode class member
+    static SceneNode* deleteBarNode(SceneNode* barNode) {
+        if (barNode) {
+            uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
+        }
+        return nullptr;
     }
 
 private:

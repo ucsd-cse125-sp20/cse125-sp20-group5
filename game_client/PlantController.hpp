@@ -115,8 +115,7 @@ public:
     void updateGrowthBar(Plant* plant, Scene* scene) {
         if (plant->growStage == Plant::GrowStage::GROWN) {
             if (barNode) {
-                uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
-                barNode = nullptr;
+                barNode = RenderController::deleteBarNode(barNode);
             }
         }
         else {

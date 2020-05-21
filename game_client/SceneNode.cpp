@@ -203,7 +203,7 @@ void SceneNode::switchAnim(uint newAnimID, bool alwaysLoop) {
 			<< " (has only " << this->numAnimation <<" animations)" << std::endl;
 		return;
 	}
-	if (this->animationId == newAnimID) {
+	if (this->animationId == newAnimID && this->loopAnimation == alwaysLoop) {
 		return; // no need to switch
 	}
 
