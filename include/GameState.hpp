@@ -97,55 +97,8 @@ public:
         seedShack = new SeedShack();
         waterTap = new WaterTap();
         homeBase = new HomeBase();
-        init();
 	}
 
-    void init() {
-        // Init the default state here
-        // TODO: change them later
-        //int NUM_OF_PLAYER = 3;
-        //int NUM_OF_ZOMBIE = 3;
-
-        // Init players
-        /*
-        for (int i = 0; i < NUM_OF_PLAYER; i++) {
-            Position* playerPosition = new Position(i*3, 0, 0);
-            Direction* playerDirection = new Direction(0.0);
-            Animation* playerAnimation = new Animation(0, 0);
-            Color* playerColor = new Color(100, 100, 100);
-            float playerRadius = 1.0; // temp radius
-            players.push_back(
-                new Player(
-                    playerPosition, playerDirection,
-                    playerAnimation, objectCount, playerRadius, playerColor, i
-                )
-            );
-            gameObjectMap[objectCount] = players[i];
-            objectCount++;
-        }*/
-
-        // Init zombies
-        /*for (int i = 0; i < NUM_OF_ZOMBIE; i++) {
-            Position* zombiePosition = new Position(i*3, 0, 5.0);
-            Direction* zombieDirection = new Direction(0.0);
-            Animation* zombieAnimation = new Animation(0, 0);
-            zombies.push_back(
-                new Zombie(zombiePosition, zombieDirection, zombieAnimation, objectCount)
-            );
-            objectCount++;
-        }*/
-        // Init Corn
-        Position* cornPosition = new Position(5.5, 0, 5.5);
-        Direction* cornDirection = new Direction(0.0);
-        Animation* cornAnimation = new Animation(0, 0);
-        TowerRange* cornRange = new TowerRange(3);
-        float cornRadius = 1.0f;
-        Plant* corn = new Plant(cornPosition, cornDirection, cornAnimation, objectCount, cornRadius, cornRange, Plant::PlantType::CORN, Plant::GrowStage::SEED);
-        corn->growExpireTime = 2.0f;
-        plants.push_back(corn);
-        gameObjectMap[objectCount] = corn;
-        objectCount++;
-    }
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
@@ -480,8 +433,8 @@ public:
             // 2. Check if collide with zombies
             bool collideWithZombie = false;
             for (Zombie* zombie : zombies) {
-                if (player->collideWith(zombie) ) {
-                    if (player -> invincibleTime <= 0) {
+                if (player->collideWith(zombie)) {
+                    if (player->invincibleTime <= 0) {
                         // player position bounce back
                         std::cout << "Collide with zombie" << std::endl;
                         float dir = player->direction->getOppositeDirection();
@@ -532,13 +485,13 @@ public:
 
                         std::vector<Tile*> nearTiles;
                         for (int row = nextRow - 1; row <= nextRow + 1; row++) {
-                           for (int col = nextCol - 1; col <= nextCol + 1; col++) {
-                               if (row >= 0 && row < floor->tiles.size() && col >= 0 && col < floor->tiles[0].size()) {
-                                   nearTiles.push_back(floor->tiles[row][col]);
-                               }
-                           }
+                            for (int col = nextCol - 1; col <= nextCol + 1; col++) {
+                                if (row >= 0 && row < floor->tiles.size() && col >= 0 && col < floor->tiles[0].size()) {
+                                    nearTiles.push_back(floor->tiles[row][col]);
+                                }
+                            }
                         }
-                        
+
                         float minDistanceToTile = std::numeric_limits<float>::max();
                         Tile* translateTile = nullptr;
                         for (Tile* tile : nearTiles) {
@@ -560,7 +513,8 @@ public:
 
 
                         player->invincibleTime = config.playerRespawnInvincibleTime;
-                    } else {
+                    }
+                    else {
                         // In invincible mode player stays in previous position when collide with zombie
                         player->position->x = prevPos.x;
                         player->position->z = prevPos.z;
@@ -582,9 +536,35 @@ public:
 
             if (player->invincibleTime > 0) {
                 player->invincibleTime -= deltaTime;
-			}
+            }
 
-            // 4. Check if collide with tools
+            // 4. Check if collide with players
+            for (Player* otherPlayer : players) {
+                if (otherPlayer == player) {
+                    continue;
+                }
+
+                if (player->collideWith(otherPlayer)) {
+                    player->position->x = prevPos.x;
+                    player->position->z = prevPos.z;
+                    break;
+                }
+            }
+
+            // 5. Check if collide with plants
+            for (Plant* plant : plants) {
+                if (player->collideWith(plant)) {
+                    player->position->x = prevPos.x;
+                    player->position->z = prevPos.z;
+                    break;
+                }
+            }
+
+            // 6. Check if collide with seedshack, watertap
+            if (player->collideWith(seedShack) || player->collideWith(waterTap)) {
+                player->position->x = prevPos.x;
+                player->position->z = prevPos.z;
+            }
         }
     }
 
