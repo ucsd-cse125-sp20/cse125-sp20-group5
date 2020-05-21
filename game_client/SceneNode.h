@@ -35,6 +35,9 @@ public:
 	// this kills your children to remove yourself if you want your children
 	~SceneNode();
 
+	// this only kill nodes with your oj=bjectid;
+	void deleteSelf();
+
 	// this take you out of the graph completely set your kids to your parent porbably not used
 	void removeSelf();
 

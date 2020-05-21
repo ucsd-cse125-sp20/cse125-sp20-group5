@@ -28,12 +28,29 @@ SceneNode::~SceneNode()
 	
 	std::unordered_map<uint, SceneNode*>::iterator childrenItr = this->children.begin();
 	while (childrenItr != this->children.end()) {
-		auto toBeDeleted = childrenItr->second;
+		SceneNode* toBeDeleted = childrenItr->second;
 		childrenItr++;
 		delete toBeDeleted;
 	}
 	this->children.clear();
 }
+
+// ONLY CALL ON SceneNode pointers
+// THIS WHOLE FUCNTION IS SKETCH
+void SceneNode::deleteSelf()
+{
+	removeSelf();
+	std::unordered_map<uint, SceneNode*>::iterator childrenItr = this->children.begin();
+	while (childrenItr != this->children.end()) {
+		SceneNode* toBeDeleted = childrenItr->second;
+		childrenItr++;
+		if (toBeDeleted->objectId == objectId)
+			toBeDeleted->deleteSelf();
+	}
+	this->children.clear();
+	delete this;
+}
+
 
 void SceneNode::removeSelf()
 {
