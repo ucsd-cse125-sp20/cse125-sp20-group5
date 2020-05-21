@@ -157,6 +157,7 @@ public:
         ar & floor;
         ar & seedShack;
         ar & waterTap;
+        ar & homeBase;
     }
 
     ~GameState() {

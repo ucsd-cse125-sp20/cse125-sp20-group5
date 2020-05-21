@@ -25,6 +25,7 @@ Scene::Scene()
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
 	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
+	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
 
@@ -99,6 +100,12 @@ void Scene::update()
 		zombieNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
 		unusedIds.erase(zombie->objectId);  // perhaps the server could provide it
 	}
+
+	SceneNode* homeNode = getDrawableSceneNode(state->homeBase->objectId, baseModel);
+	homeNode->loadGameObject(state->homeBase); // load new data
+	homeNode->scaler = HOME_BASE_SCALER;
+	unusedIds.erase(state->homeBase->objectId);
+	
 
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
