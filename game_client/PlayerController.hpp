@@ -6,7 +6,7 @@
 
 #define PLAYER_SCALER 0.30
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
-#define SEED_BAG__HOLD_VEC glm::vec3(-3.0,0.0,0.0)
+#define SEED_BAG__HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
 #define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
 #define CAT_ARM "j_r_arm_$AssimpFbx$_Translation"
