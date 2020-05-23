@@ -80,8 +80,8 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 	glm::mat4 handlePadding = node.transform;
 
 	// not sure why this +1 is needed
-	handlePadding[3][0] = handlePadding[3][0] - (tileSize * (padX+1));
-	handlePadding[3][2] = handlePadding[3][2] - (tileSize * (padY+1));
+	handlePadding[3][0] = handlePadding[3][0] - (tileSize * (padX));
+	handlePadding[3][2] = handlePadding[3][2] - (tileSize * (padY));
 
 	// the passed in location is the truw start of thgame board
 	baseLayer->draw(node, viewProjMtx);
@@ -89,14 +89,12 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 	glm::mat4 tileMat = handlePadding;
 	for (int i = 0; i < totalX; i++) {
 		tileMat[3][2] = handlePadding[3][2];
-		tileMat[3][0] += tileSize;
 		for (int j = 0; j < totalY; j++) {
-			tileMat[3][2] += tileSize;
+;
 			SceneNode temp(NULL, std::string(""), 0);
 			temp.transform = tileMat;
 			// Don't draw the normal tiles to make it transparent. Display the base layer underneath
-			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL &&
-				grid[(i * totalY) + j] != Ground::TILE_TYPE::BLANK) {
+			if (grid[(i * totalY) + j] != Ground::TILE_TYPE::NORMAL && grid[(i * totalY) + j] != Ground::TILE_TYPE::BLANK) {
 				if (grid[(i * totalY) + j] == Ground::TILE_TYPE::TILLED) {
 					float offset = tileSize / 2.0;
 					temp.transform = glm::translate(temp.transform, glm::vec3(offset, 0.0, offset));
@@ -109,7 +107,9 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 					tiles[(int)grid[i * totalY + j]]->draw(temp, viewProjMtx);
 				}
 			}
+			tileMat[3][2] += tileSize;
 		}
+		tileMat[3][0] += tileSize;
 	}
 	// Draw outline boxes
 	tileMat = node.transform;

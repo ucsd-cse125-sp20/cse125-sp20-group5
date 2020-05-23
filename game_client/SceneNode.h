@@ -35,6 +35,9 @@ public:
 	// this kills your children to remove yourself if you want your children
 	~SceneNode();
 
+	// this only kill nodes with your oj=bjectid;
+	void deleteSelf();
+
 	// this take you out of the graph completely set your kids to your parent porbably not used
 	void removeSelf();
 
@@ -69,7 +72,7 @@ public:
 	// TODO: to be removed if updating animation on the server side
 	void updateAnimation();
 	void loadAnimData(uint numAnim, uint initialAnimID, bool alwaysLoop = true);
-	void switchAnim(uint newAnimID, bool alwaysLoop = true);
+	bool switchAnim(uint newAnimID, bool alwaysLoop = true);
 
 	std::string getName() const;
 

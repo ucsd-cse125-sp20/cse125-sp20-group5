@@ -117,7 +117,6 @@ void Scene::update()
 	controllers[homeBase->objectId]->update(homeBase, this);
 	unusedIds.erase(homeBase->objectId);
 	
-
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
 			controllers[plant->objectId] = new PlantController(plant, this);
@@ -164,9 +163,8 @@ void Scene::update()
 	
 	rootNode->update(glm::mat4(1.0));
 
-	// TODO WARNING this is not safe we need code hanlding palyyare disappearing
+	// TODO WARNING this is not safe we need code hanlding player disappearing
 	// while holding stuff. right now that will cuase an ERROR
-	// will handle in the controller
 	for (uint id : unusedIds) {
 		if (controllers.find(id) != controllers.end()) { // first delete the controller if it exists
 			delete controllers[id];
