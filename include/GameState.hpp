@@ -262,6 +262,8 @@ public:
     }
 
     void playersPerformAction() {
+        //Reset watering state
+        waterTap->animation->animationType = WaterTap::WaterTapAnimation::IDLE;
         for (Player* player : players) {
             // Reset animation to MOVE
             player->animation->animationType = Player::PlayerAnimation::MOVE;
@@ -296,6 +298,7 @@ public:
                 // Check if player is highlighting water tap
                 if (player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
                     tool->remainingWater += deltaTime;
+                    waterTap->animation->animationType = WaterTap::WaterTapAnimation::WATER;
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     player->animation->animationType = Player::PlayerAnimation::WATER;
                     break;

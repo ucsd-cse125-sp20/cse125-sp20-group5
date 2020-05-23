@@ -72,7 +72,7 @@ public:
 	// TODO: to be removed if updating animation on the server side
 	void updateAnimation();
 	void loadAnimData(uint numAnim, uint initialAnimID, bool alwaysLoop = true);
-	void switchAnim(uint newAnimID, bool alwaysLoop = true);
+	bool switchAnim(uint newAnimID, bool alwaysLoop = true);
 
 	std::string getName() const;
 

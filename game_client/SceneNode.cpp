@@ -210,23 +210,24 @@ void SceneNode::loadAnimData(uint numAnim, uint initialAnimID, bool alwaysLoop) 
 	this->playedOneAnimCycle = false;
 }
 
-void SceneNode::switchAnim(uint newAnimID, bool alwaysLoop) {
+bool SceneNode::switchAnim(uint newAnimID, bool alwaysLoop) {
 	if (this->numAnimation <= 0) {
-		return; // meaning no animation for this node/model
+		return false; // meaning no animation for this node/model
 	}
 	if (newAnimID >= this->numAnimation) {
 		std::cerr << "Scene node " << this->name 
 			<< " does not have animation ID " << newAnimID 
 			<< " (has only " << this->numAnimation <<" animations)" << std::endl;
-		return;
+		return false;
 	}
 	if (this->animationId == newAnimID && this->loopAnimation == alwaysLoop) {
-		return; // no need to switch
+		return false; // no need to switch
 	}
 
 	this->animationId = newAnimID;
 	this->animStartTime = std::chrono::system_clock::now();
 	this->loopAnimation = alwaysLoop;
 	this->playedOneAnimCycle = false;
+	return true;
 }
 

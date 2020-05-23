@@ -18,14 +18,19 @@ public:
 		pGroup = scene->getParticleFactory()->getWaterTapParticleGroup(glm::vec3(0));
 		particleNode = pGroup->createSceneNodes(objectId);
 		particleNode->position = PARTICLE_POSITION;
-
+		modelNode->numAnimation = 2;
 		modelNode->addChild(particleNode);
+		toggleWater();
 	}
 
 	void update(GameObject* gameObject, Scene* scene) override {
 		WaterTap* tap = (WaterTap*)gameObject;
 
 		rootNode->loadGameObject(tap);
+		if (modelNode->switchAnim(tap->animation->animationType)) {
+			toggleWater();
+		}
+		
 		// we should handle turn on and off the water tap here
 	}
 
