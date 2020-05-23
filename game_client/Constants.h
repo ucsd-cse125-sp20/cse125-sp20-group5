@@ -8,7 +8,7 @@
 
 
 #define ZOMBIE_MODEL "model/rabbit.fbx"
-#define PLAYER_MODEL "model/chicken.fbx"
+#define PLAYER_MODEL "model/tiger.fbx"
 #define CORN_MODEL "model/corn.fbx"
 #define BABY_CORN_MODEL "model/baby_corn.fbx"
 
