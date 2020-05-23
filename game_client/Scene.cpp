@@ -1,9 +1,11 @@
 #include "Scene.h"
-#include "RenderController.h"
-#include "PlantController.h"
-#include "TapController.h"
-#include "ToolController.h"
+#include "RenderController.hpp"
+#include "PlantController.hpp"
+#include "TapController.hpp"
+#include "ToolController.hpp"
 #include "PlayerController.hpp"
+#include "ZombieController.hpp"
+#include "BaseController.hpp"
 
 Scene::Scene()
 {
@@ -25,6 +27,7 @@ Scene::Scene()
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
 	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
+	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
 
@@ -34,7 +37,7 @@ Scene::Scene()
 
 	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(100.0f)));
 
-	testUI = new Image2d(uiProgram->GetProgramID(), "texture/newheart.ppm", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
+	testUI = new Image2d(uiProgram->GetProgramID(), "texture/player_one.png", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
@@ -77,6 +80,9 @@ void Scene::update()
 {
 	std::set<uint> unusedIds;
 	for (auto kvp : objectIdMap) {
+		if (objectIdMap[kvp.first]->name.find("Zombie") != -1) {
+			continue;
+		}
 		unusedIds.insert(kvp.first);
 	}
 
@@ -94,12 +100,23 @@ void Scene::update()
 	}
 
 	for (Zombie* zombie : state->zombies) {
-		SceneNode* zombieNode = getDrawableSceneNode(zombie->objectId, zombieModel);
-		zombieNode->loadGameObject(zombie); // load new data
-		zombieNode->scaler = RABBIT_SCALER; // i dont' love this set up though its not the worst
-		unusedIds.erase(zombie->objectId);  // perhaps the server could provide it
+		if (controllers.find(zombie->objectId) == controllers.end()) {
+			controllers[zombie->objectId] = new ZombieController(zombie, this);
+			objectIdMap[zombie->objectId] = controllers[zombie->objectId]->rootNode;
+		}
+		controllers[zombie->objectId]->update(zombie, this);
 	}
+	ZombieController::processZombieDeath(this);
 
+	
+	HomeBase* homeBase = state->homeBase;
+	if (controllers.find(homeBase->objectId) == controllers.end()) {
+		controllers[homeBase->objectId] = new BaseController(homeBase, this);
+		objectIdMap[homeBase->objectId] = controllers[homeBase->objectId]->rootNode;
+	}
+	controllers[homeBase->objectId]->update(homeBase, this);
+	unusedIds.erase(homeBase->objectId);
+	
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
 			controllers[plant->objectId] = new PlantController(plant, this);
@@ -146,9 +163,8 @@ void Scene::update()
 	
 	rootNode->update(glm::mat4(1.0));
 
-	// TODO WARNING this is not safe we need code hanlding palyyare disappearing
+	// TODO WARNING this is not safe we need code hanlding player disappearing
 	// while holding stuff. right now that will cuase an ERROR
-	// will handle in the controller
 	for (uint id : unusedIds) {
 		if (controllers.find(id) != controllers.end()) { // first delete the controller if it exists
 			delete controllers[id];

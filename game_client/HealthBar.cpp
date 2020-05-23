@@ -6,8 +6,8 @@ using namespace std;
 /* static variables */
 GLuint HealthBar::VBO, HealthBar::VBO2, HealthBar::VAO, HealthBar::EBO;
 uint HealthBar::shader;
-uint HealthBar::numHealthBar = 0;
-bool HealthBar::canDraw = false;
+bool HealthBar::staticInitialized = false;
+bool HealthBar::isDrawUiMode = false;
 
 HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float initFilledFraction, glm::vec3 barColor)
 {
@@ -22,7 +22,7 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 	float gap = 0.25f;
 	float barWidth = 4.0f;
 	float barHeight = 0.5f;
-	float barEdgePad = barHeight * 0.1f;
+	float barEdgePad = barHeight * 0.125f;
 
 	mat4 iconMtx = translate(vec3(-(barWidth + gap) / 2.0f, 0, 0))
 		* scale(vec3(iconWidth, iconWidth, 1));
@@ -40,7 +40,7 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 	barComponents[BAR] = BarComponent(BAR, barMtx, barColor);
 
 	// Init (static) rendering related fields 
-	if (numHealthBar == 0) {
+	if (!staticInitialized) {
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &VBO2);
@@ -63,6 +63,8 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
+
+		staticInitialized = true;
 	}
 
 	// Texture loading and binding
@@ -77,25 +79,17 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 		glCullFace(GL_BACK);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-
-	numHealthBar++;
 }
 
 HealthBar::~HealthBar()
 {
-	numHealthBar--;
-
-	if (numHealthBar == 0) {
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &VBO2);
-		glDeleteBuffers(1, &EBO);
-	}
 }
 
 void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
-	if (!canDraw) { return; } // canDraw is toggled when drawing all UI at the end of render pass for the sake of alpha blending
+	if (!HealthBar::isDrawUiMode) { return; } // isDrawUiMode is toggled when drawing all UI at the end of render pass for the sake of alpha blending
+
+	if (!this->shouldDisplay) { return; }
 
 	glUseProgram(shader);
 	glEnable(GL_BLEND); 
@@ -171,6 +165,7 @@ void HealthBar::loadTexture(const char* textureFile, uint id)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// Set bi-linear filtering for both minification and magnification
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 

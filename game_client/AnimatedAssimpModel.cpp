@@ -26,7 +26,6 @@ AnimatedAssimpModel::AnimatedAssimpModel(string const& path, uint shader) : Assi
 	// fin the root bone
 	// teh root bone is direct child of the scene's root node hte top of the bone structure
 	setRootBone();
-	std::cout << rootBone->mName.C_Str() << std::endl;
 
 	startTime = chrono::system_clock::now();
 }
@@ -100,7 +99,7 @@ void AnimatedAssimpModel::update(SceneNode* node)
 		return;
 	}
 
-	updateBoneTransform(node->animationId, node->animPlayedTime);
+	updateBoneTransform(node);
 	loadSceneNodes(node->children.begin()->second, node->objectId);
 }
 
@@ -108,16 +107,32 @@ void AnimatedAssimpModel::update(SceneNode* node)
 /* Animation related functions */
 /* The interpolation assumes all starting and ending keyframes are at the edge of the timerange */
 
-void AnimatedAssimpModel::updateBoneTransform(int animId, float TimeInSeconds)
+void AnimatedAssimpModel::updateBoneTransform(SceneNode* node)
 {
-	float TicksPerSecond = (float)(m_aiScene->mAnimations[animId]->mTicksPerSecond != 0
-		? m_aiScene->mAnimations[animId]->mTicksPerSecond
-		: 25.0f); // the last value is the default ticks/sec
-	float TimeInTicks = TimeInSeconds * TicksPerSecond;
-	float AnimationTime = fmod(TimeInTicks, (float)m_aiScene->mAnimations[animId]->mDuration);
+	auto anim = m_aiScene->mAnimations[node->animationId];
 
-	// set this line to just use the root bone node rathher than root bone
-	calcAnimByNodeTraversal(animId, AnimationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
+	// gets tick time
+	float ticksPerSecond = (float)(
+		anim->mTicksPerSecond != 0
+		? anim->mTicksPerSecond
+		: 25.0f // the last value is the default ticks/sec
+	);
+	float timeInTicks = node->animPlayedTime * ticksPerSecond;
+	float animationTime = fmod(timeInTicks, (float)anim->mDuration);
+
+	// handle looping vs no-looping
+	if (!node->loopAnimation) { // not a looping anim
+		if (node->playedOneAnimCycle) {
+			animationTime = 0.0; //set to the first frame
+		}
+		else if (timeInTicks / ((float)anim->mDuration) >= 1.0) {
+			node->playedOneAnimCycle = true;
+			animationTime = 0.0;
+		}
+	}
+
+	// set this line to just use the root bone node rather than root bone
+	calcAnimByNodeTraversal(node->animationId, animationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
 }
 
 SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId)

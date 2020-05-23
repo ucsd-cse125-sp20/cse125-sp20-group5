@@ -6,8 +6,9 @@
 #define BASE_TEXTURE "texture/base_texture_1.jpg"
 #define PATH_TEXTURE "texture/ground_texture.jpg"
 
+
 #define ZOMBIE_MODEL "model/rabbit.fbx"
-#define PLAYER_MODEL "model/mul_anim_cat.fbx"
+#define PLAYER_MODEL "model/tiger.fbx"
 #define CORN_MODEL "model/corn.fbx"
 #define BABY_CORN_MODEL "model/baby_corn.fbx"
 
@@ -21,8 +22,11 @@
 #define SEED_MODEL "model/seed.fbx"
 #define SAPLING_MODEL "model/sapling.fbx"
 
-#define RABBIT_SCALER 0.40
+#define HOME_BASE_MODEL "model/bear.fbx"
+
+
 #define SEED_SOURCE_SCALER 0.020
 #define DIRT_SCALER 0.05
+
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"

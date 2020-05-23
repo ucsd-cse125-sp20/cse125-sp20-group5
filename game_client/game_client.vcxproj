@@ -160,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="AnimatedAssimpModel.h" />
     <ClInclude Include="AudioEngine.h" />
+    <ClInclude Include="BaseController.hpp" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Constants.h" />
@@ -168,8 +169,8 @@
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="PlayerController.hpp" />
-    <ClInclude Include="ToolController.h" />
-    <ClInclude Include="TapController.h" />
+    <ClInclude Include="ToolController.hpp" />
+    <ClInclude Include="TapController.hpp" />
     <ClInclude Include="HealthBar.h" />
     <ClInclude Include="Image2d.h" />
     <ClInclude Include="Model.h" />
@@ -177,7 +178,7 @@
     <ClInclude Include="Particle.h" />
     <ClInclude Include="ParticleFactory.hpp" />
     <ClInclude Include="ParticleGroup.h" />
-    <ClInclude Include="PlantController.h" />
+    <ClInclude Include="PlantController.hpp" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Shader.h" />
@@ -185,7 +186,8 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
-    <ClInclude Include="RenderController.h" />
+    <ClInclude Include="RenderController.hpp" />
+    <ClInclude Include="ZombieController.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimatedAssimpModel.cpp" />
