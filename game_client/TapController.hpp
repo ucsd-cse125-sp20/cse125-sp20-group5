@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderController.h"
+#include "RenderController.hpp"
 #include <WaterTap.hpp>
 #include "Scene.h"
 
@@ -23,10 +23,8 @@ public:
 	}
 
 	void update(GameObject* gameObject, Scene* scene) override {
-		update((WaterTap*)gameObject, scene);
-	}
+		WaterTap* tap = (WaterTap*)gameObject;
 
-	void update(WaterTap* tap, Scene* scene) {
 		rootNode->loadGameObject(tap);
 		// we should handle turn on and off the water tap here
 	}

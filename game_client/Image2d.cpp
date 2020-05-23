@@ -104,7 +104,7 @@ void Image2d::loadTexture(const char* ppmFile)
 	int width, height, nrComponents;
 	unsigned char* tdata;  // texture pixel data
 
-	tdata = stbi_load(ppmFile, &width, &height, &nrComponents, 0);
+	tdata = stbi_load(ppmFile, &width, &height, &nrComponents, STBI_rgb_alpha);
 	if (tdata == NULL) return;
 
 	GLenum colorFormat;
@@ -122,7 +122,7 @@ void Image2d::loadTexture(const char* ppmFile)
 	glBindTexture(GL_TEXTURE_2D, texture[0]);
 
 	// Generate the texture
-	glTexImage2D(GL_TEXTURE_2D, 0, colorFormat, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tdata);
+	glTexImage2D(GL_TEXTURE_2D, 0, colorFormat, width, height, 0, colorFormat, GL_UNSIGNED_BYTE, tdata);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	// Set bi-linear filtering for both minification and magnification

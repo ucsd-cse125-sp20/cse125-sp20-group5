@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderController.h"
+#include "RenderController.hpp"
 #include <Tool.hpp>
 #include "Scene.h"
 #include "HealthBar.h"
@@ -60,11 +60,9 @@ public:
 	}
 
 	void update(GameObject * gameObject, Scene * scene) override {
-		update((Tool*)gameObject, scene);
-	}
+		Tool* tool = (Tool*)gameObject;
 
-	void update(Tool * tool, Scene * scene) {
-		
+		// update transform if held
 		if (!tool->held) {
 			rootNode->loadGameObject(tool);
 			if (rootNode->parent != scene->getGroundNode()) {
@@ -73,6 +71,7 @@ public:
 				scene->getGroundNode()->addChild(rootNode);
 			}
 		}
+
 		if (tool->toolType == Tool::ToolType::WATER_CAN) { 
 			if (tool->remainingWater == 0.0f) {
 				filledBar->resetBar(0.0f);

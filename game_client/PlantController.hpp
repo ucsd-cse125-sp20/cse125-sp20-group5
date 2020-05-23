@@ -1,12 +1,12 @@
 ////////////////////////////////////////
-// PlantController.h
+// PlantController.hpp
 // 
 // Class that wraps and controls the rendering attributes of Plant
 ////////////////////////////////////////
 
 #pragma once
 
-#include "RenderController.h"
+#include "RenderController.hpp"
 #include <Plant.hpp>
 #include "HealthBar.h" //TODO to be removed
 #include "Scene.h"
@@ -19,10 +19,19 @@
 #define CORN_SCALER 0.45
 #define CORN_PARTICLE_HEIGHT glm::vec3(0, 2, 0)
 
-#define BAR_COLOR glm::vec3(0.1, 0.9, 1.0)
-#define BAR_TRANSLATE_Y 1.3;
-
 class PlantController : public RenderController {
+
+private:
+    HealthBar* growthBar;
+
+    SceneNode* barNode;
+    SceneNode* particleNode;
+    ParticleGroup* pGroup;
+    Plant::GrowStage currGrowStage;
+
+    static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
+    static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0);
+
 public:
     PlantController(Plant * plant, Scene* scene) {
         // init node
@@ -35,19 +44,10 @@ public:
         scene->getGroundNode()->addChild(rootNode); 
         currGrowStage = Plant::GrowStage::SEED;
 
-
         // init growth bar
-        float barTranslateY = BAR_TRANSLATE_Y;
         float initBarFilledFraction = 1.0f;
-        glm::vec3 barColor = BAR_COLOR;
-        growthBar = new HealthBar(
-            scene->getShaderID(ShaderType::HEALTH_BAR),
-            "texture/water_icon.png", 
-            barTranslateY, initBarFilledFraction, barColor
-        ); 
-        barNode = growthBar->createSceneNodes(rootNode->objectId);
-        rootNode->addChild(barNode);
-        uiNodes.push_back(barNode);
+        HealthBarSetting barSetting("texture/water_icon.png", WATERING_BAR_TRANSLATE_Y, initBarFilledFraction, WATERING_BAR_COLOR);
+        std::tie(growthBar, barNode) = createHealthBar(barSetting, scene);
     }
 
     ~PlantController() {
@@ -60,10 +60,8 @@ public:
 
     void update(GameObject * gameObject, Scene* scene) override {
         // TODO maybe do some ceck here to see if we can cast
-        update(((Plant*)gameObject), scene);
-    }
+        Plant* plant = (Plant*) gameObject;
 
-    void update(Plant* plant, Scene* scene) {
         // Update grown plant model
         if (currGrowStage != plant->growStage) {
             updatePlantModel(plant, scene);
@@ -73,23 +71,14 @@ public:
         // Load new data provided by server
         rootNode->loadGameObject(plant);
 
-        //barNode->pose[1] = -rootNode->pose[1];
-
         // Update growth bar
-        if (plant->growStage == Plant::GrowStage::GROWN) {
-            if (barNode) {
-                barNode->removeSelf();
-                uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
-                barNode = nullptr;
-            }
-        }
-        else {
-            if (plant->growProgressTime == 0.0f) {
-                growthBar->resetBar(0.0f);
-            }
-            else {
-                growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
-            }
+        updateGrowthBar(plant, scene);
+
+        // Realse particles if necessary
+        // std::cout << "currAttackTime" << plant->currAttackTime << "\n";
+        // std::cout << "attackInterval" << plant->attackInterval << "\n";
+        if (pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
+            pGroup->releaseParticles();
         }
     }
 
@@ -129,12 +118,20 @@ public:
         }
         rootNode->addChild(modelNode);
     }
-    
-private:
-    HealthBar* growthBar;
 
-    SceneNode* barNode;
-    SceneNode* particleNode;
-    ParticleGroup* pGroup; 
-    Plant::GrowStage currGrowStage;
+    void updateGrowthBar(Plant* plant, Scene* scene) {
+        if (plant->growStage == Plant::GrowStage::GROWN) {
+            if (barNode) {
+                barNode = RenderController::deleteBarNode(barNode);
+            }
+        }
+        else {
+            if (plant->growProgressTime == 0.0f) {
+                growthBar->resetBar(0.0f);
+            }
+            else {
+                growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
+            }
+        }
+    }
 };

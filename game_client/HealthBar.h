@@ -41,13 +41,14 @@ public:
 	static GLuint VBO, VBO2, VAO, EBO;
 	GLuint textureIDs[3];
 	static uint shader;
-	static uint numHealthBar;
+	static bool staticInitialized;
 
 	glm::mat4 modelMtx;
 	//glm::mat4 baseBarTransform;
 	glm::mat4 fillingTransform; // scale transform of the bar's filling portion 
 	float filledFraction = 0.0; // how much the bar is filled, between 0.0 & 1.0
 	float currFilledFraction;
+	bool shouldDisplay = true;
 
 	// Modify bar methods
 	void updateBar(float filledFraction);
@@ -59,7 +60,7 @@ public:
 	SceneNode* createSceneNodes(uint objectId) override;
 
 	// Used to postpone drawing to the last for the sake of blending
-	static bool canDraw;
+	static bool isDrawUiMode;
 
 private:
 
