@@ -72,9 +72,10 @@ public:
 		}
 
 		// Handle dying logic
-		for (auto it = dyingZombie.begin(); it != dyingZombie.end(); it++) {
+		for (auto it = dyingZombie.begin(); it != dyingZombie.end();) {
 			uint zombieId = *it;
 			ZombieController* zombieController = (ZombieController*) scene->controllers[zombieId];
+
 
 			// If not disppearing at the home base, but killed by the plant
 			// which is TODO
@@ -86,6 +87,7 @@ public:
 					// Still update the bar while dying
 					zombieController->health = 0;
 					zombieController->updateHpBar(scene);
+					it++;
 					continue;
 				}
 			}
@@ -100,13 +102,11 @@ public:
 			scene->controllers.erase(zombieId);
 			delete scene->objectIdMap[zombieId];
 			scene->objectIdMap.erase(zombieId);
-
-			dyingZombie.erase(it);
-			it--;
+			it = dyingZombie.erase(it);
 		}
 
 		// reset aliveZombie for next update cycle
-		aliveZombie.clear(); // or = std::set<uint>();     
+		aliveZombie.clear(); // or = std::set<uintd>();     
 	}
 
 	void updateHpBar(Scene* scene) {
