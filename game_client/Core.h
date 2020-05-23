@@ -11,12 +11,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
 
-// Set up GLEW
-#define GLEW_STATIC
-#pragma comment(lib, "glew32.lib")
-#include "GL/glew.h"
+// Set up GLAD
+#include <glad/glad.h>
 
-// Set up GLEW
+// Set up GLFW
 #include <GLFW/glfw3.h>
 
 // get our constants

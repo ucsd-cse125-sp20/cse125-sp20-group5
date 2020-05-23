@@ -34,10 +34,6 @@ Shader::Shader(const char *filename,ShaderType type) {
 	// Append header & create shader
 	std::string shaderSource;
 	switch(type) {
-		case eGeometry:
-			shaderSource="#define GEOMETRY_SHADER\n"+fileData;
-			ShaderID=glCreateShader(GL_GEOMETRY_SHADER);
-			break;
 		case eVertex:
 			shaderSource="#define VERTEX_SHADER\n"+fileData;
 			ShaderID=glCreateShader(GL_VERTEX_SHADER);
@@ -45,10 +41,6 @@ Shader::Shader(const char *filename,ShaderType type) {
 		case eFragment:
 			shaderSource="#define FRAGMENT_SHADER\n"+fileData;
 			ShaderID=glCreateShader(GL_FRAGMENT_SHADER);
-			break;
-		case eCompute:
-			shaderSource="#define COMPUTE_SHADER\n"+fileData;
-			ShaderID=glCreateShader(GL_COMPUTE_SHADER);
 			break;
 	}
 	shaderSource="#version 430\n"+shaderSource;

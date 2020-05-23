@@ -1,10 +1,13 @@
-#include "core.h"
+#include "Core.h"
 #include "Client.h"
 #include <iostream>
 #include <nanogui/glutil.h>
 #include <nanogui/button.h>
 #include <nanogui/window.h>
 #include <nanogui/screen.h>
+#include <nanogui/layout.h>
+#include <nanogui/label.h>
+
 
 
 // These are really HACKS to make glfw call member functions instead of static functions
@@ -76,10 +79,10 @@ int main(int argc, char** argv) {
 	}
 	// doe some basic setup
 	glfwMakeContextCurrent(windowHandle);
+	gladLoadGL();
 	glfwSwapInterval(1);
 
-	// Background color
-	glClearColor(0., 0., 0., 1.);
+
 
 	// Set Callbacks
 	glfwSetKeyCallback(windowHandle, skeyboard);
@@ -88,20 +91,20 @@ int main(int argc, char** argv) {
 	glfwSetWindowSizeCallback(windowHandle, sresize);
 	glfwSetScrollCallback(windowHandle, sscroll);
 
-
-	nanogui::Window* window = new nanogui::Window(this, "Button demo");
+	nanogui::Screen s = nanogui::Screen();
+	nanogui::Window* window = new nanogui::Window(&s, "Button demo");
 	window->setPosition(nanogui::Vector2i(15, 15));
 	window->setLayout(new nanogui::GroupLayout());
 
 	/* No need to store a pointer, the data structure will be automatically
 	   freed when the parent window is deleted */
-	new Label(window, "Push buttons", "sans-bold");
-	nanogui::Button* b = new nanogui::Button(windowHandle, "Plain button");
+	new nanogui::Label(window, "Push buttons", "sans-bold");
+	nanogui::Button* b = new nanogui::Button(window, "Plain button");
 	b->setCallback([] { cout << "pushed!" << endl; });
 
+	// Background color
+	glClearColor(0., 0., 0., 1.);
 
-	// Initialize GLEW
-	glewInit();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
