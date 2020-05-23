@@ -230,10 +230,12 @@ public:
     }
 
     void playersPerformAction() {
-        waterTap->inUse = false;
         for (Player* player : players) {
             // Check if player pressed e during this tick
             if (!player->shouldPerformAction) {
+                if (waterTap->playerIdInUse == player->objectId) {
+                    waterTap->playerIdInUse = 0;
+				}
                 continue;
             }
             player->shouldPerformAction = false;
@@ -260,8 +262,8 @@ public:
             // WATER_CAN
             case Tool::ToolType::WATER_CAN: {
                 // Check if player is highlighting water tap
-                if (!waterTap->inUse && player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
-                    waterTap->inUse = true;
+                if (waterTap->playerIdInUse == 0 && player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
+                    waterTap->playerIdInUse = player->objectId;
                     tool->remainingWater += deltaTime;
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     break;

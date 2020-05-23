@@ -44,6 +44,7 @@ public:
     float cactusAttackRange;
     float cactusGrowExpireTime;
     float cactusGrowCooldownTime;
+    float cactusBulletSpeed;
 
     ServerParams();
 

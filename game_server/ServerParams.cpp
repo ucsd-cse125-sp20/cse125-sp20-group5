@@ -45,4 +45,5 @@ ServerParams::ServerParams() {
     cactusAttackRange = config.GetFloat("Cactus", "AttackRange", 10.0f);
     cactusGrowExpireTime = config.GetFloat("Cactus", "GrowExpireTime", 2.0f);
     cactusGrowCooldownTime = config.GetFloat("Cactus", "GrowCooldownTime", 2.0f);
+    cactusBulletSpeed = config.GetFloat("Cactus", "CactusBulletSpeed", 9.0f);
 }

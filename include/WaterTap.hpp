@@ -14,14 +14,14 @@ public:
     void serialize(Archive & ar, const unsigned int version)
     {
         ar & boost::serialization::base_object<GameObject>(*this);
-        ar & inUse;
+        ar & playerIdInUse;
     }
 
     ~WaterTap() {
       
     }
 
-    bool inUse;
+    unsigned int playerIdInUse;
 };
 
 #endif
