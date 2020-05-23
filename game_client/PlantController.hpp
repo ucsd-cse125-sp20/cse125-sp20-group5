@@ -73,6 +73,13 @@ public:
 
         // Update growth bar
         updateGrowthBar(plant, scene);
+
+        // Realse particles if necessary
+        // std::cout << "currAttackTime" << plant->currAttackTime << "\n";
+        // std::cout << "attackInterval" << plant->attackInterval << "\n";
+        if (pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
+            pGroup->releaseParticles();
+        }
     }
 
     void updatePlantModel(Plant* plant, Scene* scene) {
@@ -127,5 +134,4 @@ public:
             }
         }
     }
-   
 };
