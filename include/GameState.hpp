@@ -13,6 +13,7 @@
 #include "GameStateLoader.hpp"
 #include "HomeBase.hpp"
 #include "ZombieWaveManager.h"
+#include "CactusBullet.hpp"
 #include "ServerParams.h"
 
 #include <cmath>
@@ -121,6 +122,7 @@ public:
         ar & tools;
         ar & floor;
         ar & seedShacks;
+        ar & bullets;
         ar & waterTap;
     }
 
@@ -143,7 +145,11 @@ public:
 
         for (SeedShack* seedShack: seedShacks) {
             delete seedShack;
-		}
+        }
+
+        for (CactusBullet* bullet: bullets) {
+            delete bullet;
+        }
 
         delete floor;
         delete waterTap;
@@ -222,6 +228,7 @@ public:
         playersPerformAction();
         playersInteract();
         updatePlants();
+        updateBullets();
         updateZombies();
         updatePlayersPosition();
         updatePlayersHighlight();
@@ -441,7 +448,7 @@ public:
             }
 
             // Attack zombies
-            attackZombies(plant);
+            plantAttack(plant);
 
             // TODO: handle spawn bullets
         }
@@ -723,7 +730,7 @@ public:
         }
     }
 
-    void attackZombies(Plant* plant) {
+    void plantAttack(Plant* plant) {
         if (plant->growStage != Plant::GrowStage::GROWN) {
             return;
         }
@@ -733,21 +740,55 @@ public:
             return;
         }
 
-        std::cout << "Perform attack to zombies" << std::endl;
-        for (Zombie* zombie : zombies) {
-            switch (plant->plantType) {
-            case Plant::PlantType::CORN:
-                //std::cout << "Distance to zombie is " << zombie->distanceTo(plant) << std::endl;
+        switch (plant->plantType) {
+        case Plant::PlantType::CORN:
+            //std::cout << "Distance to zombie is " << zombie->distanceTo(plant) << std::endl;
+            std::cout << "Corn perform attack to zombies" << std::endl;
+            for (Zombie* zombie : zombies) {
                 if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
                     zombie->health -= plant->attackPower;
                 }
-                break;
-            case Plant::PlantType::CACTUS:
-
-                break;
             }
+            break;
+        case Plant::PlantType::CACTUS:
+            std::cout << "Cactus perform attack to zombies" << std::endl;
+            // spawn a bullet
+            CactusBullet* bullet = new CactusBullet(
+                new Position(plant->position),
+                new Direction(plant->direction),
+                new Animation(0, 0),
+                objectCount++,
+                config.cactusBulletRadius
+            );
+            bullet->attackPower = plant->attackPower;
+            gameObjectMap[bullet->objectId] = bullet;
+            bullets.push_back(bullet);
+            break;
         }
         plant->currAttackTime = 0.0f;
+    }
+
+    void updateBullets() {
+        for (CactusBullet* bullet : bullets) {
+            // Move first
+            float dz = std::cos(bullet->direction->angle);
+            float dx = std::sin(bullet->direction->angle);
+
+            bullet->position->z += config.cactusBulletSpeed * dz * deltaTime;
+            bullet->position->x += config.cactusBulletSpeed * dx * deltaTime;
+        }
+
+        for (auto i = std::begin(bullets); i != std::end(bullets); i++) {
+            // Check if bullet collides with zombie
+            CactusBullet* bullet = *i;
+            for (Zombie* zombie : zombies) {
+                if (bullet->collideWith(zombie)) {
+                    zombie->health -= bullet->attackPower;
+                    i = bullets.erase(i);
+                    break;
+                }
+            }
+        }
     }
 
     void updatePlayersHighlight() {
@@ -944,6 +985,7 @@ public:
     std::vector<Zombie*> zombies;
     std::vector<Tool*> tools;
     std::vector<SeedShack*> seedShacks;
+    std::vector<CactusBullet*> bullets;
 
     Floor* floor;
     WaterTap* waterTap;
