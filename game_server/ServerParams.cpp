@@ -29,4 +29,20 @@ ServerParams::ServerParams() {
     zombieDefaultHealth = config.GetInteger("ZombieWaves", "ZombieDefaultHealth", 100);
     zombieDeltaHealth = config.GetInteger("ZombieWaves", "ZombieDeltaHealth", 20);
     waveStartTime = config.GetFloat("ZombieWaves", "WaveStartTime", 5.0f);
+
+    // Plant Corn
+    cornAttackPower = config.GetInteger("Corn", "AttackPower", 50);
+    cornBoundingBoxRadius = config.GetFloat("Corn", "BoundingBoxRadius", 1.0f);
+    cornAttackInterval = config.GetFloat("Corn", "AttackInterval", 1.0f);
+    cornAttackRange = config.GetFloat("Corn", "AttackRange", 3.0f);
+    cornGrowExpireTime = config.GetFloat("Corn", "GrowExpireTime", 2.0f);
+    cornGrowCooldownTime = config.GetFloat("Corn", "GrowCooldownTime", 2.0f);
+
+    // Plant Cactus
+    cactusAttackPower = config.GetInteger("Cactus", "AttackPower", 50);
+    cactusBoundingBoxRadius = config.GetFloat("Cactus", "BoundingBoxRadius", 1.0f);
+    cactusAttackInterval = config.GetFloat("Cactus", "AttackInterval", 1.0f);
+    cactusAttackRange = config.GetFloat("Cactus", "AttackRange", 10.0f);
+    cactusGrowExpireTime = config.GetFloat("Cactus", "GrowExpireTime", 2.0f);
+    cactusGrowCooldownTime = config.GetFloat("Cactus", "GrowCooldownTime", 2.0f);
 }

@@ -29,6 +29,22 @@ public:
     int zombieDeltaHealth;
     float waveStartTime;
 
+    // Plant Corn
+    int cornAttackPower;
+    float cornBoundingBoxRadius;
+    float cornAttackInterval;
+    float cornAttackRange;
+    float cornGrowExpireTime;
+    float cornGrowCooldownTime;
+
+    // Plant Cactus
+    int cactusAttackPower;
+    float cactusBoundingBoxRadius;
+    float cactusAttackInterval;
+    float cactusAttackRange;
+    float cactusGrowExpireTime;
+    float cactusGrowCooldownTime;
+
     ServerParams();
 
     // Math constants

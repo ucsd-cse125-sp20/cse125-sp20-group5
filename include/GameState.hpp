@@ -25,7 +25,7 @@
 
 class GameState {
 public:
-    GameState() : seedShack(nullptr), waterTap(nullptr) {}
+    GameState() : waterTap(nullptr) {}
 
     void loadFromConfigFile(std::string filename) {
         // load from file in here
@@ -63,8 +63,10 @@ public:
                     GameStateLoader::initTools(key, value, tools, objectCount);
                 } else if (header == "Floor") {
                     GameStateLoader::initFloor(key, value, floor, readingMap);
-                } else if (header == "SeedShack") {
-                    GameStateLoader::initGameObject(key, value, seedShack, objectCount);
+                } else if (header == "SeedShack1") {
+                    GameStateLoader::initGameObject(key, value, seedShacks[0], objectCount);
+                } else if (header == "SeedShack2") {
+                    GameStateLoader::initGameObject(key, value, seedShacks[1], objectCount);
                 } else if (header == "WaterTap") {
                     GameStateLoader::initGameObject(key, value, waterTap, objectCount);
                 } else if (header == "HomeBase") {
@@ -84,18 +86,26 @@ public:
         for (Tool* tool : tools) {
             gameObjectMap[tool->objectId] = tool;
         }
-        gameObjectMap[seedShack->objectId] = seedShack;
+
+        for (SeedShack* seedShack: seedShacks) {
+            gameObjectMap[seedShack->objectId] = seedShack;
+		}
         gameObjectMap[waterTap->objectId] = waterTap;
         gameObjectMap[homeBase->objectId] = homeBase;
     }
 
-    void init(ServerParams &config) {
+    void init(ServerParams& config) {
         this->config = config;
         tickRate = config.tickrate;
         deltaTime = 1.0f / tickRate;
         isGameOver = false;
         floor = new Floor();
-        seedShack = new SeedShack();
+
+        // TODO: refactor loader code, just assume 2 for now
+        for (unsigned int i = 0; i < 2; i++) {
+            seedShacks.push_back(new SeedShack());
+        }
+
         waterTap = new WaterTap();
         homeBase = new HomeBase();
         zombieWaveManager = new ZombieWaveManager(this);
@@ -110,7 +120,7 @@ public:
         ar & zombies;
         ar & tools;
         ar & floor;
-        ar & seedShack;
+        ar & seedShacks;
         ar & waterTap;
     }
 
@@ -131,8 +141,11 @@ public:
             delete tool;
         }
 
+        for (SeedShack* seedShack: seedShacks) {
+            delete seedShack;
+		}
+
         delete floor;
-        delete seedShack;
         delete waterTap;
         delete homeBase;
     }
@@ -217,6 +230,7 @@ public:
     }
 
     void playersPerformAction() {
+        waterTap->inUse = false;
         for (Player* player : players) {
             // Check if player pressed e during this tick
             if (!player->shouldPerformAction) {
@@ -246,7 +260,8 @@ public:
             // WATER_CAN
             case Tool::ToolType::WATER_CAN: {
                 // Check if player is highlighting water tap
-                if (player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
+                if (!waterTap->inUse && player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
+                    waterTap->inUse = true;
                     tool->remainingWater += deltaTime;
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     break;
@@ -306,22 +321,13 @@ public:
                     player->heldObject = 0;
 
                     // Replace seed with a plant
-                    Position* plantPosition = new Position(currTile->getCenterPosition());
-                    Plant* plant = new Plant(
-                        plantPosition,
-                        new Direction(player->direction), // ??
-                        new Animation(0, 0),
-                        objectCount++,
-                        1.0f,
-                        new TowerRange(3.0f),
-                        tool->seedType,
-                        Plant::GrowStage::SEED
-                    );
-                    plant->growExpireTime = 2.0f;
-                    plant->attackPower = 50;
-                    plant->currAttackTime = 0.0f;
-                    plant->attackInterval = 1.0f;
-                    plant->growCooldownTime = 2.0f;
+                    Plant* plant = Plant::buildPlant(config, tool->seedType);
+
+                    // set plant position, direction, and object id manually
+                    plant->position = new Position(currTile->getCenterPosition());
+                    plant->direction = new Direction(player->direction);
+                    plant->objectId = objectCount++;
+
                     plants.push_back(plant);
                     gameObjectMap[plant->objectId] = plant;
                     currTile->plantId = plant->objectId;
@@ -364,7 +370,15 @@ public:
             }
             else if (player->highlightObjectId != 0) {
                 // Get seed if highlighted id is seedshack
-                if (player->highlightObjectId == seedShack->objectId) {
+                SeedShack* highlightedShack = nullptr;
+                for (SeedShack* seedShack : seedShacks) {
+                    if (player->highlightObjectId == seedShack->objectId) {
+                        highlightedShack = seedShack;
+                        break;
+					}
+                }
+
+                if (highlightedShack) {
                     Tool* seed = new Tool(
                         new Position(player->position),
                         new Direction(player->direction),
@@ -375,15 +389,15 @@ public:
                         player->objectId,
                         true
                     );
-                    seed->seedType = seedShack->seedType;
+                    seed->seedType = highlightedShack->seedType;
                     gameObjectMap[objectCount++] = seed;
                     tools.push_back(seed);
                     player->holding = true;
                     player->heldObject = seed->objectId;
-                    std::cout << "Pick up seed from seed shack at (" << seedShack->position->x << ", " << seedShack->position->z << ")" << std::endl;
+                    std::cout << "Pick up seed from seed shack at (" << highlightedShack->position->x << ", " << highlightedShack->position->z << ")" << std::endl;
                 }
                 else {
-                Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
+                    Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
                     std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                     player->holding = true;
                     player->heldObject = currTool->objectId;
@@ -557,14 +571,23 @@ public:
             // 5. Check if collide with plants
             for (Plant* plant : plants) {
                 if (player->collideWith(plant)) {
+                    //player->position->x = prevPos.x;
+                    //player->position->z = prevPos.z;
+                    break;
+                }
+            }
+
+            // 6. Check if collide with seedshacks
+            for (SeedShack* seedShack : seedShacks) {
+                if (player->collideWith(seedShack)) {
                     player->position->x = prevPos.x;
                     player->position->z = prevPos.z;
                     break;
                 }
             }
 
-            // 6. Check if collide with seedshack, watertap
-            if (player->collideWith(seedShack) || player->collideWith(waterTap)) {
+            // 7. Check if collid with watertap
+            if (player->collideWith(waterTap)) {
                 player->position->x = prevPos.x;
                 player->position->z = prevPos.z;
             }
@@ -712,6 +735,9 @@ public:
                     zombie->health -= plant->attackPower;
                 }
                 break;
+            case Plant::PlantType::CACTUS:
+
+                break;
             }
         }
         plant->currAttackTime = 0.0f;
@@ -818,22 +844,24 @@ public:
                 }
 
                 // Check distance to seedShack as well
-                bool seedShackClosest = false;
-                float dist = player->distanceTo(seedShack);
-                   Position playerSeedShackVec = Position(
+                SeedShack* highlightedShack = nullptr;
+                for (SeedShack* seedShack : seedShacks) {
+                    float dist = player->distanceTo(seedShack);
+                    Position playerSeedShackVec = Position(
                         seedShack->position->x - player->position->x,
                         seedShack->position->y - player->position->y,
                         seedShack->position->z - player->position->z
                     );
-                float angle = player->direction->getAngleBetween(playerSeedShackVec);
+                    float angle = player->direction->getAngleBetween(playerSeedShackVec);
 
-                if (dist < minDistance && angle <= config.highlightFOVAngle) {
-                    minDistance = dist;
-                    seedShackClosest = true;
+                    if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                        minDistance = dist;
+                        highlightedShack = seedShack;
+                    }
                 }
 
-                if (seedShackClosest && player->highlightCollideWith(seedShack)) {
-                    player->highlightObjectId = seedShack->objectId;
+                if (highlightedShack && player->highlightCollideWith(highlightedShack)) {
+                    player->highlightObjectId = highlightedShack->objectId;
                     std::cout << "Highlighting seedShack" << std::endl;
                 }
                 else {
@@ -908,9 +936,9 @@ public:
     std::vector<Plant*> plants;
     std::vector<Zombie*> zombies;
     std::vector<Tool*> tools;
+    std::vector<SeedShack*> seedShacks;
 
     Floor* floor;
-    SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
     HomeBase* homeBase;
 

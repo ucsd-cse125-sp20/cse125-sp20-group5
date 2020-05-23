@@ -191,8 +191,8 @@ public:
 			SeedShack* seedShack = (SeedShack*)obj;
 			if (value == "CORN") {
 				seedShack->seedType = Plant::PlantType::CORN;
-			} else if (value == "PEA") {
-				seedShack->seedType = Plant::PlantType::PEA_SHOOTER;
+			} else if (value == "CACTUS") {
+				seedShack->seedType = Plant::PlantType::CACTUS;
             }
 		} else if (key == "MaxHealth") {
 			HomeBase* homeBase = (HomeBase*)obj;
