@@ -15,6 +15,8 @@ public:
     void serialize(Archive & ar, const unsigned int version)
     {
         ar & boost::serialization::base_object<GameObject>(*this);
+        ar & health;
+        ar & maxHealth;
     }
 
     ~Zombie() {
@@ -23,6 +25,9 @@ public:
 
     int health;
     int maxHealth;
+
+    // Animation Type
+    enum ZombieAnimation { MOVE, DIE };
 };
 
 #endif

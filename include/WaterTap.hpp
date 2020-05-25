@@ -19,6 +19,8 @@ public:
     ~WaterTap() {
       
     }
+
+    enum WaterTapAnimation { IDLE, WATER };
 };
 
 #endif

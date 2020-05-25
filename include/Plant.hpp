@@ -33,6 +33,8 @@ public:
         ar & growExpireTime;
         ar & growProgressTime;
         ar & range;
+        ar & currAttackTime;
+        ar & attackInterval;
     }
 
     ~Plant() {

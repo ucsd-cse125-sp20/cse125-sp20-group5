@@ -24,7 +24,10 @@ enum class ShaderType {
 };
 
 enum class ModelType {
-	CAT, PIG, RABBIT, CORN, WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL, SEED_BAG, SEED, SAPLING, BABY_CORN
+	CAT, PIG, RABBIT, 
+	WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL, SEED_BAG, 
+	CORN, SEED, SAPLING, BABY_CORN, 
+	HOME_BASE
 };
 
 class Scene
@@ -59,6 +62,7 @@ private:
 	AssimpModel* seedSourceModel;
 	AssimpModel* shovelModel;
 	AssimpModel* seedBagModel;
+	AssimpModel* baseModel;
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
@@ -119,6 +123,7 @@ public:
 			case ModelType::SEED:				return seedModel;
 			case ModelType::SAPLING:			return saplingModel;
 			case ModelType::BABY_CORN:			return babyCornModel;
+			case ModelType::HOME_BASE:			return baseModel;
 		}
 	}
 };

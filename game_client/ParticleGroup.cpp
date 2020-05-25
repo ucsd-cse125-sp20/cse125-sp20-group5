@@ -4,9 +4,9 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 	glm::vec3 color, glm::vec3 initialVelocity,
 	glm::vec3 acceleration, int initParicleNum, int maxParticleNum, float lifeSpan,
 	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-	float spawnTime, int spawnNum, float maxDistance) {
+	float spawnTime, int spawnNum, float maxDistance, bool spawning) {
 
-	this->spawning = true;
+	this->spawning = spawning;
 
 	this->particleSize = particleSize;
 	// Setup variables
@@ -153,7 +153,6 @@ void ParticleGroup::update(SceneNode * node)
 			children.erase(children.begin() + i);
 		}
 	}
-	
 }
 
 SceneNode* ParticleGroup::createSceneNodes(uint objectId)
@@ -170,6 +169,12 @@ void ParticleGroup::toggleSpawning()
 
 bool ParticleGroup::isSpawning() {
 	return spawning;
+}
+
+void ParticleGroup::releaseParticles()
+{
+	for (int i = 0; i < spawnNum; i++)
+		addChildParticle();
 }
 
 

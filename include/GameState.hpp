@@ -127,6 +127,7 @@ public:
         ar & seedShacks;
         ar & bullets;
         ar & waterTap;
+        ar & homeBase;
     }
 
     ~GameState() {
@@ -240,7 +241,12 @@ public:
     }
 
     void playersPerformAction() {
+        //Reset watering state
+        waterTap->animation->animationType = WaterTap::WaterTapAnimation::IDLE;
         for (Player* player : players) {
+            // Reset animation to MOVE
+            player->animation->animationType = Player::PlayerAnimation::MOVE;
+
             // Check if player pressed e during this tick
             if (!player->shouldPerformAction) {
                 /*
@@ -284,7 +290,9 @@ public:
 
                 if (player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
                     tool->remainingWater += deltaTime;
+                    waterTap->animation->animationType = WaterTap::WaterTapAnimation::WATER;
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                    player->animation->animationType = Player::PlayerAnimation::WATER;
                     break;
                 }
 
@@ -303,6 +311,7 @@ public:
                             std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
                             std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
                             std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                            player->animation->animationType = Player::PlayerAnimation::WATER;
                         }
                         else {
                             std::cout << "Plant growing in cooldown. Cannot water" << std::endl;
@@ -323,6 +332,7 @@ public:
                     if (currTile->plowProgressTime < floor->plowExpireTime) {
                         currTile->plowProgressTime += deltaTime;
                         std::cout << "Current tile plowing progress: " << currTile->plowProgressTime << std::endl;
+                        player->animation->animationType = Player::PlayerAnimation::PLOUGH;
                     }
                     else {
                         currTile->tileType = Tile::TYPE_TILLED;
@@ -659,6 +669,10 @@ public:
             speedX = -1.0f;
             break;
         case Player::MoveState::FREEZE:
+            // If no action-related animation is set, overwrite animation with IDLE
+            if (player->animation->animationType == Player::PlayerAnimation::MOVE) {
+                player->animation->animationType = Player::PlayerAnimation::IDLE;
+            }
             break;
         }
         player->position->z += speedZ * translateDistance * deltaTime;
