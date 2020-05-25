@@ -130,6 +130,7 @@ public:
 					default:
 						tile->direction = new Direction(0.0);
 						tile->tileType = Tile::TYPE_NORMAL;
+						tile->canPlow = true;
 
 				}
                 // Set progress time

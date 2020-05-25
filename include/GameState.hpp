@@ -83,6 +83,9 @@ public:
         homeBase->direction = new Direction(baseTile->direction->getOppositeDirection());
         homeBase->animation = new Animation(0, 0);
 
+
+        initUnPlowableTiles();
+
         // Add tools, seed shack and water tap to game object id map
         for (Tool* tool : tools) {
             gameObjectMap[tool->objectId] = tool;
@@ -244,6 +247,10 @@ public:
                 if (waterTap->playerIdInUse == player->objectId) {
                     waterTap->playerIdInUse = 0;
 				}*/
+                if (player->highlightTileRow != -1 && player->highlightTileCol != -1) {
+                    Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
+                    currTile->plowProgressTime = 0;
+                }
                 continue;
             }
             player->shouldPerformAction = false;
@@ -319,6 +326,7 @@ public:
                     }
                     else {
                         currTile->tileType = Tile::TYPE_TILLED;
+                        currTile->canPlow = false;
                         std::cout << "Tile is plowed" << std::endl;
                     }
                 }
@@ -943,6 +951,12 @@ public:
                 if (row < 0 || row >= floor->tiles.size() || col < 0 || col >= floor->tiles[0].size()) continue;
 
                 Tile* currTile = floor->tiles[row][col];
+                if (TILE_TYPE == Tile::TYPE_NORMAL && !currTile->canPlow) {
+                    continue;
+                }
+                else if (TILE_TYPE == Tile::TYPE_TILLED && currTile->plantId != 0) {
+                    continue;
+                }
                 Position centerPosition = currTile->getCenterPosition();
                 float dist = player->distanceTo(centerPosition);
 
@@ -977,6 +991,23 @@ public:
             player->highlightTileCol = -1;
         }
 	}
+    
+    Tile* getCurrentTile(GameObject* object) {
+        int row = object->position->z / Floor::TILE_SIZE;
+        int col = object->position->x / Floor::TILE_SIZE;
+        Tile* currTile = floor->tiles[row][col];
+        return floor->tiles[row][col];
+    }
+
+    void initUnPlowableTiles() {
+        for (SeedShack* seedShack : seedShacks) {
+            Tile* tile = getCurrentTile(seedShack);
+            tile->canPlow = false;
+        }
+
+        Tile* tile = getCurrentTile(waterTap);
+        tile->canPlow = false;
+    }
 
     // We could use other data structures, for now use a list
     std::vector<Player*> players; // Up to 4 players?
