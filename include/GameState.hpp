@@ -756,6 +756,17 @@ public:
             return;
         }
 
+        bool zombieInRange = false;
+        for (Zombie* zombie : zombies) {
+            if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
+                zombieInRange = true;
+            }
+        }
+
+        if (!zombieInRange) {
+            return;
+        }
+
         if (plant->currAttackTime < plant->attackInterval) {
             plant->currAttackTime += deltaTime;
             return;
