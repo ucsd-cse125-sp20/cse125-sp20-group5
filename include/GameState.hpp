@@ -538,8 +538,7 @@ public:
                             Position translateTilePos = translateTile->getCenterPosition();
                             player->position->x = translateTilePos.x;
                             player->position->z = translateTilePos.z;
-                            player->currRow = player->position->z / Floor::TILE_SIZE;
-                            player->currCol = player->position->x / Floor::TILE_SIZE;
+
                         }
 
 
@@ -605,6 +604,8 @@ public:
                 player->position->x = prevPos.x;
                 player->position->z = prevPos.z;
             }
+            player->currRow = player->position->z / Floor::TILE_SIZE;
+            player->currCol = player->position->x / Floor::TILE_SIZE;
         }
     }
 
@@ -654,8 +655,6 @@ public:
         }
         player->position->z += speedZ * translateDistance * deltaTime;
         player->position->x += speedX * translateDistance * deltaTime;
-        player->currRow = player->position->z / Floor::TILE_SIZE;
-        player->currCol = player->position->x / Floor::TILE_SIZE;
     }
 
     float checkRotation(Direction* playerDirection, float moveDirection, bool isDiagonal) {
@@ -948,9 +947,9 @@ public:
                 float dist = player->distanceTo(centerPosition);
 
                 Position playerTileVec = Position(
-                    currTile->position->x - player->position->x,
-                    currTile->position->y - player->position->y,
-                    currTile->position->z - player->position->z
+                    centerPosition.x - player->position->x,
+                    centerPosition.y - player->position->y,
+                    centerPosition.z - player->position->z
                 );
                 float angle = player->direction->getAngleBetween(playerTileVec);
                 if (dist < minDistance && angle <= config.highlightFOVAngle) {
