@@ -155,11 +155,13 @@ void Scene::update()
 
 	unusedIds.erase(state->waterTap->objectId);
 
-	SceneNode* seedShackNode = getDrawableSceneNode(state->seedShack->objectId, seedSourceModel);
-	seedShackNode->loadGameObject(state->seedShack);
-	seedShackNode->scaler = SEED_SOURCE_SCALER;
-	seedShackNode->position[1] = .65; // TODO MAKE THIS A CONSTANT WHEN THE SIZES ARE SET
-	unusedIds.erase(state->seedShack->objectId);
+	for (SeedShack* seedShack : state->seedShacks) {
+        SceneNode* seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel);
+        seedShackNode->loadGameObject(seedShack);
+        seedShackNode->scaler = SEED_SOURCE_SCALER;
+        seedShackNode->position[1] = .65; // TODO MAKE THIS A CONSTANT WHEN THE SIZES ARE SET
+        unusedIds.erase(seedShack->objectId);
+	}
 	
 	rootNode->update(glm::mat4(1.0));
 

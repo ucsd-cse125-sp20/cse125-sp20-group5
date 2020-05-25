@@ -22,6 +22,31 @@ public:
     float playerRespawnInvincibleTime;
 
 
+    // Zombie Waves related
+    int waveDefaultNumZombies;
+    int waveDeltaNumZombies;
+    int zombieDefaultHealth;
+    int zombieDeltaHealth;
+    float waveStartTime;
+
+    // Plant Corn
+    int cornAttackPower;
+    float cornBoundingBoxRadius;
+    float cornAttackInterval;
+    float cornAttackRange;
+    float cornGrowExpireTime;
+    float cornGrowCooldownTime;
+
+    // Plant Cactus
+    int cactusAttackPower;
+    float cactusBoundingBoxRadius;
+    float cactusAttackInterval;
+    float cactusAttackRange;
+    float cactusGrowExpireTime;
+    float cactusGrowCooldownTime;
+    float cactusBulletSpeed;
+    float cactusBulletRadius;
+
     ServerParams();
 
     // Math constants

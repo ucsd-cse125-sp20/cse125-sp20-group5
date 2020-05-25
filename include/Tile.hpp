@@ -38,6 +38,7 @@ public:
     Position* position; // Tile's position
     int tileType; // D/f types (e.g. normal, occupied by zombie, etc)
     int plantId;
+    bool canPlow;
 
     Direction* direction; // For zombie tiles (e.g. which direction do they go)
 

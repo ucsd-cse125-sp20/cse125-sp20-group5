@@ -49,6 +49,11 @@ public:
         return distance <= boundingBoxRadius + that->boundingBoxRadius;
     }
 
+    bool highlightCollideWith(GameObject* that) {
+        float distance = this->distanceTo(that);
+        return distance <= boundingBoxRadius + that->boundingBoxRadius + 0.3f;
+    }
+
     Position* position; // Plant position
     Direction* direction; // Direction the  facing
     Animation* animation; // type of animation

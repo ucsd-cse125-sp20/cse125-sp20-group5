@@ -3,6 +3,7 @@
 
 #include "GameObject.hpp"
 #include "TowerRange.hpp"
+#include "ServerParams.h"
 #include <unordered_map>
 #include <boost/serialization/assume_abstract.hpp>
 
@@ -40,7 +41,34 @@ public:
         delete range;
     }
 
-    static enum class PlantType { CORN = 0, PEA_SHOOTER = 1 };
+    static Plant* buildPlant(ServerParams& config, PlantType type) {
+        Plant* plant = new Plant();
+        plant->animation = new Animation(0, 0);
+        plant->growStage = GrowStage::SEED;
+        plant->currAttackTime = 0.0f;
+        plant->plantType = type;
+        switch (type) {
+        case PlantType::CORN:
+            plant->range = new TowerRange(config.cornAttackRange);
+            plant->boundingBoxRadius = config.cornBoundingBoxRadius;
+            plant->growExpireTime = config.cornGrowExpireTime;
+            plant->attackPower = config.cornAttackPower;
+            plant->attackInterval = config.cornAttackInterval;
+            plant->growCooldownTime = config.cornGrowCooldownTime;
+            break;
+        case PlantType::CACTUS:
+            plant->range = new TowerRange(config.cactusAttackRange);
+            plant->boundingBoxRadius = config.cactusBoundingBoxRadius;
+            plant->growExpireTime = config.cactusGrowExpireTime;
+            plant->attackPower = config.cactusAttackPower;
+            plant->attackInterval = config.cactusAttackInterval;
+            plant->growCooldownTime = config.cactusGrowCooldownTime;
+            break;
+        }
+        return plant;
+    }
+
+    static enum class PlantType { CORN = 0, CACTUS = 1 };
     static enum class GrowStage { SEED = 0, SAPLING = 1, BABY = 2, GROWN = 3 };
 
     TowerRange* range; // Represents how far plant can reach to attack
