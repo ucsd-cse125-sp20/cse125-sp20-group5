@@ -7,7 +7,6 @@
 #pragma once
 
 #include "AssimpModel.h"
-#include <unordered_map>
 
 class AnimatedAssimpModel : public AssimpModel
 {
@@ -26,13 +25,12 @@ private:
 
     // used when getting the animation value based on node name
     std::vector<std::unordered_map<std::string, aiNodeAnim*>*> animatedNodeMapList;
-    std::map<uint, SceneNode*> boneSceneNodeMap;
 
     aiNode* rootBone;
     void setRootBone();
 
     /* Scene graph related */
-    SceneNode * createSceneNodesRec(uint objectId, aiNode * curNode);
+    SceneNode * createSceneNodesRec(uint objectId, aiNode * curNode, SceneNode* rootNode);
 
     /* Animation related function */
     void calcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
@@ -42,7 +40,7 @@ private:
     uint findAnimRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint findAnimPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
     const aiNodeAnim* findAnimNode(const int animId, const string NodeName);
-    void calcAnimByNodeTraversal(int animId, float AnimationTime, const aiNode* pNode, const glm::mat4& parentTransform);
+    void calcAnimByNodeTraversal(SceneNode* rootNode, float AnimationTime, const aiNode* pNode, const glm::mat4& parentTransform);
 
     void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences) override;
 };

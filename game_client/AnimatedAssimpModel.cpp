@@ -73,7 +73,7 @@ void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 		// set the uniform
 		string str = "gBones[" + to_string(i) + "]";
 		const char* uniformName = &(str)[0];
-		glm::mat4 boneTransform = boneSceneNodeMap[i]->transform * bones[i].boneOffset;
+		glm::mat4 boneTransform = node.boneSceneNodeMap[i]->transform * bones[i].boneOffset;
 		glUniformMatrix4fv(glGetUniformLocation(shader, uniformName), 1, false, (float*)&(boneTransform));
 	}
 
@@ -131,35 +131,36 @@ void AnimatedAssimpModel::updateBoneTransform(SceneNode* node)
 	}
 
 	// set this line to just use the root bone node rather than root bone
-	calcAnimByNodeTraversal(node->animationId, animationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
+	calcAnimByNodeTraversal(node, animationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
 }
 
 SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId)
 {
 	SceneNode * newNode = new SceneNode(this, string("modelRoot"), objectId);
 	newNode->loadAnimData(m_aiScene->mNumAnimations, 0); // TODO: to be removed if updating animation on the server side
-	newNode->addChild(createSceneNodesRec(objectId, rootBone));
+	newNode->addChild(createSceneNodesRec(objectId, rootBone, newNode));
 	return newNode;
 }
 
-SceneNode* AnimatedAssimpModel::createSceneNodesRec(uint objectId, aiNode* curNode)
+SceneNode* AnimatedAssimpModel::createSceneNodesRec(uint objectId, aiNode* curNode, SceneNode* rootNode)
 {
 	SceneNode* newNode = new SceneNode(NULL, string(curNode->mName.C_Str()), objectId);
 
 	// add to the map that maps the bone index to the scene node that simulates the bone
 	if (boneMap.find(newNode->getName()) != boneMap.end()) {
-		boneSceneNodeMap[boneMap[newNode->getName()]] = newNode;
+		rootNode->boneSceneNodeMap[boneMap[newNode->getName()]] = newNode;
 	}
 
 	// create scene nodes for children recursively
 	for (int i = 0; i < curNode->mNumChildren; i++) {
-		newNode->addChild(createSceneNodesRec(objectId, curNode->mChildren[i]));
+		newNode->addChild(createSceneNodesRec(objectId, curNode->mChildren[i], rootNode));
 	}
 	return newNode;
 }
 
-void AnimatedAssimpModel::calcAnimByNodeTraversal(int animId, float AnimationTime, const aiNode* pNode, const glm::mat4& parentTransform)
+void AnimatedAssimpModel::calcAnimByNodeTraversal(SceneNode* rootNode, float AnimationTime, const aiNode* pNode, const glm::mat4& parentTransform)
 {
+	int animId = rootNode->animationId;
 	string NodeName(pNode->mName.data);
 
 	glm::mat4 nodeTransformation = convertToGlmMat(pNode->mTransformation);
@@ -192,15 +193,15 @@ void AnimatedAssimpModel::calcAnimByNodeTraversal(int animId, float AnimationTim
 		// we pass in local transform because this will be passed into node.transform
 		// and SceneNode::update() will apply the global transform to the node.transform
 		bones[BoneIndex].finalTransformation = boneLocalTransformation;
-		boneSceneNodeMap[BoneIndex]->updated = true;
-		boneSceneNodeMap[BoneIndex]->transform = boneLocalTransformation;
+		rootNode->boneSceneNodeMap[BoneIndex]->updated = true;
+		rootNode->boneSceneNodeMap[BoneIndex]->transform = boneLocalTransformation;
 
 		// reset boneLocalTransformation, which will be passed as parentTransform, so that make the transform local to each bone
 		boneLocalTransformation = glm::mat4(1);
 	}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++) {
-		calcAnimByNodeTraversal(animId, AnimationTime, pNode->mChildren[i], boneLocalTransformation);
+		calcAnimByNodeTraversal(rootNode, AnimationTime, pNode->mChildren[i], boneLocalTransformation);
 	}
 }
 
