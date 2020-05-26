@@ -22,6 +22,8 @@ Scene::Scene()
 	saplingModel = new AssimpModel(SAPLING_MODEL, assimpProgram->GetProgramID());
 	babyCornModel = new AssimpModel(BABY_CORN_MODEL, assimpProgram->GetProgramID());	
 	cornModel = new AssimpModel(CORN_MODEL, assimpProgram->GetProgramID());
+	babyCactusModel = new AssimpModel(BABY_CACTUS_MODEL, assimpProgram->GetProgramID());
+	cactusModel = new AssimpModel(CACTUS_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());

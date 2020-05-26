@@ -26,7 +26,7 @@ enum class ShaderType {
 enum class ModelType {
 	CAT, PIG, RABBIT, 
 	WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL, SEED_BAG, 
-	CORN, SEED, SAPLING, BABY_CORN, 
+	CORN, SEED, SAPLING, BABY_CORN, BABY_CACTUS, CACTUS,
 	HOME_BASE
 };
 
@@ -57,6 +57,8 @@ private:
 	AssimpModel* saplingModel;
 	AssimpModel* babyCornModel;
 	AssimpModel* cornModel;
+	AssimpModel* babyCactusModel;
+	AssimpModel* cactusModel;
 	AssimpModel* tapModel;
 	AssimpModel* wateringCanModel;
 	AssimpModel* seedSourceModel;
@@ -123,6 +125,8 @@ public:
 			case ModelType::SEED:				return seedModel;
 			case ModelType::SAPLING:			return saplingModel;
 			case ModelType::BABY_CORN:			return babyCornModel;
+			case ModelType::BABY_CACTUS:		return babyCactusModel;
+			case ModelType::CACTUS:				return cactusModel;
 			case ModelType::HOME_BASE:			return baseModel;
 		}
 	}
