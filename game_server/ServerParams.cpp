@@ -39,6 +39,9 @@ ServerParams::ServerParams() {
     cornAttackRange = config.GetFloat("Corn", "AttackRange", 3.0f);
     cornGrowExpireTime = config.GetFloat("Corn", "GrowExpireTime", 2.0f);
     cornGrowCooldownTime = config.GetFloat("Corn", "GrowCooldownTime", 2.0f);
+    cornActiveTime = config.GetFloat("Corn", "ActiveTime", 5.0f);
+    cornDeathTime = config.GetFloat("Corn", "DeathTime", 5.0f);
+    cornPesticideSprayTime = config.GetFloat("Corn", "PesticideSprayTime", 2.0f);
 
     // Plant Cactus
     cactusAttackPower = config.GetInteger("Cactus", "AttackPower", 50);
@@ -49,4 +52,7 @@ ServerParams::ServerParams() {
     cactusGrowCooldownTime = config.GetFloat("Cactus", "GrowCooldownTime", 2.0f);
     cactusBulletSpeed = config.GetFloat("Cactus", "BulletSpeed", 9.0f);
     cactusBulletRadius = config.GetFloat("Cactus", "BulletRadius", 0.5f);
+    cactusActiveTime = config.GetFloat("Cactus", "ActiveTime", 5.0f);
+    cactusDeathTime = config.GetFloat("Cactus", "DeathTime", 15.0f);
+    cactusPesticideSprayTime = config.GetFloat("Cactus", "PesticideSprayTime", 2.0f);
 }

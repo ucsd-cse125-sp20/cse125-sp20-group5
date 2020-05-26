@@ -71,7 +71,6 @@ public:
 				switch (std::stoi(substr)) {
 				case 0:
 					tools[i]->toolType = Tool::ToolType::WATER_CAN;
-					tools[i]->capacity = 3.0f;
 					break;
 				case 1:
 					tools[i]->toolType = Tool::ToolType::PLOW;
@@ -79,8 +78,17 @@ public:
 				case 2:
 					tools[i]->toolType = Tool::ToolType::SEED;
 					break;
+				case 3:
+					tools[i]->toolType = Tool::ToolType::PESTICIDE;
+					break;
 				}
 				i++;
+			}
+		} else if (key == "WaterCanCapacity") {
+			for (Tool* tool: tools) {
+				if (tool->toolType == Tool::ToolType::WATER_CAN) {
+					tool->capacity = std::stof(value);
+				}
 			}
 		}
     }

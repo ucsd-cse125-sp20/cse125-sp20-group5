@@ -38,6 +38,9 @@ public:
     float cornAttackRange;
     float cornGrowExpireTime;
     float cornGrowCooldownTime;
+    float cornActiveTime;
+    float cornDeathTime;
+    float cornPesticideSprayTime;
 
     // Plant Cactus
     int cactusAttackPower;
@@ -48,6 +51,9 @@ public:
     float cactusGrowCooldownTime;
     float cactusBulletSpeed;
     float cactusBulletRadius;
+    float cactusActiveTime;
+    float cactusDeathTime;
+    float cactusPesticideSprayTime;
 
     ServerParams();
 

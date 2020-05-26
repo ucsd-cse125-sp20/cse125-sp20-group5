@@ -35,6 +35,8 @@ public:
         ar & range;
         ar & currAttackTime;
         ar & attackInterval;
+        ar & currSprayTime;
+        ar & pesticideSprayTime;
     }
 
     ~Plant() {
@@ -47,6 +49,8 @@ public:
         plant->growStage = GrowStage::SEED;
         plant->currAttackTime = 0.0f;
         plant->plantType = type;
+        plant->aliveTime = 0.0f;
+        plant->currSprayTime = 0.0f;
         switch (type) {
         case PlantType::CORN:
             plant->range = new TowerRange(config.cornAttackRange);
@@ -55,6 +59,9 @@ public:
             plant->attackPower = config.cornAttackPower;
             plant->attackInterval = config.cornAttackInterval;
             plant->growCooldownTime = config.cornGrowCooldownTime;
+            plant->activeTime = config.cornActiveTime;
+            plant->deathTime = config.cornDeathTime;
+            plant->pesticideSprayTime = config.cornPesticideSprayTime;
             break;
         case PlantType::CACTUS:
             plant->range = new TowerRange(config.cactusAttackRange);
@@ -63,6 +70,9 @@ public:
             plant->attackPower = config.cactusAttackPower;
             plant->attackInterval = config.cactusAttackInterval;
             plant->growCooldownTime = config.cactusGrowCooldownTime;
+            plant->activeTime = config.cactusActiveTime;
+            plant->deathTime = config.cactusDeathTime;
+            plant->pesticideSprayTime = config.cactusPesticideSprayTime;
             break;
         }
         return plant;
@@ -82,6 +92,13 @@ public:
     int attackPower;
     float currAttackTime;
     float attackInterval;
+
+    float aliveTime;
+    float activeTime; // time until bugs attacking plants
+    float deathTime; // time until death, starting from activeTime
+
+    float currSprayTime;
+    float pesticideSprayTime;
 };
 
 

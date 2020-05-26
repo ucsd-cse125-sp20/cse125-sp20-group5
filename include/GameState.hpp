@@ -257,6 +257,10 @@ public:
                     Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
                     currTile->plowProgressTime = 0;
                 }
+
+                for (Plant* plant : plants) {
+                    plant->currSprayTime = 0;
+                }
                 continue;
             }
             player->shouldPerformAction = false;
@@ -374,6 +378,24 @@ public:
 
                 }
                 break;
+
+            case Tool::ToolType::PESTICIDE:
+                if (player->highlightObjectId != 0) {
+                    Plant* plant = (Plant*)gameObjectMap[player->highlightObjectId];
+
+                    // assuming theres bugs on the plants
+                    if (plant->aliveTime >= plant->activeTime) {
+                        std::cout << "Current plant spraying progress: " << plant->currSprayTime << std::endl;
+                        plant->currSprayTime += deltaTime;
+                        plant->aliveTime -= deltaTime;
+
+                        if (plant->currSprayTime >= plant->pesticideSprayTime) {
+                            plant->currSprayTime = 0.0f;
+                            plant->aliveTime = 0.0f;
+                        }
+                    }
+                }
+                break;
             }
         }
     }
@@ -445,9 +467,30 @@ public:
     }
 
     void updatePlants() {
-        for (Plant* plant : plants) {
+        for (auto it = std::begin(plants); it != std::end(plants);) {
+            Plant* plant = *it;
             if (plant->growStage == Plant::GrowStage::GROWN) {
                 // Grown stage
+
+                if (plant->aliveTime >= plant->deathTime) {
+                    // Plant is dead, get rid of it
+                    Tile* tile = getCurrentTile(plant);
+                    tile->canPlow = true;
+                    tile->tileType = Tile::TYPE_NORMAL;
+                    it = plants.erase(it);
+                    continue;
+                }
+
+                if (plant->aliveTime < plant->activeTime) {
+                    // Attack zombies
+                    plantAttack(plant);
+                }
+                else {
+                    plant->currAttackTime = 0.0f;
+                    std::cout << "Bugs Attacking plant! Use pesticide!!!" << std::endl;
+                }
+
+                plant->aliveTime += deltaTime;
             }
             else {
                 // Still Growing
@@ -465,10 +508,10 @@ public:
 
             }
 
-            // Attack zombies
-            plantAttack(plant);
 
             // TODO: handle spawn bullets
+
+            it++;
         }
     }
 
@@ -885,10 +928,11 @@ public:
                                 player->highlightTileCol = highlightPlant->position->x / Floor::TILE_SIZE;
                             }
                             std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
-                        } else {
+                        }
+                        else {
                             player->highlightObjectId = 0;
                             std::cout << "Nothing is highlighted" << std::endl;
-						}
+                        }
                     }
                     break;
                 }
@@ -898,11 +942,51 @@ public:
                     break;
                 }
 
-                case Tool::ToolType::SEED:
+                case Tool::ToolType::SEED: {
                     // highlight tilled tiles
                     checkTileHighlight(player, Tile::TYPE_TILLED);
                     break;
-				}
+                }
+
+                case Tool::ToolType::PESTICIDE: {
+                    // highlight plants or water tap
+                    float minDistance = std::numeric_limits<float>::max();
+                    Plant* highlightPlant = nullptr;
+                    for (Plant* plant : plants) {
+                        float dist = player->distanceTo(plant);
+
+                        Position playerPlantVec = Position(
+                            plant->position->x - player->position->x,
+                            plant->position->y - player->position->y,
+                            plant->position->z - player->position->z
+                        );
+                        float angle = player->direction->getAngleBetween(playerPlantVec);
+
+                        if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                            highlightPlant = plant;
+                            minDistance = dist;
+                        }
+                    }
+                    player->highlightTileRow = -1;
+                    player->highlightTileCol = -1;
+
+                    if (highlightPlant
+                        && highlightPlant->growStage == Plant::GrowStage::GROWN
+                        && highlightPlant->aliveTime > highlightPlant->activeTime
+                        && highlightPlant->aliveTime < highlightPlant->deathTime
+                        && player->highlightCollideWith(highlightPlant)) {
+                        player->highlightObjectId = highlightPlant->objectId;
+                        player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
+                        player->highlightTileCol = highlightPlant->position->x / Floor::TILE_SIZE;
+                        std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
+                    }
+                    else {
+                        player->highlightObjectId = 0;
+                        std::cout << "Nothing is highlighted" << std::endl;
+                    }
+                    break;
+                }
+                }
             }
             else {
                 // highlight tools when not holding anything
