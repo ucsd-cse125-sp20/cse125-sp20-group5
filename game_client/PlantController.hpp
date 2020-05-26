@@ -11,9 +11,9 @@
 #include "HealthBar.h" //TODO to be removed
 #include "Scene.h"
 
-#define SEED_SCALER 0.03
+#define SEED_SCALER 0.10
 #define SEED_VEC glm::vec3(0.0, 0.2, 0.0)
-#define SAPLING_SCALER 0.06
+#define SAPLING_SCALER 0.25
 
 #define BABY_CORN_SCALER 0.45
 #define CORN_SCALER 0.45

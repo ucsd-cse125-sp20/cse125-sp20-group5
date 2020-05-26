@@ -17,6 +17,7 @@ Scene::Scene()
 	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
 	barProgram = new ShaderProgram("HealthBar.glsl", ShaderProgram::eRender);
 	
+
 	zombieModel = new AnimatedAssimpModel(ZOMBIE_RABBIT_MODEL, animationProgram->GetProgramID());
 	zombiePigModel = new AnimatedAssimpModel(ZOMBIE_PIG_MODEL, animationProgram->GetProgramID());
 
@@ -25,13 +26,14 @@ Scene::Scene()
 	playerPigModel = new AnimatedAssimpModel(PLAYER_PIG_MODEL, animationProgram->GetProgramID());
 	playerChickenModel = new AnimatedAssimpModel(PLAYER_CHICKEN_MODEL, animationProgram->GetProgramID());
 
-	seedModel = new AssimpModel(SEED_MODEL, assimpProgram->GetProgramID());
-	saplingModel = new AssimpModel(SAPLING_MODEL, assimpProgram->GetProgramID());
+	saplingModel = new AnimatedAssimpModel(SAPLING_MODEL, animationProgram->GetProgramID());
+	seedModel = saplingModel;
 	babyCornModel = new AnimatedAssimpModel(BABY_CORN_MODEL, animationProgram->GetProgramID());	
 	cornModel = new AnimatedAssimpModel(CORN_MODEL, animationProgram->GetProgramID());
 	babyCactusModel = new AnimatedAssimpModel(BABY_CACTUS_MODEL, animationProgram->GetProgramID());
 	cactusModel = new AnimatedAssimpModel(CACTUS_MODEL, animationProgram->GetProgramID());
 	cactusBulletModel = new AssimpModel(CACTUS_BULLET_MODEL, assimpProgram->GetProgramID());
+
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
@@ -178,14 +180,12 @@ void Scene::update()
 		objectIdMap[state->waterTap->objectId] = controllers[state->waterTap->objectId]->rootNode;
 	}
 	controllers[state->waterTap->objectId]->update(state->waterTap, this);
-
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (SeedShack* seedShack : state->seedShacks) {
         SceneNode* seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel);
         seedShackNode->loadGameObject(seedShack);
         seedShackNode->scaler = SEED_SOURCE_SCALER;
-        seedShackNode->position[1] = .65; // TODO MAKE THIS A CONSTANT WHEN THE SIZES ARE SET
         unusedIds.erase(seedShack->objectId);
 	}
 	
