@@ -22,6 +22,9 @@
 #define BABY_CACTUS_SCALER 0.3
 #define CACTUS_SCALER 0.45
 
+#define ATTACK_ANIMATION 1
+#define IDLE_ANIMATION 0
+
 class PlantController : public RenderController {
 
 private:
@@ -82,6 +85,12 @@ public:
         // std::cout << "attackInterval" << plant->attackInterval << "\n";
         if (pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
             pGroup->releaseParticles();
+            this->modelNode->switchAnim(ATTACK_ANIMATION, false);
+        }
+        // Reset back to idle
+        if (this->modelNode->animationId == ATTACK_ANIMATION &&
+            this->modelNode->playedOneAnimCycle) {
+            this->modelNode->switchAnim(IDLE_ANIMATION, true);
         }
     }
 
