@@ -12,7 +12,7 @@
 #define CORN_MODEL "model/corn.fbx"
 #define BABY_CORN_MODEL "model/baby_corn.fbx"
 #define CACTUS_MODEL "model/cactus.fbx"
-#define BABY_CACTUS_MODEL "model/cactus.fbx"
+#define BABY_CACTUS_MODEL "model/baby_cactus.fbx"
 #define CACTUS_BULLET_MODEL "model/spike.fbx"
 
 #define WATER_TAP_MODEL "model/water_tap.fbx"
