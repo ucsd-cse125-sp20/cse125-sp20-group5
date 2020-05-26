@@ -701,26 +701,26 @@ public:
     void updateZombies() {
         zombieWaveManager->handleZombieWaves();
 
-        for (auto i = std::begin(zombies); i != std::end(zombies); i++) {
+        for (auto i = std::begin(zombies); i != std::end(zombies);) {
             Zombie* zombie = (*i);
             float paddingZ = 0, paddingX = 0;
 
             // Move current zombie
             Direction* currDir = zombie->direction;
             if (currDir->directionEquals(Direction::DIRECTION_DOWN)) {
-                zombie->position->z += config.zombieRabbitMoveSpeed * deltaTime;
+                zombie->position->z += zombie->moveSpeed * deltaTime;
                 paddingZ -= Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_RIGHT)) {
-                zombie->position->x += config.zombieRabbitMoveSpeed * deltaTime;
+                zombie->position->x += zombie->moveSpeed * deltaTime;
                 paddingX -= Tile::TILE_PAD_X;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_UP)) {
-                zombie->position->z -= config.zombieRabbitMoveSpeed * deltaTime;
+                zombie->position->z -= zombie->moveSpeed * deltaTime;
                 paddingZ += Tile::TILE_PAD_Z;
             } 
             else if (currDir->directionEquals(Direction::DIRECTION_LEFT)) {
-                zombie->position->x -= config.zombieRabbitMoveSpeed * deltaTime;
+                zombie->position->x -= zombie->moveSpeed * deltaTime;
                 paddingX += Tile::TILE_PAD_X;
             }
 
@@ -744,6 +744,8 @@ public:
                 i = zombies.erase(i);
                 continue;
             }
+
+            i++;
 
             // Rotate current zombie
             if (currTile->tileType != Tile::TYPE_NORMAL)
@@ -817,6 +819,7 @@ public:
                 if (bullet->collideWith(zombie)) {
                     zombie->health -= bullet->attackPower;
                     i = bullets.erase(i);
+                    i--;
                     break;
                 }
             }

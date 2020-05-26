@@ -11,7 +11,7 @@ public:
     ZombieWaveManager();
     ZombieWaveManager(GameState* state);
 
-    void spawn();
+    void spawn(Zombie::ZombieType type);
 
     void handleZombieWaves();
 

@@ -17,6 +17,8 @@ public:
     float playerCatRadius;
     float zombieRabbitMoveSpeed;
     float zombieRabbitRadius;
+    float zombiePigMoveSpeed;
+    float zombiePigRadius;
     float highlightFOVAngle;
     float playerKnockBackMaxDistance;
     float playerRespawnInvincibleTime;

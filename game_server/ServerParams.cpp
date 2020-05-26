@@ -17,8 +17,10 @@ ServerParams::ServerParams() {
     playerInRotationDiagonalMoveSpeed = playerInRotationMoveSpeed / SQRT_2;
     playerRotationSpeed = config.GetInteger("PhysicsParams", "PlayerRotationSpeed", 4) * PI;
     playerCatRadius = config.GetFloat("PhysicsParams", "PlayerCatRadius", 0.5f);
-    zombieRabbitMoveSpeed = config.GetFloat("PhysicsParams", "ZombieRabbitMoveSpeed", 1.6f);
+    zombieRabbitMoveSpeed = config.GetFloat("PhysicsParams", "ZombieRabbitMoveSpeed", 3.6f);
     zombieRabbitRadius = config.GetFloat("PhysicsParams", "ZombieRabbitRadius", 0.5f);
+    zombiePigMoveSpeed = config.GetFloat("PhysicsParams", "ZombiePigMoveSpeed", 1.6f);
+    zombiePigRadius = config.GetFloat("PhysicsParams", "ZombiePigRadius", 0.5f);
     highlightFOVAngle = PI / config.GetFloat("PhysicsParams", "HighlightFOVAngle", 3);
     playerKnockBackMaxDistance = config.GetFloat("PhysicsParams", "PlayerKnockBackMaxDistance", 5.0f);
     playerRespawnInvincibleTime = config.GetFloat("PhysicsParams", "PlayerRespawnInvincibleTime", 2.0f);

@@ -22,7 +22,7 @@
 
 using namespace std;
 
-#define NUM_BONES_PER_VEREX 4
+#define NUM_BONES_PER_VEREX 8
 /**
  * BoneReferenceData is a struct that, for each vertex, contains reference to the bone along
  * with the weights; the bone data is stored in AssimpModel and will be passed into the 
