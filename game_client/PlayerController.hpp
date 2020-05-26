@@ -15,7 +15,14 @@ class PlayerController : public RenderController {
 public:
 	PlayerController(Player* player, Scene* scene) {
 		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + player->objectId, player->objectId);
-		modelNode = scene->getModel(ModelType::CAT)->createSceneNodes(player->objectId);
+		int model = player->playerId % 4; // make constant
+		switch (model) {
+		case 0: modelNode = scene->getModel(ModelType::TIGER)->createSceneNodes(player->objectId); break;
+		case 1: modelNode = scene->getModel(ModelType::CHICKEN)->createSceneNodes(player->objectId); break;
+		case 2: modelNode = scene->getModel(ModelType::BLACKPIG)->createSceneNodes(player->objectId); break;
+		case 3: modelNode = scene->getModel(ModelType::CAT)->createSceneNodes(player->objectId); break;
+		}
+		
 		rootNode->addChild(modelNode);
 		rootNode->scaler = PLAYER_SCALER;
 		scene->getGroundNode()->addChild(rootNode);

@@ -17,8 +17,14 @@ Scene::Scene()
 	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
 	barProgram = new ShaderProgram("HealthBar.glsl", ShaderProgram::eRender);
 	
-	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
-	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
+	zombieModel = new AnimatedAssimpModel(ZOMBIE_RABBIT_MODEL, animationProgram->GetProgramID());
+	zombiePigModel = new AnimatedAssimpModel(ZOMBIE_PIG_MODEL, animationProgram->GetProgramID());
+
+	playerTigerModel = new AnimatedAssimpModel(PLAYER_TIGER_MODEL, animationProgram->GetProgramID());
+	playerCatModel = new AnimatedAssimpModel(PLAYER_CAT_MODEL, animationProgram->GetProgramID());
+	playerPigModel = new AnimatedAssimpModel(PLAYER_PIG_MODEL, animationProgram->GetProgramID());
+	playerChickenModel = new AnimatedAssimpModel(PLAYER_CHICKEN_MODEL, animationProgram->GetProgramID());
+
 	seedModel = new AssimpModel(SEED_MODEL, assimpProgram->GetProgramID());
 	saplingModel = new AssimpModel(SAPLING_MODEL, assimpProgram->GetProgramID());
 	babyCornModel = new AssimpModel(BABY_CORN_MODEL, assimpProgram->GetProgramID());	
@@ -55,7 +61,10 @@ Scene::~Scene()
 	delete testUI; //TODO to be removed
 
 	delete zombieModel;
-	delete playerModel;
+	delete playerCatModel;
+	delete playerTigerModel;
+	delete playerChickenModel;
+	delete playerPigModel;
 
 	delete seedModel;
 	delete saplingModel;
