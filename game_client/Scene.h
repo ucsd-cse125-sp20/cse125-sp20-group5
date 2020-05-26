@@ -24,9 +24,9 @@ enum class ShaderType {
 };
 
 enum class ModelType {
-	CAT, PIG, RABBIT, 
+	CAT, BLACKPIG, TIGER, CHICKEN, RABBIT, PIG,
 	WATER_TAP, WATERING_CAN, SEED_SHACK, SHOVEL, SEED_BAG, 
-	CORN, SEED, SAPLING, BABY_CORN, 
+	CORN, SEED, SAPLING, BABY_CORN, BABY_CACTUS, CACTUS, CACTUS_BULLET,
 	HOME_BASE
 };
 
@@ -51,12 +51,19 @@ private:
 
 	// models
 	AnimatedAssimpModel* zombieModel;
-	AnimatedAssimpModel* playerModel;
+	AnimatedAssimpModel* zombiePigModel;
+	AnimatedAssimpModel* playerTigerModel;
+	AnimatedAssimpModel* playerCatModel;
+	AnimatedAssimpModel* playerPigModel;
+	AnimatedAssimpModel* playerChickenModel;
 
 	AssimpModel* seedModel;
 	AssimpModel* saplingModel;
 	AssimpModel* babyCornModel;
 	AssimpModel* cornModel;
+	AssimpModel* babyCactusModel;
+	AssimpModel* cactusModel;
+	AssimpModel* cactusBulletModel;
 	AssimpModel* tapModel;
 	AssimpModel* wateringCanModel;
 	AssimpModel* seedSourceModel;
@@ -111,8 +118,11 @@ public:
 
 	Drawable* getModel(ModelType type) {
 		switch (type) {
-			case ModelType::CAT:				return playerModel;
-			case ModelType::PIG:				return playerModel;
+			case ModelType::CAT:				return playerCatModel;
+			case ModelType::TIGER:				return playerTigerModel;
+			case ModelType::CHICKEN:			return playerChickenModel;
+			case ModelType::BLACKPIG:			return playerPigModel;
+			case ModelType::PIG:				return zombiePigModel;
 			case ModelType::RABBIT:				return zombieModel;
 			case ModelType::CORN:				return cornModel;
 			case ModelType::WATER_TAP:			return tapModel;
@@ -123,6 +133,9 @@ public:
 			case ModelType::SEED:				return seedModel;
 			case ModelType::SAPLING:			return saplingModel;
 			case ModelType::BABY_CORN:			return babyCornModel;
+			case ModelType::BABY_CACTUS:		return babyCactusModel;
+			case ModelType::CACTUS:				return cactusModel;
+			case ModelType::CACTUS_BULLET:		return cactusBulletModel;
 			case ModelType::HOME_BASE:			return baseModel;
 		}
 	}

@@ -129,30 +129,6 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 }
 
 void Ground::setPadding(TILE_TYPE type) {
-	/*for (int i = 0; i < totalX; i++) {
-		for (int j = 0; j < padY; j++) {
-			grid[(i * totalY) + j] = type;
-		}
-	}
-
-	for (int i = 0; i < totalX; i++) {
-		for (int j = tilesY+padY; j < totalY; j++) {
-			grid[(i * totalY) + j] = type;
-		}
-	}
-
-	for (int i = 0; i < padX; i++) {
-		for (int j = padY; j < tilesY+padY; j++) {
-			grid[(i * totalY) + j] = type;
-		}
-	}
-
-	for (int i = padX+tilesX; i < totalX; i++) {
-		for (int j = padY; j < tilesY+padY; j++) {
-			grid[(i * totalY) + j] = type;
-		}
-	}*/
-
 	for (int i = 0; i < totalX; i++) {
 		for (int j = 0; j < totalY; j++) {
 			grid[(i * totalY) + j] = type;

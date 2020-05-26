@@ -161,6 +161,7 @@
     <ClInclude Include="AnimatedAssimpModel.h" />
     <ClInclude Include="AudioEngine.h" />
     <ClInclude Include="BaseController.hpp" />
+    <ClInclude Include="CactusBulletController.hpp" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Constants.h" />

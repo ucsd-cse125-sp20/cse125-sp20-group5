@@ -15,9 +15,15 @@
 #define SEED_VEC glm::vec3(0.0, 0.2, 0.0)
 #define SAPLING_SCALER 0.06
 
-#define BABY_CORN_SCALER 0.3
+#define BABY_CORN_SCALER 0.45
 #define CORN_SCALER 0.45
 #define CORN_PARTICLE_HEIGHT glm::vec3(0, 2, 0)
+
+#define BABY_CACTUS_SCALER 0.3
+#define CACTUS_SCALER 0.45
+
+#define ATTACK_ANIMATION 1
+#define IDLE_ANIMATION 0
 
 class PlantController : public RenderController {
 
@@ -79,6 +85,12 @@ public:
         // std::cout << "attackInterval" << plant->attackInterval << "\n";
         if (pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
             pGroup->releaseParticles();
+            this->modelNode->switchAnim(ATTACK_ANIMATION, false);
+        }
+        // Reset back to idle
+        if (this->modelNode->animationId == ATTACK_ANIMATION &&
+            this->modelNode->playedOneAnimCycle) {
+            this->modelNode->switchAnim(IDLE_ANIMATION, true);
         }
     }
 
@@ -103,6 +115,10 @@ public:
                     modelNode = scene->getModel(ModelType::BABY_CORN)->createSceneNodes(objectId);
                     modelNode->scaler = BABY_CORN_SCALER;
                 }
+                else if (plant->plantType == Plant::PlantType::CACTUS) {
+                    modelNode = scene->getModel(ModelType::BABY_CACTUS)->createSceneNodes(objectId);
+                    modelNode->scaler = BABY_CACTUS_SCALER;
+                }
                 break;
             case Plant::GrowStage::GROWN:
                 if (plant->plantType == Plant::PlantType::CORN) {
@@ -113,6 +129,10 @@ public:
                     particleNode = pGroup->createSceneNodes(plant->objectId);
                     particleNode->position = CORN_PARTICLE_HEIGHT;
                     modelNode->addChild(particleNode);
+                }
+                else if (plant->plantType == Plant::PlantType::CACTUS) {
+                    modelNode = scene->getModel(ModelType::CACTUS)->createSceneNodes(objectId);
+                    modelNode->scaler = CACTUS_SCALER;
                 }
                 break;
         }
