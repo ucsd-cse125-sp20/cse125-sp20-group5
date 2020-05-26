@@ -6,6 +6,7 @@
 #include "PlayerController.hpp"
 #include "ZombieController.hpp"
 #include "BaseController.hpp"
+#include "CactusBulletController.hpp"
 
 Scene::Scene()
 {
@@ -24,6 +25,7 @@ Scene::Scene()
 	cornModel = new AnimatedAssimpModel(CORN_MODEL, animationProgram->GetProgramID());
 	babyCactusModel = new AssimpModel(BABY_CACTUS_MODEL, assimpProgram->GetProgramID());
 	cactusModel = new AssimpModel(CACTUS_MODEL, assimpProgram->GetProgramID());
+	cactusBulletModel = new AssimpModel(CACTUS_BULLET_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
@@ -59,6 +61,9 @@ Scene::~Scene()
 	delete saplingModel;
 	delete babyCornModel;
 	delete cornModel;
+	delete cactusModel;
+	delete babyCactusModel;
+	delete cactusBulletModel;
 	delete tapModel;
 	delete wateringCanModel;
 	delete seedSourceModel;
@@ -127,6 +132,16 @@ void Scene::update()
 		controllers[plant->objectId]->update(plant, this);
 
 		unusedIds.erase(plant->objectId);
+	}
+
+	for (CactusBullet* bullet : state->bullets) {
+		if (controllers.find(bullet->objectId) == controllers.end()) {
+			controllers[bullet->objectId] = new CactusBulletController(bullet, this);
+			objectIdMap[bullet->objectId] = controllers[bullet->objectId]->rootNode;
+		}
+		controllers[bullet->objectId]->update(bullet, this);
+
+		unusedIds.erase(bullet->objectId);
 	}
 
 	for (Tool* tool : state->tools) {
