@@ -26,13 +26,12 @@ private:
 
     // used when getting the animation value based on node name
     std::vector<std::unordered_map<std::string, aiNodeAnim*>*> animatedNodeMapList;
+    std::map<uint, SceneNode*> boneSceneNodeMap;
 
     aiNode* rootBone;
     void setRootBone();
 
-    // getting scene nodes info
-    void loadSceneNodes(SceneNode* node, uint objecId);
-    void loadBoneFromSceneNodes(SceneNode* node, uint objecId);
+    /* Scene graph related */
     SceneNode * createSceneNodesRec(uint objectId, aiNode * curNode);
 
     /* Animation related function */
@@ -43,7 +42,7 @@ private:
     uint findAnimRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
     uint findAnimPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
     const aiNodeAnim* findAnimNode(const int animId, const string NodeName);
-    void calcAnimByNodeTraversal(int animId, float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform);
+    void calcAnimByNodeTraversal(int animId, float AnimationTime, const aiNode* pNode, const glm::mat4& parentTransform);
 
     void loadBoneData(const aiMesh* mesh, vector<BoneReferenceData>& boneReferences) override;
 };

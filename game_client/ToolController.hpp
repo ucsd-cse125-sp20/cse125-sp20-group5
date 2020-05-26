@@ -62,7 +62,7 @@ public:
 	void update(GameObject * gameObject, Scene * scene) override {
 		Tool* tool = (Tool*)gameObject;
 
-		// update transform if held
+		// update transform on ground based on server if not held
 		if (!tool->held) {
 			rootNode->loadGameObject(tool);
 			if (rootNode->parent != scene->getGroundNode()) {

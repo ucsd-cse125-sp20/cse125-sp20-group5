@@ -125,7 +125,6 @@ void Scene::update()
 		controllers[zombie->objectId]->update(zombie, this);
 	}
 	ZombieController::processZombieDeath(this);
-
 	
 	HomeBase* homeBase = state->homeBase;
 	if (controllers.find(homeBase->objectId) == controllers.end()) {

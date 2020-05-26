@@ -151,23 +151,6 @@ int SceneNode::countChildern()
 	return children.size();
 }
 
-SceneNode* SceneNode::findHand(uint objectId) {
-	if (objectId != this->objectId) {
-		return nullptr;
-	}
-	if (this->name.find("j_r_hand") != -1) {
-		return this;
-	}
-	std::unordered_map<uint, SceneNode*>::iterator it;
-	for (it = children.begin(); it != children.end(); it++) {
-		SceneNode* node = it->second->findHand(objectId);
-		if (node != nullptr) {
-			return node;
-		}
-	}
-	return nullptr;
-}
-
 SceneNode* SceneNode::find(std::string name, uint objectId)
 {
 	if (objectId != this->objectId) {
@@ -194,7 +177,8 @@ std::string SceneNode::getName() const
 /* animation related done on client side */
 // TODO: to be removed if updating animation on the server side
 void SceneNode::updateAnimation() {
-	if (this->numAnimation <= 0) {
+	if (this->numAnimation <= 0 
+		|| (!this->loopAnimation && this->playedOneAnimCycle)) {
 		return;
 	}
 	
