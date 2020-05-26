@@ -27,10 +27,10 @@ Scene::Scene()
 
 	seedModel = new AssimpModel(SEED_MODEL, assimpProgram->GetProgramID());
 	saplingModel = new AssimpModel(SAPLING_MODEL, assimpProgram->GetProgramID());
-	babyCornModel = new AssimpModel(BABY_CORN_MODEL, assimpProgram->GetProgramID());	
+	babyCornModel = new AnimatedAssimpModel(BABY_CORN_MODEL, animationProgram->GetProgramID());	
 	cornModel = new AnimatedAssimpModel(CORN_MODEL, animationProgram->GetProgramID());
-	babyCactusModel = new AssimpModel(BABY_CACTUS_MODEL, assimpProgram->GetProgramID());
-	cactusModel = new AssimpModel(CACTUS_MODEL, assimpProgram->GetProgramID());
+	babyCactusModel = new AnimatedAssimpModel(BABY_CACTUS_MODEL, animationProgram->GetProgramID());
+	cactusModel = new AnimatedAssimpModel(CACTUS_MODEL, animationProgram->GetProgramID());
 	cactusBulletModel = new AssimpModel(CACTUS_BULLET_MODEL, assimpProgram->GetProgramID());
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
