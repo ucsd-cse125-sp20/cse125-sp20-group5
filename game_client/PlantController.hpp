@@ -15,7 +15,7 @@
 #define SEED_VEC glm::vec3(0.0, 0.2, 0.0)
 #define SAPLING_SCALER 0.06
 
-#define BABY_CORN_SCALER 0.3
+#define BABY_CORN_SCALER 0.45
 #define CORN_SCALER 0.45
 #define CORN_PARTICLE_HEIGHT glm::vec3(0, 2, 0)
 
