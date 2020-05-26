@@ -855,37 +855,17 @@ public:
             bullet->position->x += config.cactusBulletSpeed * dx * deltaTime;
         }
 
-        for (auto i = std::begin(bullets); i != std::end(bullets);) {
+        for (auto i = std::begin(bullets); i != std::end(bullets); i++) {
             // Check if bullet collides with zombie
             CactusBullet* bullet = *i;
-            bool collided = false;
             for (Zombie* zombie : zombies) {
-                collided = bullet->collideWith(zombie);
-                if (collided) {
+                if (bullet->collideWith(zombie)) {
                     zombie->health -= bullet->attackPower;
                     i = bullets.erase(i);
                     i--;
                     break;
                 }
             }
-
-
-            if (!collided) {
-                // delete if out of bounds
-                float minX = 0;
-                float minZ = 0;
-                float maxX = floor->tiles[0].size() * Floor::TILE_SIZE;
-                float maxZ = floor->tiles.size() * Floor::TILE_SIZE;
-
-                Position* bulletPos = bullet->position;
-                if (bulletPos->x < 0 || bulletPos->x >= maxX || bulletPos->z < 0 || bulletPos->z >= maxZ) {
-                    i = bullets.erase(i);
-                }
-                else {
-                    i++;
-                }
-            }
-
         }
     }
 
