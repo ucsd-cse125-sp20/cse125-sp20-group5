@@ -104,7 +104,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;nanogui_Debug.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,7 +118,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;nanogui-obj.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;nanogui_Debug.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,7 +136,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;nanogui.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,7 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;nanogui-obj.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;nanogui.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -194,7 +194,6 @@
     <ClCompile Include="AudioEngine.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Client.cpp" />
-    <ClCompile Include="glad.c" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image2d.cpp" />

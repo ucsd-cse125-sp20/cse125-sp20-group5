@@ -79,7 +79,9 @@ int main(int argc, char** argv) {
 	}
 	// doe some basic setup
 	glfwMakeContextCurrent(windowHandle);
-	gladLoadGL();
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		throw std::runtime_error("Could not initialize GLAD!");
+	glGetError(); // pull and ignore unhandled errors like GL_INVALID_ENUM
 	glfwSwapInterval(1);
 
 
