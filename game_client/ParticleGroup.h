@@ -59,7 +59,7 @@ public:
         glm::vec3 color, glm::vec3 initialVelocity,
         glm::vec3 acceleration,  int initParicleNum, int maxParticleNum, float lifeSpan,
         glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-        float spawnTime, int spawnNum, float maxDistance);
+        float spawnTime, int spawnNum, float maxDistance, bool spawning);
     ~ParticleGroup();
     
     // Draw the whole particle group
@@ -68,6 +68,8 @@ public:
     SceneNode * createSceneNodes(uint objectId) override;
     void toggleSpawning();
     bool isSpawning();
+
+    void releaseParticles();
 };
 
 #endif

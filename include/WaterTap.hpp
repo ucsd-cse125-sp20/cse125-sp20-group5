@@ -20,6 +20,7 @@ public:
       
     }
 
+    enum WaterTapAnimation { IDLE, WATER };
 };
 
 #endif

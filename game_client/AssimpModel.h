@@ -15,7 +15,7 @@
 struct Bone
 {
     glm::mat4 boneOffset;
-    glm::mat4 finalTransformation;
+    glm::mat4 finalTransformation; // TODO this is not really used anymore
 
     Bone()
     {

@@ -12,6 +12,8 @@
 #include "Floor.hpp"
 #include "GameStateLoader.hpp"
 #include "HomeBase.hpp"
+#include "ZombieWaveManager.h"
+#include "CactusBullet.hpp"
 #include "ServerParams.h"
 
 #include <cmath>
@@ -24,7 +26,7 @@
 
 class GameState {
 public:
-    GameState() : seedShack(nullptr), waterTap(nullptr) {}
+    GameState() : waterTap(nullptr) {}
 
     void loadFromConfigFile(std::string filename) {
         // load from file in here
@@ -62,8 +64,10 @@ public:
                     GameStateLoader::initTools(key, value, tools, objectCount);
                 } else if (header == "Floor") {
                     GameStateLoader::initFloor(key, value, floor, readingMap);
-                } else if (header == "SeedShack") {
-                    GameStateLoader::initGameObject(key, value, seedShack, objectCount);
+                } else if (header == "SeedShack1") {
+                    GameStateLoader::initGameObject(key, value, seedShacks[0], objectCount);
+                } else if (header == "SeedShack2") {
+                    GameStateLoader::initGameObject(key, value, seedShacks[1], objectCount);
                 } else if (header == "WaterTap") {
                     GameStateLoader::initGameObject(key, value, waterTap, objectCount);
                 } else if (header == "HomeBase") {
@@ -79,73 +83,38 @@ public:
         homeBase->direction = new Direction(baseTile->direction->getOppositeDirection());
         homeBase->animation = new Animation(0, 0);
 
+
+        initUnPlowableTiles();
+
         // Add tools, seed shack and water tap to game object id map
         for (Tool* tool : tools) {
             gameObjectMap[tool->objectId] = tool;
         }
-        gameObjectMap[seedShack->objectId] = seedShack;
+
+        for (SeedShack* seedShack: seedShacks) {
+            gameObjectMap[seedShack->objectId] = seedShack;
+		}
         gameObjectMap[waterTap->objectId] = waterTap;
         gameObjectMap[homeBase->objectId] = homeBase;
     }
 
-    void init(ServerParams &config) {
+    void init(ServerParams& config) {
         this->config = config;
         tickRate = config.tickrate;
         deltaTime = 1.0f / tickRate;
         isGameOver = false;
         floor = new Floor();
-        seedShack = new SeedShack();
+
+        // TODO: refactor loader code, just assume 2 for now
+        for (unsigned int i = 0; i < 2; i++) {
+            seedShacks.push_back(new SeedShack());
+        }
+
         waterTap = new WaterTap();
         homeBase = new HomeBase();
-        init();
+        zombieWaveManager = new ZombieWaveManager(this);
 	}
 
-    void init() {
-        // Init the default state here
-        // TODO: change them later
-        //int NUM_OF_PLAYER = 3;
-        //int NUM_OF_ZOMBIE = 3;
-
-        // Init players
-        /*
-        for (int i = 0; i < NUM_OF_PLAYER; i++) {
-            Position* playerPosition = new Position(i*3, 0, 0);
-            Direction* playerDirection = new Direction(0.0);
-            Animation* playerAnimation = new Animation(0, 0);
-            Color* playerColor = new Color(100, 100, 100);
-            float playerRadius = 1.0; // temp radius
-            players.push_back(
-                new Player(
-                    playerPosition, playerDirection,
-                    playerAnimation, objectCount, playerRadius, playerColor, i
-                )
-            );
-            gameObjectMap[objectCount] = players[i];
-            objectCount++;
-        }*/
-
-        // Init zombies
-        /*for (int i = 0; i < NUM_OF_ZOMBIE; i++) {
-            Position* zombiePosition = new Position(i*3, 0, 5.0);
-            Direction* zombieDirection = new Direction(0.0);
-            Animation* zombieAnimation = new Animation(0, 0);
-            zombies.push_back(
-                new Zombie(zombiePosition, zombieDirection, zombieAnimation, objectCount)
-            );
-            objectCount++;
-        }*/
-        // Init Corn
-        Position* cornPosition = new Position(5.5, 0, 5.5);
-        Direction* cornDirection = new Direction(0.0);
-        Animation* cornAnimation = new Animation(0, 0);
-        TowerRange* cornRange = new TowerRange(3);
-        float cornRadius = 1.0f;
-        Plant* corn = new Plant(cornPosition, cornDirection, cornAnimation, objectCount, cornRadius, cornRange, Plant::PlantType::CORN, Plant::GrowStage::SEED);
-        corn->growExpireTime = 2.0f;
-        plants.push_back(corn);
-        gameObjectMap[objectCount] = corn;
-        objectCount++;
-    }
 
     template<class Archive>
     void serialize(Archive & ar, const unsigned int version)
@@ -155,7 +124,8 @@ public:
         ar & zombies;
         ar & tools;
         ar & floor;
-        ar & seedShack;
+        ar & seedShacks;
+        ar & bullets;
         ar & waterTap;
         ar & homeBase;
     }
@@ -177,8 +147,15 @@ public:
             delete tool;
         }
 
+        for (SeedShack* seedShack: seedShacks) {
+            delete seedShack;
+        }
+
+        for (CactusBullet* bullet: bullets) {
+            delete bullet;
+        }
+
         delete floor;
-        delete seedShack;
         delete waterTap;
         delete homeBase;
     }
@@ -255,16 +232,31 @@ public:
         playersPerformAction();
         playersInteract();
         updatePlants();
+        updateBullets();
         updateZombies();
         updatePlayersPosition();
         updatePlayersHighlight();
         tick++;
+        currentTime += deltaTime;
     }
 
     void playersPerformAction() {
+        //Reset watering state
+        waterTap->animation->animationType = WaterTap::WaterTapAnimation::IDLE;
         for (Player* player : players) {
+            // Reset animation to MOVE
+            player->animation->animationType = Player::PlayerAnimation::MOVE;
+
             // Check if player pressed e during this tick
             if (!player->shouldPerformAction) {
+                /*
+                if (waterTap->playerIdInUse == player->objectId) {
+                    waterTap->playerIdInUse = 0;
+				}*/
+                if (player->highlightTileRow != -1 && player->highlightTileCol != -1) {
+                    Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
+                    currTile->plowProgressTime = 0;
+                }
                 continue;
             }
             player->shouldPerformAction = false;
@@ -291,9 +283,16 @@ public:
             // WATER_CAN
             case Tool::ToolType::WATER_CAN: {
                 // Check if player is highlighting water tap
+                /*
+                if (waterTap->playerIdInUse == 0) {
+                    waterTap->playerIdInUse = player->objectId;
+                }*/
+
                 if (player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
                     tool->remainingWater += deltaTime;
+                    waterTap->animation->animationType = WaterTap::WaterTapAnimation::WATER;
                     std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                    player->animation->animationType = Player::PlayerAnimation::WATER;
                     break;
                 }
 
@@ -312,6 +311,7 @@ public:
                             std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
                             std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
                             std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                            player->animation->animationType = Player::PlayerAnimation::WATER;
                         }
                         else {
                             std::cout << "Plant growing in cooldown. Cannot water" << std::endl;
@@ -332,9 +332,11 @@ public:
                     if (currTile->plowProgressTime < floor->plowExpireTime) {
                         currTile->plowProgressTime += deltaTime;
                         std::cout << "Current tile plowing progress: " << currTile->plowProgressTime << std::endl;
+                        player->animation->animationType = Player::PlayerAnimation::PLOUGH;
                     }
                     else {
                         currTile->tileType = Tile::TYPE_TILLED;
+                        currTile->canPlow = false;
                         std::cout << "Tile is plowed" << std::endl;
                     }
                 }
@@ -351,22 +353,13 @@ public:
                     player->heldObject = 0;
 
                     // Replace seed with a plant
-                    Position* plantPosition = new Position(currTile->getCenterPosition());
-                    Plant* plant = new Plant(
-                        plantPosition,
-                        new Direction(player->direction), // ??
-                        new Animation(0, 0),
-                        objectCount++,
-                        1.0f,
-                        new TowerRange(3.0f),
-                        tool->seedType,
-                        Plant::GrowStage::SEED
-                    );
-                    plant->growExpireTime = 2.0f;
-                    plant->attackPower = 50;
-                    plant->currAttackTime = 0.0f;
-                    plant->attackInterval = 1.0f;
-                    plant->growCooldownTime = 2.0f;
+                    Plant* plant = Plant::buildPlant(config, tool->seedType);
+
+                    // set plant position, direction, and object id manually
+                    plant->position = new Position(currTile->getCenterPosition());
+                    plant->direction = new Direction(player->direction);
+                    plant->objectId = objectCount++;
+
                     plants.push_back(plant);
                     gameObjectMap[plant->objectId] = plant;
                     currTile->plantId = plant->objectId;
@@ -409,7 +402,15 @@ public:
             }
             else if (player->highlightObjectId != 0) {
                 // Get seed if highlighted id is seedshack
-                if (player->highlightObjectId == seedShack->objectId) {
+                SeedShack* highlightedShack = nullptr;
+                for (SeedShack* seedShack : seedShacks) {
+                    if (player->highlightObjectId == seedShack->objectId) {
+                        highlightedShack = seedShack;
+                        break;
+					}
+                }
+
+                if (highlightedShack) {
                     Tool* seed = new Tool(
                         new Position(player->position),
                         new Direction(player->direction),
@@ -420,15 +421,15 @@ public:
                         player->objectId,
                         true
                     );
-                    seed->seedType = seedShack->seedType;
+                    seed->seedType = highlightedShack->seedType;
                     gameObjectMap[objectCount++] = seed;
                     tools.push_back(seed);
                     player->holding = true;
                     player->heldObject = seed->objectId;
-                    std::cout << "Pick up seed from seed shack at (" << seedShack->position->x << ", " << seedShack->position->z << ")" << std::endl;
+                    std::cout << "Pick up seed from seed shack at (" << highlightedShack->position->x << ", " << highlightedShack->position->z << ")" << std::endl;
                 }
                 else {
-                Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
+                    Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
                     std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                     player->holding = true;
                     player->heldObject = currTool->objectId;
@@ -465,7 +466,7 @@ public:
             }
 
             // Attack zombies
-            attackZombies(plant);
+            plantAttack(plant);
 
             // TODO: handle spawn bullets
         }
@@ -481,8 +482,8 @@ public:
             // 2. Check if collide with zombies
             bool collideWithZombie = false;
             for (Zombie* zombie : zombies) {
-                if (player->collideWith(zombie) ) {
-                    if (player -> invincibleTime <= 0) {
+                if (player->collideWith(zombie)) {
+                    if (player->invincibleTime <= 0) {
                         // player position bounce back
                         std::cout << "Collide with zombie" << std::endl;
                         float dir = player->direction->getOppositeDirection();
@@ -533,13 +534,13 @@ public:
 
                         std::vector<Tile*> nearTiles;
                         for (int row = nextRow - 1; row <= nextRow + 1; row++) {
-                           for (int col = nextCol - 1; col <= nextCol + 1; col++) {
-                               if (row >= 0 && row < floor->tiles.size() && col >= 0 && col < floor->tiles[0].size()) {
-                                   nearTiles.push_back(floor->tiles[row][col]);
-                               }
-                           }
+                            for (int col = nextCol - 1; col <= nextCol + 1; col++) {
+                                if (row >= 0 && row < floor->tiles.size() && col >= 0 && col < floor->tiles[0].size()) {
+                                    nearTiles.push_back(floor->tiles[row][col]);
+                                }
+                            }
                         }
-                        
+
                         float minDistanceToTile = std::numeric_limits<float>::max();
                         Tile* translateTile = nullptr;
                         for (Tile* tile : nearTiles) {
@@ -555,13 +556,13 @@ public:
                             Position translateTilePos = translateTile->getCenterPosition();
                             player->position->x = translateTilePos.x;
                             player->position->z = translateTilePos.z;
-                            player->currRow = player->position->z / Floor::TILE_SIZE;
-                            player->currCol = player->position->x / Floor::TILE_SIZE;
+
                         }
 
 
                         player->invincibleTime = config.playerRespawnInvincibleTime;
-                    } else {
+                    }
+                    else {
                         // In invincible mode player stays in previous position when collide with zombie
                         player->position->x = prevPos.x;
                         player->position->z = prevPos.z;
@@ -583,9 +584,46 @@ public:
 
             if (player->invincibleTime > 0) {
                 player->invincibleTime -= deltaTime;
-			}
+            }
 
-            // 4. Check if collide with tools
+            // 4. Check if collide with players
+            for (Player* otherPlayer : players) {
+                if (otherPlayer == player) {
+                    continue;
+                }
+
+                if (player->collideWith(otherPlayer)) {
+                    player->position->x = prevPos.x;
+                    player->position->z = prevPos.z;
+                    break;
+                }
+            }
+
+            // 5. Check if collide with plants
+            for (Plant* plant : plants) {
+                if (player->collideWith(plant)) {
+                    //player->position->x = prevPos.x;
+                    //player->position->z = prevPos.z;
+                    break;
+                }
+            }
+
+            // 6. Check if collide with seedshacks
+            for (SeedShack* seedShack : seedShacks) {
+                if (player->collideWith(seedShack)) {
+                    player->position->x = prevPos.x;
+                    player->position->z = prevPos.z;
+                    break;
+                }
+            }
+
+            // 7. Check if collid with watertap
+            if (player->collideWith(waterTap)) {
+                player->position->x = prevPos.x;
+                player->position->z = prevPos.z;
+            }
+            player->currRow = player->position->z / Floor::TILE_SIZE;
+            player->currCol = player->position->x / Floor::TILE_SIZE;
         }
     }
 
@@ -631,12 +669,14 @@ public:
             speedX = -1.0f;
             break;
         case Player::MoveState::FREEZE:
+            // If no action-related animation is set, overwrite animation with IDLE
+            if (player->animation->animationType == Player::PlayerAnimation::MOVE) {
+                player->animation->animationType = Player::PlayerAnimation::IDLE;
+            }
             break;
         }
         player->position->z += speedZ * translateDistance * deltaTime;
         player->position->x += speedX * translateDistance * deltaTime;
-        player->currRow = player->position->z / Floor::TILE_SIZE;
-        player->currCol = player->position->x / Floor::TILE_SIZE;
     }
 
     float checkRotation(Direction* playerDirection, float moveDirection, bool isDiagonal) {
@@ -659,29 +699,7 @@ public:
     }
 
     void updateZombies() {
-        // Spawn zombie every second
-        if (tick % tickRate == 0) {
-            // TODO: Need to find out the position of the tile
-            // Position right now uses indices
-            Position* zombieBasePos = floor->zombieBaseTile->position;
-            Direction* zombieBaseDir = floor->zombieBaseTile->direction;
-            Position* zombiePosition = new Position(
-                zombieBasePos->x + Tile::TILE_PAD_X,
-                zombieBasePos->y,
-                zombieBasePos->z + Tile::TILE_PAD_Z
-            );
-            Direction* zombieDirection = new Direction(
-                zombieBaseDir->angle
-            );
-            Animation* zombieAnimation = new Animation(0, 0);
-            Zombie* zombie = new Zombie(
-                zombiePosition, zombieDirection,
-                zombieAnimation, objectCount++, config.zombieRabbitRadius
-            );
-            zombie->health = 100;
-            zombie->maxHealth = 100;
-            zombies.push_back(zombie);
-		}
+        zombieWaveManager->handleZombieWaves();
 
         for (auto i = std::begin(zombies); i != std::end(zombies); i++) {
             Zombie* zombie = (*i);
@@ -733,8 +751,19 @@ public:
         }
     }
 
-    void attackZombies(Plant* plant) {
+    void plantAttack(Plant* plant) {
         if (plant->growStage != Plant::GrowStage::GROWN) {
+            return;
+        }
+
+        bool zombieInRange = false;
+        for (Zombie* zombie : zombies) {
+            if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
+                zombieInRange = true;
+            }
+        }
+
+        if (!zombieInRange) {
             return;
         }
 
@@ -743,18 +772,75 @@ public:
             return;
         }
 
-        std::cout << "Perform attack to zombies" << std::endl;
-        for (Zombie* zombie : zombies) {
-            switch (plant->plantType) {
-            case Plant::PlantType::CORN:
-                //std::cout << "Distance to zombie is " << zombie->distanceTo(plant) << std::endl;
+        switch (plant->plantType) {
+        case Plant::PlantType::CORN:
+            //std::cout << "Distance to zombie is " << zombie->distanceTo(plant) << std::endl;
+            std::cout << "Corn perform attack to zombies" << std::endl;
+            for (Zombie* zombie : zombies) {
                 if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
                     zombie->health -= plant->attackPower;
                 }
-                break;
             }
+            break;
+        case Plant::PlantType::CACTUS:
+            std::cout << "Cactus perform attack to zombies" << std::endl;
+            // spawn a bullet
+            CactusBullet* bullet = new CactusBullet(
+                new Position(plant->position),
+                new Direction(plant->direction),
+                new Animation(0, 0),
+                objectCount++,
+                config.cactusBulletRadius
+            );
+            bullet->attackPower = plant->attackPower;
+            gameObjectMap[bullet->objectId] = bullet;
+            bullets.push_back(bullet);
+            break;
         }
         plant->currAttackTime = 0.0f;
+    }
+
+    void updateBullets() {
+        for (CactusBullet* bullet : bullets) {
+            // Move first
+            float dz = std::cos(bullet->direction->angle);
+            float dx = std::sin(bullet->direction->angle);
+
+            bullet->position->z += config.cactusBulletSpeed * dz * deltaTime;
+            bullet->position->x += config.cactusBulletSpeed * dx * deltaTime;
+        }
+
+        for (auto i = std::begin(bullets); i != std::end(bullets);) {
+            // Check if bullet collides with zombie
+            CactusBullet* bullet = *i;
+            bool collided = false;
+            for (Zombie* zombie : zombies) {
+                collided = bullet->collideWith(zombie);
+                if (collided) {
+                    zombie->health -= bullet->attackPower;
+                    i = bullets.erase(i);
+                    break;
+                }
+            }
+
+
+            if (!collided) {
+                // delete if out of bounds
+                float minX = 0;
+                float minZ = 0;
+                float maxX = floor->tiles[0].size() * Floor::TILE_SIZE;
+                float maxZ = floor->tiles.size() * Floor::TILE_SIZE;
+
+                Position* bulletPos = bullet->position;
+                if (bulletPos->x < 0 || bulletPos->x >= maxX || bulletPos->z < 0 || bulletPos->z >= maxZ) {
+                    i = bullets.erase(i);
+                }
+                else {
+                    i++;
+                }
+            }
+
+        }
     }
 
     void updatePlayersHighlight() {
@@ -800,7 +886,7 @@ public:
 
                     player->highlightTileRow = -1;
                     player->highlightTileCol = -1;
-                    if (waterTapClosest && player->collideWith(waterTap) && currTool->remainingWater < currTool->capacity) {
+                    if (waterTapClosest && player->highlightCollideWith(waterTap) && currTool->remainingWater < currTool->capacity) {
                         player->highlightObjectId = waterTap->objectId;
                         player->highlightTileRow = waterTap->position->z / Floor::TILE_SIZE;
                         player->highlightTileCol = waterTap->position->x / Floor::TILE_SIZE;
@@ -809,7 +895,7 @@ public:
                     else {
                         // interacting with tools
                         // Make sure tool is within collision range and is not held by others 
-                        if (highlightPlant && highlightPlant->growStage != Plant::GrowStage::GROWN && player->collideWith(highlightPlant)) {
+                        if (highlightPlant && highlightPlant->growStage != Plant::GrowStage::GROWN && player->highlightCollideWith(highlightPlant)) {
                             player->highlightObjectId = highlightPlant->objectId;
                             if (currTool->remainingWater > 0) {
                                 player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
@@ -858,28 +944,30 @@ public:
                 }
 
                 // Check distance to seedShack as well
-                bool seedShackClosest = false;
-                float dist = player->distanceTo(seedShack);
-                   Position playerSeedShackVec = Position(
+                SeedShack* highlightedShack = nullptr;
+                for (SeedShack* seedShack : seedShacks) {
+                    float dist = player->distanceTo(seedShack);
+                    Position playerSeedShackVec = Position(
                         seedShack->position->x - player->position->x,
                         seedShack->position->y - player->position->y,
                         seedShack->position->z - player->position->z
                     );
-                float angle = player->direction->getAngleBetween(playerSeedShackVec);
+                    float angle = player->direction->getAngleBetween(playerSeedShackVec);
 
-                if (dist < minDistance && angle <= config.highlightFOVAngle) {
-                    minDistance = dist;
-                    seedShackClosest = true;
+                    if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                        minDistance = dist;
+                        highlightedShack = seedShack;
+                    }
                 }
 
-                if (seedShackClosest && player->collideWith(seedShack)) {
-                    player->highlightObjectId = seedShack->objectId;
+                if (highlightedShack && player->highlightCollideWith(highlightedShack)) {
+                    player->highlightObjectId = highlightedShack->objectId;
                     std::cout << "Highlighting seedShack" << std::endl;
                 }
                 else {
                     // interacting with tools
                     // Make sure tool is within collision range and is not held by others 
-                    if (currTool && player->collideWith(currTool) && currTool->heldBy == 0) {
+                    if (currTool && player->highlightCollideWith(currTool) && currTool->heldBy == 0) {
                         player->highlightObjectId = currTool->objectId;
                         std::cout << "Highlighting tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                     } else {
@@ -908,13 +996,19 @@ public:
                 if (row < 0 || row >= floor->tiles.size() || col < 0 || col >= floor->tiles[0].size()) continue;
 
                 Tile* currTile = floor->tiles[row][col];
+                if (TILE_TYPE == Tile::TYPE_NORMAL && !currTile->canPlow) {
+                    continue;
+                }
+                else if (TILE_TYPE == Tile::TYPE_TILLED && currTile->plantId != 0) {
+                    continue;
+                }
                 Position centerPosition = currTile->getCenterPosition();
                 float dist = player->distanceTo(centerPosition);
 
                 Position playerTileVec = Position(
-                    currTile->position->x - player->position->x,
-                    currTile->position->y - player->position->y,
-                    currTile->position->z - player->position->z
+                    centerPosition.x - player->position->x,
+                    centerPosition.y - player->position->y,
+                    centerPosition.z - player->position->z
                 );
                 float angle = player->direction->getAngleBetween(playerTileVec);
                 if (dist < minDistance && angle <= config.highlightFOVAngle) {
@@ -942,17 +1036,38 @@ public:
             player->highlightTileCol = -1;
         }
 	}
+    
+    Tile* getCurrentTile(GameObject* object) {
+        int row = object->position->z / Floor::TILE_SIZE;
+        int col = object->position->x / Floor::TILE_SIZE;
+        Tile* currTile = floor->tiles[row][col];
+        return floor->tiles[row][col];
+    }
+
+    void initUnPlowableTiles() {
+        for (SeedShack* seedShack : seedShacks) {
+            Tile* tile = getCurrentTile(seedShack);
+            tile->canPlow = false;
+        }
+
+        Tile* tile = getCurrentTile(waterTap);
+        tile->canPlow = false;
+    }
 
     // We could use other data structures, for now use a list
     std::vector<Player*> players; // Up to 4 players?
     std::vector<Plant*> plants;
     std::vector<Zombie*> zombies;
     std::vector<Tool*> tools;
+    std::vector<SeedShack*> seedShacks;
+    std::vector<CactusBullet*> bullets;
 
     Floor* floor;
-    SeedShack* seedShack; // Assuming there's 1 place to get seeds
     WaterTap* waterTap;
     HomeBase* homeBase;
+
+    // Zombie Spawn Manager
+    ZombieWaveManager* zombieWaveManager;
 
     // Game status losing/not losing
     bool isGameOver;
@@ -967,6 +1082,7 @@ public:
     long long tick;
     int tickRate;
     float deltaTime;
+    float currentTime;
 
     // Configs
     ServerParams config;

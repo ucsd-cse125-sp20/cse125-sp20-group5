@@ -15,6 +15,8 @@ SceneNode::SceneNode(Drawable* myO, std::string name, uint objectId)
 	animationId = 0;
 	animPlayedTime = 0.0;
 	numAnimation = 0;
+	loopAnimation = true;
+	playedOneAnimCycle = false;
 
 	position = glm::vec3(0.0);
 	pose = glm::vec3(0.0);
@@ -142,13 +144,12 @@ void SceneNode::loadGameObject(GameObject* gameObj)
 	// TODO if use server to update anim, uncomment the below and delete swtichAnim
 	//animationId = gameObj->animation->animationType;
 	//animPlayedTime = gameObj->animation->animationFrame;
-	switchAnim(gameObj->animation->animationType);
+	//switchAnim(gameObj->animation->animationType); // moved to controller classes
 }
 int SceneNode::countChildern()
 {
 	return children.size();
 }
-
 
 SceneNode* SceneNode::find(std::string name, uint objectId)
 {
@@ -176,7 +177,8 @@ std::string SceneNode::getName() const
 /* animation related done on client side */
 // TODO: to be removed if updating animation on the server side
 void SceneNode::updateAnimation() {
-	if (this->numAnimation <= 0) {
+	if (this->numAnimation <= 0 
+		|| (!this->loopAnimation && this->playedOneAnimCycle)) {
 		return;
 	}
 	
@@ -184,27 +186,32 @@ void SceneNode::updateAnimation() {
 	this->animPlayedTime = elapsed_seconds.count();
 }
 
-void SceneNode::loadAnimData(uint numAnim, uint initialAnimID) {
+void SceneNode::loadAnimData(uint numAnim, uint initialAnimID, bool alwaysLoop) {
 	this->numAnimation = numAnim;
 	this->animationId = initialAnimID;
 	this->animStartTime = std::chrono::system_clock::now();
+	this->loopAnimation = alwaysLoop;
+	this->playedOneAnimCycle = false;
 }
 
-void SceneNode::switchAnim(uint newAnimID) {
+bool SceneNode::switchAnim(uint newAnimID, bool alwaysLoop) {
 	if (this->numAnimation <= 0) {
-		return; // meaning no animation for this node/model
+		return false; // meaning no animation for this node/model
 	}
 	if (newAnimID >= this->numAnimation) {
 		std::cerr << "Scene node " << this->name 
 			<< " does not have animation ID " << newAnimID 
 			<< " (has only " << this->numAnimation <<" animations)" << std::endl;
-		return;
+		return false;
 	}
-	if (this->animationId == newAnimID) {
-		return; // no need to switch
+	if (this->animationId == newAnimID && this->loopAnimation == alwaysLoop) {
+		return false; // no need to switch
 	}
 
 	this->animationId = newAnimID;
 	this->animStartTime = std::chrono::system_clock::now();
+	this->loopAnimation = alwaysLoop;
+	this->playedOneAnimCycle = false;
+	return true;
 }
 

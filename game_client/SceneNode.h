@@ -43,15 +43,13 @@ public:
 
 	// straight forward;
 	void setParent(SceneNode * newParent);
-
 	void addChild(SceneNode* newChild);
-
 	void calcLocalTransform();
 
-	// update the matrices recursive
+	// update the matrices recursive, calc the global transform based on local trans updated by server
 	void update(glm::mat4 world);
 
-	// draw teh matrices recursive
+	// draw the matrices recursive
 	void draw(const glm::mat4& veiwProjMat);
 
 	void loadGameObject(GameObject * gameObj);
@@ -67,11 +65,17 @@ public:
 	uint animationId;
 	float animPlayedTime; // how many time has passed since animStartTime
 	std::chrono::system_clock::time_point animStartTime;  // TODO: to be removed if updating animation on the server side
+	bool loopAnimation = true;
+	bool playedOneAnimCycle = false;
+	
+	// maps boneIdx to scene node that simulates bone
+	// only populated at the root bone's scene node by AnimatedAssimpModel
+	std::unordered_map<uint, SceneNode*> boneSceneNodeMap; 
 
 	// TODO: to be removed if updating animation on the server side
 	void updateAnimation();
-	void loadAnimData(uint numAnim, uint initialAnimID);
-	void switchAnim(uint newAnimID);
+	void loadAnimData(uint numAnim, uint initialAnimID, bool alwaysLoop = true);
+	bool switchAnim(uint newAnimID, bool alwaysLoop = true);
 
 	std::string getName() const;
 
