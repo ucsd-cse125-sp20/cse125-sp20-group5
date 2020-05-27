@@ -4,6 +4,7 @@
 
 #include "Client.h"
 #include "NetworkClient.h"
+#include <nanogui/screen.h>
 #include "Message.hpp"
 
 // static
@@ -11,8 +12,9 @@ Client * Client::CLIENT;
 int Client::winX;
 int Client::winY;
 
-Client::Client(GLFWwindow * window, int argc, char **argv) {
+Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **argv) {
 	windowHandle = window;
+	this->screen = screen;
 
 	// initalize mouse state
 	leftDown=middleDown=rightDown=false;
@@ -67,6 +69,9 @@ void Client::loop() {
 
 		// Tell redraw the scene
 		draw();
+
+		screen->drawContents();
+		screen->drawWidgets();
 
 		// process new input events
 		glfwPollEvents();

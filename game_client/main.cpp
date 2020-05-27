@@ -7,6 +7,7 @@
 #include <nanogui/screen.h>
 #include <nanogui/layout.h>
 #include <nanogui/label.h>
+#include <nanogui/FormHelper.h>
 
 
 
@@ -85,6 +86,11 @@ int main(int argc, char** argv) {
 	glfwSwapInterval(1);
 
 
+	int width, height;
+	glfwGetFramebufferSize(windowHandle, &width, &height);
+	glViewport(0, 0, width, height);
+	glfwSwapInterval(0);
+	glfwSwapBuffers(windowHandle);
 
 	// Set Callbacks
 	glfwSetKeyCallback(windowHandle, skeyboard);
@@ -93,25 +99,57 @@ int main(int argc, char** argv) {
 	glfwSetWindowSizeCallback(windowHandle, sresize);
 	glfwSetScrollCallback(windowHandle, sscroll);
 
-	nanogui::Screen s = nanogui::Screen();
-	nanogui::Window* window = new nanogui::Window(&s, "Button demo");
-	window->setPosition(nanogui::Vector2i(15, 15));
-	window->setLayout(new nanogui::GroupLayout());
-
-	/* No need to store a pointer, the data structure will be automatically
-	   freed when the parent window is deleted */
-	new nanogui::Label(window, "Push buttons", "sans-bold");
-	nanogui::Button* b = new nanogui::Button(window, "Plain button");
-	b->setCallback([] { cout << "pushed!" << endl; });
-
 	// Background color
 	glClearColor(0., 0., 0., 1.);
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
+
+	nanogui::Screen* screen = new nanogui::Screen();
+	screen->initialize(windowHandle, true);
+
+	enum test_enum {
+		Item1 = 0,
+		Item2,
+		Item3
+	};
+
+	bool bvar = true;
+	int ivar = 12345678;
+	double dvar = 3.1415926;
+	float fvar = (float)dvar;
+	std::string strval = "A string";
+	test_enum enumval = Item2;
+	nanogui::Color colval(0.5f, 0.5f, 0.7f, 1.f);
+
+	// Create nanogui gui
+	bool enabled = true;
+	nanogui::FormHelper* gui = new nanogui::FormHelper(screen);
+	nanogui::ref<nanogui::Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
+	gui->addGroup("Basic types");
+	gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
+	gui->addVariable("string", strval);
+
+	gui->addGroup("Validating fields");
+	gui->addVariable("int", ivar)->setSpinnable(true);
+	gui->addVariable("float", fvar)->setTooltip("Test.");
+	gui->addVariable("double", dvar)->setSpinnable(true);
+
+	gui->addGroup("Complex types");
+	gui->addVariable("Enumeration", enumval, enabled)->setItems({ "Item 1", "Item 2", "Item 3" });
+
+	gui->addGroup("Other widgets");
+	gui->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");;
+
+	screen->setVisible(true);
+	screen->performLayout();
+	nanoguiWindow->center();
+
+
+
 	// make the client
-	Client::CLIENT = new Client(windowHandle, argc, argv);
+	Client::CLIENT = new Client(windowHandle, screen, argc, argv);
 	
 	// start the game loop
 	Client::CLIENT->loop();

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <unordered_map>
 
+#include <nanogui/screen.h>
 ////////////////////////////////////////////////////////////////////////////////
 /*
 Currently the Client class handles the I/O as well as the game loop
@@ -22,7 +23,7 @@ class Client {
 public:
 	static Client * CLIENT;
 
-	Client(GLFWwindow * window, int argc, char** argv);
+	Client(GLFWwindow * window, nanogui::Screen * scene, int argc, char** argv);
 	~Client();
 
 	void loop(); // Loop will be the idling function of glut
@@ -59,6 +60,7 @@ private:
 	const int keys[5] = {GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE};
 
 	GLFWwindow* windowHandle;
+	nanogui::Screen* screen;
 
 	// Components	
 	Scene * scene;
