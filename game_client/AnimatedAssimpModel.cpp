@@ -68,18 +68,16 @@ void AnimatedAssimpModel::loadBoneData(const aiMesh* mesh, vector<BoneReferenceD
 void AnimatedAssimpModel::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	glUseProgram(shader);
-	loadBoneFromSceneNodes(node.children.begin()->second, node.objectId);
 
 	for (uint i = 0; i < bones.size(); i++) {
 		// set the uniform
 		string str = "gBones[" + to_string(i) + "]";
 		const char* uniformName = &(str)[0];
-		glUniformMatrix4fv(glGetUniformLocation(shader, uniformName), 1, false,
-			(float*)&(bones[i].finalTransformation));
+		glm::mat4 boneTransform = node.boneSceneNodeMap[i]->transform * bones[i].boneOffset;
+		glUniformMatrix4fv(glGetUniformLocation(shader, uniformName), 1, false, (float*)&(boneTransform));
 	}
 
-	const glm::mat4 model = glm::mat4(1.0);// node.transform * modelFixer;
-	// create a temp model mtx
+	const glm::mat4 model = glm::mat4(1.0); // because the global transform is applied to the bone transform already
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&model);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
 
@@ -99,10 +97,9 @@ void AnimatedAssimpModel::update(SceneNode* node)
 		return;
 	}
 
+	// update bone transform for the specific animation of this node/object, and apply it to node->transform
 	updateBoneTransform(node);
-	loadSceneNodes(node->children.begin()->second, node->objectId);
 }
-
 
 /* Animation related functions */
 /* The interpolation assumes all starting and ending keyframes are at the edge of the timerange */
@@ -123,65 +120,50 @@ void AnimatedAssimpModel::updateBoneTransform(SceneNode* node)
 	// handle looping vs no-looping
 	if (!node->loopAnimation) { // not a looping anim
 		if (node->playedOneAnimCycle) {
-			animationTime = 0.0; //set to the first frame
+			//set to near the last frame
+			animationTime = (float)anim->mDuration - 0.0001; // can be redundant as SceneNode::updateAnim() will stop update given the same condition
 		}
 		else if (timeInTicks / ((float)anim->mDuration) >= 1.0) {
 			node->playedOneAnimCycle = true;
-			animationTime = 0.0;
+			//set to the near the last frame
+			animationTime = (float)anim->mDuration - 0.0001;
 		}
 	}
 
 	// set this line to just use the root bone node rather than root bone
-	calcAnimByNodeTraversal(node->animationId, animationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
+	calcAnimByNodeTraversal(node, animationTime, rootBone, convertToGlmMat(m_aiScene->mRootNode->mTransformation));
 }
 
 SceneNode* AnimatedAssimpModel::createSceneNodes(uint objectId)
 {
 	SceneNode * newNode = new SceneNode(this, string("modelRoot"), objectId);
 	newNode->loadAnimData(m_aiScene->mNumAnimations, 0); // TODO: to be removed if updating animation on the server side
-	newNode->addChild(createSceneNodesRec(objectId, rootBone));
+	newNode->addChild(createSceneNodesRec(objectId, rootBone, newNode));
 	return newNode;
 }
 
-// takes a scene node that acts as a bone node and loads the values 
-void AnimatedAssimpModel::loadSceneNodes(SceneNode* node, uint objectId)
+SceneNode* AnimatedAssimpModel::createSceneNodesRec(uint objectId, aiNode* curNode, SceneNode* rootNode)
 {
-	if (boneMap.find(node->getName()) != boneMap.end() && node->objectId == objectId) {
-		node->updated = true;
-		node->transform = bones[boneMap[node->getName()]].finalTransformation;
-		std::unordered_map<uint, SceneNode*>::iterator children;
-		for (children = node->children.begin(); children != node->children.end(); children++) {
-			loadSceneNodes(children->second, objectId);
-		}
-	}
-}
+	SceneNode* newNode = new SceneNode(NULL, string(curNode->mName.C_Str()), objectId);
 
-void AnimatedAssimpModel::loadBoneFromSceneNodes(SceneNode* node, uint objectId)
-{
-	if (boneMap.find(node->getName()) != boneMap.end() && objectId == node->objectId) {
-		bones[boneMap[node->getName()]].finalTransformation = node->transform * bones[boneMap[node->getName()]].boneOffset;
-		std::unordered_map<uint, SceneNode*>::iterator children;
-		for (children = node->children.begin(); children != node->children.end(); children++) {
-			loadBoneFromSceneNodes(children->second, objectId);
-		}
+	// add to the map that maps the bone index to the scene node that simulates the bone
+	if (boneMap.find(newNode->getName()) != boneMap.end()) {
+		rootNode->boneSceneNodeMap[boneMap[newNode->getName()]] = newNode;
 	}
-}
 
-SceneNode * AnimatedAssimpModel::createSceneNodesRec(uint objectId, aiNode* curNode)
-{
-	SceneNode * newNode = new SceneNode(NULL, string(curNode->mName.C_Str()), objectId);
+	// create scene nodes for children recursively
 	for (int i = 0; i < curNode->mNumChildren; i++) {
-		newNode->addChild(createSceneNodesRec(objectId, curNode->mChildren[i]));
+		newNode->addChild(createSceneNodesRec(objectId, curNode->mChildren[i], rootNode));
 	}
 	return newNode;
 }
 
-
-void AnimatedAssimpModel::calcAnimByNodeTraversal(int animId, float AnimationTime, const aiNode* pNode, const glm::mat4& ParentTransform)
+void AnimatedAssimpModel::calcAnimByNodeTraversal(SceneNode* rootNode, float AnimationTime, const aiNode* pNode, const glm::mat4& parentTransform)
 {
+	int animId = rootNode->animationId;
 	string NodeName(pNode->mName.data);
 
-	glm::mat4 NodeTransformation = convertToGlmMat(pNode->mTransformation);
+	glm::mat4 nodeTransformation = convertToGlmMat(pNode->mTransformation);
 
 	const aiNodeAnim* pNodeAnim = findAnimNode(animId, NodeName);
 
@@ -189,30 +171,37 @@ void AnimatedAssimpModel::calcAnimByNodeTraversal(int animId, float AnimationTim
 		// Interpolate transformations
 		aiVector3D Scaling;
 		calcInterpolatedScaling(Scaling, AnimationTime, pNodeAnim);
-		glm::mat4 ScalingM = glm::scale(glm::vec3(Scaling.x, Scaling.y, Scaling.z));
+		glm::mat4 scalingM = glm::scale(glm::vec3(Scaling.x, Scaling.y, Scaling.z));
 
 		aiQuaternion RotationQ;
 		calcInterpolatedRotation(RotationQ, AnimationTime, pNodeAnim);
-		glm::mat4 RotationM = convertToGlmMat(aiMatrix4x4(RotationQ.GetMatrix()));
+		glm::mat4 rotationM = convertToGlmMat(aiMatrix4x4(RotationQ.GetMatrix()));
 
 		aiVector3D Translation;
 		calcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
-		glm::mat4 TranslationM = glm::translate(glm::vec3(Translation.x, Translation.y, Translation.z));
+		glm::mat4 translationM = glm::translate(glm::vec3(Translation.x, Translation.y, Translation.z));
 
 		// Combine the above transformations
-		NodeTransformation = TranslationM * RotationM * ScalingM;
+		nodeTransformation = translationM * rotationM * scalingM;
 	}
 
-	glm::mat4 GlobalTransformation = ParentTransform * NodeTransformation;
+	glm::mat4 boneLocalTransformation = parentTransform * nodeTransformation;
 
 	if (boneMap.find(NodeName) != boneMap.end()) {
 		uint BoneIndex = boneMap[NodeName];
-		glm::mat4 m_GlobalInverseTransform = convertToGlmMat(m_aiScene->mRootNode->mTransformation.Inverse()); // TODO;  Replace the passed in argument with this
-		bones[BoneIndex].finalTransformation = m_GlobalInverseTransform * GlobalTransformation;
+
+		// we pass in local transform because this will be passed into node.transform
+		// and SceneNode::update() will apply the global transform to the node.transform
+		bones[BoneIndex].finalTransformation = boneLocalTransformation;
+		rootNode->boneSceneNodeMap[BoneIndex]->updated = true;
+		rootNode->boneSceneNodeMap[BoneIndex]->transform = boneLocalTransformation;
+
+		// reset boneLocalTransformation, which will be passed as parentTransform, so that make the transform local to each bone
+		boneLocalTransformation = glm::mat4(1);
 	}
 
 	for (uint i = 0; i < pNode->mNumChildren; i++) {
-		calcAnimByNodeTraversal(animId, AnimationTime, pNode->mChildren[i], ParentTransform);//GlobalTransformation);//
+		calcAnimByNodeTraversal(rootNode, AnimationTime, pNode->mChildren[i], boneLocalTransformation);
 	}
 }
 
@@ -274,7 +263,8 @@ void AnimatedAssimpModel::setRootBone()
 	std::map<string, uint>::iterator bones;
 	for (bones = boneMap.begin(); bones != boneMap.end(); bones++) {
 		for (int i = 0; i < m_aiScene->mRootNode->mNumChildren; i++) {
-			if (bones->first == std::string(m_aiScene->mRootNode->mChildren[i]->mName.C_Str())) {
+			// find() is used instead of == because the importer might add extra layers named "root_bone_name$Extra_transform_name"
+			if (std::string(m_aiScene->mRootNode->mChildren[i]->mName.C_Str()) == bones->first) {
 				rootBone = m_aiScene->mRootNode->mChildren[i];
 			}
 		}

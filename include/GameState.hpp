@@ -316,7 +316,7 @@ public:
                 if (player->highlightObjectId != 0) {
                     Plant* currPlant = (Plant*)gameObjectMap[player->highlightObjectId];
                     if (currPlant->growStage != Plant::GrowStage::GROWN) {
-                        if (currPlant->growCooldownTime <= 0) {
+                        if (currPlant->cooldownTime <= 0) {
                             currPlant->growProgressTime += deltaTime;
                             tool->remainingWater -= deltaTime;
                             std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
@@ -529,13 +529,12 @@ public:
                 if (plant->growProgressTime >= plant->growExpireTime) {
                     std::cout << "Plant growth complete, going next stage" << std::endl;
                     plant->growStage++;
-                    plant->growExpireTime = 2.0f;
                     plant->growProgressTime = 0.0f;
-                    plant->growCooldownTime = 2.0f;
+                    plant->cooldownTime = plant->coolDownExpireTime;
                 }
 
-                if (plant->growCooldownTime > 0) {
-                    plant->growCooldownTime -= deltaTime;
+                if (plant->cooldownTime > 0) {
+                    plant->cooldownTime -= deltaTime;
                 }
 
             }
@@ -906,17 +905,37 @@ public:
             bullet->position->x += config.cactusBulletSpeed * dx * deltaTime;
         }
 
-        for (auto i = std::begin(bullets); i != std::end(bullets); i++) {
+        for (auto i = std::begin(bullets); i != std::end(bullets);) {
             // Check if bullet collides with zombie
             CactusBullet* bullet = *i;
+            bool collided = false;
             for (Zombie* zombie : zombies) {
-                if (bullet->collideWith(zombie)) {
+                collided = bullet->collideWith(zombie);
+                if (collided) {
                     zombie->health -= bullet->attackPower;
                     i = bullets.erase(i);
                     i--;
                     break;
                 }
             }
+
+
+            if (!collided) {
+                // delete if out of bounds
+                float minX = 0;
+                float minZ = 0;
+                float maxX = floor->tiles[0].size() * Floor::TILE_SIZE;
+                float maxZ = floor->tiles.size() * Floor::TILE_SIZE;
+
+                Position* bulletPos = bullet->position;
+                if (bulletPos->x < 0 || bulletPos->x >= maxX || bulletPos->z < 0 || bulletPos->z >= maxZ) {
+                    i = bullets.erase(i);
+                }
+                else {
+                    i++;
+                }
+            }
+
         }
     }
 

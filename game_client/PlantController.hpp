@@ -11,26 +11,40 @@
 #include "HealthBar.h" //TODO to be removed
 #include "Scene.h"
 
-#define SEED_SCALER 0.03
+#define SEED_SCALER 0.10
 #define SEED_VEC glm::vec3(0.0, 0.2, 0.0)
-#define SAPLING_SCALER 0.06
+#define SAPLING_SCALER 0.25
 
-#define BABY_CORN_SCALER 0.3
+#define BABY_CORN_SCALER 0.45
 #define CORN_SCALER 0.45
 #define CORN_PARTICLE_HEIGHT glm::vec3(0, 2, 0)
+
+#define BABY_CACTUS_SCALER 0.3
+#define CACTUS_SCALER 0.45
+
+#define ATTACK_ANIMATION 1
+#define IDLE_ANIMATION 0
 
 class PlantController : public RenderController {
 
 private:
     HealthBar* growthBar;
+    HealthBar* coolDownBar;
+    HealthBar* hpBar;
 
-    SceneNode* barNode;
+    SceneNode* gBarNode;
+    SceneNode* cBarNode;
+    SceneNode* hBarNode;
     SceneNode* particleNode;
     ParticleGroup* pGroup;
     Plant::GrowStage currGrowStage;
 
     static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
     static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0);
+    static constexpr float COOLING_BAR_TRANSLATE_Y = 1.3;
+    static constexpr glm::vec3 COOLING_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6);
+    static constexpr float HP_BAR_TRANSLATE_Y = 2.5;
+    static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4);
 
 public:
     PlantController(Plant * plant, Scene* scene) {
@@ -46,8 +60,20 @@ public:
 
         // init growth bar
         float initBarFilledFraction = 1.0f;
-        HealthBarSetting barSetting("texture/water_icon.png", WATERING_BAR_TRANSLATE_Y, initBarFilledFraction, WATERING_BAR_COLOR);
-        std::tie(growthBar, barNode) = createHealthBar(barSetting, scene);
+        HealthBarSetting gBarSetting("texture/water_icon.png", WATERING_BAR_TRANSLATE_Y, initBarFilledFraction, WATERING_BAR_COLOR);
+        std::tie(growthBar, gBarNode) = createHealthBar(gBarSetting, scene);
+
+        // init coolOff bar
+        initBarFilledFraction = 0.0f;
+        HealthBarSetting cBarSetting("texture/time_icon.png", COOLING_BAR_TRANSLATE_Y, initBarFilledFraction, COOLING_BAR_COLOR);
+        std::tie(coolDownBar, cBarNode) = createHealthBar(cBarSetting, scene);
+        coolDownBar->shouldDisplay = false;
+
+        // init hp bar
+        initBarFilledFraction = 1.0f;
+        HealthBarSetting hBarSetting("texture/hp_icon.png", HP_BAR_TRANSLATE_Y, initBarFilledFraction, HP_BAR_COLOR);
+        std::tie(hpBar, hBarNode) = createHealthBar(hBarSetting, scene);
+        hpBar->shouldDisplay = false;
     }
 
     ~PlantController() {
@@ -75,10 +101,15 @@ public:
         updateGrowthBar(plant, scene);
 
         // Realse particles if necessary
-        // std::cout << "currAttackTime" << plant->currAttackTime << "\n";
-        // std::cout << "attackInterval" << plant->attackInterval << "\n";
         if (pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
             pGroup->releaseParticles();
+            this->modelNode->switchAnim(ATTACK_ANIMATION, false);
+        }
+
+        // Reset back to idle
+        if (this->modelNode->animationId == ATTACK_ANIMATION &&
+            this->modelNode->playedOneAnimCycle) {
+            this->modelNode->switchAnim(IDLE_ANIMATION, true);
         }
     }
 
@@ -103,6 +134,10 @@ public:
                     modelNode = scene->getModel(ModelType::BABY_CORN)->createSceneNodes(objectId);
                     modelNode->scaler = BABY_CORN_SCALER;
                 }
+                else if (plant->plantType == Plant::PlantType::CACTUS) {
+                    modelNode = scene->getModel(ModelType::BABY_CACTUS)->createSceneNodes(objectId);
+                    modelNode->scaler = BABY_CACTUS_SCALER;
+                }
                 break;
             case Plant::GrowStage::GROWN:
                 if (plant->plantType == Plant::PlantType::CORN) {
@@ -114,6 +149,10 @@ public:
                     particleNode->position = CORN_PARTICLE_HEIGHT;
                     modelNode->addChild(particleNode);
                 }
+                else if (plant->plantType == Plant::PlantType::CACTUS) {
+                    modelNode = scene->getModel(ModelType::CACTUS)->createSceneNodes(objectId);
+                    modelNode->scaler = CACTUS_SCALER;
+                }
                 break;
         }
         rootNode->addChild(modelNode);
@@ -121,16 +160,30 @@ public:
 
     void updateGrowthBar(Plant* plant, Scene* scene) {
         if (plant->growStage == Plant::GrowStage::GROWN) {
-            if (barNode) {
-                barNode = RenderController::deleteBarNode(barNode);
-            }
+            // delete all growth-related bar
+            if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
+            if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
+
+            hpBar->shouldDisplay = true;
         }
         else {
-            if (plant->growProgressTime == 0.0f) {
-                growthBar->resetBar(0.0f);
+            if (plant->cooldownTime > 0) {
+                if (!coolDownBar->shouldDisplay) {
+                    coolDownBar->resetBar(1.0f);
+                }
+                coolDownBar->updateBar(plant->cooldownTime / plant->coolDownExpireTime);
+
+                coolDownBar->shouldDisplay = true;
+                growthBar->shouldDisplay = false;
             }
             else {
+                if (plant->growProgressTime == 0.0f) {
+                    growthBar->resetBar(0.0f);
+                }
                 growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
+
+                coolDownBar->shouldDisplay = false;
+                growthBar->shouldDisplay = true;    
             }
         }
     }

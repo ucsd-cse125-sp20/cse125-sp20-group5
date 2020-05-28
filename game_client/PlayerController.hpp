@@ -9,13 +9,26 @@
 #define SEED_BAG__HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
 #define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
-#define CAT_ARM "j_r_arm_$AssimpFbx$_Translation"
 
 class PlayerController : public RenderController {
+private:
+	uint playerId;
+	ModelType modelType;
+
 public:
 	PlayerController(Player* player, Scene* scene) {
+		// determine model type based on player ID
+		this->playerId = player->playerId;
+		switch (playerId % 4) {
+			case 0: modelType = ModelType::TIGER; break;
+			case 1: modelType = ModelType::CHICKEN; break; 
+			case 2: modelType = ModelType::BLACKPIG; break;
+			case 3: modelType = ModelType::CAT; break;
+		}
+		
+		// create node
 		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + player->objectId, player->objectId);
-		modelNode = scene->getModel(ModelType::CAT)->createSceneNodes(player->objectId);
+		modelNode = scene->getModel(modelType)->createSceneNodes(player->objectId);
 		rootNode->addChild(modelNode);
 		rootNode->scaler = PLAYER_SCALER;
 		scene->getGroundNode()->addChild(rootNode);
@@ -27,7 +40,9 @@ public:
 		Player* player = (Player*) gameObject;
 
 		rootNode->loadGameObject(player);
-		modelNode->switchAnim(player->animation->animationType);
+		bool dontLoop = modelType == ModelType::CAT
+			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
+		modelNode->switchAnim(player->animation->animationType, !dontLoop);
 
 		handleHoldingAction(player, scene);
 		handleHighlighting(player, scene);
@@ -41,7 +56,7 @@ public:
 
 		if (scene->controllers.count(player->heldObject) > 0) {
 			ToolController* controller = (ToolController*)(scene->controllers[player->heldObject]);
-			SceneNode* playerHand = modelNode->findHand(modelNode->objectId);
+			SceneNode* playerHand = modelNode->find("j_r_hand", modelNode->objectId);
 			if (playerHand != NULL) {
 				if (controller->type == Tool::ToolType::WATER_CAN) {
 					controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);

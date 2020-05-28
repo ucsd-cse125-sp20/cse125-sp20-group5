@@ -46,7 +46,7 @@ public:
 	void addChild(SceneNode* newChild);
 	void calcLocalTransform();
 
-	// update the matrices recursive
+	// update the matrices recursive, calc the global transform based on local trans updated by server
 	void update(glm::mat4 world);
 
 	// draw the matrices recursive
@@ -55,7 +55,6 @@ public:
 	void loadGameObject(GameObject * gameObj);
 	
 	int countChildern();
-	SceneNode* findHand(uint objectId);
 	// finds a sub noe with the given name and object id
 	// used for finding hands and such 
 	SceneNode* find(std::string name, uint objectId);
@@ -68,6 +67,10 @@ public:
 	std::chrono::system_clock::time_point animStartTime;  // TODO: to be removed if updating animation on the server side
 	bool loopAnimation = true;
 	bool playedOneAnimCycle = false;
+	
+	// maps boneIdx to scene node that simulates bone
+	// only populated at the root bone's scene node by AnimatedAssimpModel
+	std::unordered_map<uint, SceneNode*> boneSceneNodeMap; 
 
 	// TODO: to be removed if updating animation on the server side
 	void updateAnimation();

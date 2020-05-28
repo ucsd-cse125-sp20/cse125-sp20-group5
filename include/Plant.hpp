@@ -32,6 +32,8 @@ public:
         ar & growStage;
         ar & growExpireTime;
         ar & growProgressTime;
+        ar & coolDownExpireTime;
+        ar & cooldownTime;
         ar & range;
         ar & currAttackTime;
         ar & attackInterval;
@@ -65,6 +67,7 @@ public:
             plant->deathTime = config.cornDeathTime;
             plant->pesticideSprayTime = config.cornPesticideSprayTime;
             plant->fertilizerCompleteTime = config.cornFertilizerCompleteTime;
+            plant->coolDownExpireTime = config.cornGrowCooldownTime;
             break;
         case PlantType::CACTUS:
             plant->range = new TowerRange(config.cactusAttackRange);
@@ -78,6 +81,7 @@ public:
             plant->deathTime = config.cactusDeathTime;
             plant->pesticideSprayTime = config.cactusPesticideSprayTime;
             plant->fertilizerCompleteTime = config.cactusFertilizerCompleteTime;
+            plant->coolDownExpireTime = config.cactusGrowCooldownTime;
             break;
         }
         return plant;
@@ -92,7 +96,8 @@ public:
     GrowStage growStage;
     float growExpireTime;     // Time(s) need to grow in current stage
     float growProgressTime;   // Time(s) of current grow stage
-    float growCooldownTime;   // Time(s) for cooldown time between grow interactions (watering, etc.
+    float coolDownExpireTime;   // Time(s) need to wait for cooldown
+    float cooldownTime;   // Time(s) for cooldown time between grow interactions (watering, etc.
 
     int attackPower;
     int deltaAttack;

@@ -6,6 +6,7 @@
 #include "PlayerController.hpp"
 #include "ZombieController.hpp"
 #include "BaseController.hpp"
+#include "CactusBulletController.hpp"
 
 Scene::Scene()
 {
@@ -16,12 +17,23 @@ Scene::Scene()
 	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
 	barProgram = new ShaderProgram("HealthBar.glsl", ShaderProgram::eRender);
 	
-	zombieModel = new AnimatedAssimpModel(ZOMBIE_MODEL, animationProgram->GetProgramID());
-	playerModel = new AnimatedAssimpModel(PLAYER_MODEL, animationProgram->GetProgramID());
-	seedModel = new AssimpModel(SEED_MODEL, assimpProgram->GetProgramID());
-	saplingModel = new AssimpModel(SAPLING_MODEL, assimpProgram->GetProgramID());
-	babyCornModel = new AssimpModel(BABY_CORN_MODEL, assimpProgram->GetProgramID());	
-	cornModel = new AssimpModel(CORN_MODEL, assimpProgram->GetProgramID());
+
+	zombieModel = new AnimatedAssimpModel(ZOMBIE_RABBIT_MODEL, animationProgram->GetProgramID());
+	zombiePigModel = new AnimatedAssimpModel(ZOMBIE_PIG_MODEL, animationProgram->GetProgramID());
+
+	playerTigerModel = new AnimatedAssimpModel(PLAYER_TIGER_MODEL, animationProgram->GetProgramID());
+	playerCatModel = new AnimatedAssimpModel(PLAYER_CAT_MODEL, animationProgram->GetProgramID());
+	playerPigModel = new AnimatedAssimpModel(PLAYER_PIG_MODEL, animationProgram->GetProgramID());
+	playerChickenModel = new AnimatedAssimpModel(PLAYER_CHICKEN_MODEL, animationProgram->GetProgramID());
+
+	saplingModel = new AnimatedAssimpModel(SAPLING_MODEL, animationProgram->GetProgramID());
+	seedModel = saplingModel;
+	babyCornModel = new AnimatedAssimpModel(BABY_CORN_MODEL, animationProgram->GetProgramID());	
+	cornModel = new AnimatedAssimpModel(CORN_MODEL, animationProgram->GetProgramID());
+	babyCactusModel = new AnimatedAssimpModel(BABY_CACTUS_MODEL, animationProgram->GetProgramID());
+	cactusModel = new AnimatedAssimpModel(CACTUS_MODEL, animationProgram->GetProgramID());
+	cactusBulletModel = new AssimpModel(CACTUS_BULLET_MODEL, assimpProgram->GetProgramID());
+
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
@@ -51,12 +63,18 @@ Scene::~Scene()
 	delete testUI; //TODO to be removed
 
 	delete zombieModel;
-	delete playerModel;
+	delete playerCatModel;
+	delete playerTigerModel;
+	delete playerChickenModel;
+	delete playerPigModel;
 
 	delete seedModel;
 	delete saplingModel;
 	delete babyCornModel;
 	delete cornModel;
+	delete cactusModel;
+	delete babyCactusModel;
+	delete cactusBulletModel;
 	delete tapModel;
 	delete wateringCanModel;
 	delete seedSourceModel;
@@ -107,7 +125,6 @@ void Scene::update()
 		controllers[zombie->objectId]->update(zombie, this);
 	}
 	ZombieController::processZombieDeath(this);
-
 	
 	HomeBase* homeBase = state->homeBase;
 	if (controllers.find(homeBase->objectId) == controllers.end()) {
@@ -125,6 +142,16 @@ void Scene::update()
 		controllers[plant->objectId]->update(plant, this);
 
 		unusedIds.erase(plant->objectId);
+	}
+
+	for (CactusBullet* bullet : state->bullets) {
+		if (controllers.find(bullet->objectId) == controllers.end()) {
+			controllers[bullet->objectId] = new CactusBulletController(bullet, this);
+			objectIdMap[bullet->objectId] = controllers[bullet->objectId]->rootNode;
+		}
+		controllers[bullet->objectId]->update(bullet, this);
+
+		unusedIds.erase(bullet->objectId);
 	}
 
 	for (Tool* tool : state->tools) {
@@ -152,14 +179,12 @@ void Scene::update()
 		objectIdMap[state->waterTap->objectId] = controllers[state->waterTap->objectId]->rootNode;
 	}
 	controllers[state->waterTap->objectId]->update(state->waterTap, this);
-
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (SeedShack* seedShack : state->seedShacks) {
         SceneNode* seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel);
         seedShackNode->loadGameObject(seedShack);
         seedShackNode->scaler = SEED_SOURCE_SCALER;
-        seedShackNode->position[1] = .65; // TODO MAKE THIS A CONSTANT WHEN THE SIZES ARE SET
         unusedIds.erase(seedShack->objectId);
 	}
 	
