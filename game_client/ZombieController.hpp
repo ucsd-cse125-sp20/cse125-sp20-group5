@@ -34,7 +34,7 @@ public:
 		std::tie(hpBar, barNode) = createHealthBar(barSetting, scene);
 
 		// hp bar rendering settings
-		hpBar->fillingStep *= 0.05f;
+		hpBar->fillingStep *= 0.2f;
 		hpBar->alphaEffectOn = true;
 
 		lastBarUpdateTime = std::chrono::system_clock::now() - std::chrono::milliseconds(BAR_RENDER_MILLISEC);
