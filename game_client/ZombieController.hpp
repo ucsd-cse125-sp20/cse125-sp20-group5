@@ -53,7 +53,18 @@ public:
 	void update(GameObject* gameObject, Scene* scene) override {
 		Zombie* zombie = (Zombie*) gameObject;
 		rootNode->loadGameObject(zombie);
-		//modelNode->switchAnim(zombie->animation->animationType);
+		
+		// animation
+		int newAnimID = zombie->animation->animationType;
+		if (newAnimID == Zombie::DAMAGED) {
+			modelNode->switchAnim(newAnimID, false);
+		} 
+		// assuming server will only pass in MOVE & DAMAGED animID
+		// change back to MOVE if DAMAGED has been finished playing
+		else if (modelNode->animationId == Zombie::DAMAGED 
+			&& modelNode->playedOneAnimCycle) {
+			modelNode->switchAnim(newAnimID);
+		}
 
 		this->health = zombie->health;
 		this->maxHealth = zombie->maxHealth;

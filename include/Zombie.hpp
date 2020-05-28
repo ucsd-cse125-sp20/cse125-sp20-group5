@@ -27,7 +27,7 @@ public:
     int maxHealth;
 
     // Animation Type
-    enum ZombieAnimation { MOVE, DIE };
+    enum ZombieAnimation { MOVE, DAMAGED, DIE };
 };
 
 #endif
