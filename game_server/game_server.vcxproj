@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp" />
+    <ClCompile Include="GameStateLoader.cpp" />
     <ClCompile Include="ServerParams.cpp" />
     <ClCompile Include="ZombieWaveManager.cpp" />
   </ItemGroup>

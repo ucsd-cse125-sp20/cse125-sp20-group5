@@ -2,7 +2,7 @@
 #define _TOOL_H
 
 #include "GameObject.hpp"
-
+#include "Plant.hpp"
 
 class Tool : public GameObject {
 public:
@@ -25,17 +25,22 @@ public:
         ar & held;
         ar & remainingWater;
         ar & capacity;
+        ar & fertilizerCurrTime;
+        ar & fertilizerCooldownTime;
     }
 
     ~Tool() {
     }
 
-    static enum class ToolType { WATER_CAN = 0, PLOW = 1, SEED = 2 };
+    static enum class ToolType { WATER_CAN = 0, PLOW = 1, SEED = 2, PESTICIDE = 3, FERTILIZER = 4 };
     ToolType toolType; // e.g. watering can, hoe, etc
     Plant::PlantType seedType;      // only used when toolType is SEED
     
     float remainingWater; // only used when toolType is WATER_CAN
     float capacity;       // only used when toolTye is WATER_CAN
+
+    float fertilizerCurrTime;     // only used when toolType is FERTILIZER
+    float fertilizerCooldownTime; // only used when toolType is FERTILIZER
 
     unsigned int heldBy; // Player's objectId
     bool held;
