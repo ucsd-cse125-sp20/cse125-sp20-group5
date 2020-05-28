@@ -89,7 +89,18 @@ void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
 	if (!HealthBar::isDrawUiMode) { return; } // isDrawUiMode is toggled when drawing all UI at the end of render pass for the sake of alpha blending
 
-	if (!this->shouldDisplay) { return; }
+	if (this->alphaEffectOn) { 
+		if (this->shouldDisplay) {
+			alphaValue = std::min(1.0f, alphaValue + 0.05f);
+		}
+		else {
+			if (alphaValue == 0.0f) { return; } // do not display
+			alphaValue = std::max(0.0f, alphaValue - 0.05f);
+		}
+	}
+	else if (!this->shouldDisplay) { return; } // do not display
+
+
 
 	glUseProgram(shader);
 	glEnable(GL_BLEND); 
@@ -98,6 +109,7 @@ void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 
 
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
+	glUniform1f(glGetUniformLocation(shader, "alpha"), alphaValue);
 
 	for (BarComponent bc : barComponents) {
 		glBindTexture(GL_TEXTURE_2D, textureIDs[bc.id]);

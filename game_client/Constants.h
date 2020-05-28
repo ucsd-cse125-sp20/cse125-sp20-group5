@@ -28,13 +28,12 @@
 #define DIRT_MODEL "model/dirt.fbx"
 #define SEED_BAG_MODEL "model/basket.fbx"
 
-#define SEED_MODEL "model/seed.fbx"
 #define SAPLING_MODEL "model/sapling.fbx"
 
 #define HOME_BASE_MODEL "model/bear.fbx"
 
 
-#define SEED_SOURCE_SCALER 0.020
+#define SEED_SOURCE_SCALER 0.2
 #define DIRT_SCALER 0.05
 
 
