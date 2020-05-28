@@ -1,14 +1,8 @@
 #include "Core.h"
 #include "Client.h"
 #include <iostream>
-#include <nanogui/glutil.h>
-#include <nanogui/button.h>
-#include <nanogui/window.h>
-#include <nanogui/screen.h>
-#include <nanogui/layout.h>
-#include <nanogui/label.h>
-#include <nanogui/FormHelper.h>
 
+#include <nanogui/glutil.h>
 
 
 // These are really HACKS to make glfw call member functions instead of static functions
@@ -16,18 +10,21 @@
 static void skeyboard(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	if (Client::CLIENT != NULL) {
 		Client::CLIENT->keyboard(window, key, scancode, action, mods);
+		Client::CLIENT->screen->keyCallbackEvent(key, scancode, action, mods);
 	}
 }
 
 static void smouseButton(GLFWwindow* window, int btn, int action, int mods) {
 	if (Client::CLIENT) {
 		Client::CLIENT->mouseButton(window, btn, action, mods);
+		Client::CLIENT->screen->mouseButtonCallbackEvent(btn, action, mods);
 	}
 }
 
 static void smouseMotion(GLFWwindow* window, double x, double y) {
 	if (Client::CLIENT) {
 		Client::CLIENT->mouseMotion(window, x, y);
+		Client::CLIENT->screen->cursorPosCallbackEvent(x, y);
 	}
 }
 
@@ -40,10 +37,27 @@ static void sresize(GLFWwindow* window, int width, int height) {
 static void sscroll(GLFWwindow* window, double xoffset, double yoffset) {
 	if (Client::CLIENT) {
 		Client::CLIENT->zoomScreen(window, xoffset, yoffset);
+		Client::CLIENT->screen->scrollCallbackEvent(xoffset, yoffset);
 	}
 }
 
+static void sChar(GLFWwindow* window, unsigned int codepoint) {
+	if (Client::CLIENT) {
+		Client::CLIENT->screen->charCallbackEvent(codepoint);
+	}
+}
 
+static void sSetDrop(GLFWwindow* window, int count, const char** filenames) {
+	if (Client::CLIENT) {
+		Client::CLIENT->screen->dropCallbackEvent(count, filenames);
+	}
+}
+
+static void sSetFrameBufSize(GLFWwindow* window, int width, int height) {
+	if (Client::CLIENT) {
+		Client::CLIENT->screen->resizeCallbackEvent(width, height);
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -98,6 +112,9 @@ int main(int argc, char** argv) {
 	glfwSetCursorPosCallback(windowHandle, smouseMotion);
 	glfwSetWindowSizeCallback(windowHandle, sresize);
 	glfwSetScrollCallback(windowHandle, sscroll);
+	glfwSetCharCallback(windowHandle, sChar);
+	glfwSetFramebufferSizeCallback(windowHandle, sSetFrameBufSize);
+	glfwSetDropCallback(windowHandle, sSetDrop);
 
 	// Background color
 	glClearColor(0., 0., 0., 1.);
@@ -108,45 +125,6 @@ int main(int argc, char** argv) {
 
 	nanogui::Screen* screen = new nanogui::Screen();
 	screen->initialize(windowHandle, true);
-
-	enum test_enum {
-		Item1 = 0,
-		Item2,
-		Item3
-	};
-
-	bool bvar = true;
-	int ivar = 12345678;
-	double dvar = 3.1415926;
-	float fvar = (float)dvar;
-	std::string strval = "A string";
-	test_enum enumval = Item2;
-	nanogui::Color colval(0.5f, 0.5f, 0.7f, 1.f);
-
-	// Create nanogui gui
-	bool enabled = true;
-	nanogui::FormHelper* gui = new nanogui::FormHelper(screen);
-	nanogui::ref<nanogui::Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
-	gui->addGroup("Basic types");
-	gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
-	gui->addVariable("string", strval);
-
-	gui->addGroup("Validating fields");
-	gui->addVariable("int", ivar)->setSpinnable(true);
-	gui->addVariable("float", fvar)->setTooltip("Test.");
-	gui->addVariable("double", dvar)->setSpinnable(true);
-
-	gui->addGroup("Complex types");
-	gui->addVariable("Enumeration", enumval, enabled)->setItems({ "Item 1", "Item 2", "Item 3" });
-
-	gui->addGroup("Other widgets");
-	gui->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");;
-
-	screen->setVisible(true);
-	screen->performLayout();
-	nanoguiWindow->center();
-
-
 
 	// make the client
 	Client::CLIENT = new Client(windowHandle, screen, argc, argv);

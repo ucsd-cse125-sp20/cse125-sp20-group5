@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "ChooseLobby.h"
 #include "AudioEngine.h"
 #include "NetworkClient.h"
 #include <vector>
@@ -21,9 +22,10 @@ Currently the Client class handles the I/O as well as the game loop
 */
 class Client {
 public:
+	nanogui::Screen* screen;
 	static Client * CLIENT;
 
-	Client(GLFWwindow * window, nanogui::Screen * scene, int argc, char** argv);
+	Client(GLFWwindow * window, nanogui::Screen * screen, int argc, char** argv);
 	~Client();
 
 	void loop(); // Loop will be the idling function of glut
@@ -60,10 +62,10 @@ private:
 	const int keys[5] = {GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE};
 
 	GLFWwindow* windowHandle;
-	nanogui::Screen* screen;
 
 	// Components	
 	Scene * scene;
+	ChooseLobby* startPage;
 	Camera * cam;
 	CAudioEngine aEngine;
 	std::unordered_map<int, bool>* keyPresses;

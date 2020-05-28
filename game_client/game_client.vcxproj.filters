@@ -108,6 +108,9 @@
     <ClInclude Include="CactusBulletController.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ChooseLobby.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -165,6 +168,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HealthBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChooseLobby.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

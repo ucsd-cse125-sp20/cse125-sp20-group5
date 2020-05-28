@@ -170,6 +170,7 @@
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="PlayerController.hpp" />
+    <ClInclude Include="ChooseLobby.h" />
     <ClInclude Include="ToolController.hpp" />
     <ClInclude Include="TapController.hpp" />
     <ClInclude Include="HealthBar.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="ServerParams.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="ChooseLobby.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AnimatedAssimpModel.glsl" />
