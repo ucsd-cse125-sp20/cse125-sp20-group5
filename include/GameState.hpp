@@ -914,7 +914,6 @@ public:
                 if (collided) {
                     zombie->health -= bullet->attackPower;
                     i = bullets.erase(i);
-                    i--;
                     break;
                 }
             }
