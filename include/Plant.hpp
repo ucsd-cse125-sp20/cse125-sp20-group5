@@ -62,12 +62,11 @@ public:
             plant->attackPower = config.cornAttackPower;
             plant->deltaAttack = config.cornFertilizerDeltaAttack;
             plant->attackInterval = config.cornAttackInterval;
-            plant->growCooldownTime = config.cornGrowCooldownTime;
             plant->activeTime = config.cornActiveTime;
             plant->deathTime = config.cornDeathTime;
             plant->pesticideSprayTime = config.cornPesticideSprayTime;
             plant->fertilizerCompleteTime = config.cornFertilizerCompleteTime;
-            plant->coolDownExpireTime = config.cornGrowCooldownTime;
+            plant->coolDownExpireTime = config.cornCooldownExpireTime;
             break;
         case PlantType::CACTUS:
             plant->range = new TowerRange(config.cactusAttackRange);
@@ -76,12 +75,11 @@ public:
             plant->attackPower = config.cactusAttackPower;
             plant->deltaAttack = config.cactusFertilizerDeltaAttack;
             plant->attackInterval = config.cactusAttackInterval;
-            plant->growCooldownTime = config.cactusGrowCooldownTime;
             plant->activeTime = config.cactusActiveTime;
             plant->deathTime = config.cactusDeathTime;
             plant->pesticideSprayTime = config.cactusPesticideSprayTime;
             plant->fertilizerCompleteTime = config.cactusFertilizerCompleteTime;
-            plant->coolDownExpireTime = config.cactusGrowCooldownTime;
+            plant->coolDownExpireTime = config.cactusCooldownExpireTime;
             break;
         }
         return plant;

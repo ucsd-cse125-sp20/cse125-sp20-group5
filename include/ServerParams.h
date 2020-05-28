@@ -37,7 +37,7 @@ public:
     float cornAttackInterval;
     float cornAttackRange;
     float cornGrowExpireTime;
-    float cornGrowCooldownTime;
+    float cornCooldownExpireTime;
     float cornActiveTime;
     float cornDeathTime;
     float cornPesticideSprayTime;
@@ -50,7 +50,7 @@ public:
     float cactusAttackInterval;
     float cactusAttackRange;
     float cactusGrowExpireTime;
-    float cactusGrowCooldownTime;
+    float cactusCooldownExpireTime;
     float cactusBulletSpeed;
     float cactusBulletRadius;
     float cactusActiveTime;
