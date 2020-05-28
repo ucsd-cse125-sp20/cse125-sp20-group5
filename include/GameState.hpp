@@ -305,7 +305,7 @@ public:
                 if (player->highlightObjectId != 0) {
                     Plant* currPlant = (Plant*)gameObjectMap[player->highlightObjectId];
                     if (currPlant->growStage != Plant::GrowStage::GROWN) {
-                        if (currPlant->growCooldownTime <= 0) {
+                        if (currPlant->cooldownTime <= 0) {
                             currPlant->growProgressTime += deltaTime;
                             tool->remainingWater -= deltaTime;
                             std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
@@ -454,13 +454,12 @@ public:
                 if (plant->growProgressTime >= plant->growExpireTime) {
                     std::cout << "Plant growth complete, going next stage" << std::endl;
                     plant->growStage++;
-                    plant->growExpireTime = 2.0f;
                     plant->growProgressTime = 0.0f;
-                    plant->growCooldownTime = 2.0f;
+                    plant->cooldownTime = plant->coolDownExpireTime;
                 }
 
-                if (plant->growCooldownTime > 0) {
-                    plant->growCooldownTime -= deltaTime;
+                if (plant->cooldownTime > 0) {
+                    plant->cooldownTime -= deltaTime;
                 }
 
             }

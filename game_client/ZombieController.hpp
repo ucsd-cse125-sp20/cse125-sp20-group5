@@ -7,6 +7,9 @@ private:
 	HealthBar* hpBar;
 	SceneNode* barNode;
 
+	std::chrono::system_clock::time_point lastBarUpdateTime; // to allow the hpBar display for awhile
+	static constexpr int BAR_RENDER_MILLISEC = 1000;
+
 	int health = 0;
 	int maxHealth = 0;
 
@@ -29,6 +32,9 @@ public:
 			"texture/hp_icon.png", HP_BAR_TRANSLATE_Y, initBarFilledFraction, HP_BAR_COLOR
 		);
 		std::tie(hpBar, barNode) = createHealthBar(barSetting, scene);
+		hpBar->fillingStep *= 0.05f;
+
+		lastBarUpdateTime = std::chrono::system_clock::now() - std::chrono::milliseconds(BAR_RENDER_MILLISEC);
 
 		// add to renderedZombie to keep track of alive/dead zombie
 		prevAliveZombie.insert(zombie->objectId);
@@ -122,11 +128,19 @@ public:
 		else {
 			float newFilledFraction = (float)this->health / (float)this->maxHealth;
 			if (hpBar->currFilledFraction == newFilledFraction) {
-				hpBar->shouldDisplay = false;
+				// render bar for a while after bar stops changing
+				if (hpBar->shouldDisplay) {
+					auto durationMilliSec = std::chrono::duration_cast<std::chrono::milliseconds > (std::chrono::system_clock::now() - lastBarUpdateTime);
+					if (durationMilliSec.count() > BAR_RENDER_MILLISEC) {
+						hpBar->shouldDisplay = false;
+					}
+				}
 			}
 			else {
 				hpBar->shouldDisplay = true; // display only when the bar is changing
 				hpBar->updateBar(newFilledFraction);
+
+				lastBarUpdateTime = std::chrono::system_clock::now();
 			}
 		}
 	}
