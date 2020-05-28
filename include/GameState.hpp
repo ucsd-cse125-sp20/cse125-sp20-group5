@@ -15,6 +15,7 @@
 #include "ZombieWaveManager.h"
 #include "CactusBullet.hpp"
 #include "ServerParams.h"
+#include "Obstacle.hpp"
 
 #include <cmath>
 #include <vector>
@@ -63,7 +64,7 @@ public:
                 if (header == "Tools") {
                     GameStateLoader::initTools(key, value, tools, objectCount);
                 } else if (header == "Floor") {
-                    GameStateLoader::initFloor(key, value, floor, readingMap);
+                    GameStateLoader::initFloor(key, value, readingMap, this);
                 } else if (header == "SeedShack1") {
                     GameStateLoader::initGameObject(key, value, seedShacks[0], objectCount);
                 } else if (header == "SeedShack2") {
@@ -126,6 +127,7 @@ public:
         ar & floor;
         ar & seedShacks;
         ar & bullets;
+        ar & obstacles;
         ar & waterTap;
         ar & homeBase;
     }
@@ -153,6 +155,9 @@ public:
 
         for (CactusBullet* bullet: bullets) {
             delete bullet;
+        }
+        for (Obstacle* obstacle: obstacles) {
+            delete obstacle;
         }
 
         delete floor;
@@ -697,11 +702,20 @@ public:
                 }
             }
 
-            // 7. Check if collid with watertap
+            // 7. Check if collide with watertap
             if (player->collideWith(waterTap)) {
                 player->position->x = prevPos.x;
                 player->position->z = prevPos.z;
             }
+
+            // 8. Check if collide with obstacles 
+            for (Obstacle* obstacle : obstacles) {
+                if (player->collideWith(obstacle)) {
+                    player->position->x = prevPos.x;
+                    player->position->z = prevPos.z;
+                }
+            }
+
             player->currRow = player->position->z / Floor::TILE_SIZE;
             player->currCol = player->position->x / Floor::TILE_SIZE;
         }
@@ -1202,6 +1216,7 @@ public:
     std::vector<Tool*> tools;
     std::vector<SeedShack*> seedShacks;
     std::vector<CactusBullet*> bullets;
+    std::vector<Obstacle*> obstacles;
 
     Floor* floor;
     WaterTap* waterTap;

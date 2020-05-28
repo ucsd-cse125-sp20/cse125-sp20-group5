@@ -59,6 +59,10 @@ public:
     float cactusFertilizerCompleteTime;
     int cactusFertilizerDeltaAttack;
 
+    // Obstacle
+    float treeBoxRadius;
+    float stoneBoxRadius;
+
     ServerParams();
 
     // Math constants

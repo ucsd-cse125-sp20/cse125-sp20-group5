@@ -2,7 +2,7 @@
 #define _TOOL_H
 
 #include "GameObject.hpp"
-
+#include "Plant.hpp"
 
 class Tool : public GameObject {
 public:

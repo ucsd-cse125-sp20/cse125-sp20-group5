@@ -59,4 +59,8 @@ ServerParams::ServerParams() {
     cactusPesticideSprayTime = config.GetFloat("Cactus", "PesticideSprayTime", 2.0f);
     cactusFertilizerCompleteTime = config.GetFloat("Cactus", "FertilizerCompleteTime", 2.0f);
     cactusFertilizerDeltaAttack = config.GetInteger("Cactus", "FertilizerDeltaAttack", 50);
+
+    // Obstacle
+    treeBoxRadius = config.GetFloat("Obstacle", "TreeBoxRadius", 0.5f);;
+    stoneBoxRadius = config.GetFloat("Obstacle", "StoneBoxRadius", 0.5f);;
 }
