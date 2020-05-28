@@ -81,6 +81,9 @@ public:
 				case 3:
 					tools[i]->toolType = Tool::ToolType::PESTICIDE;
 					break;
+				case 4:
+					tools[i]->toolType = Tool::ToolType::FERTILIZER;
+					break;
 				}
 				i++;
 			}
@@ -88,6 +91,14 @@ public:
 			for (Tool* tool: tools) {
 				if (tool->toolType == Tool::ToolType::WATER_CAN) {
 					tool->capacity = std::stof(value);
+				}
+			}
+		}
+		else if (key == "FertilizerCooldownTime") {
+			for (Tool* tool : tools) {
+				if (tool->toolType == Tool::ToolType::FERTILIZER) {
+					tool->fertilizerCurrTime = 0.0f;
+					tool->fertilizerCooldownTime = std::stof(value);
 				}
 			}
 		}

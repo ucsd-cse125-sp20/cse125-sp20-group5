@@ -41,6 +41,8 @@ public:
     float cornActiveTime;
     float cornDeathTime;
     float cornPesticideSprayTime;
+    float cornFertilizerCompleteTime;
+    int cornFertilizerDeltaAttack;
 
     // Plant Cactus
     int cactusAttackPower;
@@ -54,6 +56,8 @@ public:
     float cactusActiveTime;
     float cactusDeathTime;
     float cactusPesticideSprayTime;
+    float cactusFertilizerCompleteTime;
+    int cactusFertilizerDeltaAttack;
 
     ServerParams();
 

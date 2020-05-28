@@ -51,28 +51,33 @@ public:
         plant->plantType = type;
         plant->aliveTime = 0.0f;
         plant->currSprayTime = 0.0f;
+        plant->currFertilizeTime = 0.0f;
         switch (type) {
         case PlantType::CORN:
             plant->range = new TowerRange(config.cornAttackRange);
             plant->boundingBoxRadius = config.cornBoundingBoxRadius;
             plant->growExpireTime = config.cornGrowExpireTime;
             plant->attackPower = config.cornAttackPower;
+            plant->deltaAttack = config.cornFertilizerDeltaAttack;
             plant->attackInterval = config.cornAttackInterval;
             plant->growCooldownTime = config.cornGrowCooldownTime;
             plant->activeTime = config.cornActiveTime;
             plant->deathTime = config.cornDeathTime;
             plant->pesticideSprayTime = config.cornPesticideSprayTime;
+            plant->fertilizerCompleteTime = config.cornFertilizerCompleteTime;
             break;
         case PlantType::CACTUS:
             plant->range = new TowerRange(config.cactusAttackRange);
             plant->boundingBoxRadius = config.cactusBoundingBoxRadius;
             plant->growExpireTime = config.cactusGrowExpireTime;
             plant->attackPower = config.cactusAttackPower;
+            plant->deltaAttack = config.cactusFertilizerDeltaAttack;
             plant->attackInterval = config.cactusAttackInterval;
             plant->growCooldownTime = config.cactusGrowCooldownTime;
             plant->activeTime = config.cactusActiveTime;
             plant->deathTime = config.cactusDeathTime;
             plant->pesticideSprayTime = config.cactusPesticideSprayTime;
+            plant->fertilizerCompleteTime = config.cactusFertilizerCompleteTime;
             break;
         }
         return plant;
@@ -90,6 +95,7 @@ public:
     float growCooldownTime;   // Time(s) for cooldown time between grow interactions (watering, etc.
 
     int attackPower;
+    int deltaAttack;
     float currAttackTime;
     float attackInterval;
 
@@ -99,6 +105,9 @@ public:
 
     float currSprayTime;
     float pesticideSprayTime;
+
+    float currFertilizeTime;
+    float fertilizerCompleteTime;
 };
 
 

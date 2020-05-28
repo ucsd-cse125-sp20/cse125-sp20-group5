@@ -42,6 +42,8 @@ ServerParams::ServerParams() {
     cornActiveTime = config.GetFloat("Corn", "ActiveTime", 5.0f);
     cornDeathTime = config.GetFloat("Corn", "DeathTime", 5.0f);
     cornPesticideSprayTime = config.GetFloat("Corn", "PesticideSprayTime", 2.0f);
+    cornFertilizerCompleteTime = config.GetFloat("Corn", "FertilizerCompleteTime", 2.0f);
+    cornFertilizerDeltaAttack = config.GetInteger("Corn", "FertilizerDeltaAttack", 50);
 
     // Plant Cactus
     cactusAttackPower = config.GetInteger("Cactus", "AttackPower", 50);
@@ -55,4 +57,6 @@ ServerParams::ServerParams() {
     cactusActiveTime = config.GetFloat("Cactus", "ActiveTime", 5.0f);
     cactusDeathTime = config.GetFloat("Cactus", "DeathTime", 15.0f);
     cactusPesticideSprayTime = config.GetFloat("Cactus", "PesticideSprayTime", 2.0f);
+    cactusFertilizerCompleteTime = config.GetFloat("Cactus", "FertilizerCompleteTime", 2.0f);
+    cactusFertilizerDeltaAttack = config.GetInteger("Cactus", "FertilizerDeltaAttack", 50);
 }

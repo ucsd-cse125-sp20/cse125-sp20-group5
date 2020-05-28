@@ -232,6 +232,7 @@ public:
         playersPerformAction();
         playersInteract();
         updatePlants();
+        updateTools();
         updateBullets();
         updateZombies();
         updatePlayersPosition();
@@ -260,6 +261,7 @@ public:
 
                 for (Plant* plant : plants) {
                     plant->currSprayTime = 0;
+                    plant->currFertilizeTime = 0;
                 }
                 continue;
             }
@@ -396,6 +398,31 @@ public:
                     }
                 }
                 break;
+
+            case Tool::ToolType::FERTILIZER:
+                if (player->highlightObjectId != 0) {
+                    Plant* plant = (Plant*)gameObjectMap[player->highlightObjectId];
+
+                    // Fertilizer done, reset time and increase attack
+                    if (plant->currFertilizeTime >= plant->fertilizerCompleteTime) {
+                        std::cout << "Fertilize Done " << std::endl;
+                        plant->currFertilizeTime = 0.0f;
+                        tool->fertilizerCurrTime = 0.0f;
+                        
+                        // increase attack power
+                        plant->attackPower += plant->deltaAttack;
+                    }
+
+                    // if cooldown is not active, fertilize plant
+                    if (tool->fertilizerCurrTime >= tool->fertilizerCooldownTime) {
+                        std::cout << "Current plant fertilizing progress: " << plant->currFertilizeTime << std::endl;
+                        plant->currFertilizeTime += deltaTime;
+                    }
+                    else {
+                        std::cout << "Cannot fertilize since fertilizer is in cooldown: " << tool->fertilizerCurrTime << std::endl;
+                    }
+                }
+                break;
             }
         }
     }
@@ -515,6 +542,16 @@ public:
         }
     }
 
+
+    void updateTools() {
+        for (Tool* tool: tools) {
+            switch (tool->toolType) {
+            case Tool::ToolType::FERTILIZER:
+                tool->fertilizerCurrTime += deltaTime;
+                break;
+            }
+        }
+    }
 
     void updatePlayersPosition() {
         for (Player* player : players) {
@@ -949,7 +986,7 @@ public:
                 }
 
                 case Tool::ToolType::PESTICIDE: {
-                    // highlight plants or water tap
+                    // highlight grown plants
                     float minDistance = std::numeric_limits<float>::max();
                     Plant* highlightPlant = nullptr;
                     for (Plant* plant : plants) {
@@ -974,6 +1011,43 @@ public:
                         && highlightPlant->growStage == Plant::GrowStage::GROWN
                         && highlightPlant->aliveTime > highlightPlant->activeTime
                         && highlightPlant->aliveTime < highlightPlant->deathTime
+                        && player->highlightCollideWith(highlightPlant)) {
+                        player->highlightObjectId = highlightPlant->objectId;
+                        player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
+                        player->highlightTileCol = highlightPlant->position->x / Floor::TILE_SIZE;
+                        std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
+                    }
+                    else {
+                        player->highlightObjectId = 0;
+                        std::cout << "Nothing is highlighted" << std::endl;
+                    }
+                    break;
+                }
+                case Tool::ToolType::FERTILIZER: {
+                    // highlight grown plants
+                    float minDistance = std::numeric_limits<float>::max();
+                    Plant* highlightPlant = nullptr;
+                    for (Plant* plant : plants) {
+                        float dist = player->distanceTo(plant);
+
+                        Position playerPlantVec = Position(
+                            plant->position->x - player->position->x,
+                            plant->position->y - player->position->y,
+                            plant->position->z - player->position->z
+                        );
+                        float angle = player->direction->getAngleBetween(playerPlantVec);
+
+                        if (dist < minDistance && angle <= config.highlightFOVAngle) {
+                            highlightPlant = plant;
+                            minDistance = dist;
+                        }
+                    }
+                    player->highlightTileRow = -1;
+                    player->highlightTileCol = -1;
+
+                    if (highlightPlant
+                        && highlightPlant->growStage == Plant::GrowStage::GROWN
+                        && currTool->fertilizerCurrTime >= currTool->fertilizerCooldownTime
                         && player->highlightCollideWith(highlightPlant)) {
                         player->highlightObjectId = highlightPlant->objectId;
                         player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
