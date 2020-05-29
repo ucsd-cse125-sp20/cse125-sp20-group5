@@ -11,33 +11,19 @@ ZombieWaveManager::ZombieWaveManager(GameState* state)
     zombiesSpawned(0) 
 {
     gameState = state;
-    waveNum = 1;
+    waveNum = 0;
 }
 
-void ZombieWaveManager::spawn() {
+void ZombieWaveManager::spawn(Zombie::ZombieType type) {
     // Spawn zombie every second
     int tick = gameState->tick;
     int tickRate = gameState->tickRate;
     if (tick % tickRate == 0) {
-        // TODO: Need to find out the position of the tile
-        // Position right now uses indices
-        Position* zombieBasePos = gameState->floor->zombieBaseTile->position;
-        Direction* zombieBaseDir = gameState->floor->zombieBaseTile->direction;
-        Position* zombiePosition = new Position(
-            zombieBasePos->x + Tile::TILE_PAD_X,
-            zombieBasePos->y,
-            zombieBasePos->z + Tile::TILE_PAD_Z
-        );
-        Direction* zombieDirection = new Direction(
-            zombieBaseDir->angle
-        );
-        Animation* zombieAnimation = new Animation(0, 0);
-        Zombie* zombie = new Zombie(
-            zombiePosition, zombieDirection,
-            zombieAnimation, gameState->objectCount++, gameState->config.zombieRabbitRadius
-        );
+        Zombie* zombie = Zombie::buildZombie(gameState->config, type, gameState->floor->zombieBaseTile);
+        zombie->objectId = gameState->objectCount++;
         zombie->health = zombieHealth;
         zombie->maxHealth = zombieHealth;
+        gameState->gameObjectMap[zombie->objectId] = zombie;
         gameState->zombies.push_back(zombie);
 
         zombiesSpawned++;
@@ -54,13 +40,21 @@ void ZombieWaveManager::handleZombieWaves() {
             currTime = gameState->config.waveStartTime;
             // handle increasing health and number of zombies
             zombiesSpawned = 0;
-            zombiesInWave += gameState->config.waveDeltaNumZombies;
-            zombieHealth += gameState->config.zombieDeltaHealth;
+
+            if (waveNum % 2 == 0) {
+                zombiesInWave += gameState->config.waveDeltaNumZombies;
+                zombieHealth += gameState->config.zombieDeltaHealth;
+            }
         }
     }
 
     if(inWave) {
-        spawn();
+        if (waveNum % 2 == 0) {
+            spawn(Zombie::ZombieType::PIG);
+        }
+        else if (waveNum % 2 == 1) {
+            spawn(Zombie::ZombieType::RABBIT);
+        }
 
         if (zombiesSpawned == zombiesInWave) {
             // End wave when enough zombies are spawned
