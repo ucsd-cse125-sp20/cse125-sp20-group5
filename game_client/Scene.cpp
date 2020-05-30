@@ -44,6 +44,9 @@ Scene::Scene()
 	fertilizerModel = new AssimpModel(FERTILIZER_MODEL, assimpProgram->GetProgramID());
 	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
 	treeModel = new AssimpModel(TREE_MODEL, assimpProgram->GetProgramID());
+	for (int i = 1; i <= 5; i++) {
+		rockModels.push_back(new AssimpModel((ROCK_MODEL_PATH_START + std::to_string(i) + ".fbx"), assimpProgram->GetProgramID()));
+	}
 
 	ground = NULL;
 
@@ -98,6 +101,10 @@ Scene::~Scene()
 	delete particleProgram;
 
 	delete treeModel;
+
+	for (AssimpModel* ptr : rockModels) {
+		delete ptr;
+	}
 }
 
 void Scene::update()
@@ -171,10 +178,21 @@ void Scene::update()
 	}
 
 	for (Obstacle* obstacle : state->obstacles) {
-		SceneNode* obstacleNode = getDrawableSceneNode(obstacle->objectId, treeModel);
+		SceneNode* obstacleNode = nullptr;
+		if (obstacle->obstacleType == Obstacle::ObstacleType::STONE) {
+			int randomStoneIndex = rand() % rockModels.size(); // range from 0 to size
+			obstacleNode = getDrawableSceneNode(obstacle->objectId, rockModels[randomStoneIndex]);
+
+			obstacleNode->loadGameObject(obstacle);
+			obstacleNode->scaler = STONE_SCALER;
+		}
+		else {
+			obstacleNode = getDrawableSceneNode(obstacle->objectId, treeModel);
+
+			obstacleNode->loadGameObject(obstacle);
+			obstacleNode->scaler = TREE_SCALER;
+		}
 		
-		obstacleNode->loadGameObject(obstacle);
-		obstacleNode->scaler = TREE_SCALER;
 		unusedIds.erase(obstacle->objectId);
 	}
 
@@ -237,12 +255,12 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	}
 	else { // if its made just get the ref
 		node = objectIdMap[objectId];
-		if (node->obj != model) {
+		/* if (node->obj != model) {
 			delete node;
 			node = model->createSceneNodes(objectId);
 			objectIdMap[objectId] = node;
 			groundNode->addChild(node);
-		}
+		}*/
 	}
 	return node;
 }

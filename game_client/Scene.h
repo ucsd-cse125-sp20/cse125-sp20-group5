@@ -75,6 +75,8 @@ private:
 	AssimpModel* fertilizerModel;
 	AssimpModel* treeModel;
 
+	std::vector<AssimpModel*> rockModels;
+
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
 
