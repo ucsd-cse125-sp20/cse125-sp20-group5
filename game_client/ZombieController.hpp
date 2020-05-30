@@ -18,6 +18,9 @@ private:
 	static constexpr float HP_BAR_TRANSLATE_Y = 2.7;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(1.0, 0.4, 0.4);
 
+	static float homeBaseX;
+	static float homeBaseY;
+
 public:
 	ZombieController(Zombie* zombie, Scene* scene) {
 		rootNode = new SceneNode(NULL, "ZombieRootEmpty" + to_string(zombie->objectId), zombie->objectId);
@@ -108,8 +111,7 @@ public:
 
 
 			// If not disppearing at the home base, but killed by the plant
-			// which is TODO
-			if (true) { // zombieController->health <= 0
+			if (!zombieController->atDestination()) {
 				zombieController->modelNode->switchAnim(Zombie::ZombieAnimation::DIE, false);
 
 				// Don't delete if animation hasn't finished
@@ -168,8 +170,21 @@ public:
 			}
 		}
 	}
+
+	bool atDestination() {
+		return rootNode->position.x != homeBaseX
+				|| rootNode->position.y != homeBaseY;
+	}
+
+	static void updateDestination(float x, float y) {
+		homeBaseX = x;
+		homeBaseY = y;
+	}
 };
 
 std::set<uint> ZombieController::prevAliveZombie;
 std::set<uint> ZombieController::aliveZombie;
 std::set<uint> ZombieController::dyingZombie;
+
+float ZombieController::homeBaseX = -1;
+float ZombieController::homeBaseY = -1;
