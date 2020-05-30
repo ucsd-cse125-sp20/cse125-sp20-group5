@@ -399,6 +399,7 @@ public:
                         if (plant->currSprayTime >= plant->pesticideSprayTime) {
                             plant->currSprayTime = 0.0f;
                             plant->aliveTime = 0.0f;
+                            plant->isAttackedByBugs = false;
                         }
                     }
                 }
@@ -520,6 +521,7 @@ public:
                 else {
                     plant->currAttackTime = 0.0f;
                     std::cout << "Bugs Attacking plant! Use pesticide!!!" << std::endl;
+                    plant->isAttackedByBugs = true;
                 }
 
                 plant->aliveTime += deltaTime;
