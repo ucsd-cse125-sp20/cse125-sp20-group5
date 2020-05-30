@@ -25,7 +25,7 @@ enum class ShaderType {
 
 enum class ModelType {
 	CAT, BLACKPIG, TIGER, CHICKEN, RABBIT, PIG,
-	WATER_TAP, WATERING_CAN, SEED_SHACK_CORN, SEED_SHACK_CACTUS, SHOVEL, SEED_BAG, 
+	WATER_TAP, WATERING_CAN, SEED_SHACK_CORN, SEED_SHACK_CACTUS, SHOVEL, SEED_BAG, SPRAY, FERTILIZER,
 	CORN, SEED, SAPLING, BABY_CORN, BABY_CACTUS, CACTUS, CACTUS_BULLET,
 	HOME_BASE
 };
@@ -71,6 +71,8 @@ private:
 	AssimpModel* shovelModel;
 	AssimpModel* seedBagModel;
 	AssimpModel* baseModel;
+	AssimpModel* sprayModel;
+	AssimpModel* fertilizerModel;
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
@@ -139,6 +141,8 @@ public:
 			case ModelType::CACTUS:				return cactusModel;
 			case ModelType::CACTUS_BULLET:		return cactusBulletModel;
 			case ModelType::HOME_BASE:			return baseModel;
+			case ModelType::SPRAY:				return sprayModel;
+			case ModelType::FERTILIZER:			return fertilizerModel;
 		}
 	}
 };

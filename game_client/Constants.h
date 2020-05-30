@@ -28,6 +28,8 @@
 #define SHOVEL_MODEL "model/shovel.fbx"
 #define DIRT_MODEL "model/dirt.fbx"
 #define SEED_BAG_MODEL "model/basket.fbx"
+#define SPRAY_MODEL "model/spray.fbx"
+#define FERTILIZER_MODEL "model/spray.fbx"
 
 #define SAPLING_MODEL "model/sapling.fbx"
 

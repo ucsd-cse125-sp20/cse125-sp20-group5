@@ -7,6 +7,8 @@
 #define SEED_BAG_SCALER 0.2
 #define WATER_CAN_SCALER 0.35
 #define SHOVEL_SCALER 0.35
+#define SPRAY_SCALER 0.001
+#define FERTILIZER_SCALER 0.001
 
 #define CAN_BAR_COLOR glm::vec3(0.1, 0.9, 1.0)
 #define CAN_BAR_TRANSLATE_Y 1.3;
@@ -45,6 +47,14 @@ public:
 		else if(type == Tool::ToolType::SEED) {
 			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
 			modelNode->scaler = SEED_BAG_SCALER;
+		}
+		else if (tool->toolType == Tool::ToolType::PESTICIDE) {
+			modelNode = scene->getModel(ModelType::SPRAY)->createSceneNodes(tool->objectId);
+			modelNode->scaler = SPRAY_SCALER;
+		}
+		else if (tool->toolType == Tool::ToolType::FERTILIZER) {
+			modelNode = scene->getModel(ModelType::FERTILIZER)->createSceneNodes(tool->objectId);
+			modelNode->scaler = FERTILIZER_SCALER;
 		}
 		else {
 			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
@@ -93,6 +103,12 @@ public:
 		}
 		else if (tool->toolType == Tool::ToolType::SEED) {
 			
+		}
+		else if (tool->toolType == Tool::ToolType::PESTICIDE) {
+
+		}
+		else if (tool->toolType == Tool::ToolType::FERTILIZER) {
+
 		}
 	}
 
