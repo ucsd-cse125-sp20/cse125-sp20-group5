@@ -184,6 +184,7 @@ public:
             if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
 
             hpBar->shouldDisplay = true;
+            hpBar->updateBar((plant->deathTime - plant->aliveTime) / plant->deathTime);
         }
         else {
             if (plant->cooldownTime > 0) {

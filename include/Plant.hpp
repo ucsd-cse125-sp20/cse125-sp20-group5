@@ -41,6 +41,9 @@ public:
         ar & currSprayTime;
         ar & pesticideSprayTime;
         ar & isAttackedByBugs;
+        ar & aliveTime;
+        ar & activeTime;
+        ar & deathTime;
     }
 
     ~Plant() {

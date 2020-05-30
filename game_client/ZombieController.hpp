@@ -12,16 +12,26 @@ private:
 
 	int health = 0;
 	int maxHealth = 0;
+	ModelType modelType;
 
-	static constexpr float RABBIT_SCALER = 0.40;
+	static constexpr float ZOMBIE_SCALER = 0.40;
 	static constexpr float HP_BAR_TRANSLATE_Y = 2.7;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(1.0, 0.4, 0.4);
 
 public:
 	ZombieController(Zombie* zombie, Scene* scene) {
 		rootNode = new SceneNode(NULL, "ZombieRootEmpty" + to_string(zombie->objectId), zombie->objectId);
-		modelNode = scene->getModel(ModelType::RABBIT)->createSceneNodes(zombie->objectId);
-		modelNode->scaler = RABBIT_SCALER;
+
+		switch (zombie->zombieType) {
+			case Zombie::ZombieType::PIG: 
+				modelType = ModelType::PIG; 
+				break;
+			case Zombie::ZombieType::RABBIT: 
+				modelType = ModelType::RABBIT;
+				break;
+		}
+		modelNode = scene->getModel(modelType)->createSceneNodes(zombie->objectId);
+		modelNode->scaler = ZOMBIE_SCALER;
 
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);

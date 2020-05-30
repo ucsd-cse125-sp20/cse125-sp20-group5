@@ -395,6 +395,7 @@ public:
                         std::cout << "Current plant spraying progress: " << plant->currSprayTime << std::endl;
                         plant->currSprayTime += deltaTime;
                         plant->aliveTime -= deltaTime;
+                        player->animation->animationType = Player::PlayerAnimation::WATER;
 
                         if (plant->currSprayTime >= plant->pesticideSprayTime) {
                             plant->currSprayTime = 0.0f;
@@ -423,6 +424,7 @@ public:
                     if (tool->fertilizerCurrTime >= tool->fertilizerCooldownTime) {
                         std::cout << "Current plant fertilizing progress: " << plant->currFertilizeTime << std::endl;
                         plant->currFertilizeTime += deltaTime;
+                        player->animation->animationType = Player::PlayerAnimation::WATER;
                     }
                     else {
                         std::cout << "Cannot fertilize since fertilizer is in cooldown: " << tool->fertilizerCurrTime << std::endl;
