@@ -3,6 +3,7 @@
 
 #include "GameObject.hpp"
 #include "Plant.hpp"
+#include "Player.hpp"
 
 class Tool : public GameObject {
 public:

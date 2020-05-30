@@ -210,6 +210,8 @@ public:
     void addPlayer(Player *player) {
         Position* spawnPos = playerInitPositions[player->playerId % config.maxNumPlayers];
         player->position = spawnPos;
+        player->currRow = spawnPos->z / Floor::TILE_SIZE;
+        player->currCol = spawnPos->x / Floor::TILE_SIZE;
         players.push_back(player);
     }
 

@@ -2,6 +2,7 @@
 #define _PLANT_H
 
 #include "GameObject.hpp"
+#include "Player.hpp"
 #include "TowerRange.hpp"
 #include "ServerParams.h"
 #include <unordered_map>

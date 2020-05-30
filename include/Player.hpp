@@ -16,8 +16,6 @@ public:
             : GameObject(position, direction, animation, objectId, boundingBoxRadius), 
               playerId(playerId) {
         this->color = color;
-        currRow = position->z / Floor::TILE_SIZE;
-        currCol = position->x / Floor::TILE_SIZE;
     }
 
     friend class boost::serialization::access;
