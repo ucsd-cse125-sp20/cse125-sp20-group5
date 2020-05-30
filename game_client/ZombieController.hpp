@@ -49,6 +49,7 @@ public:
 		// hp bar rendering settings
 		hpBar->fillingStep *= 0.2f;
 		hpBar->alphaEffectOn = true;
+		hpBar->alphaValue = 0.0f;
 
 		lastBarUpdateTime = std::chrono::system_clock::now() - std::chrono::milliseconds(BAR_RENDER_MILLISEC);
 
@@ -164,6 +165,7 @@ public:
 			}
 			else {
 				hpBar->shouldDisplay = true; // display only when the bar is changing
+				hpBar->alphaValue = HealthBar::MAX_ALPHA; // so that no fading effect on start of change, but only on end of change
 				hpBar->updateBar(newFilledFraction);
 
 				lastBarUpdateTime = std::chrono::system_clock::now();

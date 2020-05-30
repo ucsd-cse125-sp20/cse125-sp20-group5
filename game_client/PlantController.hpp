@@ -32,22 +32,27 @@ private:
     HealthBar* growthBar;
     HealthBar* coolDownBar;
     HealthBar* hpBar;
-
-    ParticleGroup* pGroup;
-
+    HealthBar* pesticideBar;
+    HealthBar* fertilizeBar;
     SceneNode* gBarNode;
     SceneNode* cBarNode;
     SceneNode* hBarNode;
+    SceneNode* pBarNode;
+    SceneNode* fBarNode;
+
+    ParticleGroup* pGroup;
     SceneNode* particleNode;
 
     Plant::GrowStage currGrowStage;
 
     static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
-    static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0);
+    static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0); // blue
     static constexpr float COOLING_BAR_TRANSLATE_Y = 1.3;
-    static constexpr glm::vec3 COOLING_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6);
-    static constexpr float HP_BAR_TRANSLATE_Y = 2.5;
-    static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4);
+    static constexpr glm::vec3 COOLING_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6); // grey
+    static constexpr float HP_BAR_TRANSLATE_Y = 2.0;
+    static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4); // green
+    static constexpr glm::vec3 PESTICIDE_BAR_COLOR = glm::vec3(0.8, 0.3, 1.0); // purple
+    static constexpr glm::vec3 FERTILIZE_BAR_COLOR = glm::vec3(1.0, 0.7, 0.0); // orange
 
 public:
     PlantController(Plant * plant, Scene* scene) {
@@ -77,24 +82,41 @@ public:
         HealthBarSetting hBarSetting("texture/hp_icon.png", HP_BAR_TRANSLATE_Y, initBarFilledFraction, HP_BAR_COLOR);
         std::tie(hpBar, hBarNode) = createHealthBar(hBarSetting, scene);
         hpBar->shouldDisplay = false;
+
+        // init pesticide bar
+        initBarFilledFraction = 1.0f;
+        float barMarginY = HealthBar::BAR_HEIGHT / 2.0f;
+        HealthBarSetting pBarSetting("texture/hp_icon.png", HP_BAR_TRANSLATE_Y + barMarginY, initBarFilledFraction, PESTICIDE_BAR_COLOR);
+        std::tie(pesticideBar, pBarNode) = createHealthBar(pBarSetting, scene);
+        pesticideBar->shouldDisplay = false;
+
+        // init fertilize bar
+        initBarFilledFraction = 0.0f;
+        HealthBarSetting fBarSetting("texture/hp_icon.png", HP_BAR_TRANSLATE_Y + 2.0 * barMarginY, initBarFilledFraction, FERTILIZE_BAR_COLOR);
+        std::tie(fertilizeBar, fBarNode) = createHealthBar(fBarSetting, scene);
+        fertilizeBar->shouldDisplay = false;
+        fertilizeBar->fillingStep /= 5.0f;
+        fertilizeBar->alphaEffectOn = true;
+        fertilizeBar->alphaValue = 0.0f;
+        fertilizeBar->alphaStep *= 1.0f;
     }
 
     ~PlantController() {
-        // TODO: (not really tho) ideally we wouldn't need this but then we have to refactor particle group 
-        // and growthbar and sceneNode
-        // as of right now we need a new model for each instance which isn't great but eh what can you do?
         if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
         if (growthBar) { delete growthBar; }
         if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
         if (coolDownBar) { delete coolDownBar; }
         if (hBarNode) { hBarNode = RenderController::deleteBarNode(hBarNode); }
         if (hpBar) { delete hpBar; }
+        if (pBarNode) { pBarNode = RenderController::deleteBarNode(pBarNode); }
+        if (pesticideBar) { delete pesticideBar; }
+        if (fBarNode) { fBarNode = RenderController::deleteBarNode(fBarNode); }
+        if (fertilizeBar) { delete fertilizeBar; }
 
         delete pGroup;
     }
 
     void update(GameObject * gameObject, Scene* scene) override {
-        // TODO maybe do some ceck here to see if we can cast
         Plant* plant = (Plant*) gameObject;
 
         // Update grown plant model
@@ -109,27 +131,8 @@ public:
         // Update growth bar
         updateGrowthBar(plant, scene);
 
-        // Check if is attacked by the bugs
-        if (plant->isAttackedByBugs && this->modelNode->animationId != BUG_ANIMATION) {
-            this->modelNode->switchAnim(BUG_ANIMATION, true);
-        }
-
-        // Realse particles if necessary
-        if (!plant->isAttackedByBugs &&
-            pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
-            pGroup->releaseParticles();
-            this->modelNode->switchAnim(ATTACK_ANIMATION, false);
-        }
-
-        // Reset back to idle if
-        // 1. played one attack animation or
-        // 2. attacked by bugs ended
-        if (this->modelNode->animationId == ATTACK_ANIMATION &&
-            this->modelNode->playedOneAnimCycle ||
-            this->modelNode->animationId == BUG_ANIMATION &&
-            !plant->isAttackedByBugs) {
-            this->modelNode->switchAnim(IDLE_ANIMATION, true);
-        }
+        // Update animation and particle effect
+        updateAnimation(plant);
     }
 
     void updatePlantModel(Plant* plant, Scene* scene) {
@@ -183,8 +186,30 @@ public:
             if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
             if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
 
+            // update hp bar
             hpBar->shouldDisplay = true;
             hpBar->updateBar((plant->deathTime - plant->aliveTime) / plant->deathTime);
+
+            // update pesticide bar
+            if (plant->isAttackedByBugs) {
+                pesticideBar->shouldDisplay = true;
+                pesticideBar->updateBar((plant->pesticideSprayTime - plant->currSprayTime) / plant->pesticideSprayTime);
+            }
+            else {
+                pesticideBar->shouldDisplay = false;
+                pesticideBar->resetBar(1.0f);
+            }
+
+            // update fertilize bar
+            float newFilledFraction = plant->currFertilizeTime / plant->fertilizerCompleteTime;
+            if (fertilizeBar->currFilledFraction == newFilledFraction) {
+                fertilizeBar->shouldDisplay = false;
+            }
+            else {
+                fertilizeBar->shouldDisplay = true;
+                fertilizeBar->updateBar(newFilledFraction);
+            }
+            if (newFilledFraction == 0.0) { fertilizeBar->resetBar(0.0f); }
         }
         else {
             if (plant->cooldownTime > 0) {
@@ -205,6 +230,30 @@ public:
                 coolDownBar->shouldDisplay = false;
                 growthBar->shouldDisplay = true;    
             }
+        }
+    }
+
+    void updateAnimation(Plant* plant) {
+        // Check if is attacked by the bugs
+        if (plant->isAttackedByBugs && this->modelNode->animationId != BUG_ANIMATION) {
+            this->modelNode->switchAnim(BUG_ANIMATION, true);
+        }
+
+        // Realse particles if necessary
+        if (!plant->isAttackedByBugs &&
+            pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
+            pGroup->releaseParticles();
+            this->modelNode->switchAnim(ATTACK_ANIMATION, false);
+        }
+
+        // Reset back to idle if
+        // 1. played one attack animation or
+        // 2. attacked by bugs ended
+        if (this->modelNode->animationId == ATTACK_ANIMATION &&
+            this->modelNode->playedOneAnimCycle ||
+            this->modelNode->animationId == BUG_ANIMATION &&
+            !plant->isAttackedByBugs) {
+            this->modelNode->switchAnim(IDLE_ANIMATION, true);
         }
     }
 };

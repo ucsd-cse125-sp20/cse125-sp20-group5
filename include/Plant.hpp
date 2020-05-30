@@ -40,6 +40,8 @@ public:
         ar & attackInterval;
         ar & currSprayTime;
         ar & pesticideSprayTime;
+        ar & currFertilizeTime;
+        ar & fertilizerCompleteTime;
         ar & isAttackedByBugs;
         ar & aliveTime;
         ar & activeTime;
