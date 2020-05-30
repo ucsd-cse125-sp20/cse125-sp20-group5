@@ -7,8 +7,10 @@ public:
     // Network settings
     int port;
     int tickrate;
+    int maxNumPlayers;
 
     // Physics settings
+    int playerMaxHealth;
     float playerMoveSpeed;
     float playerDiagonalMoveSpeed;
     float playerInRotationMoveSpeed;
@@ -22,6 +24,7 @@ public:
     float highlightFOVAngle;
     float playerKnockBackMaxDistance;
     float playerRespawnInvincibleTime;
+    float seedBagRadius;
 
 
     // Zombie Waves related

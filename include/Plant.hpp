@@ -81,11 +81,25 @@ public:
             plant->fertilizerCompleteTime = config.cactusFertilizerCompleteTime;
             plant->coolDownExpireTime = config.cactusCooldownExpireTime;
             break;
+        case PlantType::PLAYER:
+            // TODO: player plant wouldn't use any of this, should we use corn as default
+            plant->range = new TowerRange(config.cornAttackRange);
+            plant->boundingBoxRadius = config.cornBoundingBoxRadius;
+            plant->growExpireTime = config.cornGrowExpireTime;
+            plant->attackPower = config.cornAttackPower;
+            plant->deltaAttack = config.cornFertilizerDeltaAttack;
+            plant->attackInterval = config.cornAttackInterval;
+            plant->activeTime = config.cornActiveTime;
+            plant->deathTime = config.cornDeathTime;
+            plant->pesticideSprayTime = config.cornPesticideSprayTime;
+            plant->fertilizerCompleteTime = config.cornFertilizerCompleteTime;
+            plant->coolDownExpireTime = config.cornCooldownExpireTime;
+            break;
         }
         return plant;
     }
 
-    static enum class PlantType { CORN = 0, CACTUS = 1 };
+    static enum class PlantType { CORN = 0, CACTUS = 1, PLAYER = 2};
     static enum class GrowStage { SEED = 0, SAPLING = 1, BABY = 2, GROWN = 3 };
 
     TowerRange* range; // Represents how far plant can reach to attack
@@ -111,6 +125,8 @@ public:
 
     float currFertilizeTime;
     float fertilizerCompleteTime;
+
+    Player* playerPlant; // only used for PLAYER plants
 };
 
 

@@ -44,6 +44,7 @@ public:
 
     int health;
     int maxHealth;
+    bool isDead;
 
     // Tool
     bool holding;

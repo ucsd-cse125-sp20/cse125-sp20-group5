@@ -156,6 +156,7 @@ public:
         for (CactusBullet* bullet: bullets) {
             delete bullet;
         }
+
         for (Obstacle* obstacle: obstacles) {
             delete obstacle;
         }
@@ -207,6 +208,8 @@ public:
     }
 
     void addPlayer(Player *player) {
+        Position* spawnPos = playerInitPositions[player->playerId % config.maxNumPlayers];
+        player->position = spawnPos;
         players.push_back(player);
     }
 
@@ -366,6 +369,11 @@ public:
                     // Replace seed with a plant
                     Plant* plant = Plant::buildPlant(config, tool->seedType);
 
+                    // If player plant, then transfer player from seed to plant
+                    if (plant->plantType == Plant::PlantType::PLAYER) {
+                        plant->playerPlant = tool->playerPlant;
+					}
+
                     // set plant position, direction, and object id manually
                     plant->position = new Position(currTile->getCenterPosition());
                     plant->direction = new Direction(player->direction);
@@ -470,7 +478,7 @@ public:
                         new Direction(player->direction),
                         new Animation(),
                         objectCount,
-                        0.25f,
+                        config.seedBagRadius,
                         Tool::ToolType::SEED,
                         player->objectId,
                         true
@@ -503,6 +511,24 @@ public:
             Plant* plant = *it;
             if (plant->growStage == Plant::GrowStage::GROWN) {
                 // Grown stage
+
+                if (plant->plantType == Plant::PlantType::PLAYER) {
+                    // If plant is a player plant, revive player
+                    Player* revivedPlayer = plant->playerPlant;
+                    revivedPlayer->isDead = false;
+                    revivedPlayer->health = revivedPlayer->maxHealth;
+                    revivedPlayer->position->x = plant->position->x;
+                    revivedPlayer->position->y = plant->position->y;
+                    revivedPlayer->position->z = plant->position->z;
+                    it = plants.erase(it);
+                    
+                    // Restore tile info
+                    Tile* tile = getCurrentTile(plant);
+                    tile->canPlow = true;
+                    tile->tileType = Tile::TYPE_NORMAL;
+                    tile->plantId = 0;
+                    continue;
+				}
 
                 if (plant->aliveTime >= plant->deathTime) {
                     // Plant is dead, get rid of it
@@ -568,6 +594,31 @@ public:
             for (Zombie* zombie : zombies) {
                 if (player->collideWith(zombie)) {
                     if (player->invincibleTime <= 0) {
+
+                        if (player->health <= 0) {
+                            // set player to "dead"
+                            player->isDead = true;
+
+                            // spawn a seed bag with type PLAYER
+                            Tool* playerSeed = new Tool(
+                                new Position(player->position),
+                                new Direction(player->direction),
+                                new Animation(),
+                                objectCount++,
+                                config.seedBagRadius,
+                                Tool::ToolType::SEED,
+                                0,
+                                false
+                            );
+                            playerSeed->seedType = Plant::PlantType::PLAYER;
+                            playerSeed->playerPlant = player;
+                            gameObjectMap[playerSeed->objectId] = playerSeed;
+                            tools.push_back(playerSeed);
+
+                            break;
+                        } 
+                        player->health--;
+                        
                         // player position bounce back
                         std::cout << "Collide with zombie" << std::endl;
                         float dir = player->direction->getOppositeDirection();
@@ -1235,6 +1286,8 @@ public:
     std::vector<SeedShack*> seedShacks;
     std::vector<CactusBullet*> bullets;
     std::vector<Obstacle*> obstacles;
+
+    std::vector<Position*> playerInitPositions;
 
     Floor* floor;
     WaterTap* waterTap;
