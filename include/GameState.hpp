@@ -505,6 +505,7 @@ public:
                 if (plant->plantType == Plant::PlantType::PLAYER) {
                     // If plant is a player plant, revive player
                     Player* revivedPlayer = plant->playerPlant;
+                    revivedPlayer->animation->animationType = Player::PlayerAnimation::IDLE;
                     revivedPlayer->isDead = false;
                     revivedPlayer->health = revivedPlayer->maxHealth;
                     revivedPlayer->position->x = plant->position->x;
