@@ -23,7 +23,8 @@
 
 #define WATER_TAP_MODEL "model/water_tap.fbx"
 #define WATERING_CAN_MODEL "model/watering_can.fbx"
-#define SEED_SOURCE_MODEL "model/box.fbx"
+#define CACTUS_SEED_SOURCE_MODEL "model/box_cactus.fbx"
+#define CORN_SEED_SOURCE_MODEL "model/box_corn.fbx"
 #define SHOVEL_MODEL "model/shovel.fbx"
 #define DIRT_MODEL "model/dirt.fbx"
 #define SEED_BAG_MODEL "model/basket.fbx"
