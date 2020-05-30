@@ -12,16 +12,29 @@ private:
 
 	int health = 0;
 	int maxHealth = 0;
+	ModelType modelType;
 
-	static constexpr float RABBIT_SCALER = 0.40;
+	static constexpr float ZOMBIE_SCALER = 0.40;
 	static constexpr float HP_BAR_TRANSLATE_Y = 2.7;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(1.0, 0.4, 0.4);
+
+	static float homeBaseX;
+	static float homeBaseY;
 
 public:
 	ZombieController(Zombie* zombie, Scene* scene) {
 		rootNode = new SceneNode(NULL, "ZombieRootEmpty" + to_string(zombie->objectId), zombie->objectId);
-		modelNode = scene->getModel(ModelType::RABBIT)->createSceneNodes(zombie->objectId);
-		modelNode->scaler = RABBIT_SCALER;
+
+		switch (zombie->zombieType) {
+			case Zombie::ZombieType::PIG: 
+				modelType = ModelType::PIG; 
+				break;
+			case Zombie::ZombieType::RABBIT: 
+				modelType = ModelType::RABBIT;
+				break;
+		}
+		modelNode = scene->getModel(modelType)->createSceneNodes(zombie->objectId);
+		modelNode->scaler = ZOMBIE_SCALER;
 
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
@@ -53,7 +66,18 @@ public:
 	void update(GameObject* gameObject, Scene* scene) override {
 		Zombie* zombie = (Zombie*) gameObject;
 		rootNode->loadGameObject(zombie);
-		//modelNode->switchAnim(zombie->animation->animationType);
+		
+		// animation
+		int newAnimID = zombie->animation->animationType;
+		if (newAnimID == Zombie::DAMAGED) {
+			modelNode->switchAnim(newAnimID, false);
+		} 
+		// assuming server will only pass in MOVE & DAMAGED animID
+		// change back to MOVE if DAMAGED has been finished playing
+		else if (modelNode->animationId == Zombie::DAMAGED 
+			&& modelNode->playedOneAnimCycle) {
+			modelNode->switchAnim(newAnimID);
+		}
 
 		this->health = zombie->health;
 		this->maxHealth = zombie->maxHealth;
@@ -87,8 +111,7 @@ public:
 
 
 			// If not disppearing at the home base, but killed by the plant
-			// which is TODO
-			if (true) { // zombieController->health <= 0
+			if (!zombieController->atDestination()) {
 				zombieController->modelNode->switchAnim(Zombie::ZombieAnimation::DIE, false);
 
 				// Don't delete if animation hasn't finished
@@ -147,8 +170,21 @@ public:
 			}
 		}
 	}
+
+	bool atDestination() {
+		return rootNode->position.x != homeBaseX
+				|| rootNode->position.y != homeBaseY;
+	}
+
+	static void updateDestination(float x, float y) {
+		homeBaseX = x;
+		homeBaseY = y;
+	}
 };
 
 std::set<uint> ZombieController::prevAliveZombie;
 std::set<uint> ZombieController::aliveZombie;
 std::set<uint> ZombieController::dyingZombie;
+
+float ZombieController::homeBaseX = -1;
+float ZombieController::homeBaseY = -1;

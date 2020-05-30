@@ -135,7 +135,9 @@ void Client::sendKeyboardEvents()
 	}
 
 	if ((*keyPresses)[GLFW_KEY_E]) {
-		netClient->sendMessage(OPCODE_PLAYER_ACTION);
+		netClient->sendMessage(OPCODE_PLAYER_START_ACTION);
+	} else {
+		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
 	}
 
 	/* For testing */
