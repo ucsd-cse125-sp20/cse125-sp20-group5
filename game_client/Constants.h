@@ -35,6 +35,8 @@
 
 #define HOME_BASE_MODEL "model/bear.fbx"
 
+#define TREE_MODEL "model/lowpolytree.obj"
+
 
 #define SEED_SOURCE_SCALER 0.2
 #define DIRT_SCALER 0.05
