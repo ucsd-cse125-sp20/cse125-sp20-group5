@@ -14,6 +14,8 @@ public:
 	ChooseLobby(GLFWwindow* window, nanogui::Screen* screen);
 
 private:
+	nanogui::Button * enter;
+	nanogui::TextBox * text;
 	std::string ipAddress;
 	bool enteringLobby;
 	bool connectionMade;

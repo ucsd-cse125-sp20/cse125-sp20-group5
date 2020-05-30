@@ -18,7 +18,7 @@ ChooseLobby::ChooseLobby(GLFWwindow* window, nanogui::Screen* screen) {
 	bool enabled = true;
 	nanogui::FormHelper* gui = new nanogui::FormHelper(screen);
 	nanogui::ref<nanogui::Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(20, 20), "");
-	nanoguiWindow->setFixedSize(nanogui::Vector2i(30, 30));
+	nanoguiWindow->setFixedSize(nanogui::Vector2i(500, 100));
 	/*gui->addGroup("Basic types");
 	gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
 	gui->addVariable("string", ipAddress);
@@ -41,7 +41,8 @@ ChooseLobby::ChooseLobby(GLFWwindow* window, nanogui::Screen* screen) {
 		std::cout << "Current Automatic Value: " << value << std::endl;
 		return true;// we are verifying with the regex specified in setFormat
 	});
-	textBox->setFixedSize(nanogui::Vector2i(30,30));
+	textBox->setFixedSize(nanogui::Vector2i(200,30));
+	text = textBox;
 	gui->addWidget("Enter IP", textBox);
 	gui->addButton("Enter Lobby", [textBox]() { std::cout << "Button pressed. " << textBox->value() << std::endl; });
 	
