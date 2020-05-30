@@ -123,6 +123,15 @@ void Scene::update()
 		}
 	}
 
+	HomeBase* homeBase = state->homeBase;
+	if (controllers.find(homeBase->objectId) == controllers.end()) {
+		controllers[homeBase->objectId] = new BaseController(homeBase, this);
+		objectIdMap[homeBase->objectId] = controllers[homeBase->objectId]->rootNode;
+	}
+	controllers[homeBase->objectId]->update(homeBase, this);
+	ZombieController::updateDestination(homeBase->position->x, homeBase->position->y);
+	unusedIds.erase(homeBase->objectId);
+
 	for (Zombie* zombie : state->zombies) {
 		if (controllers.find(zombie->objectId) == controllers.end()) {
 			controllers[zombie->objectId] = new ZombieController(zombie, this);
@@ -132,13 +141,6 @@ void Scene::update()
 	}
 	ZombieController::processZombieDeath(this);
 	
-	HomeBase* homeBase = state->homeBase;
-	if (controllers.find(homeBase->objectId) == controllers.end()) {
-		controllers[homeBase->objectId] = new BaseController(homeBase, this);
-		objectIdMap[homeBase->objectId] = controllers[homeBase->objectId]->rootNode;
-	}
-	controllers[homeBase->objectId]->update(homeBase, this);
-	unusedIds.erase(homeBase->objectId);
 	
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
