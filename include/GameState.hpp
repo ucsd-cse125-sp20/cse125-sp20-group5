@@ -721,7 +721,7 @@ public:
 
             // 4. Check if collide with players
             for (Player* otherPlayer : players) {
-                if (otherPlayer == player) {
+                if (otherPlayer == player || player->isDead) {
                     continue;
                 }
 
