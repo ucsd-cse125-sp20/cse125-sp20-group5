@@ -39,6 +39,8 @@ Scene::Scene()
 	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
 	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
+	sprayModel = new AssimpModel(SPRAY_MODEL, assimpProgram->GetProgramID());
+	fertilizerModel = new AssimpModel(FERTILIZER_MODEL, assimpProgram->GetProgramID());
 	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;

@@ -6,8 +6,11 @@
 
 #define PLAYER_SCALER 0.30
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
-#define SEED_BAG__HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
+#define SEED_BAG_HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
 #define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
+#define SPRAY_HOLD_VEC glm::vec3(-.5, -1.5, 0.3)
+#define FERTILIZER_HOLD_VEC glm::vec3(-.5, -0.5, 0.3)
+
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
 
 class PlayerController : public RenderController {
@@ -65,7 +68,13 @@ public:
 					controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
 				}
 				else if (controller->type == Tool::ToolType::SEED) {
-					controller->putInHand(playerHand, PLAYER_SCALER, SEED_BAG__HOLD_VEC, glm::vec3(0), scene);
+					controller->putInHand(playerHand, PLAYER_SCALER, SEED_BAG_HOLD_VEC, glm::vec3(0), scene);
+				}
+				else if (controller->type == Tool::ToolType::PESTICIDE) {
+					controller->putInHand(playerHand, PLAYER_SCALER, SPRAY_HOLD_VEC, glm::vec3(0), scene);
+				}
+				else if (controller->type == Tool::ToolType::FERTILIZER) {
+					controller->putInHand(playerHand, PLAYER_SCALER, FERTILIZER_HOLD_VEC, glm::vec3(0), scene);
 				}
 			}
 		}
