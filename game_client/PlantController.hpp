@@ -22,6 +22,7 @@
 #define BABY_CACTUS_SCALER 0.3
 #define CACTUS_SCALER 0.45
 
+#define BUG_ANIMATION 2
 #define ATTACK_ANIMATION 1
 #define IDLE_ANIMATION 0
 
@@ -32,11 +33,13 @@ private:
     HealthBar* coolDownBar;
     HealthBar* hpBar;
 
+    ParticleGroup* pGroup;
+
     SceneNode* gBarNode;
     SceneNode* cBarNode;
     SceneNode* hBarNode;
     SceneNode* particleNode;
-    ParticleGroup* pGroup;
+
     Plant::GrowStage currGrowStage;
 
     static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
@@ -100,15 +103,25 @@ public:
         // Update growth bar
         updateGrowthBar(plant, scene);
 
+        // Check if is attacked by the bugs
+        if (plant->isAttackedByBugs && this->modelNode->animationId != BUG_ANIMATION) {
+            this->modelNode->switchAnim(BUG_ANIMATION, true);
+        }
+
         // Realse particles if necessary
-        if (pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
+        if (!plant->isAttackedByBugs &&
+            pGroup != NULL && plant->currAttackTime >= plant->attackInterval) {
             pGroup->releaseParticles();
             this->modelNode->switchAnim(ATTACK_ANIMATION, false);
         }
 
-        // Reset back to idle
+        // Reset back to idle if
+        // 1. played one attack animation or
+        // 2. attacked by bugs ended
         if (this->modelNode->animationId == ATTACK_ANIMATION &&
-            this->modelNode->playedOneAnimCycle) {
+            this->modelNode->playedOneAnimCycle ||
+            this->modelNode->animationId == BUG_ANIMATION &&
+            !plant->isAttackedByBugs) {
             this->modelNode->switchAnim(IDLE_ANIMATION, true);
         }
     }

@@ -21,6 +21,7 @@ public:
         this->growProgressTime = 0;
         this->plantType = plantType;
         this->growStage = growStage;
+        this->isAttackedByBugs = false;
     }
 
     friend class boost::serialization::access;
@@ -39,6 +40,7 @@ public:
         ar & attackInterval;
         ar & currSprayTime;
         ar & pesticideSprayTime;
+        ar & isAttackedByBugs;
     }
 
     ~Plant() {
@@ -111,6 +113,8 @@ public:
 
     float currFertilizeTime;
     float fertilizerCompleteTime;
+
+    bool isAttackedByBugs;
 };
 
 
