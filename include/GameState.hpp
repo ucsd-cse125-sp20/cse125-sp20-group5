@@ -168,6 +168,16 @@ public:
 
     void updatePlayer(int opCode, Player* player) {
         //std::cout << "Before update angle = " << player->direction->angle << std::endl;
+        if (player->isDead) {
+            player->moveState = Player::MoveState::FREEZE;
+            player->shouldPerformAction = false;
+            player->shouldInteract = false;
+
+            if (player->holding) {
+                dropTool(player);
+			}
+            return;
+        }
         switch (opCode) {
             case OPCODE_PLAYER_MOVE_FREEZE:
                 player->moveState = Player::MoveState::FREEZE;
@@ -201,7 +211,6 @@ public:
                 break;
             case OPCODE_PLAYER_INTERACT:
                 player->shouldInteract = true;
-                
                 break;
         }
         //std::cout << "After update angle = " << player->direction->angle << std::endl;
@@ -223,18 +232,7 @@ public:
 
         // Drop tool if player disconnects
         if (player->heldObject != 0) {
-            Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
-
-            float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
-            float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-            tool->position->x = player->position->x - x_offset;
-            tool->position->y = player->position->y;
-            tool->position->z = player->position->z + z_offset;
-            tool->direction->angle = player->direction->angle;
-            tool->heldBy = 0;
-            tool->held = false;
-            player->heldObject = 0;
-            player->holding = false;
+            dropTool(player);
         }
     }
 
@@ -452,17 +450,7 @@ public:
                 // TODO: facing direction check to use tool or drop the tool
 
                 // drop tool
-                Tool* tool = (Tool*)gameObjectMap[player->heldObject];
-                float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
-                float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-                tool->position->x = player->position->x - x_offset;
-                tool->position->y = player->position->y;
-                tool->position->z = player->position->z + z_offset;
-                tool->direction->angle = player->direction->angle;
-                tool->heldBy = 0;
-                tool->held = false;
-                player->heldObject = 0;
-                player->holding = false;
+                dropTool(player);
             }
             else if (player->highlightObjectId != 0) {
                 // Get seed if highlighted id is seedshack
@@ -587,6 +575,10 @@ public:
 
     void updatePlayersPosition() {
         for (Player* player : players) {
+            if (player->isDead) {
+                continue;
+			}
+
             Position prevPos(player->position);
             // 1. Update position
             movePlayer(player);
@@ -596,7 +588,7 @@ public:
             for (Zombie* zombie : zombies) {
                 if (player->collideWith(zombie)) {
                     if (player->invincibleTime <= 0) {
-
+                        player->health--;
                         if (player->health <= 0) {
                             // set player to "dead"
                             player->isDead = true;
@@ -617,12 +609,16 @@ public:
                             gameObjectMap[playerSeed->objectId] = playerSeed;
                             tools.push_back(playerSeed);
 
+                            // Drop the tool if holding any
+                            if (player->holding) {
+                                dropTool(player);
+                            }
+
                             break;
                         } 
-                        player->health--;
                         
                         // player position bounce back
-                        std::cout << "Collide with zombie" << std::endl;
+                        std::cout << "Collide with zombie, current health = " << player->health << std::endl;
                         float dir = player->direction->getOppositeDirection();
                         float dz = std::cos(dir);
                         float dx = std::sin(dir);
@@ -1278,6 +1274,21 @@ public:
 
         Tile* tile = getCurrentTile(waterTap);
         tile->canPlow = false;
+    }
+
+    void dropTool(Player* player) {
+        Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
+
+        float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
+        float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
+        tool->position->x = player->position->x - x_offset;
+        tool->position->y = player->position->y;
+        tool->position->z = player->position->z + z_offset;
+        tool->direction->angle = player->direction->angle;
+        tool->heldBy = 0;
+        tool->held = false;
+        player->heldObject = 0;
+        player->holding = false;
     }
 
     // We could use other data structures, for now use a list
