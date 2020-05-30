@@ -272,7 +272,6 @@ public:
                 }
                 continue;
             }
-            player->shouldPerformAction = false;
 
             // Check if player is holding something
             if (!player->holding) {

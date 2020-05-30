@@ -138,7 +138,6 @@ void Client::sendKeyboardEvents()
 		netClient->sendMessage(OPCODE_PLAYER_START_ACTION);
 	} else {
 		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
-
 	}
 
 	/* For testing */
