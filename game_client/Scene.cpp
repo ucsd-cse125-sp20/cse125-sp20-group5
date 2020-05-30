@@ -61,6 +61,7 @@ Scene::Scene()
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
 
+	srand(time(0));
 }
 
 Scene::~Scene()
