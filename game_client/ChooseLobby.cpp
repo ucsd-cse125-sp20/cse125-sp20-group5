@@ -1,7 +1,7 @@
 #include "ChooseLobby.h"
 
 ChooseLobby::ChooseLobby(GLFWwindow* window, nanogui::Screen* screen) {
-	/*enum test_enum {
+	enum test_enum {
 		Item1 = 0,
 		Item2,
 		Item3
@@ -17,8 +17,9 @@ ChooseLobby::ChooseLobby(GLFWwindow* window, nanogui::Screen* screen) {
 	// Create nanogui gui
 	bool enabled = true;
 	nanogui::FormHelper* gui = new nanogui::FormHelper(screen);
-	nanogui::ref<nanogui::Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(20, 20), "Form helper example");
-	gui->addGroup("Basic types");
+	nanogui::ref<nanogui::Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(20, 20), "");
+	nanoguiWindow->setFixedSize(nanogui::Vector2i(30, 30));
+	/*gui->addGroup("Basic types");
 	gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
 	gui->addVariable("string", ipAddress);
 
@@ -30,28 +31,29 @@ ChooseLobby::ChooseLobby(GLFWwindow* window, nanogui::Screen* screen) {
 	gui->addGroup("Complex types");
 	gui->addVariable("Enumeration", enumval, enabled)->setItems({ "Item 1", "Item 2", "Item 3" });
 
-	std::string var = "asdf";
-	gui->addGroup("Other widgets");
+	std::string var = "asdf";*/
+	gui->addGroup("Select Lobby");
 
+	nanogui::TextBox* textBox = new nanogui::TextBox(nanoguiWindow, "localhost");
+	textBox->setEditable(true);
+	//textBox->setFormat("^[a-z]+$");// accept lower-case letters only
+	textBox->setCallback([](const std::string& value) {
+		std::cout << "Current Automatic Value: " << value << std::endl;
+		return true;// we are verifying with the regex specified in setFormat
+	});
+	textBox->setFixedSize(nanogui::Vector2i(30,30));
+	gui->addWidget("Enter IP", textBox);
+	gui->addButton("Enter Lobby", [textBox]() { std::cout << "Button pressed. " << textBox->value() << std::endl; });
+	
+
+	/*nanogui::Window* nanoguiWindow = new nanogui::Window(screen, "Enter Lobby");
 	nanogui::TextBox* textBox = new nanogui::TextBox(nanoguiWindow, "initial");
 	textBox->setEditable(true);
 	textBox->setFormat("^[a-z]+$");// accept lower-case letters only
 	textBox->setCallback([](const std::string& value) {
 		std::cout << "Current Automatic Value: " << value << std::endl;
 		return true;// we are verifying with the regex specified in setFormat
-	});
-	gui->addWidget("ASDF", textBox);
-	gui->addButton("A button", [textBox]() { std::cout << "Button pressed. " << textBox->value() << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");
-	*/
-
-	nanogui::Window* nanoguiWindow = new nanogui::Window(screen, "Enter Lobby");
-	nanogui::TextBox* textBox = new nanogui::TextBox(nanoguiWindow, "initial");
-	textBox->setEditable(true);
-	textBox->setFormat("^[a-z]+$");// accept lower-case letters only
-	textBox->setCallback([](const std::string& value) {
-		std::cout << "Current Automatic Value: " << value << std::endl;
-		return true;// we are verifying with the regex specified in setFormat
-	});
+	});*/
 
 
 	screen->setVisible(true);

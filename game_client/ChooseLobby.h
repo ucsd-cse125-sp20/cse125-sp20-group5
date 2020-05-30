@@ -15,6 +15,7 @@ public:
 
 private:
 	std::string ipAddress;
+	bool enteringLobby;
 	bool connectionMade;
 };
 

@@ -14,6 +14,8 @@ int Client::winY;
 
 Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **argv) {
 	windowHandle = window;
+
+	// nangui stuff
 	this->screen = screen;
 	this->startPage = new ChooseLobby(window, screen);
 
@@ -33,6 +35,8 @@ Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **a
 	scene->setupDirectionalLighting(cam->GetPosition());
 
 	setupAudio();
+
+	state = ClientState::GETIP;
 
 	// Load network class
 	setupNetwork();
@@ -77,9 +81,14 @@ void Client::loop() {
 }
 
 void Client::update() {
-	cam->Update();
-	if (currentGameState != nullptr) {
-		scene->update();
+	if (state == ClientState::PLAYING) {
+		cam->Update();
+		if (currentGameState != nullptr) {
+			scene->update();
+		}
+	}
+	else if (state == ClientState::GETIP) {
+		
 	}
 	// Maybe show a loading screen or something if gameState is nullptr (not yet received)?
 }

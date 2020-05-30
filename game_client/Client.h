@@ -20,6 +20,8 @@
 /*
 Currently the Client class handles the I/O as well as the game loop
 */
+enum class ClientState {GETIP, CHOOSELEVEL, PLAYING};
+
 class Client {
 public:
 	nanogui::Screen* screen;
@@ -53,6 +55,8 @@ public:
 private:
 	// Window management
 	static int winX, winY;
+
+	ClientState state;
 
 	// Input
 	bool leftDown, middleDown, rightDown;
