@@ -58,7 +58,7 @@ public:
     ZombieType zombieType;
 
     // Animation Type
-    enum ZombieAnimation { MOVE, DIE };
+    enum ZombieAnimation { MOVE, DAMAGED, DIE };
 };
 
 #endif

@@ -853,6 +853,7 @@ public:
 
         bool zombieInRange = false;
         for (Zombie* zombie : zombies) {
+            zombie->animation->animationType = Zombie::MOVE;
             if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
                 zombieInRange = true;
             }
@@ -874,6 +875,7 @@ public:
             for (Zombie* zombie : zombies) {
                 if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
                     zombie->health -= plant->attackPower;
+                    zombie->animation->animationType = Zombie::DAMAGED;
                 }
             }
             break;
@@ -913,6 +915,7 @@ public:
                 collided = bullet->collideWith(zombie);
                 if (collided) {
                     zombie->health -= bullet->attackPower;
+                    zombie->animation->animationType = Zombie::DAMAGED;
                     i = bullets.erase(i);
                     break;
                 }
