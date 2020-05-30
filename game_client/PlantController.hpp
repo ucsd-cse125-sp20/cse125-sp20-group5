@@ -80,7 +80,13 @@ public:
         // TODO: (not really tho) ideally we wouldn't need this but then we have to refactor particle group 
         // and growthbar and sceneNode
         // as of right now we need a new model for each instance which isn't great but eh what can you do?
-        delete growthBar;
+        if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
+        if (growthBar) { delete growthBar; }
+        if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
+        if (coolDownBar) { delete coolDownBar; }
+        if (hBarNode) { hBarNode = RenderController::deleteBarNode(hBarNode); }
+        if (hpBar) { delete hpBar; }
+
         delete pGroup;
     }
 
