@@ -32,7 +32,7 @@ Scene::Scene()
 	cornModel = new AnimatedAssimpModel(CORN_MODEL, animationProgram->GetProgramID());
 	babyCactusModel = new AnimatedAssimpModel(BABY_CACTUS_MODEL, animationProgram->GetProgramID());
 	cactusModel = new AnimatedAssimpModel(CACTUS_MODEL, animationProgram->GetProgramID());
-	cactusBulletModel = new AssimpModel(CACTUS_BULLET_MODEL, assimpProgram->GetProgramID());
+	cactusBulletModel = new AnimatedAssimpModel(CACTUS_BULLET_MODEL, animationProgram->GetProgramID());
 
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
@@ -43,6 +43,7 @@ Scene::Scene()
 	sprayModel = new AssimpModel(SPRAY_MODEL, assimpProgram->GetProgramID());
 	fertilizerModel = new AssimpModel(FERTILIZER_MODEL, assimpProgram->GetProgramID());
 	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
+	treeModel = new AssimpModel(TREE_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
 
@@ -96,6 +97,7 @@ Scene::~Scene()
 	delete particleFactory;
 	delete particleProgram;
 
+	delete treeModel;
 }
 
 void Scene::update()
@@ -166,6 +168,14 @@ void Scene::update()
 		controllers[tool->objectId]->update(tool, this);
 
 		unusedIds.erase(tool->objectId);
+	}
+
+	for (Obstacle* obstacle : state->obstacles) {
+		SceneNode* obstacleNode = getDrawableSceneNode(obstacle->objectId, treeModel);
+		
+		obstacleNode->loadGameObject(obstacle);
+		obstacleNode->scaler = TREE_SCALER;
+		unusedIds.erase(obstacle->objectId);
 	}
 
 	for (Player* player : state->players) {

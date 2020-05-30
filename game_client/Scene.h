@@ -73,6 +73,7 @@ private:
 	AssimpModel* baseModel;
 	AssimpModel* sprayModel;
 	AssimpModel* fertilizerModel;
+	AssimpModel* treeModel;
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
