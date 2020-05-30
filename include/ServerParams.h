@@ -17,6 +17,8 @@ public:
     float playerCatRadius;
     float zombieRabbitMoveSpeed;
     float zombieRabbitRadius;
+    float zombiePigMoveSpeed;
+    float zombiePigRadius;
     float highlightFOVAngle;
     float playerKnockBackMaxDistance;
     float playerRespawnInvincibleTime;
@@ -35,7 +37,12 @@ public:
     float cornAttackInterval;
     float cornAttackRange;
     float cornGrowExpireTime;
-    float cornGrowCooldownTime;
+    float cornCooldownExpireTime;
+    float cornActiveTime;
+    float cornDeathTime;
+    float cornPesticideSprayTime;
+    float cornFertilizerCompleteTime;
+    int cornFertilizerDeltaAttack;
 
     // Plant Cactus
     int cactusAttackPower;
@@ -43,9 +50,18 @@ public:
     float cactusAttackInterval;
     float cactusAttackRange;
     float cactusGrowExpireTime;
-    float cactusGrowCooldownTime;
+    float cactusCooldownExpireTime;
     float cactusBulletSpeed;
     float cactusBulletRadius;
+    float cactusActiveTime;
+    float cactusDeathTime;
+    float cactusPesticideSprayTime;
+    float cactusFertilizerCompleteTime;
+    int cactusFertilizerDeltaAttack;
+
+    // Obstacle
+    float treeBoxRadius;
+    float stoneBoxRadius;
 
     ServerParams();
 

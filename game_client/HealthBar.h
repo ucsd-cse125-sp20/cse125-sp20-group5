@@ -44,11 +44,17 @@ public:
 	static bool staticInitialized;
 
 	glm::mat4 modelMtx;
-	//glm::mat4 baseBarTransform;
+
+	// Bar filling var
 	glm::mat4 fillingTransform; // scale transform of the bar's filling portion 
 	float filledFraction = 0.0; // how much the bar is filled, between 0.0 & 1.0
 	float currFilledFraction;
+	float fillingStep = 0.02f;
+
+	// Bar rendering var
 	bool shouldDisplay = true;
+	bool alphaEffectOn = false;
+	float alphaValue = 1.0f;
 
 	// Modify bar methods
 	void updateBar(float filledFraction);
@@ -66,8 +72,6 @@ private:
 
 	std::vector<BarComponent> barComponents;
 	void loadTexture(const char*, uint id);
-
-	const float fillingStep = 0.02f;
 
 	// Define the coordinates and indices needed to draw the cube. Note that it is not necessary
     // to use a 2-dimensional array, since the layout in memory is the same as a 1-dimensional array.

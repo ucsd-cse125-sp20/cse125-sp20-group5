@@ -36,9 +36,12 @@ Scene::Scene()
 
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
-	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
+	seedSourceModel_corn = new AssimpModel(CORN_SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
+	seedSourceModel_cactus = new AssimpModel(CACTUS_SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
 	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
+	sprayModel = new AssimpModel(SPRAY_MODEL, assimpProgram->GetProgramID());
+	fertilizerModel = new AssimpModel(FERTILIZER_MODEL, assimpProgram->GetProgramID());
 	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
 
 	ground = NULL;
@@ -77,7 +80,8 @@ Scene::~Scene()
 	delete cactusBulletModel;
 	delete tapModel;
 	delete wateringCanModel;
-	delete seedSourceModel;
+	delete seedSourceModel_corn;
+	delete seedSourceModel_corn;
 	delete shovelModel;
 	delete seedBagModel;
 
@@ -182,8 +186,15 @@ void Scene::update()
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (SeedShack* seedShack : state->seedShacks) {
-        SceneNode* seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel);
-        seedShackNode->loadGameObject(seedShack);
+		SceneNode* seedShackNode = nullptr;
+
+		// Load corresponding model based on plants
+		if (seedShack->seedType == Plant::PlantType::CORN)
+			seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel_corn);
+		else // (seedShack->seedType == Plant::PlantType::CACTUS)
+			seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel_cactus);
+	
+		seedShackNode->loadGameObject(seedShack);
         seedShackNode->scaler = SEED_SOURCE_SCALER;
         unusedIds.erase(seedShack->objectId);
 	}
