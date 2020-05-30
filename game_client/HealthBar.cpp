@@ -23,8 +23,8 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 	// Init (static) barComponent matrices and rendering related fields 
 	if (!staticInitialized) {
 		// Compute the transforms
-		float iconWidth = 1.0f;
-		float gap = 0.25f;
+		float iconWidth = 0.8f;
+		float gap = 0.15f;
 		float barWidth = 4.0f;
 		float barHeight = BAR_HEIGHT; // = 0.5f
 		float barEdgePad = barHeight * 0.125f;

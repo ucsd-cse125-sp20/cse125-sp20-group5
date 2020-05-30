@@ -47,12 +47,12 @@ private:
 
     static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
     static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0); // blue
-    static constexpr float COOLING_BAR_TRANSLATE_Y = 1.3;
-    static constexpr glm::vec3 COOLING_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6); // grey
+    static constexpr float COOLDOWN_BAR_TRANSLATE_Y = 1.3;
+    static constexpr glm::vec3 COOLDOWN_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6); // grey
     static constexpr float HP_BAR_TRANSLATE_Y = 2.0;
     static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4); // green
     static constexpr glm::vec3 PESTICIDE_BAR_COLOR = glm::vec3(0.8, 0.3, 1.0); // purple
-    static constexpr glm::vec3 FERTILIZE_BAR_COLOR = glm::vec3(1.0, 0.7, 0.0); // orange
+    static constexpr glm::vec3 FERTILIZE_BAR_COLOR = glm::vec3(1.0, 0.5, 0.0); // orange
 
 public:
     PlantController(Plant * plant, Scene* scene) {
@@ -73,7 +73,7 @@ public:
 
         // init coolOff bar
         initBarFilledFraction = 0.0f;
-        HealthBarSetting cBarSetting("texture/time_icon.png", COOLING_BAR_TRANSLATE_Y, initBarFilledFraction, COOLING_BAR_COLOR);
+        HealthBarSetting cBarSetting("texture/time_icon.png", COOLDOWN_BAR_TRANSLATE_Y, initBarFilledFraction, COOLDOWN_BAR_COLOR);
         std::tie(coolDownBar, cBarNode) = createHealthBar(cBarSetting, scene);
         coolDownBar->shouldDisplay = false;
 
@@ -86,13 +86,13 @@ public:
         // init pesticide bar
         initBarFilledFraction = 1.0f;
         float barMarginY = HealthBar::BAR_HEIGHT / 2.0f;
-        HealthBarSetting pBarSetting("texture/hp_icon.png", HP_BAR_TRANSLATE_Y + barMarginY, initBarFilledFraction, PESTICIDE_BAR_COLOR);
+        HealthBarSetting pBarSetting("texture/bug_icon.png", HP_BAR_TRANSLATE_Y + barMarginY, initBarFilledFraction, PESTICIDE_BAR_COLOR);
         std::tie(pesticideBar, pBarNode) = createHealthBar(pBarSetting, scene);
         pesticideBar->shouldDisplay = false;
 
         // init fertilize bar
         initBarFilledFraction = 0.0f;
-        HealthBarSetting fBarSetting("texture/hp_icon.png", HP_BAR_TRANSLATE_Y + 2.0 * barMarginY, initBarFilledFraction, FERTILIZE_BAR_COLOR);
+        HealthBarSetting fBarSetting("texture/plus_icon.png", HP_BAR_TRANSLATE_Y + 2.0 * barMarginY, initBarFilledFraction, FERTILIZE_BAR_COLOR);
         std::tie(fertilizeBar, fBarNode) = createHealthBar(fBarSetting, scene);
         fertilizeBar->shouldDisplay = false;
         fertilizeBar->fillingStep /= 5.0f;
