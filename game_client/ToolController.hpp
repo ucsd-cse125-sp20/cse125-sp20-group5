@@ -8,7 +8,7 @@
 #define WATER_CAN_SCALER 0.35
 #define SHOVEL_SCALER 0.35
 #define SPRAY_SCALER 0.001
-#define FERTILIZER_SCALER 0.001
+#define FERTILIZER_SCALER 0.05
 
 #define CAN_BAR_COLOR glm::vec3(0.1, 0.9, 1.0)
 #define CAN_BAR_TRANSLATE_Y 1.3;
