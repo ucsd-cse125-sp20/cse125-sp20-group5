@@ -108,6 +108,9 @@
     <ClInclude Include="CactusBulletController.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TextUI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -167,6 +170,9 @@
     <ClCompile Include="HealthBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Model.glsl">
@@ -188,6 +194,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="HealthBar.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TextUI.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

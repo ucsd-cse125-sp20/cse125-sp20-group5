@@ -13,6 +13,7 @@
 #include "Skybox.h"
 #include "HealthBar.h"
 #include "Image2d.h" //TODO to be removed
+#include "TextUI.h" //TODO to be removed
 #include "Constants.h"
 #include "Shader.h"
 #include "ParticleFactory.hpp"
@@ -20,7 +21,7 @@
 class RenderController; //  put declaration here to sidestep header issues
 
 enum class ShaderType {
-	DEFAULT, ASSIMP, ANIMATED, SKYBOX, UI, HEALTH_BAR
+	DEFAULT, ASSIMP, ANIMATED, SKYBOX, TEXT, UI, HEALTH_BAR
 };
 
 enum class ModelType {
@@ -47,6 +48,7 @@ private:
 	ShaderProgram* animationProgram;
 	ShaderProgram* skyboxProgram;
 	ShaderProgram* uiProgram;
+	ShaderProgram* textProgram;
 	ShaderProgram* barProgram;
 
 	// models
@@ -79,6 +81,7 @@ private:
 
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
+	TextUI* textUI; //TODO to be removed
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
@@ -118,6 +121,7 @@ public:
 			case ShaderType::ANIMATED:			return animationProgram->GetProgramID();
 			case ShaderType::SKYBOX:			return skyboxProgram->GetProgramID();
 			case ShaderType::UI:				return uiProgram->GetProgramID();
+			case ShaderType::TEXT:				return textProgram->GetProgramID();
 			case ShaderType::HEALTH_BAR:		return barProgram->GetProgramID();
 		}
 	}

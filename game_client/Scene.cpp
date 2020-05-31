@@ -15,6 +15,7 @@ Scene::Scene()
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
 	skyboxProgram = new ShaderProgram("Skybox.glsl", ShaderProgram::eRender);
 	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
+	textProgram = new ShaderProgram("TextUI.glsl", ShaderProgram::eRender);
 	barProgram = new ShaderProgram("HealthBar.glsl", ShaderProgram::eRender);
 	
 
@@ -57,6 +58,7 @@ Scene::Scene()
 	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(100.0f)));
 
 	testUI = new Image2d(uiProgram->GetProgramID(), "texture/player_one.png", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
+	textUI = new TextUI(textProgram->GetProgramID(), "font/From Cartoon Blocks.ttf");
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
@@ -276,6 +278,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	RenderController::drawUI(viewProjMat);
 	testUI->draw(); //TODO to be removed
+	textUI->renderText("HiHihihihihi", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 
 void Scene::toggleWater()
