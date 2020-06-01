@@ -25,6 +25,9 @@ public:
         ar & boost::serialization::base_object<GameObject>(*this);
         ar & color;
         ar & playerId;
+        ar & health;
+        ar & maxHealth;
+        ar & isDead;
         ar & holding;
         ar & heldObject;
         ar & highlightObjectId;
