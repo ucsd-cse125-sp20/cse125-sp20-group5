@@ -63,6 +63,11 @@ void Client::loop() {
 
 		// Update the components in the world
 		// calculate matrices for rendering
+		if (state == ClientState::PLAYING) {
+			sendKeyboardEvents();
+			currentGameState = netClient->getCurrentState();
+		}
+
 		update();
 
 		// Tell redraw the scene
@@ -75,17 +80,21 @@ void Client::loop() {
 
 void Client::update() {
 	if (state == ClientState::PLAYING) {
-		sendKeyboardEvents();
+
 		cam->Update();
-		currentGameState = netClient->getCurrentState();
 		//std::cout << currentGameState << std::endl;
-		scene->setState(currentGameState);
+		if (currentGameState != nullptr) {
+			scene->setState(currentGameState);
+			scene->update();
+		}
 	}
 	else if (state == ClientState::GETIP) {
 		if (startPage->getButtonStatus()) {
 			std::cout << "asdfasdf " << startPage->getIpAddress() << std::endl;
 			setupNetwork(startPage->getIpAddress());
 			state = ClientState::PLAYING;
+			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_CULL_FACE);
 		}
 	}
 	// Maybe show a loading screen or something if gameState is nullptr (not yet received)?
