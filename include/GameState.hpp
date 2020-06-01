@@ -156,6 +156,7 @@ public:
         for (CactusBullet* bullet: bullets) {
             delete bullet;
         }
+
         for (Obstacle* obstacle: obstacles) {
             delete obstacle;
         }
@@ -167,6 +168,16 @@ public:
 
     void updatePlayer(int opCode, Player* player) {
         //std::cout << "Before update angle = " << player->direction->angle << std::endl;
+        if (player->isDead) {
+            player->moveState = Player::MoveState::FREEZE;
+            player->shouldPerformAction = false;
+            player->shouldInteract = false;
+
+            if (player->holding) {
+                dropTool(player);
+			}
+            return;
+        }
         switch (opCode) {
             case OPCODE_PLAYER_MOVE_FREEZE:
                 player->moveState = Player::MoveState::FREEZE;
@@ -209,6 +220,10 @@ public:
     }
 
     void addPlayer(Player *player) {
+        Position* spawnPos = playerInitPositions[player->playerId % config.maxNumPlayers];
+        player->position = spawnPos;
+        player->currRow = spawnPos->z / Floor::TILE_SIZE;
+        player->currCol = spawnPos->x / Floor::TILE_SIZE;
         players.push_back(player);
     }
 
@@ -220,18 +235,7 @@ public:
 
         // Drop tool if player disconnects
         if (player->heldObject != 0) {
-            Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
-
-            float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
-            float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-            tool->position->x = player->position->x - x_offset;
-            tool->position->y = player->position->y;
-            tool->position->z = player->position->z + z_offset;
-            tool->direction->angle = player->direction->angle;
-            tool->heldBy = 0;
-            tool->held = false;
-            player->heldObject = 0;
-            player->holding = false;
+            dropTool(player);
         }
     }
 
@@ -263,12 +267,35 @@ public:
 				}*/
                 if (player->highlightTileRow != -1 && player->highlightTileCol != -1) {
                     Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
-                    currTile->plowProgressTime = 0;
-                }
+                    if (player->holding) {
+                        Tool* tool = (Tool*)gameObjectMap[player->heldObject];
+                        switch (tool->toolType) {
+                        case Tool::ToolType::PLOW:
+                            currTile->plowProgressTime = 0;
+                            break;
+                        case Tool::ToolType::PESTICIDE: {
+                            Plant* plant = (Plant*) gameObjectMap[currTile->plantId];
+                            if (plant) {
+                                plant->currSprayTime = 0;
+                            }
+                            else {
+                                std::cerr << "Cannot use PESTICIDE because tile's plantId = 0" << std::endl;
+                            }
+                            break;
+                        }
+                        case Tool::ToolType::FERTILIZER: {
+                            Plant* plant = (Plant*) gameObjectMap[currTile->plantId];
+                            if (plant) {
+                                plant->currFertilizeTime = 0;
+                            }
+                            else {
+                                std::cerr << "Cannot use FERTILIZER because tile's plantId = 0" << std::endl;
+                            }
+                            break;
+                        }
+                        }
+                    }
 
-                for (Plant* plant : plants) {
-                    plant->currSprayTime = 0;
-                    plant->currFertilizeTime = 0;
                 }
                 continue;
             }
@@ -367,6 +394,11 @@ public:
                     // Replace seed with a plant
                     Plant* plant = Plant::buildPlant(config, tool->seedType);
 
+                    // If player plant, then transfer player from seed to plant
+                    if (plant->plantType == Plant::PlantType::PLAYER) {
+                        plant->playerPlant = tool->playerPlant;
+					}
+
                     // set plant position, direction, and object id manually
                     plant->position = new Position(currTile->getCenterPosition());
                     plant->direction = new Direction(player->direction);
@@ -446,17 +478,7 @@ public:
                 // TODO: facing direction check to use tool or drop the tool
 
                 // drop tool
-                Tool* tool = (Tool*)gameObjectMap[player->heldObject];
-                float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
-                float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
-                tool->position->x = player->position->x - x_offset;
-                tool->position->y = player->position->y;
-                tool->position->z = player->position->z + z_offset;
-                tool->direction->angle = player->direction->angle;
-                tool->heldBy = 0;
-                tool->held = false;
-                player->heldObject = 0;
-                player->holding = false;
+                dropTool(player);
             }
             else if (player->highlightObjectId != 0) {
                 // Get seed if highlighted id is seedshack
@@ -474,7 +496,7 @@ public:
                         new Direction(player->direction),
                         new Animation(),
                         objectCount,
-                        0.25f,
+                        config.seedBagRadius,
                         Tool::ToolType::SEED,
                         player->objectId,
                         true
@@ -507,6 +529,25 @@ public:
             Plant* plant = *it;
             if (plant->growStage == Plant::GrowStage::GROWN) {
                 // Grown stage
+
+                if (plant->plantType == Plant::PlantType::PLAYER) {
+                    // If plant is a player plant, revive player
+                    Player* revivedPlayer = plant->playerPlant;
+                    revivedPlayer->animation->animationType = Player::PlayerAnimation::IDLE;
+                    revivedPlayer->isDead = false;
+                    revivedPlayer->health = revivedPlayer->maxHealth;
+                    revivedPlayer->position->x = plant->position->x;
+                    revivedPlayer->position->y = plant->position->y;
+                    revivedPlayer->position->z = plant->position->z;
+                    it = plants.erase(it);
+                    
+                    // Restore tile info
+                    Tile* tile = getCurrentTile(plant);
+                    tile->canPlow = true;
+                    tile->tileType = Tile::TYPE_NORMAL;
+                    tile->plantId = 0;
+                    continue;
+				}
 
                 if (plant->aliveTime >= plant->deathTime) {
                     // Plant is dead, get rid of it
@@ -564,6 +605,10 @@ public:
 
     void updatePlayersPosition() {
         for (Player* player : players) {
+            if (player->isDead) {
+                continue;
+			}
+
             Position prevPos(player->position);
             // 1. Update position
             movePlayer(player);
@@ -573,8 +618,37 @@ public:
             for (Zombie* zombie : zombies) {
                 if (player->collideWith(zombie)) {
                     if (player->invincibleTime <= 0) {
+                        player->health--;
+                        if (player->health <= 0) {
+                            // set player to "dead"
+                            player->isDead = true;
+
+                            // spawn a seed bag with type PLAYER
+                            Tool* playerSeed = new Tool(
+                                new Position(player->position),
+                                new Direction(player->direction),
+                                new Animation(),
+                                objectCount++,
+                                config.seedBagRadius,
+                                Tool::ToolType::SEED,
+                                0,
+                                false
+                            );
+                            playerSeed->seedType = Plant::PlantType::PLAYER;
+                            playerSeed->playerPlant = player;
+                            gameObjectMap[playerSeed->objectId] = playerSeed;
+                            tools.push_back(playerSeed);
+
+                            // Drop the tool if holding any
+                            if (player->holding) {
+                                dropTool(player);
+                            }
+
+                            break;
+                        } 
+                        
                         // player position bounce back
-                        std::cout << "Collide with zombie" << std::endl;
+                        std::cout << "Collide with zombie, current health = " << player->health << std::endl;
                         float dir = player->direction->getOppositeDirection();
                         float dz = std::cos(dir);
                         float dx = std::sin(dir);
@@ -677,7 +751,7 @@ public:
 
             // 4. Check if collide with players
             for (Player* otherPlayer : players) {
-                if (otherPlayer == player) {
+                if (otherPlayer == player || otherPlayer->isDead) {
                     continue;
                 }
 
@@ -691,8 +765,7 @@ public:
             // 5. Check if collide with plants
             for (Plant* plant : plants) {
                 if (player->collideWith(plant)) {
-                    //player->position->x = prevPos.x;
-                    //player->position->z = prevPos.z;
+                    collisionResponse(player, plant, prevPos);
                     break;
                 }
             }
@@ -700,23 +773,21 @@ public:
             // 6. Check if collide with seedshacks
             for (SeedShack* seedShack : seedShacks) {
                 if (player->collideWith(seedShack)) {
-                    player->position->x = prevPos.x;
-                    player->position->z = prevPos.z;
+                    collisionResponse(player, seedShack, prevPos);
                     break;
                 }
             }
 
             // 7. Check if collide with watertap
             if (player->collideWith(waterTap)) {
-                player->position->x = prevPos.x;
-                player->position->z = prevPos.z;
+                collisionResponse(player, waterTap, prevPos);
             }
 
             // 8. Check if collide with obstacles 
             for (Obstacle* obstacle : obstacles) {
                 if (player->collideWith(obstacle)) {
-                    player->position->x = prevPos.x;
-                    player->position->z = prevPos.z;
+                    collisionResponse(player, obstacle, prevPos);
+                    break;
                 }
             }
 
@@ -1235,6 +1306,38 @@ public:
         tile->canPlow = false;
     }
 
+    void dropTool(Player* player) {
+        Tool* tool = (Tool*)(gameObjectMap[player->heldObject]);
+
+        float x_offset = std::cos(player->direction->angle) * player->boundingBoxRadius;
+        float z_offset = std::sin(player->direction->angle) * player->boundingBoxRadius;
+        tool->position->x = player->position->x - x_offset;
+        tool->position->y = player->position->y;
+        tool->position->z = player->position->z + z_offset;
+        tool->direction->angle = player->direction->angle;
+        tool->heldBy = 0;
+        tool->held = false;
+        player->heldObject = 0;
+        player->holding = false;
+    }
+
+    void collisionResponse(Player* player, GameObject* object, Position& prevPos) {
+        Position playerObjectVec = Position(
+            //object->position->x - player->position->x,
+            //object->position->y - player->position->y,
+            //object->position->z - player->position->z
+            object->position->x - prevPos.x,
+            object->position->y - prevPos.y,
+            object->position->z - prevPos.z
+        );
+        if (std::abs(playerObjectVec.x) <= std::abs(playerObjectVec.z)) {
+            player->position->z = prevPos.z;
+        }
+        else {
+            player->position->x = prevPos.x;
+        }
+    }
+
     // We could use other data structures, for now use a list
     std::vector<Player*> players; // Up to 4 players?
     std::vector<Plant*> plants;
@@ -1243,6 +1346,8 @@ public:
     std::vector<SeedShack*> seedShacks;
     std::vector<CactusBullet*> bullets;
     std::vector<Obstacle*> obstacles;
+
+    std::vector<Position*> playerInitPositions;
 
     Floor* floor;
     WaterTap* waterTap;

@@ -10,7 +10,9 @@ ServerParams::ServerParams() {
 
     port = config.GetInteger("GameServer", "port", 10032);
     tickrate = config.GetInteger("GameServer", "tickrate", 32);
+    maxNumPlayers = config.GetInteger("GameServer", "MaxNumPlayers", 4);
 
+    playerMaxHealth = config.GetInteger("PhysicsParams", "PlayerMaxHealth", 3);
     playerMoveSpeed = config.GetFloat("PhysicsParams", "PlayerMoveSpeed", 4.8f);
     playerDiagonalMoveSpeed = playerMoveSpeed / SQRT_2;
     playerInRotationMoveSpeed = config.GetFloat("PhysicsParams", "PlayerInRotationMoveSpeed", 1.6f);
@@ -24,6 +26,7 @@ ServerParams::ServerParams() {
     highlightFOVAngle = PI / config.GetFloat("PhysicsParams", "HighlightFOVAngle", 3);
     playerKnockBackMaxDistance = config.GetFloat("PhysicsParams", "PlayerKnockBackMaxDistance", 5.0f);
     playerRespawnInvincibleTime = config.GetFloat("PhysicsParams", "PlayerRespawnInvincibleTime", 2.0f);
+    seedBagRadius = config.GetFloat("PhysicsParams", "SeedBagRadius", 1.0f);
 
     // Zombie wave parameters
     waveDefaultNumZombies = config.GetInteger("ZombieWaves", "WaveDefaultNumZombies", 1);

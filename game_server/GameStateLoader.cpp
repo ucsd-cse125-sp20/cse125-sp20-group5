@@ -172,7 +172,13 @@ void GameStateLoader::initFloor(std::string key, std::string value, bool& readin
 				tile->canPlow = false;
 				break;
 			}
-
+			
+			case '0':
+				gameState->playerInitPositions.push_back(new Position(tile->getCenterPosition()));
+				tile->direction = new Direction(0.0);
+				tile->tileType = Tile::TYPE_NORMAL;
+				tile->canPlow = true;
+				break;
 			case '*':
 			default:
 				tile->direction = new Direction(0.0);

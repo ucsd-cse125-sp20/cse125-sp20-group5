@@ -44,9 +44,36 @@ public:
         return distanceTo(*(that->position));
     }
 
+    /*
     bool collideWith(GameObject* that) {
         float distance = this->distanceTo(that);
         return distance <= boundingBoxRadius + that->boundingBoxRadius;
+    }
+    */
+
+    bool collideWith(GameObject* that) {
+        float thisMinX = position->x - boundingBoxRadius;
+        float thisMaxX = position->x + boundingBoxRadius;
+        float thisMinZ = position->z - boundingBoxRadius;
+        float thisMaxZ = position->z + boundingBoxRadius;
+
+        float thatMinX = that->position->x - that->boundingBoxRadius;
+        float thatMaxX = that->position->x + that->boundingBoxRadius;
+        float thatMinZ = that->position->z - that->boundingBoxRadius;
+        float thatMaxZ = that->position->z + that->boundingBoxRadius;
+
+        float d1x = thatMinX - thisMaxX;
+        float d1z = thatMinZ - thisMaxZ;
+        float d2x = thisMinX - thatMaxX;
+        float d2z = thisMinZ - thatMaxZ;
+
+        if (d1x > 0.0f || d1z > 0.0f)
+            return false;
+
+        if (d2x > 0.0f || d2z > 0.0f)
+            return false;
+
+        return true;
     }
 
     bool highlightCollideWith(GameObject* that) {
