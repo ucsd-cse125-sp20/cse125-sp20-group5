@@ -14,7 +14,8 @@ private:
 	int maxHealth = 0;
 	ModelType modelType;
 
-	static constexpr float ZOMBIE_SCALER = 0.40;
+	static constexpr float RABBIT_SCALER = 0.35;
+	static constexpr float PIG_SCALER = 0.3;
 	static constexpr float HP_BAR_TRANSLATE_Y = 2.7;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(1.0, 0.4, 0.4);
 
@@ -25,16 +26,19 @@ public:
 	ZombieController(Zombie* zombie, Scene* scene) {
 		rootNode = new SceneNode(NULL, "ZombieRootEmpty" + to_string(zombie->objectId), zombie->objectId);
 
+		float modelScaler = 0.0;
 		switch (zombie->zombieType) {
 			case Zombie::ZombieType::PIG: 
 				modelType = ModelType::PIG; 
+				modelScaler = PIG_SCALER;
 				break;
 			case Zombie::ZombieType::RABBIT: 
 				modelType = ModelType::RABBIT;
+				modelScaler = RABBIT_SCALER;
 				break;
 		}
 		modelNode = scene->getModel(modelType)->createSceneNodes(zombie->objectId);
-		modelNode->scaler = ZOMBIE_SCALER;
+		modelNode->scaler = modelScaler;
 
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
@@ -49,6 +53,7 @@ public:
 		// hp bar rendering settings
 		hpBar->fillingStep *= 0.2f;
 		hpBar->alphaEffectOn = true;
+		hpBar->alphaValue = 0.0f;
 
 		lastBarUpdateTime = std::chrono::system_clock::now() - std::chrono::milliseconds(BAR_RENDER_MILLISEC);
 
@@ -164,6 +169,7 @@ public:
 			}
 			else {
 				hpBar->shouldDisplay = true; // display only when the bar is changing
+				hpBar->alphaValue = HealthBar::MAX_ALPHA; // so that no fading effect on start of change, but only on end of change
 				hpBar->updateBar(newFilledFraction);
 
 				lastBarUpdateTime = std::chrono::system_clock::now();

@@ -6,13 +6,18 @@
 #include "NetworkClient.h"
 #include "Message.hpp"
 
+
 // static
 Client * Client::CLIENT;
 int Client::winX;
 int Client::winY;
 
-Client::Client(GLFWwindow * window, int argc, char **argv) {
+Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **argv) {
 	windowHandle = window;
+
+	// nangui stuff
+	this->screen = screen;
+	this->startPage = new ChooseLobby(window, screen);
 
 	// initalize mouse state
 	leftDown=middleDown=rightDown=false;
@@ -31,8 +36,8 @@ Client::Client(GLFWwindow * window, int argc, char **argv) {
 
 	setupAudio();
 
-	// Load network class
-	setupNetwork();
+	state = ClientState::GETIP;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,16 +58,16 @@ Client::~Client() {
 void Client::loop() {
 	while (!glfwWindowShouldClose(windowHandle)) {
 		//std::cout << "main looop" << std::endl;
-		sendKeyboardEvents();
 
 		// recieve the state from the server
-		currentGameState = netClient->getCurrentState();
-		//std::cout << currentGameState << std::endl;
-
-		scene->setState(currentGameState);
 
 		// Update the components in the world
 		// calculate matrices for rendering
+		if (state == ClientState::PLAYING) {
+			sendKeyboardEvents();
+			currentGameState = netClient->getCurrentState();
+		}
+
 		update();
 
 		// Tell redraw the scene
@@ -74,9 +79,40 @@ void Client::loop() {
 }
 
 void Client::update() {
-	cam->Update();
-	if (currentGameState != nullptr) {
-		scene->update();
+	if (state == ClientState::PLAYING) {
+
+		cam->Update();
+		//std::cout << currentGameState << std::endl;
+		if (currentGameState != nullptr) {
+			scene->setState(currentGameState);
+			scene->update();
+		}
+	}
+	else if (state == ClientState::GETIP) {
+		// if the enter button is pressed go off
+		if (startPage->getButtonStatus()) {
+			//std::cout << "asdfasdf " << startPage->getIpAddress() << std::endl;
+			setupNetwork(startPage->getIpAddress());
+			state = ClientState::CHOOSELEVEL;
+			startPage->removeWindow();
+			// TODO decide on the number of levels
+			levelPage = new ChooseLevel(windowHandle, screen, 5);
+
+		}
+	}
+	else if (state == ClientState::CHOOSELEVEL) {
+		int level = levelPage->getLevel();
+		// this means we've selected a level
+		levelPage->setPlayers(1);
+		if (level != -1) {
+			// TODO we should set a message to the server with the level we choose
+			std::cout << "level: " << level << std::endl;
+			levelPage->removeWindow();
+			state = ClientState::PLAYING;
+			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_CULL_FACE);
+		}
+
 	}
 	// Maybe show a loading screen or something if gameState is nullptr (not yet received)?
 }
@@ -94,8 +130,16 @@ void Client::draw() {
 	glViewport(0, 0, winX, winY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	scene->draw(cam->GetViewProjectMtx());
-	
+	//screen->drawContents();
+	//screen->drawWidgets();
+	if (state == ClientState::PLAYING) {
+		scene->draw(cam->GetViewProjectMtx());
+	}
+	else if (state == ClientState::GETIP || state == ClientState::CHOOSELEVEL) {
+		screen->drawContents();
+		screen->drawWidgets();
+	}
+
 	// Finish drawing scene
 	glFinish();
 	glfwSwapBuffers(windowHandle);
@@ -292,8 +336,8 @@ void Client::setupAudio() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Client::setupNetwork() {
-	netClient = new NetworkClient("localhost", "10032");
+void Client::setupNetwork(std::string ipAddress) {
+	netClient = new NetworkClient(ipAddress.c_str(), "10032");
 	netClient->start();
 }
 

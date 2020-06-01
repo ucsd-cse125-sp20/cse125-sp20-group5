@@ -104,7 +104,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;nanogui_Debug.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,7 +118,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc142-mtd.lib;IrrXMLd.lib;zlibstaticd.lib;fmodL_vc.lib;fmodstudioL_vc.lib;nanogui_Debug.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,7 +136,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;nanogui.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,7 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;glew32.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc142-mt.lib;IrrXML.lib;zlibstatic.lib;fmod_vc.lib;fmodstudio_vc.lib;nanogui.lib;glfw3.lib;GlU32.Lib;OpenGL32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -163,6 +163,7 @@
     <ClInclude Include="BaseController.hpp" />
     <ClInclude Include="CactusBulletController.hpp" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ChooseLevel.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Core.h" />
@@ -170,6 +171,8 @@
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="PlayerController.hpp" />
+    <ClInclude Include="ChooseLobby.h" />
+    <ClInclude Include="TextUI.h" />
     <ClInclude Include="ToolController.hpp" />
     <ClInclude Include="TapController.hpp" />
     <ClInclude Include="HealthBar.h" />
@@ -196,6 +199,7 @@
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="AudioEngine.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ChooseLevel.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="HealthBar.cpp" />
@@ -210,6 +214,8 @@
     <ClCompile Include="ServerParams.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="ChooseLobby.cpp" />
+    <ClCompile Include="TextUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AnimatedAssimpModel.glsl" />
@@ -218,6 +224,7 @@
     <None Include="Model.glsl" />
     <None Include="Particle.glsl" />
     <None Include="Skybox.glsl" />
+    <None Include="TextUI.glsl" />
     <None Include="UI.glsl" />
   </ItemGroup>
   <ItemGroup>

@@ -8,21 +8,27 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "ChooseLobby.h"
+#include "ChooseLevel.h"
 #include "AudioEngine.h"
 #include "NetworkClient.h"
 #include <vector>
 #include <iostream>
 #include <unordered_map>
 
+#include <nanogui/screen.h>
 ////////////////////////////////////////////////////////////////////////////////
 /*
 Currently the Client class handles the I/O as well as the game loop
 */
+enum class ClientState {GETIP, CHOOSELEVEL, PLAYING};
+
 class Client {
 public:
+	nanogui::Screen* screen;
 	static Client * CLIENT;
 
-	Client(GLFWwindow * window, int argc, char** argv);
+	Client(GLFWwindow * window, nanogui::Screen * screen, int argc, char** argv);
 	~Client();
 
 	void loop(); // Loop will be the idling function of glut
@@ -33,7 +39,7 @@ public:
 	void reset(); // reset scene ?
 	void quit(); // close window exit progmra ?
 	void setupAudio(); // setup audio engine
-	void setupNetwork(); // setup network client
+	void setupNetwork(std::string ipAddress); // setup network client
 	void setupKeyboardPresses(); // setup keyboard handler
 
 	// Event handlers
@@ -51,6 +57,8 @@ private:
 	// Window management
 	static int winX, winY;
 
+	ClientState state;
+
 	// Input
 	bool leftDown, middleDown, rightDown;
 	int mouseX, mouseY;
@@ -62,6 +70,9 @@ private:
 
 	// Components	
 	Scene * scene;
+	ChooseLobby* startPage;
+	ChooseLevel* levelPage;
+
 	Camera * cam;
 	CAudioEngine aEngine;
 	std::unordered_map<int, bool>* keyPresses;

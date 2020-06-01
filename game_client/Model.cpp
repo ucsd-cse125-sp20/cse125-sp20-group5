@@ -7,7 +7,6 @@
 #include <iostream>
 
 // get for image import
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 ////////////////////////////////////////////////////////////////////////////////

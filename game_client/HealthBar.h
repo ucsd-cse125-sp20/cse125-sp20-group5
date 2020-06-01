@@ -43,7 +43,11 @@ public:
 	static uint shader;
 	static bool staticInitialized;
 
-	glm::mat4 modelMtx;
+	glm::mat4 modelMtx; 
+	static glm::mat4 iconMtx;
+	static glm::mat4 barBoxMtx;
+	static glm::mat4 barMtx;
+	static constexpr float BAR_HEIGHT = 0.5f;
 
 	// Bar filling var
 	glm::mat4 fillingTransform; // scale transform of the bar's filling portion 
@@ -54,7 +58,9 @@ public:
 	// Bar rendering var
 	bool shouldDisplay = true;
 	bool alphaEffectOn = false;
-	float alphaValue = 1.0f;
+	static constexpr float MAX_ALPHA = 0.8f;
+	float alphaValue = MAX_ALPHA;
+	float alphaStep = 0.05f;
 
 	// Modify bar methods
 	void updateBar(float filledFraction);

@@ -8,6 +8,8 @@
 #include "BaseController.hpp"
 #include "CactusBulletController.hpp"
 
+#include "Client.h"
+
 Scene::Scene()
 {
 	program = new ShaderProgram("Model.glsl", ShaderProgram::eRender);
@@ -15,6 +17,7 @@ Scene::Scene()
 	animationProgram = new ShaderProgram("AnimatedAssimpModel.glsl", ShaderProgram::eRender);
 	skyboxProgram = new ShaderProgram("Skybox.glsl", ShaderProgram::eRender);
 	uiProgram = new ShaderProgram("UI.glsl", ShaderProgram::eRender);
+	textProgram = new ShaderProgram("TextUI.glsl", ShaderProgram::eRender);
 	barProgram = new ShaderProgram("HealthBar.glsl", ShaderProgram::eRender);
 	
 
@@ -57,6 +60,7 @@ Scene::Scene()
 	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(100.0f)));
 
 	testUI = new Image2d(uiProgram->GetProgramID(), "texture/player_one.png", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
+	textUI = new TextUI(textProgram->GetProgramID(), "font/From Cartoon Blocks.ttf");
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
@@ -118,6 +122,9 @@ void Scene::update()
 		unusedIds.insert(kvp.first);
 	}
 
+	// update wave num
+	zombieWaveNum = state->waveNum;
+
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
 	if (ground == NULL) {
@@ -148,7 +155,6 @@ void Scene::update()
 		controllers[zombie->objectId]->update(zombie, this);
 	}
 	ZombieController::processZombieDeath(this);
-	
 	
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
@@ -276,6 +282,8 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	RenderController::drawUI(viewProjMat);
 	testUI->draw(); //TODO to be removed
+	textUI->renderText("WAVE " + to_string(zombieWaveNum),
+		Client::getWinX() -350.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
 }
 
 void Scene::toggleWater()

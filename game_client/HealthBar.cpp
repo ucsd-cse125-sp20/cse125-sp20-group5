@@ -8,6 +8,9 @@ GLuint HealthBar::VBO, HealthBar::VBO2, HealthBar::VAO, HealthBar::EBO;
 uint HealthBar::shader;
 bool HealthBar::staticInitialized = false;
 bool HealthBar::isDrawUiMode = false;
+mat4 HealthBar::iconMtx;
+mat4 HealthBar::barBoxMtx;
+mat4 HealthBar::barMtx;
 
 HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float initFilledFraction, glm::vec3 barColor)
 {
@@ -17,30 +20,24 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 	// Init the filling status
 	resetBar(initFilledFraction);
 
-	// Compute the transforms
-	float iconWidth = 1.0f;
-	float gap = 0.25f;
-	float barWidth = 4.0f;
-	float barHeight = 0.5f;
-	float barEdgePad = barHeight * 0.125f;
-
-	mat4 iconMtx = translate(vec3(-(barWidth + gap) / 2.0f, 0, 0))
-		* scale(vec3(iconWidth, iconWidth, 1));
-	mat4 barBoxMtx = translate(vec3((iconWidth + gap) / 2.0f, 0, 0)) * scale(vec3(barWidth, barHeight, 1));
-	mat4 barMtx = translate(vec3(0, 0, 0.005f)) // to make the bar overlap on barbox
-		* barBoxMtx
-		* scale(vec3((barWidth - 2.0f * barEdgePad) / barWidth, (barHeight - 2.0f * barEdgePad) / barHeight, 1)); // shrink a little from the box
-
-	vec3 whiteColor = vec3(1,1,1);
-
-	// Init each bar components
-	barComponents.resize(3);
-	barComponents[ICON] = BarComponent(ICON, iconMtx, barColor);
-	barComponents[BAR_BOX] = BarComponent(BAR_BOX, barBoxMtx, whiteColor);
-	barComponents[BAR] = BarComponent(BAR, barMtx, barColor);
-
-	// Init (static) rendering related fields 
+	// Init (static) barComponent matrices and rendering related fields 
 	if (!staticInitialized) {
+		// Compute the transforms
+		float iconWidth = 0.8f;
+		float gap = 0.15f;
+		float barWidth = 4.0f;
+		float barHeight = BAR_HEIGHT; // = 0.5f
+		float barEdgePad = barHeight * 0.125f;
+
+		// Assign barComp matrices
+		iconMtx = translate(vec3(-(barWidth + gap) / 2.0f, 0, 0))
+			* scale(vec3(iconWidth, iconWidth, 1));
+		barBoxMtx = translate(vec3((iconWidth + gap) / 2.0f, 0, 0)) * scale(vec3(barWidth, barHeight, 1));
+		barMtx = translate(vec3(0, 0, 0.005f)) // to make the bar overlap on barbox
+			* barBoxMtx
+			* scale(vec3((barWidth - 2.0f * barEdgePad) / barWidth, (barHeight - 2.0f * barEdgePad) / barHeight, 1)); // shrink a little from the box
+
+		// Rendering related fields
 		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &VBO);
 		glGenBuffers(1, &VBO2);
@@ -67,6 +64,13 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 		staticInitialized = true;
 	}
 
+	// Init each bar components
+	vec3 whiteColor = vec3(1, 1, 1);
+	barComponents.resize(3);
+	barComponents[ICON] = BarComponent(ICON, iconMtx, barColor);
+	barComponents[BAR_BOX] = BarComponent(BAR_BOX, barBoxMtx, whiteColor);
+	barComponents[BAR] = BarComponent(BAR, barMtx, barColor);
+
 	// Texture loading and binding
 	for (BarComponent bc : barComponents) {
 		if (bc.id == ICON) {
@@ -91,11 +95,11 @@ void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 
 	if (this->alphaEffectOn) { 
 		if (this->shouldDisplay) {
-			alphaValue = std::min(1.0f, alphaValue + 0.05f);
+			alphaValue = std::min(HealthBar::MAX_ALPHA, alphaValue + alphaStep);
 		}
 		else {
 			if (alphaValue == 0.0f) { return; } // do not display
-			alphaValue = std::max(0.0f, alphaValue - 0.05f);
+			alphaValue = std::max(0.0f, alphaValue - alphaStep);
 		}
 	}
 	else if (!this->shouldDisplay) { return; } // do not display
