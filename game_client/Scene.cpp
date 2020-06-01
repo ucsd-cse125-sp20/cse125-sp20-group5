@@ -32,14 +32,21 @@ Scene::Scene()
 	cornModel = new AnimatedAssimpModel(CORN_MODEL, animationProgram->GetProgramID());
 	babyCactusModel = new AnimatedAssimpModel(BABY_CACTUS_MODEL, animationProgram->GetProgramID());
 	cactusModel = new AnimatedAssimpModel(CACTUS_MODEL, animationProgram->GetProgramID());
-	cactusBulletModel = new AssimpModel(CACTUS_BULLET_MODEL, assimpProgram->GetProgramID());
+	cactusBulletModel = new AnimatedAssimpModel(CACTUS_BULLET_MODEL, animationProgram->GetProgramID());
 
 	tapModel = new AssimpModel(WATER_TAP_MODEL, assimpProgram->GetProgramID());
 	wateringCanModel = new AssimpModel(WATERING_CAN_MODEL, assimpProgram->GetProgramID());
-	seedSourceModel = new AssimpModel(SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
+	seedSourceModel_corn = new AssimpModel(CORN_SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
+	seedSourceModel_cactus = new AssimpModel(CACTUS_SEED_SOURCE_MODEL, assimpProgram->GetProgramID());
 	shovelModel = new AssimpModel(SHOVEL_MODEL, assimpProgram->GetProgramID());
 	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
+	sprayModel = new AssimpModel(SPRAY_MODEL, assimpProgram->GetProgramID());
+	fertilizerModel = new AssimpModel(FERTILIZER_MODEL, assimpProgram->GetProgramID());
 	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
+	treeModel = new AssimpModel(TREE_MODEL, assimpProgram->GetProgramID());
+	for (int i = 1; i <= 5; i++) {
+		rockModels.push_back(new AssimpModel((ROCK_MODEL_PATH_START + std::to_string(i) + ".fbx"), assimpProgram->GetProgramID()));
+	}
 
 	ground = NULL;
 
@@ -54,6 +61,7 @@ Scene::Scene()
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
 
+	srand(time(0));
 }
 
 Scene::~Scene()
@@ -77,7 +85,8 @@ Scene::~Scene()
 	delete cactusBulletModel;
 	delete tapModel;
 	delete wateringCanModel;
-	delete seedSourceModel;
+	delete seedSourceModel_corn;
+	delete seedSourceModel_corn;
 	delete shovelModel;
 	delete seedBagModel;
 
@@ -92,6 +101,11 @@ Scene::~Scene()
 	delete particleFactory;
 	delete particleProgram;
 
+	delete treeModel;
+
+	for (AssimpModel* ptr : rockModels) {
+		delete ptr;
+	}
 }
 
 void Scene::update()
@@ -117,6 +131,15 @@ void Scene::update()
 		}
 	}
 
+	HomeBase* homeBase = state->homeBase;
+	if (controllers.find(homeBase->objectId) == controllers.end()) {
+		controllers[homeBase->objectId] = new BaseController(homeBase, this);
+		objectIdMap[homeBase->objectId] = controllers[homeBase->objectId]->rootNode;
+	}
+	controllers[homeBase->objectId]->update(homeBase, this);
+	ZombieController::updateDestination(homeBase->position->x, homeBase->position->y);
+	unusedIds.erase(homeBase->objectId);
+
 	for (Zombie* zombie : state->zombies) {
 		if (controllers.find(zombie->objectId) == controllers.end()) {
 			controllers[zombie->objectId] = new ZombieController(zombie, this);
@@ -126,13 +149,6 @@ void Scene::update()
 	}
 	ZombieController::processZombieDeath(this);
 	
-	HomeBase* homeBase = state->homeBase;
-	if (controllers.find(homeBase->objectId) == controllers.end()) {
-		controllers[homeBase->objectId] = new BaseController(homeBase, this);
-		objectIdMap[homeBase->objectId] = controllers[homeBase->objectId]->rootNode;
-	}
-	controllers[homeBase->objectId]->update(homeBase, this);
-	unusedIds.erase(homeBase->objectId);
 	
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
@@ -164,6 +180,25 @@ void Scene::update()
 		unusedIds.erase(tool->objectId);
 	}
 
+	for (Obstacle* obstacle : state->obstacles) {
+		SceneNode* obstacleNode = nullptr;
+		if (obstacle->obstacleType == Obstacle::ObstacleType::STONE) {
+			int randomStoneIndex = rand() % rockModels.size(); // range from 0 to size
+			obstacleNode = getDrawableSceneNode(obstacle->objectId, rockModels[randomStoneIndex]);
+
+			obstacleNode->loadGameObject(obstacle);
+			obstacleNode->scaler = STONE_SCALER;
+		}
+		else {
+			obstacleNode = getDrawableSceneNode(obstacle->objectId, treeModel);
+
+			obstacleNode->loadGameObject(obstacle);
+			obstacleNode->scaler = TREE_SCALER;
+		}
+		
+		unusedIds.erase(obstacle->objectId);
+	}
+
 	for (Player* player : state->players) {
 		if (controllers.find(player->objectId) == controllers.end()) {
 			controllers[player->objectId] = new PlayerController(player, this);
@@ -182,8 +217,15 @@ void Scene::update()
 	unusedIds.erase(state->waterTap->objectId);
 
 	for (SeedShack* seedShack : state->seedShacks) {
-        SceneNode* seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel);
-        seedShackNode->loadGameObject(seedShack);
+		SceneNode* seedShackNode = nullptr;
+
+		// Load corresponding model based on plants
+		if (seedShack->seedType == Plant::PlantType::CORN)
+			seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel_corn);
+		else // (seedShack->seedType == Plant::PlantType::CACTUS)
+			seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel_cactus);
+	
+		seedShackNode->loadGameObject(seedShack);
         seedShackNode->scaler = SEED_SOURCE_SCALER;
         unusedIds.erase(seedShack->objectId);
 	}
@@ -216,12 +258,12 @@ SceneNode* Scene::getDrawableSceneNode(uint objectId, Drawable * model)
 	}
 	else { // if its made just get the ref
 		node = objectIdMap[objectId];
-		if (node->obj != model) {
+		/* if (node->obj != model) {
 			delete node;
 			node = model->createSceneNodes(objectId);
 			objectIdMap[objectId] = node;
 			groundNode->addChild(node);
-		}
+		}*/
 	}
 	return node;
 }

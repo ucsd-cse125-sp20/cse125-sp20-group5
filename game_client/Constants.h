@@ -23,18 +23,24 @@
 
 #define WATER_TAP_MODEL "model/water_tap.fbx"
 #define WATERING_CAN_MODEL "model/watering_can.fbx"
-#define SEED_SOURCE_MODEL "model/box.fbx"
+#define CACTUS_SEED_SOURCE_MODEL "model/box_cactus.fbx"
+#define CORN_SEED_SOURCE_MODEL "model/box_corn.fbx"
 #define SHOVEL_MODEL "model/shovel.fbx"
 #define DIRT_MODEL "model/dirt.fbx"
 #define SEED_BAG_MODEL "model/basket.fbx"
+#define SPRAY_MODEL "model/spray.fbx"
+#define FERTILIZER_MODEL "model/fertilizer.obj"
 
 #define SAPLING_MODEL "model/sapling.fbx"
 
 #define HOME_BASE_MODEL "model/bear.fbx"
 
+#define TREE_MODEL "model/lowpolytree.fbx"
+#define ROCK_MODEL_PATH_START "model/rocks/rock"
 
 #define SEED_SOURCE_SCALER 0.2
 #define DIRT_SCALER 0.05
+#define TREE_SCALER 0.3
+#define STONE_SCALER 0.8
 
-
-#define AUDIO_FILE_BGM "audio/animal\ dizhuing.wav"
+#define AUDIO_FILE_BGM "audio/animal\ dizhuing_full.wav"
