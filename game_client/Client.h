@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Scene.h"
 #include "ChooseLobby.h"
+#include "ChooseLevel.h"
 #include "AudioEngine.h"
 #include "NetworkClient.h"
 #include <vector>
@@ -69,8 +70,8 @@ private:
 
 	// Components	
 	Scene * scene;
-
 	ChooseLobby* startPage;
+	ChooseLevel* levelPage;
 
 	Camera * cam;
 	CAudioEngine aEngine;

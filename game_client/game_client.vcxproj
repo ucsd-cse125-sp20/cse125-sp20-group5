@@ -163,6 +163,7 @@
     <ClInclude Include="BaseController.hpp" />
     <ClInclude Include="CactusBulletController.hpp" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ChooseLevel.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Core.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="AudioEngine.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ChooseLevel.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="HealthBar.cpp" />

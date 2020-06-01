@@ -89,13 +89,30 @@ void Client::update() {
 		}
 	}
 	else if (state == ClientState::GETIP) {
+		// if the enter button is pressed go off
 		if (startPage->getButtonStatus()) {
-			std::cout << "asdfasdf " << startPage->getIpAddress() << std::endl;
+			//std::cout << "asdfasdf " << startPage->getIpAddress() << std::endl;
 			setupNetwork(startPage->getIpAddress());
+			state = ClientState::CHOOSELEVEL;
+			startPage->removeWindow();
+			// TODO decide on the number of levels
+			levelPage = new ChooseLevel(windowHandle, screen, 5);
+
+		}
+	}
+	else if (state == ClientState::CHOOSELEVEL) {
+		int level = levelPage->getLevel();
+		// this means we've selected a level
+		levelPage->setPlayers(1);
+		if (level != -1) {
+			// TODO we should set a message to the server with the level we choose
+			std::cout << "level: " << level << std::endl;
+			levelPage->removeWindow();
 			state = ClientState::PLAYING;
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
 		}
+
 	}
 	// Maybe show a loading screen or something if gameState is nullptr (not yet received)?
 }
@@ -118,7 +135,7 @@ void Client::draw() {
 	if (state == ClientState::PLAYING) {
 		scene->draw(cam->GetViewProjectMtx());
 	}
-	else if (state == ClientState::GETIP) {
+	else if (state == ClientState::GETIP || state == ClientState::CHOOSELEVEL) {
 		screen->drawContents();
 		screen->drawWidgets();
 	}
