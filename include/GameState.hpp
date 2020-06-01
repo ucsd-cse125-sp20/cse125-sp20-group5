@@ -759,8 +759,8 @@ public:
             // 5. Check if collide with plants
             for (Plant* plant : plants) {
                 if (player->collideWith(plant)) {
-                    //player->position->x = prevPos.x;
-                    //player->position->z = prevPos.z;
+                    player->position->x = prevPos.x;
+                    player->position->z = prevPos.z;
                     break;
                 }
             }
@@ -768,23 +768,21 @@ public:
             // 6. Check if collide with seedshacks
             for (SeedShack* seedShack : seedShacks) {
                 if (player->collideWith(seedShack)) {
-                    player->position->x = prevPos.x;
-                    player->position->z = prevPos.z;
+                    collisionResponse(player, seedShack, prevPos);
                     break;
                 }
             }
 
             // 7. Check if collide with watertap
             if (player->collideWith(waterTap)) {
-                player->position->x = prevPos.x;
-                player->position->z = prevPos.z;
+                collisionResponse(player, waterTap, prevPos);
             }
 
             // 8. Check if collide with obstacles 
             for (Obstacle* obstacle : obstacles) {
                 if (player->collideWith(obstacle)) {
-                    player->position->x = prevPos.x;
-                    player->position->z = prevPos.z;
+                    collisionResponse(player, obstacle, prevPos);
+                    break;
                 }
             }
 
@@ -1313,6 +1311,23 @@ public:
         tool->held = false;
         player->heldObject = 0;
         player->holding = false;
+    }
+
+    void collisionResponse(Player* player, GameObject* object, Position& prevPos) {
+        Position playerObjectVec = Position(
+            //object->position->x - player->position->x,
+            //object->position->y - player->position->y,
+            //object->position->z - player->position->z
+            object->position->x - prevPos.x,
+            object->position->y - prevPos.y,
+            object->position->z - prevPos.z
+        );
+        if (std::abs(playerObjectVec.x) <= std::abs(playerObjectVec.z)) {
+            player->position->z = prevPos.z;
+        }
+        else {
+            player->position->x = prevPos.x;
+        }
     }
 
     // We could use other data structures, for now use a list
