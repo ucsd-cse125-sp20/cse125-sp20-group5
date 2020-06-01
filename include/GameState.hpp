@@ -759,8 +759,7 @@ public:
             // 5. Check if collide with plants
             for (Plant* plant : plants) {
                 if (player->collideWith(plant)) {
-                    player->position->x = prevPos.x;
-                    player->position->z = prevPos.z;
+                    collisionResponse(player, plant, prevPos);
                     break;
                 }
             }
