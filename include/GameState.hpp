@@ -264,12 +264,35 @@ public:
 				}*/
                 if (player->highlightTileRow != -1 && player->highlightTileCol != -1) {
                     Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
-                    currTile->plowProgressTime = 0;
-                }
+                    if (player->holding) {
+                        Tool* tool = (Tool*)gameObjectMap[player->heldObject];
+                        switch (tool->toolType) {
+                        case Tool::ToolType::PLOW:
+                            currTile->plowProgressTime = 0;
+                            break;
+                        case Tool::ToolType::PESTICIDE: {
+                            Plant* plant = (Plant*) gameObjectMap[currTile->plantId];
+                            if (plant) {
+                                plant->currSprayTime = 0;
+                            }
+                            else {
+                                std::cerr << "Cannot use PESTICIDE because tile's plantId = 0" << std::endl;
+                            }
+                            break;
+                        }
+                        case Tool::ToolType::FERTILIZER: {
+                            Plant* plant = (Plant*) gameObjectMap[currTile->plantId];
+                            if (plant) {
+                                plant->currFertilizeTime = 0;
+                            }
+                            else {
+                                std::cerr << "Cannot use FERTILIZER because tile's plantId = 0" << std::endl;
+                            }
+                            break;
+                        }
+                        }
+                    }
 
-                for (Plant* plant : plants) {
-                    plant->currSprayTime = 0;
-                    plant->currFertilizeTime = 0;
                 }
                 continue;
             }
