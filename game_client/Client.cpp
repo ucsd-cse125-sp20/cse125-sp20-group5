@@ -38,8 +38,6 @@ Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **a
 
 	state = ClientState::GETIP;
 
-	// Load network class
-	setupNetwork();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,13 +58,8 @@ Client::~Client() {
 void Client::loop() {
 	while (!glfwWindowShouldClose(windowHandle)) {
 		//std::cout << "main looop" << std::endl;
-		sendKeyboardEvents();
 
 		// recieve the state from the server
-		currentGameState = netClient->getCurrentState();
-		//std::cout << currentGameState << std::endl;
-
-		scene->setState(currentGameState);
 
 		// Update the components in the world
 		// calculate matrices for rendering
@@ -82,13 +75,18 @@ void Client::loop() {
 
 void Client::update() {
 	if (state == ClientState::PLAYING) {
+		sendKeyboardEvents();
 		cam->Update();
-		if (currentGameState != nullptr) {
-			scene->update();
-		}
+		currentGameState = netClient->getCurrentState();
+		//std::cout << currentGameState << std::endl;
+		scene->setState(currentGameState);
 	}
 	else if (state == ClientState::GETIP) {
-		
+		if (startPage->getButtonStatus()) {
+			std::cout << "asdfasdf " << startPage->getIpAddress() << std::endl;
+			setupNetwork(startPage->getIpAddress());
+			state = ClientState::PLAYING;
+		}
 	}
 	// Maybe show a loading screen or something if gameState is nullptr (not yet received)?
 }
@@ -106,9 +104,15 @@ void Client::draw() {
 	glViewport(0, 0, winX, winY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	scene->draw(cam->GetViewProjectMtx());
 	//screen->drawContents();
 	//screen->drawWidgets();
+	if (state == ClientState::PLAYING) {
+		scene->draw(cam->GetViewProjectMtx());
+	}
+	else if (state == ClientState::GETIP) {
+		screen->drawContents();
+		screen->drawWidgets();
+	}
 
 	// Finish drawing scene
 	glFinish();
@@ -306,8 +310,8 @@ void Client::setupAudio() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Client::setupNetwork() {
-	netClient = new NetworkClient("localhost", "10032");
+void Client::setupNetwork(std::string ipAddress) {
+	netClient = new NetworkClient(ipAddress.c_str(), "10032");
 	netClient->start();
 }
 

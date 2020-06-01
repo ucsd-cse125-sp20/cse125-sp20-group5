@@ -38,7 +38,7 @@ public:
 	void reset(); // reset scene ?
 	void quit(); // close window exit progmra ?
 	void setupAudio(); // setup audio engine
-	void setupNetwork(); // setup network client
+	void setupNetwork(std::string ipAddress); // setup network client
 	void setupKeyboardPresses(); // setup keyboard handler
 
 	// Event handlers
@@ -69,7 +69,9 @@ private:
 
 	// Components	
 	Scene * scene;
+
 	ChooseLobby* startPage;
+
 	Camera * cam;
 	CAudioEngine aEngine;
 	std::unordered_map<int, bool>* keyPresses;

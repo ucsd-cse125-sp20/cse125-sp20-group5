@@ -44,20 +44,23 @@ ChooseLobby::ChooseLobby(GLFWwindow* window, nanogui::Screen* screen) {
 	textBox->setFixedSize(nanogui::Vector2i(200,30));
 	text = textBox;
 	gui->addWidget("Enter IP", textBox);
-	gui->addButton("Enter Lobby", [textBox]() { std::cout << "Button pressed. " << textBox->value() << std::endl; });
-	
 
-	/*nanogui::Window* nanoguiWindow = new nanogui::Window(screen, "Enter Lobby");
-	nanogui::TextBox* textBox = new nanogui::TextBox(nanoguiWindow, "initial");
-	textBox->setEditable(true);
-	textBox->setFormat("^[a-z]+$");// accept lower-case letters only
-	textBox->setCallback([](const std::string& value) {
-		std::cout << "Current Automatic Value: " << value << std::endl;
-		return true;// we are verifying with the regex specified in setFormat
-	});*/
-
+	nanogui::Button* enterButton = new nanogui::Button(nanoguiWindow, "Enter Lobby");
+	enterButton->setCallback([textBox]() { std::cout << "Button pressed. " << textBox->value() << std::endl; });
+	enter = enterButton;
+	gui->addWidget("EnterLobby", enterButton);
 
 	screen->setVisible(true);
 	screen->performLayout();
 	nanoguiWindow->center();
+}
+
+const std::string ChooseLobby::getIpAddress()
+{
+	return text->value();
+}
+
+bool ChooseLobby::getButtonStatus()
+{
+	return enter->pushed();
 }
