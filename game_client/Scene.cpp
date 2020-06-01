@@ -8,6 +8,8 @@
 #include "BaseController.hpp"
 #include "CactusBulletController.hpp"
 
+#include "Client.h"
+
 Scene::Scene()
 {
 	program = new ShaderProgram("Model.glsl", ShaderProgram::eRender);
@@ -120,6 +122,9 @@ void Scene::update()
 		unusedIds.insert(kvp.first);
 	}
 
+	// update wave num
+	zombieWaveNum = state->waveNum;
+
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
 	if (ground == NULL) {
@@ -150,7 +155,6 @@ void Scene::update()
 		controllers[zombie->objectId]->update(zombie, this);
 	}
 	ZombieController::processZombieDeath(this);
-	
 	
 	for (Plant* plant : state->plants) {
 		if (controllers.find(plant->objectId) == controllers.end()) {
@@ -278,7 +282,8 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	RenderController::drawUI(viewProjMat);
 	testUI->draw(); //TODO to be removed
-	textUI->renderText("HiHihihihihi", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+	textUI->renderText("WAVE " + to_string(zombieWaveNum),
+		Client::getWinX() -350.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
 }
 
 void Scene::toggleWater()

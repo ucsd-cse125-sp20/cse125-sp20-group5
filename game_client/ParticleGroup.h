@@ -1,11 +1,7 @@
 #ifndef _Particle_Group_H_
 #define _Particle_Group_H_
 
-#ifdef __APPLE__
-#include <OpenGL/gl3.h>
-#else
-#include <GL/glew.h>
-#endif
+#include "Core.h"
 
 #include <vector>
 #include <iostream>
