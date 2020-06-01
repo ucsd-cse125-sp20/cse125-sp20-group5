@@ -35,7 +35,7 @@ class RenderController {
 public:
     RenderController() {}
 
-    ~RenderController() {
+    virtual ~RenderController() {
     }
 
     SceneNode* rootNode;

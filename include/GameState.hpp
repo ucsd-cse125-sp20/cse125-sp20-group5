@@ -195,12 +195,14 @@ public:
             case OPCODE_PLAYER_MOVE_LOWER_LEFT:
                 player->moveState = Player::MoveState::LOWER_LEFT;
                 break;
-            case OPCODE_PLAYER_ACTION:
+            case OPCODE_PLAYER_START_ACTION:
                 player->shouldPerformAction = true;
+                break;
+            case OPCODE_PLAYER_END_ACTION:
+                player->shouldPerformAction = false;
                 break;
             case OPCODE_PLAYER_INTERACT:
                 player->shouldInteract = true;
-                
                 break;
         }
         //std::cout << "After update angle = " << player->direction->angle << std::endl;
@@ -270,7 +272,6 @@ public:
                 }
                 continue;
             }
-            player->shouldPerformAction = false;
 
             // Check if player is holding something
             if (!player->holding) {
@@ -395,6 +396,7 @@ public:
                         std::cout << "Current plant spraying progress: " << plant->currSprayTime << std::endl;
                         plant->currSprayTime += deltaTime;
                         plant->aliveTime -= deltaTime;
+                        player->animation->animationType = Player::PlayerAnimation::WATER;
 
                         if (plant->currSprayTime >= plant->pesticideSprayTime) {
                             plant->currSprayTime = 0.0f;
@@ -423,6 +425,7 @@ public:
                     if (tool->fertilizerCurrTime >= tool->fertilizerCooldownTime) {
                         std::cout << "Current plant fertilizing progress: " << plant->currFertilizeTime << std::endl;
                         plant->currFertilizeTime += deltaTime;
+                        player->animation->animationType = Player::PlayerAnimation::WATER;
                     }
                     else {
                         std::cout << "Cannot fertilize since fertilizer is in cooldown: " << tool->fertilizerCurrTime << std::endl;

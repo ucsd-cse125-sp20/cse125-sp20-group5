@@ -106,9 +106,9 @@ void Client::draw() {
 	glViewport(0, 0, winX, winY);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//scene->draw(cam->GetViewProjectMtx());
-	screen->drawContents();
-	screen->drawWidgets();
+	scene->draw(cam->GetViewProjectMtx());
+	//screen->drawContents();
+	//screen->drawWidgets();
 
 	// Finish drawing scene
 	glFinish();
@@ -149,7 +149,9 @@ void Client::sendKeyboardEvents()
 	}
 
 	if ((*keyPresses)[GLFW_KEY_E]) {
-		netClient->sendMessage(OPCODE_PLAYER_ACTION);
+		netClient->sendMessage(OPCODE_PLAYER_START_ACTION);
+	} else {
+		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
 	}
 
 	/* For testing */

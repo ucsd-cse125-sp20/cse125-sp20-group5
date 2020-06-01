@@ -17,6 +17,7 @@ public:
     void serialize(Archive& ar, const unsigned int version)
     {
         ar& boost::serialization::base_object<GameObject>(*this);
+        ar & obstacleType;
     }
 
     ~Obstacle() {

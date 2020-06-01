@@ -12,16 +12,33 @@ private:
 
 	int health = 0;
 	int maxHealth = 0;
+	ModelType modelType;
 
-	static constexpr float RABBIT_SCALER = 0.40;
+	static constexpr float RABBIT_SCALER = 0.35;
+	static constexpr float PIG_SCALER = 0.3;
 	static constexpr float HP_BAR_TRANSLATE_Y = 2.7;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(1.0, 0.4, 0.4);
+
+	static float homeBaseX;
+	static float homeBaseY;
 
 public:
 	ZombieController(Zombie* zombie, Scene* scene) {
 		rootNode = new SceneNode(NULL, "ZombieRootEmpty" + to_string(zombie->objectId), zombie->objectId);
-		modelNode = scene->getModel(ModelType::RABBIT)->createSceneNodes(zombie->objectId);
-		modelNode->scaler = RABBIT_SCALER;
+
+		float modelScaler = 0.0;
+		switch (zombie->zombieType) {
+			case Zombie::ZombieType::PIG: 
+				modelType = ModelType::PIG; 
+				modelScaler = PIG_SCALER;
+				break;
+			case Zombie::ZombieType::RABBIT: 
+				modelType = ModelType::RABBIT;
+				modelScaler = RABBIT_SCALER;
+				break;
+		}
+		modelNode = scene->getModel(modelType)->createSceneNodes(zombie->objectId);
+		modelNode->scaler = modelScaler;
 
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
@@ -36,6 +53,7 @@ public:
 		// hp bar rendering settings
 		hpBar->fillingStep *= 0.2f;
 		hpBar->alphaEffectOn = true;
+		hpBar->alphaValue = 0.0f;
 
 		lastBarUpdateTime = std::chrono::system_clock::now() - std::chrono::milliseconds(BAR_RENDER_MILLISEC);
 
@@ -98,8 +116,7 @@ public:
 
 
 			// If not disppearing at the home base, but killed by the plant
-			// which is TODO
-			if (true) { // zombieController->health <= 0
+			if (!zombieController->atDestination()) {
 				zombieController->modelNode->switchAnim(Zombie::ZombieAnimation::DIE, false);
 
 				// Don't delete if animation hasn't finished
@@ -152,14 +169,28 @@ public:
 			}
 			else {
 				hpBar->shouldDisplay = true; // display only when the bar is changing
+				hpBar->alphaValue = HealthBar::MAX_ALPHA; // so that no fading effect on start of change, but only on end of change
 				hpBar->updateBar(newFilledFraction);
 
 				lastBarUpdateTime = std::chrono::system_clock::now();
 			}
 		}
 	}
+
+	bool atDestination() {
+		return rootNode->position.x != homeBaseX
+				|| rootNode->position.y != homeBaseY;
+	}
+
+	static void updateDestination(float x, float y) {
+		homeBaseX = x;
+		homeBaseY = y;
+	}
 };
 
 std::set<uint> ZombieController::prevAliveZombie;
 std::set<uint> ZombieController::aliveZombie;
 std::set<uint> ZombieController::dyingZombie;
+
+float ZombieController::homeBaseX = -1;
+float ZombieController::homeBaseY = -1;
