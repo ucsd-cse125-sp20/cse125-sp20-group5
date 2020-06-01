@@ -3,6 +3,7 @@
 // TextUI.h
 // 
 // Class that renders text to the screen
+// https://learnopengl.com/In-Practice/Text-Rendering
 ////////////////////////////////////////
 
 #pragma once

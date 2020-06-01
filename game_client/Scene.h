@@ -90,6 +90,8 @@ private:
 	ParticleFactory* particleFactory;
 	ShaderProgram* particleProgram;
 
+	int zombieWaveNum = 0;
+
 public:
 
 	std::unordered_map<uint, SceneNode*> objectIdMap;

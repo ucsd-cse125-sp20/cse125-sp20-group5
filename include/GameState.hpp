@@ -130,6 +130,7 @@ public:
         ar & obstacles;
         ar & waterTap;
         ar & homeBase;
+        ar & waveNum;
     }
 
     ~GameState() {
@@ -798,6 +799,7 @@ public:
 
     void updateZombies() {
         zombieWaveManager->handleZombieWaves();
+        waveNum = zombieWaveManager->waveNum;
 
         for (auto i = std::begin(zombies); i != std::end(zombies);) {
             Zombie* zombie = (*i);
@@ -1250,6 +1252,7 @@ public:
 
     // Zombie Spawn Manager
     ZombieWaveManager* zombieWaveManager;
+    int waveNum = 0;
 
     // Game status losing/not losing
     bool isGameOver;
