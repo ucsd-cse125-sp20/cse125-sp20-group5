@@ -16,8 +16,6 @@ public:
             : GameObject(position, direction, animation, objectId, boundingBoxRadius), 
               playerId(playerId) {
         this->color = color;
-        currRow = position->z / Floor::TILE_SIZE;
-        currCol = position->x / Floor::TILE_SIZE;
     }
 
     friend class boost::serialization::access;
@@ -27,6 +25,9 @@ public:
         ar & boost::serialization::base_object<GameObject>(*this);
         ar & color;
         ar & playerId;
+        ar & health;
+        ar & maxHealth;
+        ar & isDead;
         ar & holding;
         ar & heldObject;
         ar & highlightObjectId;
@@ -44,6 +45,7 @@ public:
 
     int health;
     int maxHealth;
+    bool isDead;
 
     // Tool
     bool holding;

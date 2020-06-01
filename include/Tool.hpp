@@ -3,6 +3,7 @@
 
 #include "GameObject.hpp"
 #include "Plant.hpp"
+#include "Player.hpp"
 
 class Tool : public GameObject {
 public:
@@ -41,6 +42,8 @@ public:
 
     float fertilizerCurrTime;     // only used when toolType is FERTILIZER
     float fertilizerCooldownTime; // only used when toolType is FERTILIZER
+
+    Player* playerPlant;
 
     unsigned int heldBy; // Player's objectId
     bool held;

@@ -158,12 +158,14 @@ void GameServer::sendToAll() {
 
 void GameServer::onClientConnected(PtrClientConnection pConn) {
     std::cout << "Client connected!" << std::endl;
-    Player* newPlayer = new Player(new Position(5,0,5),
+    Player* newPlayer = new Player(nullptr,
         new Direction(Direction::DIRECTION_DOWN),
         new Animation(0, 0),
         gameState.objectCount++,
         config.playerCatRadius, // TODO: we might have other radii for other players?
         new Color(0, 0, 0), playerIdCounter++);
+    newPlayer->maxHealth = config.playerMaxHealth;
+    newPlayer->health = newPlayer->maxHealth;
 
     pConn2Player.insert(std::make_pair(pConn, newPlayer));
     clients.push_back(pConn);
