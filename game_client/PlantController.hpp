@@ -163,7 +163,11 @@ public:
                 modelNode->scaler = SAPLING_SCALER;
                 break;
             case Plant::GrowStage::BABY:
-                if (plant->plantType == Plant::PlantType::CORN) {
+                if (plant->plantType == Plant::PlantType::PLAYER) {
+                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
+                    modelNode->scaler = SAPLING_SCALER;
+                }
+                else if (plant->plantType == Plant::PlantType::CORN) {
                     modelNode = scene->getModel(ModelType::BABY_CORN)->createSceneNodes(objectId);
                     modelNode->scaler = BABY_CORN_SCALER;
                 }
