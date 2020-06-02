@@ -109,7 +109,8 @@ GameServer::GameServer(
     deltaTimeMicrosec(1000000 / config.tickrate) {
 
     gameState.init(config);
-    gameState.loadFromConfigFile("InitGameState.ini");
+    gameStarted = false;
+    //gameState.loadFromConfigFile("InitGameState.ini");
 
     startAccept();
     sendToAll();
@@ -133,7 +134,7 @@ void GameServer::handleAccept(PtrClientConnection newConnection, const boost::sy
 }
 
 void GameServer::sendToAll() {
-    if (!clients.empty()) {
+    if (!clients.empty() && gameStarted) {
         gameState.update();
         char buffer[MAX_BUFFER_SIZE];
 
@@ -170,12 +171,35 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     pConn2Player.insert(std::make_pair(pConn, newPlayer));
     clients.push_back(pConn);
 
+    int opCode = gameStarted ? OPCODE_GAME_STARTED : OPCODE_GAME_NOT_STARTED;
+
     // TODO: Update GameState (add player)
     // Need to synchronize?
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
-        gameState.addPlayer(newPlayer);
+
+        if (gameStarted) {
+            gameState.addPlayer(newPlayer);
+        }
+        else {
+            gameState.addPlayerBeforeStart(newPlayer);
+        }
     }
+
+    // Send message to client
+    char buffer[MAX_BUFFER_SIZE];
+
+    boost::iostreams::basic_array_sink<char> sr(buffer, MAX_BUFFER_SIZE);
+    boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
+
+    boost::archive::text_oarchive oa(source);
+
+    Message msg(opCode);
+    oa << msg;
+    source << CRLF;
+    source << '\0';
+
+    pConn->deliverSerialization(buffer);
 }
 
 void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::system::error_code& error) {
@@ -183,6 +207,12 @@ void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::sy
         std::cerr << error.message() << std::endl;
     }
     std::cout << "Client disconnect." << std::endl;
+
+    // TODO: fix this if game not started
+
+
+
+
 
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
@@ -211,15 +241,41 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
     Message msg;
     ia >> msg; 
 
-    // Do something with the message (update game state)
-    // std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
-    
-    Player* player = pConn2Player[pConn];
-    // critical section here
-    // TODO: Update gameState
-    {
-        boost::lock_guard<boost::recursive_mutex> lock(m_guard);
-        gameState.updatePlayer(msg.getOpCode(), player);
+    // if msg is a "level selected" opcode, take string and read the INI file
+    if (!gameStarted && msg.getOpCode() == OPCODE_LEVEL_SELECT) { // TODO change this
+        gameState.loadFromConfigFile(msg.getLevelName());
+        gameStarted = true;
+        gameState.setInitPlayerPositions();
+
+        // Send to all waiting clients
+        char buffer[MAX_BUFFER_SIZE];
+
+        boost::iostreams::basic_array_sink<char> sr(buffer, MAX_BUFFER_SIZE);
+        boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
+
+        boost::archive::text_oarchive oa(source);
+
+        Message msg(OPCODE_GAME_STARTED);
+        oa << msg;
+        source << CRLF;
+        source << '\0';
+
+        for (PtrClientConnection conn : clients) {
+            conn->deliverSerialization(buffer);
+        }
+    }
+    else if (gameStarted && msg.getOpCode() != OPCODE_LEVEL_SELECT) {
+
+        // Do something with the message (update game state)
+        // std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
+
+        Player* player = pConn2Player[pConn];
+        // critical section here
+        // TODO: Update gameState
+        {
+            boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+            gameState.updatePlayer(msg.getOpCode(), player);
+        }
     }
 }
 

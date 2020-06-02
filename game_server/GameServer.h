@@ -65,6 +65,7 @@ private:
     std::vector<PtrClientConnection> clients;
     boost::unordered::unordered_map<PtrClientConnection, Player*> pConn2Player;
     unsigned int playerIdCounter;
+    bool gameStarted;
 
     boost::asio::steady_timer tickTimer;
     int deltaTimeMicrosec;

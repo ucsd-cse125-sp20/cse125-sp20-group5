@@ -32,7 +32,7 @@ NetworkClient::NetworkClient(const char* host, const char* port) : socket(ioCont
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));*/
         boost::asio::async_read_until(socket, readStreamBuf, CRLF,
-            boost::bind(&NetworkClient::handleReceive, this,
+            boost::bind(&NetworkClient::handleReceiveBeforeStart, this,
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));
     }
@@ -44,6 +44,13 @@ NetworkClient::NetworkClient(const char* host, const char* port) : socket(ioCont
 void NetworkClient::sendMessage(int opCode) {
     //std::cout << "sendMessage() :"<< opCode << std::endl;
     Message msg(opCode);
+    boost::asio::post(ioContext,
+        boost::bind(&NetworkClient::doWrite, this, msg));
+}
+
+void NetworkClient::sendMessage(int opCode, std::string levelName) {
+    //std::cout << "sendMessage() :"<< opCode << std::endl;
+    Message msg(opCode, levelName);
     boost::asio::post(ioContext,
         boost::bind(&NetworkClient::doWrite, this, msg));
 }
@@ -80,6 +87,53 @@ void NetworkClient::handleSend(const boost::system::error_code& error, size_t by
         std::cerr << "Message Sent Error" << std::endl;
     }
     //std::cout << "Message Sent" << std::endl;
+}
+
+void NetworkClient::handleReceiveBeforeStart(const boost::system::error_code& error, size_t bytes_transferred) {
+    if (!error) {
+        std::string s{
+            boost::asio::buffers_begin(readStreamBuf.data()),
+            boost::asio::buffers_begin(readStreamBuf.data()) + bytes_transferred - 4 };
+        readStreamBuf.consume(bytes_transferred);
+
+        //std::cout << s << std::endl;
+
+        boost::iostreams::stream<boost::iostreams::array_source> is(s.data(), s.length());
+
+        boost::archive::text_iarchive ia(is);
+        Message msg;
+        ia >> msg;
+
+        switch (msg.getOpCode()) {
+        case OPCODE_GAME_STARTED: {
+            gameStarted = true;
+
+            // start reading for game states
+            boost::asio::async_read_until(socket, readStreamBuf, CRLF,
+                boost::bind(&NetworkClient::handleReceive, this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+            break;
+        }
+        case OPCODE_GAME_NOT_STARTED: {
+            // wait for game to begin, keep listening for msg
+            boost::asio::async_read_until(socket, readStreamBuf, CRLF,
+                boost::bind(&NetworkClient::handleReceiveBeforeStart, this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+            break;
+        }
+        }
+    }
+    else {
+        try {
+            doClose();
+        }
+        catch (boost::exception const& e) {
+            // If exception occurs, this might provide more information
+            std::cout << boost::diagnostic_information(e) << std::endl;
+        }
+    }
 }
 
 void NetworkClient::handleReceive(const boost::system::error_code& error, size_t bytes_transferred) {
@@ -163,3 +217,5 @@ void NetworkClient::close() {
 void NetworkClient::doClose() {
     socket.close();
 }
+
+bool NetworkClient::getGameStarted() { return gameStarted; }

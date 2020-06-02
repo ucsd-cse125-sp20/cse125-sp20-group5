@@ -162,6 +162,10 @@ public:
             delete obstacle;
         }
 
+        for (Position* initPos : playerInitPositions) {
+            delete initPos;
+        }
+
         delete floor;
         delete waterTap;
         delete homeBase;
@@ -221,11 +225,26 @@ public:
     }
 
     void addPlayer(Player *player) {
-        Position* spawnPos = playerInitPositions[player->playerId % config.maxNumPlayers];
+        Position* spawnPos = new Position(playerInitPositions[player->playerId % config.maxNumPlayers]);
         player->position = spawnPos;
         player->currRow = spawnPos->z / Floor::TILE_SIZE;
         player->currCol = spawnPos->x / Floor::TILE_SIZE;
         players.push_back(player);
+    }
+
+    void addPlayerBeforeStart(Player* player) {
+        tempPlayers.push_back(player);
+    }
+
+    void setInitPlayerPositions() {
+        for (Player* player : tempPlayers) {
+            Position* spawnPos = new Position(playerInitPositions[player->playerId % config.maxNumPlayers]);
+            player->position = spawnPos;
+            player->currRow = spawnPos->z / Floor::TILE_SIZE;
+            player->currCol = spawnPos->x / Floor::TILE_SIZE;
+            players.push_back(player);
+        }
+        tempPlayers.clear();
     }
 
     void removePlayer(Player *player) {
@@ -1350,6 +1369,7 @@ public:
     std::vector<Obstacle*> obstacles;
 
     std::vector<Position*> playerInitPositions;
+    std::vector<Player*> tempPlayers;
 
     Floor* floor;
     WaterTap* waterTap;
