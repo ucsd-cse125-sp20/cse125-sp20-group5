@@ -201,6 +201,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChooseLevel.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientParams.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image2d.cpp" />

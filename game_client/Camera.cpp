@@ -8,7 +8,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Camera::Camera() {
+Camera::Camera(ClientParams& config)
+	: config(config)
+{
 	Reset();
 }
 
@@ -34,14 +36,14 @@ void Camera::Update() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void Camera::Reset() {
-	FOV = 45.0f;
-	Aspect = 1.00f;
-	NearClip = 0.1f;
-	FarClip = 200.0f;
+	FOV = config.FOV;
+	Aspect = config.aspect;
+	NearClip = config.nearClip;
+	FarClip = config.farClip;
 
-	Distance = 19.5f;
-	Azimuth = 0.0f;
-	Incline = 54.0f;
+	Distance = config.distance;
+	Azimuth = config.azimuth;
+	Incline = config.incline;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

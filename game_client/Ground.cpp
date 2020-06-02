@@ -1,7 +1,8 @@
 #include "Ground.h"
+#include "ClientParams.h"
 #include <iostream>
 
-Ground::Ground(int x, int y, float size,  int padX, int padY, uint shader, uint assimpShader)
+Ground::Ground(ClientParams& config, int x, int y, float size,  int padX, int padY, uint shader, uint assimpShader) : config(config)
 {
 	tilesX = x;
 	tilesY = y;
@@ -98,9 +99,9 @@ void Ground::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 				if (grid[(i * totalY) + j] == Ground::TILE_TYPE::TILLED) {
 					float offset = tileSize / 2.0;
 					temp.transform = glm::translate(temp.transform, glm::vec3(offset, 0.0, offset));
-					temp.transform[0][0] = DIRT_SCALER;
-					temp.transform[1][1] = DIRT_SCALER;
-					temp.transform[2][2] = DIRT_SCALER;
+					temp.transform[0][0] = config.dirtScaler;
+					temp.transform[1][1] = config.dirtScaler;
+					temp.transform[2][2] = config.dirtScaler;
 					tilled->draw(temp, viewProjMtx);
 				}
 				else {
@@ -178,7 +179,7 @@ const char* Ground::getTexture(TILE_TYPE type)
 	return NULL;
 }
 
-Ground * Ground::ground0(uint shader)
+Ground * Ground::ground0(ClientParams& config, uint shader)
 {
 	int x = 24;
 	int y = 20;
@@ -186,7 +187,7 @@ Ground * Ground::ground0(uint shader)
 	int padX = 2;
 	int padY = 2;
 
-	Ground * ground0 = new Ground(x, y, size, padX, padY, shader, shader);
+	Ground * ground0 = new Ground(config, x, y, size, padX, padY, shader, shader);
 
 	for (int i = 0; i < x; i++) {
 		for (int j = 0; j < y; j++) {

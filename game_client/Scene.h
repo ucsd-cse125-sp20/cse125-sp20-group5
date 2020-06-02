@@ -17,6 +17,7 @@
 #include "Constants.h"
 #include "Shader.h"
 #include "ParticleFactory.hpp"
+#include "ClientParams.h"
 
 class RenderController; //  put declaration here to sidestep header issues
 
@@ -93,12 +94,14 @@ private:
 
 	int zombieWaveNum = 0;
 
+	ClientParams& config;
+
 public:
 
 	std::unordered_map<uint, SceneNode*> objectIdMap;
 	std::unordered_map<uint, RenderController*> controllers;
 
-	Scene();
+	Scene(ClientParams& config);
 	~Scene();
 
 	void setupDirectionalLighting(glm::vec3 eyePosition);
@@ -111,7 +114,7 @@ public:
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable* model);
 
 	// static function for a to create a specfic scene good for grahics testing
-	static Scene* scene0();
+	static Scene* scene0(ClientParams& config);
 
 
 	// getter & setter

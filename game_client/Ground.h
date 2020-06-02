@@ -2,6 +2,7 @@
 #include "core.h"
 #include "Model.h"
 #include "AssimpModel.h"
+#include "ClientParams.h"
 
 class Ground : public Drawable
 {
@@ -23,11 +24,13 @@ private:
 	Model* baseLayer;
 	Model* outlineBox;
 
+	ClientParams& config;
+
 public:
 	static enum class TILE_TYPE { NORMAL = 0, PATH = 1, TILLED = 2, BLANK = 3, BASE_LAYER = 4};
 	static const int NUM_TILES = 5;
 
-	Ground(int x, int y, float size, int paddingX, int paddingY, uint shader, uint assimpShader);
+	Ground(ClientParams& config, int x, int y, float size, int paddingX, int paddingY, uint shader, uint assimpShader);
 	~Ground();
 	TILE_TYPE getLoc(int x, int y);
 	void setLoc(int x, int y, TILE_TYPE type);
@@ -44,7 +47,7 @@ public:
 	static glm::vec3 getColor(TILE_TYPE type);
 	static const char* getTexture(TILE_TYPE type);
 
-	static Ground * ground0(uint shader);
+	static Ground * ground0(ClientParams& config, uint shader);
 
 	void highlightTile(int x, int y);
 };
