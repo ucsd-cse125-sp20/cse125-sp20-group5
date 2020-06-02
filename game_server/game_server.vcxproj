@@ -29,6 +29,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="InitGameState.ini" />
+    <None Include="Level0.ini" />
+    <None Include="Level1.ini" />
+    <None Include="Level2.ini" />
+    <None Include="Level3.ini" />
+    <None Include="Level4.ini" />
     <None Include="ServerConfig.ini" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

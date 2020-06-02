@@ -13,7 +13,7 @@ public:
     ~NetworkClient();
 
     void sendMessage(int opCode);
-    void sendMessage(int opCode, std::string levelName);
+    void sendMessage(int opCode, int levelId);
     void handleSend(const boost::system::error_code& error, size_t bytes_transferred);
     void handleReceiveBeforeStart(const boost::system::error_code& error, size_t bytes_transferred);
     void handleReceive(const boost::system::error_code& error, size_t bytes_transferred);

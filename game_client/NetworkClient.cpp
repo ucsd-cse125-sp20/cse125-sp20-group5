@@ -48,9 +48,9 @@ void NetworkClient::sendMessage(int opCode) {
         boost::bind(&NetworkClient::doWrite, this, msg));
 }
 
-void NetworkClient::sendMessage(int opCode, std::string levelName) {
+void NetworkClient::sendMessage(int opCode, int levelId) {
     //std::cout << "sendMessage() :"<< opCode << std::endl;
-    Message msg(opCode, levelName);
+    Message msg(opCode, levelId);
     boost::asio::post(ioContext,
         boost::bind(&NetworkClient::doWrite, this, msg));
 }

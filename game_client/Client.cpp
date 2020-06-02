@@ -113,7 +113,7 @@ void Client::update() {
 			levelPage->setPlayers(1);
 			if (level != -1) {
 				// TODO we should set a message to the server with the level we choose
-				netClient->sendMessage(OPCODE_LEVEL_SELECT, "InitGameState.ini");
+				netClient->sendMessage(OPCODE_LEVEL_SELECT, level);
 				std::cout << "level: " << level << std::endl;
 				levelPage->removeWindow();
 				state = ClientState::PLAYING;

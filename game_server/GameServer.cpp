@@ -248,7 +248,18 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
 
     // if msg is a "level selected" opcode, take string and read the INI file
     if (!gameStarted && msg.getOpCode() == OPCODE_LEVEL_SELECT) { // TODO change this
-        gameState.loadFromConfigFile(msg.getLevelName());
+        int levelId = msg.getLevelId();
+
+        // TODO: use level ID to pick a level on server side
+        std::string level;
+        if (levelId > config.levels.size()) {
+            level = "InitGameState.ini"; // fallback
+        }
+        else {
+            level = config.levels[levelId];
+        }
+
+        gameState.loadFromConfigFile(level);
         gameStarted = true;
         gameState.setInitPlayerPositions();
 

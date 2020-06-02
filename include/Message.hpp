@@ -1,8 +1,6 @@
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
-#include <boost/serialization/string.hpp>
-
 #define CRLF "\r\n\r\n"
 
 #define OPCODE_NOP 0
@@ -28,27 +26,27 @@
 
 class Message {
 public:
-	Message() : opCode(OPCODE_NOP), levelName(std::string()) {}
-	Message(int op_code) : opCode(op_code), levelName(std::string()) {}
-	Message(int op_code, std::string level_name) : opCode(op_code), levelName(level_name) {}
+	Message() : opCode(OPCODE_NOP), levelId(0) {}
+	Message(int op_code) : opCode(op_code), levelId(0) {}
+	Message(int op_code, int level_id) : opCode(op_code), levelId(level_id) {}
 	
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		ar & opCode;
-		ar & levelName;
+		ar & levelId;
 	}
 
 	int getOpCode() {
 		return opCode;
 	}
 
-	std::string getLevelName() {
-		return levelName;
+	int getLevelId() {
+		return levelId;
 	}
 
 private:
 	int opCode;
-	std::string levelName; // used in OPCODE_LEVEL_SELECT
+	int levelId; // used in OPCODE_LEVEL_SELECT
 };
 
 #endif
