@@ -44,7 +44,7 @@ public:
 		Player* player = (Player*) gameObject;
 
 		rootNode->loadGameObject(player);
-		bool dontLoop = modelType == ModelType::CAT
+		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)
 			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
 		modelNode->switchAnim(player->animation->animationType, !dontLoop);
 

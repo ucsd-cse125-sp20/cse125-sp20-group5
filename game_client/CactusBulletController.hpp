@@ -11,7 +11,7 @@ private:
 public:
 	CactusBulletController(CactusBullet* bullet, Scene* scene) {
 		rootNode = new SceneNode(NULL, "RootCactusBulletEmpty", bullet->objectId);
-		modelNode = new SceneNode(scene->getModel(ModelType::CACTUS_BULLET), "ModelCactusBullet", bullet->objectId);
+		modelNode = scene->getModel(ModelType::CACTUS_BULLET)->createSceneNodes(bullet->objectId);
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
 		rootNode->scaler = BULLET_SCALER;
