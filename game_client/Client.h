@@ -12,6 +12,7 @@
 #include "ChooseLevel.h"
 #include "AudioEngine.h"
 #include "NetworkClient.h"
+#include "ClientParams.h"
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -28,7 +29,7 @@ public:
 	nanogui::Screen* screen;
 	static Client * CLIENT;
 
-	Client(GLFWwindow * window, nanogui::Screen * screen, int argc, char** argv);
+	Client(GLFWwindow * window, nanogui::Screen * screen, int argc, char** argv, ClientParams& config);
 	~Client();
 
 	void loop(); // Loop will be the idling function of glut
@@ -79,6 +80,7 @@ private:
 
 	NetworkClient *netClient;
 	GameState* currentGameState;
+	ClientParams& config;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

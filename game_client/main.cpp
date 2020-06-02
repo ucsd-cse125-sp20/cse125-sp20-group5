@@ -1,5 +1,6 @@
 #include "Core.h"
 #include "Client.h"
+#include "ClientParams.h"
 #include <iostream>
 
 #include <nanogui/glutil.h>
@@ -125,9 +126,10 @@ int main(int argc, char** argv) {
 
 	nanogui::Screen* screen = new nanogui::Screen();
 	screen->initialize(windowHandle, true);
+	ClientParams clientParams;
 
 	// make the client
-	Client::CLIENT = new Client(windowHandle, screen, argc, argv);
+	Client::CLIENT = new Client(windowHandle, screen, argc, argv, clientParams);
 	
 	// start the game loop
 	Client::CLIENT->loop();

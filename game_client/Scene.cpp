@@ -10,7 +10,7 @@
 
 #include "Client.h"
 
-Scene::Scene()
+Scene::Scene(ClientParams& config) : config(config)
 {
 	program = new ShaderProgram("Model.glsl", ShaderProgram::eRender);
 	assimpProgram = new ShaderProgram("AssimpModel.glsl", ShaderProgram::eRender);
@@ -128,7 +128,7 @@ void Scene::update()
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
 	if (ground == NULL) {
-		ground = new Ground(floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID(), assimpProgram->GetProgramID());
+		ground = new Ground(config, floor->tiles[0].size(), floor->tiles.size(), 1.0, 10, 10, program->GetProgramID(), assimpProgram->GetProgramID());
 		groundNode->obj = ground;
 		groundNode->position = glm::vec3(floor->tiles.size()/(-1.5), 0, floor->tiles[0].size()/(-2.0));
 	}
@@ -193,13 +193,13 @@ void Scene::update()
 			obstacleNode = getDrawableSceneNode(obstacle->objectId, rockModels[randomStoneIndex]);
 
 			obstacleNode->loadGameObject(obstacle);
-			obstacleNode->scaler = STONE_SCALER;
+			obstacleNode->scaler = config.stoneScaler;
 		}
 		else {
 			obstacleNode = getDrawableSceneNode(obstacle->objectId, treeModel);
 
 			obstacleNode->loadGameObject(obstacle);
-			obstacleNode->scaler = TREE_SCALER;
+			obstacleNode->scaler = config.treeScaler;
 		}
 		
 		unusedIds.erase(obstacle->objectId);
@@ -232,7 +232,7 @@ void Scene::update()
 			seedShackNode = getDrawableSceneNode(seedShack->objectId, seedSourceModel_cactus);
 	
 		seedShackNode->loadGameObject(seedShack);
-        seedShackNode->scaler = SEED_SOURCE_SCALER;
+		seedShackNode->scaler = config.seedSourceScaler;
         unusedIds.erase(seedShack->objectId);
 	}
 	
@@ -299,10 +299,10 @@ void Scene::setState(GameState* state)
 
 // static function for a to create a specfic scene I imagine one of these for each level/screen
 
-Scene* Scene::scene0() {
-	Scene* scene = new Scene;
+Scene* Scene::scene0(ClientParams& config) {
+	Scene* scene = new Scene(config);
 
-	scene->ground = Ground::ground0(scene->program->GetProgramID());
+	scene->ground = Ground::ground0(config, scene->program->GetProgramID());
 
 	return scene;
 }
