@@ -186,7 +186,7 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
         }
     }
 
-    // Send message to client
+    // Send initial message to client (has game started or not?)
     char buffer[MAX_BUFFER_SIZE];
 
     boost::iostreams::basic_array_sink<char> sr(buffer, MAX_BUFFER_SIZE);
@@ -213,23 +213,23 @@ void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::sy
     }
     std::cout << "Client disconnect." << std::endl;
 
-    // TODO: fix this if game not started
+    auto it = std::find(clients.begin(), clients.end(), pConn);
+    if (it != clients.end()) {
+        clients.erase(it);
+    }
 
-
-
-
+    Player* toDel = pConn2Player[pConn];
+    pConn2Player.erase(pConn);
 
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
 
-        auto it = std::find(clients.begin(), clients.end(), pConn);
-        if (it != clients.end()) {
-            clients.erase(it);
+        if (gameStarted) {
+            gameState.removePlayer(toDel);
         }
-
-        Player* toDel = pConn2Player[pConn];
-        pConn2Player.erase(pConn);
-        gameState.removePlayer(toDel);
+        else {
+            gameState.removeTempPlayer(toDel);
+        }
     }
 
     // TODO: Update GameState (delete player)
@@ -259,9 +259,13 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
             level = config.levels[levelId];
         }
 
-        gameState.loadFromConfigFile(level);
-        gameStarted = true;
-        gameState.setInitPlayerPositions();
+        // Add lock since GameState is modified
+        {
+            boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+            gameState.loadFromConfigFile(level);
+            gameStarted = true;
+            gameState.setInitPlayerPositions();
+        }
 
         // Send to all waiting clients
         char buffer[MAX_BUFFER_SIZE];

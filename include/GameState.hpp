@@ -259,6 +259,13 @@ public:
         }
     }
 
+    void removeTempPlayer(Player* player) {
+        auto it = std::find(tempPlayers.begin(), tempPlayers.end(), player);
+        if (it != tempPlayers.end()) {
+            tempPlayers.erase(it);
+        }
+    }
+
     void update() {
         playersPerformAction();
         playersInteract();
