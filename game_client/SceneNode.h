@@ -11,7 +11,6 @@ private:
 
 	/*not sure baout this*/
 	uint modelId;
-	uint childNum;
 	uint childCount;
 	bool hasParticleBool;
 
@@ -29,6 +28,8 @@ public:
 	glm::vec3 pose;
 	float scaler;
 	bool highlighted;
+
+	int childNum;
 
 	SceneNode(Drawable * myO, std::string name, uint objectId);
 

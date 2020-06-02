@@ -30,6 +30,7 @@ Scene::Scene()
 	playerChickenModel = new AnimatedAssimpModel(PLAYER_CHICKEN_MODEL, animationProgram->GetProgramID());
 
 	saplingModel = new AnimatedAssimpModel(SAPLING_MODEL, animationProgram->GetProgramID());
+	babyplayerplant = new AnimatedAssimpModel(BABY_PLAYER_PLANT_MODEL, animationProgram->GetProgramID());
 	seedModel = saplingModel;
 	babyCornModel = new AnimatedAssimpModel(BABY_CORN_MODEL, animationProgram->GetProgramID());	
 	cornModel = new AnimatedAssimpModel(CORN_MODEL, animationProgram->GetProgramID());

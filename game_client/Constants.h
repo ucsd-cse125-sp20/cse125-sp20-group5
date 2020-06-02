@@ -32,6 +32,7 @@
 #define FERTILIZER_MODEL "model/fertilizer.obj"
 
 #define SAPLING_MODEL "model/sapling.fbx"
+#define BABY_PLAYER_PLANT_MODEL "model/baby_player_plant.fbx"
 
 #define HOME_BASE_MODEL "model/bear.fbx"
 
