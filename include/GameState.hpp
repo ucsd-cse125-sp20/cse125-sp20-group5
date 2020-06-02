@@ -530,26 +530,6 @@ public:
             Plant* plant = *it;
             if (plant->growStage == Plant::GrowStage::GROWN) {
                 // Grown stage
-
-                if (plant->plantType == Plant::PlantType::PLAYER) {
-                    // If plant is a player plant, revive player
-                    Player* revivedPlayer = plant->playerPlant;
-                    revivedPlayer->animation->animationType = Player::PlayerAnimation::IDLE;
-                    revivedPlayer->isDead = false;
-                    revivedPlayer->health = revivedPlayer->maxHealth;
-                    revivedPlayer->position->x = plant->position->x;
-                    revivedPlayer->position->y = plant->position->y;
-                    revivedPlayer->position->z = plant->position->z;
-                    it = plants.erase(it);
-                    
-                    // Restore tile info
-                    Tile* tile = getCurrentTile(plant);
-                    tile->canPlow = true;
-                    tile->tileType = Tile::TYPE_NORMAL;
-                    tile->plantId = 0;
-                    continue;
-				}
-
                 if (plant->aliveTime >= plant->deathTime) {
                     // Plant is dead, get rid of it
                     Tile* tile = getCurrentTile(plant);
@@ -579,13 +559,31 @@ public:
                     plant->growProgressTime = 0.0f;
                     plant->cooldownTime = plant->coolDownExpireTime;
                 }
-
                 if (plant->cooldownTime > 0) {
                     plant->cooldownTime -= deltaTime;
                 }
 
-            }
+                // Handle the newly grown player plant within the same tick
+                if (plant->growStage == Plant::GrowStage::GROWN 
+                    && plant->plantType == Plant::PlantType::PLAYER) {
+                    // If plant is a dplayer plant, revive player
+                    Player* revivedPlayer = plant->playerPlant;
+                    revivedPlayer->animation->animationType = Player::PlayerAnimation::IDLE;
+                    revivedPlayer->isDead = false;
+                    revivedPlayer->health = revivedPlayer->maxHealth;
+                    revivedPlayer->position->x = plant->position->x;
+                    revivedPlayer->position->y = plant->position->y;
+                    revivedPlayer->position->z = plant->position->z;
+                    it = plants.erase(it);
 
+                    // Restore tile info
+                    Tile* tile = getCurrentTile(plant);
+                    tile->canPlow = true;
+                    tile->tileType = Tile::TYPE_NORMAL;
+                    tile->plantId = 0;
+                    continue;
+                }
+            }
 
             // TODO: handle spawn bullets
 
