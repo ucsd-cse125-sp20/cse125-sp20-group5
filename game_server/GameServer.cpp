@@ -15,7 +15,7 @@ PtrClientConnection ClientConnection::create(boost::asio::io_context& io_context
 
 ClientConnection::ClientConnection(boost::asio::io_context& io_context, IGameServer* ptrServer)
   : socket_(io_context),
-    server(ptrServer) {
+    server(ptrServer), startMessageSent(false) {
 
 }
 
@@ -99,6 +99,9 @@ void ClientConnection::handleWrite(const boost::system::error_code& error, size_
     //std::cout << "Serialization Sent bytes_transferred = " << bytes_transferred << std::endl;
 }
 
+bool ClientConnection::getStartMessageSent() { return startMessageSent; }
+void ClientConnection::setStartMessageSent(bool sent) { startMessageSent = sent; }
+
 GameServer::GameServer(
     ServerParams& config,
     boost::asio::io_context& io_context)
@@ -168,9 +171,6 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     newPlayer->maxHealth = config.playerMaxHealth;
     newPlayer->health = newPlayer->maxHealth;
 
-    pConn2Player.insert(std::make_pair(pConn, newPlayer));
-    clients.push_back(pConn);
-
     int opCode = gameStarted ? OPCODE_GAME_STARTED : OPCODE_GAME_NOT_STARTED;
 
     // TODO: Update GameState (add player)
@@ -200,6 +200,11 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     source << '\0';
 
     pConn->deliverSerialization(buffer);
+    pConn->setStartMessageSent(gameStarted);
+
+    // Add player mapping
+    pConn2Player.insert(std::make_pair(pConn, newPlayer));
+    clients.push_back(pConn);
 }
 
 void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::system::error_code& error) {
@@ -261,7 +266,10 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
         source << '\0';
 
         for (PtrClientConnection conn : clients) {
-            conn->deliverSerialization(buffer);
+            if (!conn->getStartMessageSent()) {
+                conn->deliverSerialization(buffer);
+                conn->setStartMessageSent(true);
+            }
         }
     }
     else if (gameStarted && msg.getOpCode() != OPCODE_LEVEL_SELECT) {

@@ -30,6 +30,9 @@ public:
     void deliver(const std::string& msg);
     void deliverSerialization(char* buf);
 
+    bool getStartMessageSent();
+    void setStartMessageSent(bool sent);
+
 private:
     ClientConnection(boost::asio::io_context& io_context, IGameServer* p_server);
 
@@ -41,6 +44,7 @@ private:
     tcp::socket socket_;
     IGameServer* server;
     boost::asio::streambuf readStreamBuf;
+    bool startMessageSent;
 };
 
 class GameServer : public boost::enable_shared_from_this<GameServer>,
