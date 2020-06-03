@@ -12,6 +12,7 @@ ZombieWaveManager::ZombieWaveManager(GameState* state)
     zombiesSpawned(0) 
 {
     gameState = state;
+    currTime = gameState->config.waveStartTime;
     waveNum = 0;
 }
 
