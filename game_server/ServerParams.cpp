@@ -31,9 +31,13 @@ ServerParams::ServerParams() {
     // Zombie wave parameters
     waveDefaultNumZombies = config.GetInteger("ZombieWaves", "WaveDefaultNumZombies", 1);
     waveDeltaNumZombies = config.GetInteger("ZombieWaves", "WaveDeltaNumZombies", 2);
-    zombieDefaultHealth = config.GetInteger("ZombieWaves", "ZombieDefaultHealth", 100);
-    zombieDeltaHealth = config.GetInteger("ZombieWaves", "ZombieDeltaHealth", 20);
+    zombieRabbitDefaultHealth = config.GetInteger("ZombieWaves", "ZombieRabbitDefaultHealth", 100);
+    zombieRabbitDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombieRabbitDeltaHealthMultiplier", 0.2f);
+    zombiePigDefaultHealth = config.GetInteger("ZombieWaves", "ZombiePigDefaultHealth", 100);
+    zombiePigDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombiePigDeltaHealthMultiplier", 0.2f);
     waveStartTime = config.GetFloat("ZombieWaves", "WaveStartTime", 5.0f);
+    zombieRabbitSpawnFreq = config.GetFloat("ZombieWaves", "ZombieRabbitSpawnFreq", 1.0f);
+    zombiePigSpawnFreq = config.GetFloat("ZombieWaves", "ZombiePigSpawnFreq", 1.0f);
 
     // Plant Corn
     cornAttackPower = config.GetInteger("Corn", "AttackPower", 50);
