@@ -103,16 +103,25 @@ void Client::update() {
 		}
 	}
 	else if (state == ClientState::CHOOSELEVEL) {
-		int level = levelPage->getLevel();
-		// this means we've selected a level
-		levelPage->setPlayers(1);
-		if (level != -1) {
-			// TODO we should set a message to the server with the level we choose
-			std::cout << "level: " << level << std::endl;
+		if (netClient->getGameStarted()) {
 			levelPage->removeWindow();
 			state = ClientState::PLAYING;
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
+		}
+		else {
+			int level = levelPage->getLevel();
+			// this means we've selected a level
+			levelPage->setPlayers(1);
+			if (level != -1) {
+				// TODO we should set a message to the server with the level we choose
+				netClient->sendMessage(OPCODE_LEVEL_SELECT, level);
+				std::cout << "level: " << level << std::endl;
+				levelPage->removeWindow();
+				state = ClientState::PLAYING;
+				glEnable(GL_DEPTH_TEST);
+				glEnable(GL_CULL_FACE);
+			}
 		}
 
 	}

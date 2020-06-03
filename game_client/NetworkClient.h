@@ -13,7 +13,9 @@ public:
     ~NetworkClient();
 
     void sendMessage(int opCode);
+    void sendMessage(int opCode, int levelId);
     void handleSend(const boost::system::error_code& error, size_t bytes_transferred);
+    void handleReceiveBeforeStart(const boost::system::error_code& error, size_t bytes_transferred);
     void handleReceive(const boost::system::error_code& error, size_t bytes_transferred);
     void doClose();
 
@@ -22,8 +24,12 @@ public:
     void start();
     void close();
 
+    bool getGameStarted();
+
 private:
     void doWrite(Message& msg);
+
+    bool gameStarted;
 
     boost::asio::io_context ioContext;
     boost::asio::ip::tcp::socket socket;

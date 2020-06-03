@@ -64,6 +64,13 @@ ServerParams::ServerParams() {
     cactusFertilizerDeltaAttack = config.GetInteger("Cactus", "FertilizerDeltaAttack", 50);
 
     // Obstacle
-    treeBoxRadius = config.GetFloat("Obstacle", "TreeBoxRadius", 0.5f);;
-    stoneBoxRadius = config.GetFloat("Obstacle", "StoneBoxRadius", 0.5f);;
+    treeBoxRadius = config.GetFloat("Obstacle", "TreeBoxRadius", 0.5f);
+    stoneBoxRadius = config.GetFloat("Obstacle", "StoneBoxRadius", 0.5f);
+
+    // Levels
+    int numLevels = config.GetInteger("Levels", "NumLevels", 4);
+    for (unsigned int i = 0; i < numLevels; i++) {
+        std::string currLevel = "Level" + std::to_string(i);
+        levels.push_back(config.Get("Levels", currLevel, "InitGameState.ini"));
+    }
 }
