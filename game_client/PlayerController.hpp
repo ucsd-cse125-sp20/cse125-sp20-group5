@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "RenderController.hpp"
 #include "ToolController.hpp"
+#include "HealthBar.h"
 
 
 #define PLAYER_SCALER 0.30
@@ -14,10 +15,15 @@
 #define FERTILIZER_HOLD_ANGLE glm::vec3(3.14/2, 0, 0)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
 
+static constexpr float HP_BAR_TRANSLATE_Y = 2.3;
+static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, .7, 0.4);
+
 class PlayerController : public RenderController {
 private:
 	uint playerId;
 	ModelType modelType;
+	HealthBar* hpBar;
+	SceneNode * barNode;
 
 public:
 	PlayerController(Player* player, Scene* scene) {
@@ -36,9 +42,21 @@ public:
 		rootNode->addChild(modelNode);
 		rootNode->scaler = PLAYER_SCALER;
 		scene->getGroundNode()->addChild(rootNode);
+
+		// init hp bar
+		float initBarFilledFraction = 1.0f;
+		HealthBarSetting barSetting(
+			"texture/hp_icon.png", HP_BAR_TRANSLATE_Y, initBarFilledFraction, HP_BAR_COLOR
+		);
+		std::tie(hpBar, barNode) = createHealthBar(barSetting, scene);
 	}
 
-	~PlayerController() {}
+	~PlayerController() {
+		if (barNode) {
+			barNode = RenderController::deleteBarNode(barNode);
+		}
+		if (hpBar) { delete hpBar; }
+	}
 
 	void update(GameObject * gameObject, Scene * scene) override {
 		Player* player = (Player*) gameObject;
@@ -61,6 +79,7 @@ public:
 
 		handleHoldingAction(player, scene);
 		handleHighlighting(player, scene);
+		updateHpBar(player, scene);
 	}
 
 	// here is wehre we handle stuff like making sure they are holding another object
@@ -106,5 +125,19 @@ public:
 
 		// Set highlight tiles
 		((Ground*)(scene->getGroundNode()->obj))->highlightTile(player->highlightTileCol, player->highlightTileRow);
+	}
+
+	void updateHpBar(Player* player, Scene* scene) {
+		if (player->maxHealth <= 0) {
+			return; // data hasn't been received from server yet
+		}
+		/*if (hpBar->currFilledFraction <= 0.0) {
+			if (barNode) {
+				//barNode = RenderController::deleteBarNode(barNode);
+			}
+		}*/
+		else {
+			hpBar->updateBar((float)player->health / (float)player->maxHealth);
+		}
 	}
 };
