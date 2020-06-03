@@ -195,6 +195,14 @@ void Client::sendKeyboardEvents()
 		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
 	}
 
+
+	if ((*keyPresses)[GLFW_KEY_E]) {
+		netClient->sendMessage(OPCODE_PLAYER_START_ACTION);
+	}
+	else {
+		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
+	}
+
 	/* For testing */
 	if ((*keyPresses)[GLFW_KEY_1]) {
 		int player1_numAnim = 2;

@@ -10,6 +10,7 @@
 #include "Constants.h"
 #include "SceneNode.h"
 #include "Drawable.h"
+#include "DrawableUI.h"
 #include "HealthBar.h"
 
 
@@ -61,11 +62,11 @@ public:
 
     static void drawUI(const glm::mat4& viewProjMtx) {
         std::sort(uiNodes.begin(), uiNodes.end(), z_compare());
-        HealthBar::isDrawUiMode = true;
+        DrawableUI::isDrawUiMode = true;
         for (SceneNode* uiNode : uiNodes) {
             uiNode->draw(viewProjMtx);
         }
-        HealthBar::isDrawUiMode = false;
+        DrawableUI::isDrawUiMode = false;
     }
 
     // Always return nullptr which should be assigned to the original barNode class member

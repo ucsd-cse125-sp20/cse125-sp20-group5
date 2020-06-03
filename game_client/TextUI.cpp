@@ -4,17 +4,52 @@
 using namespace glm;
 using namespace std;
 
-TextUI::TextUI(uint shader, const char* fontFile)
+GLuint TextUI::VBO, TextUI::VAO;
+std::map<FontType, std::map<GLchar, Character >> TextUI::fontCharacters;
+bool TextUI::staticInitialized = false;
+
+TextUI::TextUI(uint shader, FontType usedFont, glm::vec3 usedColor, std::string reservedText, mat4 model)
 {
 	this->shader = shader;
+	this->model = model;
+	this->reservedText = reservedText;
+	this->usedFont = usedFont;
+	this->usedColor = usedColor;
 
+	if (!staticInitialized) {
+		for (auto it = fontFileMap.begin(); it != fontFileMap.end(); it++)
+		{
+			FontType type = it->first;
+			const char* fontFile = it->second;
+			fontCharacters[type] = this->initFont(fontFile);
+		}
+	}
+
+	// load background textures
+	//TODO loadTexture("texture/blob.png", backgroundTexture[BackgroundTexture::BLOB]);
+	
+
+	// configure VAO/VBO for texture quads
+	// -----------------------------------
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+std::map<GLchar, Character > TextUI::initFont(const char* fontFile) {
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft))
-		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+	std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
 	FT_Face face;
 	if (FT_New_Face(ft, fontFile, 0, &face))
-		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+	std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 
 	// set size to load glyphs as
 	FT_Set_Pixel_Sizes(face, 0, 48);
@@ -23,6 +58,7 @@ TextUI::TextUI(uint shader, const char* fontFile)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// load first 128 characters of ASCII set
+	std::map<GLchar, Character >Characters;
 	for (unsigned char c = 0; c < 128; c++)
 	{
 		// Load character glyph 
@@ -65,24 +101,14 @@ TextUI::TextUI(uint shader, const char* fontFile)
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
 
-
-	// configure VAO/VBO for texture quads
-	// -----------------------------------
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	return Characters;
 }
 
 TextUI::~TextUI()
 {
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	// Since the below are static in this class
+	//glDeleteVertexArrays(1, &VAO);
+	//glDeleteBuffers(1, &VBO);
 }
 
 // render line of text
@@ -90,14 +116,39 @@ TextUI::~TextUI()
 void TextUI::renderText(std::string text, float x, float y, float scale, glm::vec3 color)
 {
 	glUseProgram(shader);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // to allow transparent
 
+	glUniform1i(glGetUniformLocation(shader, "renderInWorld"), 0);
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(Client::getWinX()), 0.0f, static_cast<float>(Client::getWinY()));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, (float*)&projection);
 	glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
+	
+	renderFont(text, x, y, scale);
+
+	glUseProgram(0);
+}
+
+void TextUI::renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat4 modelMtx, float scale, glm::vec3 color)
+{
+	glUseProgram(shader);
+
+	glUniform1i(glGetUniformLocation(shader, "renderInWorld"), 1);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
+	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&modelMtx);
+	glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
+
+	renderFont(text, 0, 0, scale);
+
+	glUseProgram(0);
+}
+
+void TextUI::renderFont(std::string text, float x, float y, float scale) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // to allow transparent
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
+
+	std::map<GLchar, Character >Characters = fontCharacters[usedFont];
 
 	// iterate through all characters
 	std::string::const_iterator c;
@@ -136,5 +187,16 @@ void TextUI::renderText(std::string text, float x, float y, float scale, glm::ve
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glDisable(GL_BLEND);
-	glUseProgram(0);
+}
+
+
+void TextUI::draw(SceneNode& node, const glm::mat4& viewProjMtx) {
+	//if (!canDraw()) { return; }
+
+	mat4 modelMtx = translate(vec3(node.transform[3])) * model;
+	renderTextInWorld(reservedText, viewProjMtx, modelMtx, 0.008f, usedColor);
+}
+
+void TextUI::update(SceneNode* node) {
+
 }

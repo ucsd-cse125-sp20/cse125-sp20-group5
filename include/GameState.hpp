@@ -536,7 +536,6 @@ public:
                         else {
                             plant->powerUpTimeLeft = config.cactusPowerUpTime;
                         }
-
                     }
 
                     // if cooldown is not active, fertilize plant
