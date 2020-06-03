@@ -15,7 +15,7 @@ PtrClientConnection ClientConnection::create(boost::asio::io_context& io_context
 
 ClientConnection::ClientConnection(boost::asio::io_context& io_context, IGameServer* ptrServer)
   : socket_(io_context),
-    server(ptrServer) {
+    server(ptrServer), startMessageSent(false) {
 
 }
 
@@ -99,6 +99,9 @@ void ClientConnection::handleWrite(const boost::system::error_code& error, size_
     //std::cout << "Serialization Sent bytes_transferred = " << bytes_transferred << std::endl;
 }
 
+bool ClientConnection::getStartMessageSent() { return startMessageSent; }
+void ClientConnection::setStartMessageSent(bool sent) { startMessageSent = sent; }
+
 GameServer::GameServer(
     ServerParams& config,
     boost::asio::io_context& io_context)
@@ -109,7 +112,8 @@ GameServer::GameServer(
     deltaTimeMicrosec(1000000 / config.tickrate) {
 
     gameState.init(config);
-    gameState.loadFromConfigFile("InitGameState.ini");
+    gameStarted = false;
+    //gameState.loadFromConfigFile("InitGameState.ini");
 
     startAccept();
     sendToAll();
@@ -133,7 +137,7 @@ void GameServer::handleAccept(PtrClientConnection newConnection, const boost::sy
 }
 
 void GameServer::sendToAll() {
-    if (!clients.empty()) {
+    if (!clients.empty() && gameStarted) {
         gameState.update();
         char buffer[MAX_BUFFER_SIZE];
 
@@ -167,15 +171,40 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     newPlayer->maxHealth = config.playerMaxHealth;
     newPlayer->health = newPlayer->maxHealth;
 
-    pConn2Player.insert(std::make_pair(pConn, newPlayer));
-    clients.push_back(pConn);
+    int opCode = gameStarted ? OPCODE_GAME_STARTED : OPCODE_GAME_NOT_STARTED;
 
     // TODO: Update GameState (add player)
     // Need to synchronize?
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
-        gameState.addPlayer(newPlayer);
+
+        if (gameStarted) {
+            gameState.addPlayer(newPlayer);
+        }
+        else {
+            gameState.addPlayerBeforeStart(newPlayer);
+        }
     }
+
+    // Send initial message to client (has game started or not?)
+    char buffer[MAX_BUFFER_SIZE];
+
+    boost::iostreams::basic_array_sink<char> sr(buffer, MAX_BUFFER_SIZE);
+    boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
+
+    boost::archive::text_oarchive oa(source);
+
+    Message msg(opCode);
+    oa << msg;
+    source << CRLF;
+    source << '\0';
+
+    pConn->deliverSerialization(buffer);
+    pConn->setStartMessageSent(gameStarted);
+
+    // Add player mapping
+    pConn2Player.insert(std::make_pair(pConn, newPlayer));
+    clients.push_back(pConn);
 }
 
 void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::system::error_code& error) {
@@ -184,17 +213,23 @@ void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::sy
     }
     std::cout << "Client disconnect." << std::endl;
 
+    auto it = std::find(clients.begin(), clients.end(), pConn);
+    if (it != clients.end()) {
+        clients.erase(it);
+    }
+
+    Player* toDel = pConn2Player[pConn];
+    pConn2Player.erase(pConn);
+
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
 
-        auto it = std::find(clients.begin(), clients.end(), pConn);
-        if (it != clients.end()) {
-            clients.erase(it);
+        if (gameStarted) {
+            gameState.removePlayer(toDel);
         }
-
-        Player* toDel = pConn2Player[pConn];
-        pConn2Player.erase(pConn);
-        gameState.removePlayer(toDel);
+        else {
+            gameState.removeTempPlayer(toDel);
+        }
     }
 
     // TODO: Update GameState (delete player)
@@ -211,15 +246,59 @@ void GameServer::onDataRead(PtrClientConnection pConn, const char* pData, size_t
     Message msg;
     ia >> msg; 
 
-    // Do something with the message (update game state)
-    // std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
-    
-    Player* player = pConn2Player[pConn];
-    // critical section here
-    // TODO: Update gameState
-    {
-        boost::lock_guard<boost::recursive_mutex> lock(m_guard);
-        gameState.updatePlayer(msg.getOpCode(), player);
+    // if msg is a "level selected" opcode, take string and read the INI file
+    if (!gameStarted && msg.getOpCode() == OPCODE_LEVEL_SELECT) { // TODO change this
+        int levelId = msg.getLevelId();
+
+        // TODO: use level ID to pick a level on server side
+        std::string level;
+        if (levelId > config.levels.size()) {
+            level = "InitGameState.ini"; // fallback
+        }
+        else {
+            level = config.levels[levelId];
+        }
+
+        // Add lock since GameState is modified
+        {
+            boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+            gameState.loadFromConfigFile(level);
+            gameStarted = true;
+            gameState.setInitPlayerPositions();
+        }
+
+        // Send to all waiting clients
+        char buffer[MAX_BUFFER_SIZE];
+
+        boost::iostreams::basic_array_sink<char> sr(buffer, MAX_BUFFER_SIZE);
+        boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
+
+        boost::archive::text_oarchive oa(source);
+
+        Message msg(OPCODE_GAME_STARTED);
+        oa << msg;
+        source << CRLF;
+        source << '\0';
+
+        for (PtrClientConnection conn : clients) {
+            if (!conn->getStartMessageSent()) {
+                conn->deliverSerialization(buffer);
+                conn->setStartMessageSent(true);
+            }
+        }
+    }
+    else if (gameStarted && msg.getOpCode() != OPCODE_LEVEL_SELECT) {
+
+        // Do something with the message (update game state)
+        // std::cout << "PtrClientConnection: " << pConn << " Opcode received: " << msg.getOpCode() << std::endl;
+
+        Player* player = pConn2Player[pConn];
+        // critical section here
+        // TODO: Update gameState
+        {
+            boost::lock_guard<boost::recursive_mutex> lock(m_guard);
+            gameState.updatePlayer(msg.getOpCode(), player);
+        }
     }
 }
 

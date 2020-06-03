@@ -40,5 +40,20 @@
     <None Include="ServerConfig.ini">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Level2.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Level0.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Level1.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Level3.ini">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Level4.ini">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

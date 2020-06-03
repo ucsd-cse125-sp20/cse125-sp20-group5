@@ -1,6 +1,9 @@
 #ifndef _SERVER_PARAMS_H
 #define _SERVER_PARAMS_H
 
+#include <vector>
+#include <string>
+
 class ServerParams {
 public:
 
@@ -65,6 +68,9 @@ public:
     // Obstacle
     float treeBoxRadius;
     float stoneBoxRadius;
+
+    // Level names
+    std::vector<std::string> levels;
 
     ServerParams();
 

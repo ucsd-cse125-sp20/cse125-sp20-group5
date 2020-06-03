@@ -1,7 +1,6 @@
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
-
 #define CRLF "\r\n\r\n"
 
 #define OPCODE_NOP 0
@@ -18,22 +17,36 @@
 #define OPCODE_PLAYER_START_ACTION 12
 #define OPCODE_PLAYER_END_ACTION 13
 
+// Level select
+#define OPCODE_LEVEL_SELECT 14
+
+// Has game begun or not
+#define OPCODE_GAME_STARTED 15
+#define OPCODE_GAME_NOT_STARTED 16
+
 class Message {
 public:
-	Message() : opCode(OPCODE_NOP){}
-	Message(int op_code) : opCode(op_code) {}
+	Message() : opCode(OPCODE_NOP), levelId(0) {}
+	Message(int op_code) : opCode(op_code), levelId(0) {}
+	Message(int op_code, int level_id) : opCode(op_code), levelId(level_id) {}
 	
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		ar & opCode;
+		ar & levelId;
 	}
 
 	int getOpCode() {
 		return opCode;
 	}
 
+	int getLevelId() {
+		return levelId;
+	}
+
 private:
 	int opCode;
+	int levelId; // used in OPCODE_LEVEL_SELECT
 };
 
 #endif
