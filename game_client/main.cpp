@@ -100,6 +100,9 @@ int main(int argc, char** argv) {
 	glGetError(); // pull and ignore unhandled errors like GL_INVALID_ENUM
 	glfwSwapInterval(1);
 
+	// init nano gui
+	nanogui::Screen* screen = new nanogui::Screen();
+	screen->initialize(windowHandle, true);
 
 	int width, height;
 	glfwGetFramebufferSize(windowHandle, &width, &height);
@@ -122,7 +125,6 @@ int main(int argc, char** argv) {
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-
 
 	nanogui::Screen* screen = new nanogui::Screen();
 	screen->initialize(windowHandle, true);

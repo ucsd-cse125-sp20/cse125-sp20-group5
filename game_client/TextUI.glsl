@@ -10,6 +10,9 @@ layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
 out vec2 TexCoords;
 
 uniform mat4 projection;
+uniform int renderInWorld;
+uniform mat4 model;
+uniform mat4 projectView;
 
 ////////////////////////////////////////
 // Vertex shader
@@ -17,7 +20,13 @@ uniform mat4 projection;
 
 void main()
 {
-    gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
+    if (renderInWorld == 0) {
+        gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);
+    }
+    else {
+        gl_Position = projectView * model * vec4(vertex.xy, 0.0, 1.0);
+    }
+
     TexCoords = vertex.zw;
 }
 

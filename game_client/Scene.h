@@ -85,6 +85,7 @@ private:
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
 	TextUI* textUI; //TODO to be removed
+	TextUI* textInWorld; //TODO to be removed
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
