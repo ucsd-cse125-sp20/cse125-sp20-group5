@@ -58,7 +58,7 @@ void SceneNode::removeSelf()
 {
 	if (parent != NULL) {
 		parent->children.erase(childNum); // erase child from map
-		childNum = 0; // reset child num
+		childNum = -1; // reset child num
 		parent = NULL; // resert parent
 	}
 }

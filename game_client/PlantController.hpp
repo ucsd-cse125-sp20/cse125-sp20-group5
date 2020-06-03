@@ -137,22 +137,37 @@ public:
 
     void updatePlantModel(Plant* plant, Scene* scene) {
         // Delete old model node
+        modelNode->removeSelf();
         delete modelNode;
 
         // Switch to new model
         uint objectId = plant->objectId;
         switch (plant->growStage) {
             case Plant::GrowStage::SEED:
-                modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
+                if (plant->plantType == Plant::PlantType::PLAYER) {
+                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
+                }
+                else {
+                    modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
+                }
                 modelNode->scaler = SEED_SCALER;
                 modelNode->position = SEED_VEC;
                 break;
             case Plant::GrowStage::SAPLING:
-                modelNode = scene->getModel(ModelType::SAPLING)->createSceneNodes(objectId);
+                if (plant->plantType == Plant::PlantType::PLAYER) {
+                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
+                }
+                else {
+                    modelNode = scene->getModel(ModelType::SAPLING)->createSceneNodes(objectId);
+                }
                 modelNode->scaler = SAPLING_SCALER;
                 break;
             case Plant::GrowStage::BABY:
-                if (plant->plantType == Plant::PlantType::CORN) {
+                if (plant->plantType == Plant::PlantType::PLAYER) {
+                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
+                    modelNode->scaler = SAPLING_SCALER;
+                }
+                else if (plant->plantType == Plant::PlantType::CORN) {
                     modelNode = scene->getModel(ModelType::BABY_CORN)->createSceneNodes(objectId);
                     modelNode->scaler = BABY_CORN_SCALER;
                 }

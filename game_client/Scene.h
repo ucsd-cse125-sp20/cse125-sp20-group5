@@ -17,6 +17,7 @@
 #include "Constants.h"
 #include "Shader.h"
 #include "ParticleFactory.hpp"
+#include "ClientParams.h"
 
 class RenderController; //  put declaration here to sidestep header issues
 
@@ -28,7 +29,7 @@ enum class ModelType {
 	CAT, BLACKPIG, TIGER, CHICKEN, RABBIT, PIG,
 	WATER_TAP, WATERING_CAN, SEED_SHACK_CORN, SEED_SHACK_CACTUS, SHOVEL, SEED_BAG, SPRAY, FERTILIZER,
 	CORN, SEED, SAPLING, BABY_CORN, BABY_CACTUS, CACTUS, CACTUS_BULLET,
-	HOME_BASE
+	HOME_BASE, BABY_PLAYER_PLANT
 };
 
 class Scene
@@ -61,6 +62,7 @@ private:
 
 	AssimpModel* seedModel;
 	AssimpModel* saplingModel;
+	AssimpModel* babyplayerplant;
 	AssimpModel* babyCornModel;
 	AssimpModel* cornModel;
 	AssimpModel* babyCactusModel;
@@ -92,12 +94,14 @@ private:
 
 	int zombieWaveNum = 0;
 
+	ClientParams& config;
+
 public:
 
 	std::unordered_map<uint, SceneNode*> objectIdMap;
 	std::unordered_map<uint, RenderController*> controllers;
 
-	Scene();
+	Scene(ClientParams& config);
 	~Scene();
 
 	void setupDirectionalLighting(glm::vec3 eyePosition);
@@ -110,7 +114,7 @@ public:
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable* model);
 
 	// static function for a to create a specfic scene good for grahics testing
-	static Scene* scene0();
+	static Scene* scene0(ClientParams& config);
 
 
 	// getter & setter
@@ -152,6 +156,7 @@ public:
 			case ModelType::HOME_BASE:			return baseModel;
 			case ModelType::SPRAY:				return sprayModel;
 			case ModelType::FERTILIZER:			return fertilizerModel;
+			case ModelType::BABY_PLAYER_PLANT:	return babyplayerplant;
 		}
 	}
 };

@@ -42,9 +42,20 @@ public:
 
 	void update(GameObject * gameObject, Scene * scene) override {
 		Player* player = (Player*) gameObject;
+		
+		if (player->isDead) {
+			if (modelNode != nullptr) {
+				modelNode->removeSelf();
+			}
+		}
+		if (!player->isDead) {
+			//modelNode = scene->getModel(modelType)->createSceneNodes(player->objectId);
+			if (modelNode->childNum == -1)
+				rootNode->addChild(modelNode);
+		}
 
 		rootNode->loadGameObject(player);
-		bool dontLoop = modelType == ModelType::CAT
+		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)
 			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
 		modelNode->switchAnim(player->animation->animationType, !dontLoop);
 

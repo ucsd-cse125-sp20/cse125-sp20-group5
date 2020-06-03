@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Core.h"
+#include "ClientParams.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +15,7 @@
 
 class Camera {
 public:
-	Camera();
+	Camera(ClientParams& config);
 
 	void Update();
 	void Reset();
@@ -48,6 +49,8 @@ private:
 
 	// Computed data
 	glm::mat4 ViewProjectMtx;
+
+	ClientParams& config;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

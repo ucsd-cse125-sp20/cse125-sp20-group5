@@ -32,15 +32,11 @@
 #define FERTILIZER_MODEL "model/fertilizer.obj"
 
 #define SAPLING_MODEL "model/sapling.fbx"
+#define BABY_PLAYER_PLANT_MODEL "model/baby_player_plant.fbx"
 
 #define HOME_BASE_MODEL "model/bear.fbx"
 
 #define TREE_MODEL "model/lowpolytree.fbx"
 #define ROCK_MODEL_PATH_START "model/rocks/rock"
-
-#define SEED_SOURCE_SCALER 0.2
-#define DIRT_SCALER 0.05
-#define TREE_SCALER 0.3
-#define STONE_SCALER 0.8
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing_full.wav"

@@ -6,12 +6,19 @@ Skybox::Skybox(uint shader, glm::mat4 modelMtx)
 	this->modelMtx = modelMtx;
 
 	std::string directory = "texture/skybox/";
-	filePaths.push_back(directory + "starfield_rt.ppm");
+	/*filePaths.push_back(directory + "starfield_rt.ppm");
 	filePaths.push_back(directory + "starfield_lf.ppm");
 	filePaths.push_back(directory + "starfield_up.ppm");
 	filePaths.push_back(directory + "starfield_dn.ppm");
 	filePaths.push_back(directory + "starfield_ft.ppm");
-	filePaths.push_back(directory + "starfield_bk.ppm");
+	filePaths.push_back(directory + "starfield_bk.ppm");*/
+
+	filePaths.push_back(directory + "px.jpg");
+	filePaths.push_back(directory + "nx.jpg");
+	filePaths.push_back(directory + "py.jpg");
+	filePaths.push_back(directory + "ny.jpg");
+	filePaths.push_back(directory + "pz.jpg");
+	filePaths.push_back(directory + "nz.jpg");
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);

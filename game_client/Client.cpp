@@ -5,6 +5,7 @@
 #include "Client.h"
 #include "NetworkClient.h"
 #include "Message.hpp"
+#include "ClientParams.h"
 
 
 // static
@@ -12,7 +13,8 @@ Client * Client::CLIENT;
 int Client::winX;
 int Client::winY;
 
-Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **argv) {
+Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **argv, ClientParams& clientParams)
+ : config(clientParams) {
 	windowHandle = window;
 
 	// nangui stuff
@@ -28,10 +30,10 @@ Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **a
 
 	// Initialize components
 	glfwGetWindowSize(windowHandle, &winX, &winY);
-	cam=new Camera;
+	cam=new Camera(config);
 	cam->SetAspect(float(winX)/float(winY));
 
-	scene = new Scene(); 
+	scene = new Scene(config); 
 	scene->setupDirectionalLighting(cam->GetPosition());
 
 	setupAudio();
@@ -340,7 +342,7 @@ void Client::setupAudio() {
 	//aEngine.LoadSound("weapon-collide.mp3", true);
 	//aEngine.LoadSound("scream.mp3", true);
 
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(0.02f));
+	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
 
 }
 
