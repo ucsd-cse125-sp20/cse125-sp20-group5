@@ -4,8 +4,6 @@
 #include "ToolController.hpp"
 #include "HealthBar.h"
 
-
-#define PLAYER_SCALER 0.30
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
 #define SEED_BAG_HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
 #define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
@@ -24,9 +22,12 @@ private:
 	ModelType modelType;
 	HealthBar* hpBar;
 	SceneNode * barNode;
+	float playerScaler;
 
 public:
 	PlayerController(Player* player, Scene* scene) {
+		this->playerScaler = scene->config.playerScaler;
+
 		// determine model type based on player ID
 		this->playerId = player->playerId;
 		switch (playerId % 4) {
@@ -40,7 +41,7 @@ public:
 		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + player->objectId, player->objectId);
 		modelNode = scene->getModel(modelType)->createSceneNodes(player->objectId);
 		rootNode->addChild(modelNode);
-		rootNode->scaler = PLAYER_SCALER;
+		rootNode->scaler = playerScaler;
 		scene->getGroundNode()->addChild(rootNode);
 
 		// init hp bar
@@ -93,19 +94,19 @@ public:
 			SceneNode* playerHand = modelNode->find("j_r_hand", modelNode->objectId);
 			if (playerHand != NULL) {
 				if (controller->type == Tool::ToolType::WATER_CAN) {
-					controller->putInHand(playerHand, PLAYER_SCALER, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
+					controller->putInHand(playerHand, playerScaler, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
 				}
 				else if (controller->type == Tool::ToolType::PLOW) {
-					controller->putInHand(playerHand, PLAYER_SCALER, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
+					controller->putInHand(playerHand, playerScaler, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
 				}
 				else if (controller->type == Tool::ToolType::SEED) {
-					controller->putInHand(playerHand, PLAYER_SCALER, SEED_BAG_HOLD_VEC, glm::vec3(0), scene);
+					controller->putInHand(playerHand, playerScaler, SEED_BAG_HOLD_VEC, glm::vec3(0), scene);
 				}
 				else if (controller->type == Tool::ToolType::PESTICIDE) {
-					controller->putInHand(playerHand, PLAYER_SCALER, SPRAY_HOLD_VEC, glm::vec3(0), scene);
+					controller->putInHand(playerHand, playerScaler, SPRAY_HOLD_VEC, glm::vec3(0), scene);
 				}
 				else if (controller->type == Tool::ToolType::FERTILIZER) {
-					controller->putInHand(playerHand, PLAYER_SCALER, FERTILIZER_HOLD_VEC, FERTILIZER_HOLD_ANGLE, scene);
+					controller->putInHand(playerHand, playerScaler, FERTILIZER_HOLD_VEC, FERTILIZER_HOLD_ANGLE, scene);
 				}
 			}
 		}
