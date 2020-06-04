@@ -211,7 +211,6 @@ void Client::sendKeyboardEvents()
 void Client::quit() {
 	glFinish();
 	glfwDestroyWindow(windowHandle);
-	exit(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

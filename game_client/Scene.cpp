@@ -82,7 +82,6 @@ Scene::~Scene()
 	delete playerPigModel;
 
 	delete seedModel;
-	delete saplingModel;
 	delete babyCornModel;
 	delete cornModel;
 	delete cactusModel;
@@ -90,7 +89,6 @@ Scene::~Scene()
 	delete cactusBulletModel;
 	delete tapModel;
 	delete wateringCanModel;
-	delete seedSourceModel_corn;
 	delete seedSourceModel_corn;
 	delete shovelModel;
 	delete seedBagModel;
