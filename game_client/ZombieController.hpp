@@ -72,14 +72,19 @@ public:
 		Zombie* zombie = (Zombie*) gameObject;
 		rootNode->loadGameObject(zombie);
 		
-		// animation
+		// animation & audio
+		// (assuming server will only pass in MOVE & DAMAGED animID)
 		int newAnimID = zombie->animation->animationType;
+		int oldAnimID = modelNode->animationId;
 		if (newAnimID == Zombie::DAMAGED) {
-			modelNode->switchAnim(newAnimID, false);
-		} 
-		// assuming server will only pass in MOVE & DAMAGED animID
-		// change back to MOVE if DAMAGED has been finished playing
-		else if (modelNode->animationId == Zombie::DAMAGED 
+			if (oldAnimID == Zombie::MOVE || modelNode->playedOneAnimCycle) {
+				// reset & play DAMAGED
+				modelNode->loadAnimData(modelNode->numAnimation, newAnimID, false);
+				scene->aEngine->PlaySounds();
+			}
+		}
+		// change back to MOVE only if DAMAGED has been finished playing
+		else if (oldAnimID == Zombie::DAMAGED
 			&& modelNode->playedOneAnimCycle) {
 			modelNode->switchAnim(newAnimID);
 		}
