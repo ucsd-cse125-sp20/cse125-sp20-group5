@@ -2,12 +2,16 @@
 
 bool DrawableUI::isDrawUiMode = false;
 
+DrawableUI::DrawableUI() {
+    maxAlphaStartTime = std::chrono::system_clock::now() - std::chrono::milliseconds(RENDER_TIME_MILLISEC);
+}
+
 bool DrawableUI::canDraw() {
     if (!DrawableUI::isDrawUiMode) { return false; } // isDrawUiMode is toggled when drawing all UI at the end of render pass for the sake of alpha blending
 
     if (this->alphaEffectOn) {
         if (this->shouldDisplay) {
-            alphaValue = std::min(DrawableUI::MAX_ALPHA, alphaValue + alphaStep);
+            alphaValue = std::min(maxAlpha, alphaValue + alphaStep);
         }
         else {
             if (alphaValue == 0.0f) { return false; } // do not display
@@ -17,6 +21,22 @@ bool DrawableUI::canDraw() {
     else if (!this->shouldDisplay) { return false; } // do not display
 
     return true;
+}
+
+void DrawableUI::update(SceneNode* node) {
+    // update autoFadeOff effect, here might not be the best place to do this, need refactoring TODO
+	if (autoFadeOff && alphaEffectOn
+        && shouldDisplay) {
+        if (alphaValue != maxAlpha) {
+            maxAlphaStartTime = std::chrono::system_clock::now();
+        }
+        else {
+            auto durationMilliSec = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - maxAlphaStartTime);
+            if (durationMilliSec.count() > RENDER_TIME_MILLISEC) {
+                shouldDisplay = false;
+            }
+        }
+	}
 }
 
 SceneNode* DrawableUI::createSceneNodes(uint objectId) {
