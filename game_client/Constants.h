@@ -39,4 +39,12 @@
 #define TREE_MODEL "model/lowpolytree.fbx"
 #define ROCK_MODEL_PATH_START "model/rocks/rock"
 
+#define SEED_SOURCE_SCALER 0.2
+#define DIRT_SCALER 0.05
+#define TREE_SCALER 0.3
+#define STONE_SCALER 0.8
+
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing_full.wav"
+#define AUDIO_FILE_ZOMBIE_DAMAGED "audio/cat-cry2.mp3"
+#define AUDIO_FILE_ZOMBIE_DIE "audio/money.mp3"
+#define AUDIO_FILE_PLAYER_PICK "audio/pa1.mp3"

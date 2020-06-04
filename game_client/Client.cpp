@@ -36,8 +36,8 @@ Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **a
 	scene = new Scene(config); 
 	scene->setupDirectionalLighting(cam->GetPosition());
 
-	scene->aEngine = &aEngine;
 	setupAudio();
+	scene->aEngine = &aEngine;
 
 	state = ClientState::GETIP;
 
@@ -207,16 +207,6 @@ void Client::sendKeyboardEvents()
 	else if ((*keyPresses)[GLFW_KEY_8]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_8); }
 	else if ((*keyPresses)[GLFW_KEY_9]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_9); }
 	else if ((*keyPresses)[GLFW_KEY_P]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_SECRET); }
-
-	/* For testing */
-	if ((*keyPresses)[GLFW_KEY_1]) {
-		int player1_numAnim = 2;
-		Animation* player1_anim = currentGameState->players[0]->animation;
-		player1_anim->animationType = (player1_anim->animationType + 1) % player1_numAnim;
-	}
-	if ((*keyPresses)[GLFW_KEY_2]) {
-		//scene->healthBar->updateBar(std::fmod(scene->healthBar->filledFraction + 0.3, 1.0));
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -345,9 +335,9 @@ void Client::setupAudio() {
 	aEngine.Init();
 
 	aEngine.LoadSound(AUDIO_FILE_BGM, false, true);
-	//aEngine.LoadSound("hold-weapon.mp3", true);
-	//aEngine.LoadSound("weapon-collide.mp3", true);
-	//aEngine.LoadSound("scream.mp3", true);
+	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DAMAGED, true, false);
+	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DIE, true, false);
+	aEngine.LoadSound(AUDIO_FILE_PLAYER_PICK, true, false);
 
 
 	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
