@@ -168,7 +168,6 @@ public:
 		// Set highlight tiles
 		((Ground*)(scene->getGroundNode()->obj))->highlightTile(player->highlightTileCol, player->highlightTileRow);
 	}
-<<<<<<< HEAD
 
 	void updateHpBar(Player* player, Scene* scene) {
 		if (player->maxHealth <= 0) {
@@ -177,12 +176,10 @@ public:
 		hpBar->shouldDisplay = !player->isDead;
 		hpBar->updateBar((float)player->health / (float)player->maxHealth);
 	}
-=======
 };
 
 const std::string PlayerController::chatMessages[11] = {
 	"Water!", "Shovel!", "Pesticide!", "Fertilizer!", "Come on!!", // 0~4
 	"Help!!!", "I need somebody", "Thanks!", "Good job!", "GG", // 5~9
 	"Thank you for the quarter!"// secret
->>>>>>> chat feature - wip 7: build error resolved
 };

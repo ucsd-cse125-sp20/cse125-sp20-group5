@@ -119,6 +119,7 @@ public:
 	
 	// passed in by Client
 	CAudioEngine* aEngine = nullptr;
+	static constexpr float volumeAdjust = 1.0f;
 
 	// getter & setter
 	SceneNode* getGroundNode() { return groundNode;  }
