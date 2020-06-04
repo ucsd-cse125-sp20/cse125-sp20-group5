@@ -485,6 +485,7 @@ public:
                         
                         // increase attack power
                         plant->attackPower += plant->deltaAttack;
+                        plant->level++;
                     }
 
                     // if cooldown is not active, fertilize plant

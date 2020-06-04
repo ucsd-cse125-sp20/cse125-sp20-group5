@@ -47,6 +47,7 @@ public:
         ar & aliveTime;
         ar & activeTime;
         ar & deathTime;
+        ar & level;
     }
 
     ~Plant() {
@@ -123,6 +124,7 @@ public:
     int deltaAttack;
     float currAttackTime;
     float attackInterval;
+    int level;
 
     float aliveTime;
     float activeTime; // time until bugs attacking plants
