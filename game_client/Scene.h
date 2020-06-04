@@ -94,6 +94,7 @@ private:
 	ShaderProgram* particleProgram;
 
 	int zombieWaveNum = 0;
+	int totalWaveNum = 0;
 
 public:
 	ClientParams& config;

@@ -48,6 +48,7 @@ public:
         ar & aliveTime;
         ar & activeTime;
         ar & deathTime;
+        ar & level;
     }
 
     ~Plant() {
@@ -71,6 +72,8 @@ public:
             plant->attackPower = config.cornAttackPower;
             plant->deltaAttack = config.cornFertilizerDeltaAttack;
             plant->attackInterval = config.cornAttackInterval;
+            plant->minAttackInterval = config.cornMinAttackInterval;
+            plant->deltaAttackInterval = config.cornDeltaAttackInterval;
             plant->activeTime = config.cornActiveTime;
             plant->deathTime = config.cornDeathTime;
             plant->pesticideSprayTime = config.cornPesticideSprayTime;
@@ -84,6 +87,8 @@ public:
             plant->attackPower = config.cactusAttackPower;
             plant->deltaAttack = config.cactusFertilizerDeltaAttack;
             plant->attackInterval = config.cactusAttackInterval;
+            plant->minAttackInterval = config.cactusMinAttackInterval;
+            plant->deltaAttackInterval = config.cactusDeltaAttackInterval;
             plant->activeTime = config.cactusActiveTime;
             plant->deathTime = config.cactusDeathTime;
             plant->pesticideSprayTime = config.cactusPesticideSprayTime;
@@ -124,6 +129,9 @@ public:
     int deltaAttack;
     float currAttackTime;
     float attackInterval;
+    float minAttackInterval;
+    float deltaAttackInterval;
+    int level;
 
     float aliveTime;
     float activeTime; // time until bugs attacking plants
