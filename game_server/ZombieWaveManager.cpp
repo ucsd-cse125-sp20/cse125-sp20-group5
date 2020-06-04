@@ -7,22 +7,41 @@ ZombieWaveManager::ZombieWaveManager() : gameState(nullptr) {}
 
 ZombieWaveManager::ZombieWaveManager(GameState* state)
   : zombiesInWave(state->config.waveDefaultNumZombies),
-    zombieHealth(state->config.zombieDefaultHealth),
+    zombieRabbitMaxHealth(state->config.zombieRabbitDefaultHealth),
+    zombiePigMaxHealth(state->config.zombiePigDefaultHealth),
+    zombieRabbitMoveSpeed(state->config.zombieRabbitMoveSpeed),
+    zombiePigMoveSpeed(state->config.zombiePigMoveSpeed),
     zombiesSpawned(0) 
 {
     gameState = state;
-    waveNum = 0;
+    currTime = gameState->config.waveStartTime;
+    waveNum = 1;
 }
 
 void ZombieWaveManager::spawn(Zombie::ZombieType type) {
     // Spawn zombie every second
-    int tick = gameState->tick;
-    int tickRate = gameState->tickRate;
-    if (tick % tickRate == 0) {
+    float modTime = 0.0;
+    if (type == Zombie::ZombieType::RABBIT) {
+        modTime = fmod(gameState->currentTime, gameState->config.zombieRabbitSpawnFreq);
+    }
+    else if (type == Zombie::ZombieType::PIG) {
+        modTime = fmod(gameState->currentTime, gameState->config.zombiePigSpawnFreq);
+    }
+    if (modTime < 0.01) {
         Zombie* zombie = Zombie::buildZombie(gameState->config, type, gameState->floor->zombieBaseTile);
         zombie->objectId = gameState->objectCount++;
-        zombie->health = zombieHealth;
-        zombie->maxHealth = zombieHealth;
+
+        
+        if (type == Zombie::ZombieType::RABBIT) {
+            zombie->maxHealth = zombieRabbitMaxHealth;
+            zombie->health = zombie->maxHealth;
+            zombie->moveSpeed = zombieRabbitMoveSpeed;
+        }
+        else if (type == Zombie::ZombieType::PIG) {
+            zombie->maxHealth = zombiePigMaxHealth;
+            zombie->health = zombie->maxHealth;
+            zombie->moveSpeed = zombiePigMoveSpeed;
+        }
         gameState->gameObjectMap[zombie->objectId] = zombie;
         gameState->zombies.push_back(zombie);
 
@@ -41,9 +60,17 @@ void ZombieWaveManager::handleZombieWaves() {
             // handle increasing health and number of zombies
             zombiesSpawned = 0;
 
-            if (waveNum % 2 == 0) {
-                zombiesInWave += gameState->config.waveDeltaNumZombies;
-                zombieHealth += gameState->config.zombieDeltaHealth;
+            if (waveNum > 1 && waveNum % 2 == 1) {
+                int deltaZombies = zombiesInWave * gameState->config.waveDeltaNumZombiesMultiplier - zombiesInWave;
+                if (deltaZombies < 1) {
+                    deltaZombies = 1;
+				}
+                zombiesInWave += deltaZombies;
+                zombieRabbitMaxHealth *= gameState->config.zombieRabbitDeltaHealthMultiplier;
+                zombiePigMaxHealth *= gameState->config.zombiePigDeltaHealthMultiplier;
+
+                zombieRabbitMoveSpeed *= gameState->config.zombieRabbitDeltaMoveSpeedMultiplier;
+                zombiePigMoveSpeed *= gameState->config.zombiePigDeltaMoveSpeedMultiplier;
             }
         }
     }

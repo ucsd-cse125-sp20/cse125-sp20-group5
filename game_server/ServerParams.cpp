@@ -30,15 +30,24 @@ ServerParams::ServerParams() {
 
     // Zombie wave parameters
     waveDefaultNumZombies = config.GetInteger("ZombieWaves", "WaveDefaultNumZombies", 1);
-    waveDeltaNumZombies = config.GetInteger("ZombieWaves", "WaveDeltaNumZombies", 2);
-    zombieDefaultHealth = config.GetInteger("ZombieWaves", "ZombieDefaultHealth", 100);
-    zombieDeltaHealth = config.GetInteger("ZombieWaves", "ZombieDeltaHealth", 20);
+    waveDeltaNumZombiesMultiplier = config.GetFloat("ZombieWaves", "WaveDeltaNumZombiesMultiplier", 1.2f);
+    zombieRabbitDefaultHealth = config.GetInteger("ZombieWaves", "ZombieRabbitDefaultHealth", 100);
+    zombieRabbitDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombieRabbitDeltaHealthMultiplier", 1.2f);
+    zombieRabbitDeltaMoveSpeedMultiplier = config.GetFloat("ZombieWaves", "ZombieRabbitDeltaMoveSpeedMultiplier", 1.05f);
+    zombiePigDefaultHealth = config.GetInteger("ZombieWaves", "ZombiePigDefaultHealth", 100);
+    zombiePigDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombiePigDeltaHealthMultiplier", 1.2f);
+    zombiePigDeltaMoveSpeedMultiplier = config.GetFloat("ZombieWaves", "ZombiePigDeltaMoveSpeedMultiplier", 1.02f);
     waveStartTime = config.GetFloat("ZombieWaves", "WaveStartTime", 5.0f);
+    zombieRabbitSpawnFreq = config.GetFloat("ZombieWaves", "ZombieRabbitSpawnFreq", 1.0f);
+    zombiePigSpawnFreq = config.GetFloat("ZombieWaves", "ZombiePigSpawnFreq", 1.0f);
+    totalWaveNum = config.GetInteger("ZombieWaves", "TotalWaveNum", 10);
 
     // Plant Corn
     cornAttackPower = config.GetInteger("Corn", "AttackPower", 50);
     cornBoundingBoxRadius = config.GetFloat("Corn", "BoundingBoxRadius", 1.0f);
     cornAttackInterval = config.GetFloat("Corn", "AttackInterval", 1.0f);
+    cornMinAttackInterval = config.GetFloat("Corn", "MinAttackInterval", 0.5f);
+    cornDeltaAttackInterval = config.GetFloat("Corn", "DeltaAttackInterval", 0.2f);
     cornAttackRange = config.GetFloat("Corn", "AttackRange", 3.0f);
     cornGrowExpireTime = config.GetFloat("Corn", "GrowExpireTime", 2.0f);
     cornCooldownExpireTime = config.GetFloat("Corn", "CooldownExpireTime", 2.0f);
@@ -52,6 +61,8 @@ ServerParams::ServerParams() {
     cactusAttackPower = config.GetInteger("Cactus", "AttackPower", 50);
     cactusBoundingBoxRadius = config.GetFloat("Cactus", "BoundingBoxRadius", 1.0f);
     cactusAttackInterval = config.GetFloat("Cactus", "AttackInterval", 1.0f);
+    cactusMinAttackInterval = config.GetFloat("Cactus", "MinAttackInterval", 0.5f);
+    cactusDeltaAttackInterval = config.GetFloat("Cactus", "DeltaAttackInterval", 0.2f);
     cactusAttackRange = config.GetFloat("Cactus", "AttackRange", 10.0f);
     cactusGrowExpireTime = config.GetFloat("Cactus", "GrowExpireTime", 2.0f);
     cactusCooldownExpireTime = config.GetFloat("Cactus", "CooldownExpireTime", 2.0f);

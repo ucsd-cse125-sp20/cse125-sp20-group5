@@ -101,6 +101,7 @@ public:
 
     void init(ServerParams& config) {
         this->config = config;
+        totalWaveNum = config.totalWaveNum;
         tickRate = config.tickrate;
         deltaTime = 1.0f / tickRate;
         isGameOver = false;
@@ -131,6 +132,9 @@ public:
         ar & waterTap;
         ar & homeBase;
         ar & waveNum;
+        ar & totalWaveNum;
+        ar & numZombiesKilled;
+        ar & isGameOver;
     }
 
     ~GameState() {
@@ -267,6 +271,13 @@ public:
     }
 
     void update() {
+        tick++;
+        currentTime += deltaTime;
+        if (checkIsGameOver()) {
+            std::cout << "Game Over" << std::endl;
+            isGameOver = true;
+            return;
+        }
         playersPerformAction();
         playersInteract();
         updatePlants();
@@ -275,8 +286,6 @@ public:
         updateZombies();
         updatePlayersPosition();
         updatePlayersHighlight();
-        tick++;
-        currentTime += deltaTime;
     }
 
     void playersPerformAction() {
@@ -357,13 +366,13 @@ public:
                 if (player->highlightObjectId == waterTap->objectId && tool->remainingWater < tool->capacity) {
                     tool->remainingWater += deltaTime;
                     waterTap->animation->animationType = WaterTap::WaterTapAnimation::WATER;
-                    std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                    //std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                     player->animation->animationType = Player::PlayerAnimation::WATER;
                     break;
                 }
 
                 if (tool->remainingWater <= 0) {
-                    std::cout << "Not enough to watering plants" << std::endl;
+                    //std::cout << "Not enough to watering plants" << std::endl;
                     break;
                 }
 
@@ -374,17 +383,17 @@ public:
                         if (currPlant->cooldownTime <= 0) {
                             currPlant->growProgressTime += deltaTime;
                             tool->remainingWater -= deltaTime;
-                            std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
-                            std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
-                            std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
+                            //std::cout << "Watering plant at (" << currPlant->position->x << ", " << currPlant->position->z << ")" << std::endl;
+                            //std::cout << "Current plant growing progress: " << currPlant->growProgressTime << std::endl;
+                            //std::cout << "Current watering can remaining water: " << tool->remainingWater << std::endl;
                             player->animation->animationType = Player::PlayerAnimation::WATER;
                         }
                         else {
-                            std::cout << "Plant growing in cooldown. Cannot water" << std::endl;
+                            //std::cout << "Plant growing in cooldown. Cannot water" << std::endl;
                         }
                     }
                     else {
-                        std::cout << "Plant is already grown" << std::endl;
+                        //std::cout << "Plant is already grown" << std::endl;
                     }
                 }
                 break;
@@ -397,13 +406,13 @@ public:
                     Tile* currTile = floor->tiles[player->highlightTileRow][player->highlightTileCol];
                     if (currTile->plowProgressTime < floor->plowExpireTime) {
                         currTile->plowProgressTime += deltaTime;
-                        std::cout << "Current tile plowing progress: " << currTile->plowProgressTime << std::endl;
+                        //std::cout << "Current tile plowing progress: " << currTile->plowProgressTime << std::endl;
                         player->animation->animationType = Player::PlayerAnimation::PLOUGH;
                     }
                     else {
                         currTile->tileType = Tile::TYPE_TILLED;
                         currTile->canPlow = false;
-                        std::cout << "Tile is plowed" << std::endl;
+                        //std::cout << "Tile is plowed" << std::endl;
                     }
                 }
                 break;
@@ -434,7 +443,7 @@ public:
                     plants.push_back(plant);
                     gameObjectMap[plant->objectId] = plant;
                     currTile->plantId = plant->objectId;
-                    std::cout << "Seed planted" << std::endl;
+                    //std::cout << "Seed planted" << std::endl;
 
                     // Delete the seed tool
                     auto it = std::find(tools.begin(), tools.end(), tool);
@@ -452,7 +461,7 @@ public:
 
                     // assuming theres bugs on the plants
                     if (plant->aliveTime >= plant->activeTime) {
-                        std::cout << "Current plant spraying progress: " << plant->currSprayTime << std::endl;
+                        //std::cout << "Current plant spraying progress: " << plant->currSprayTime << std::endl;
                         plant->currSprayTime += deltaTime;
                         plant->aliveTime -= deltaTime;
                         player->animation->animationType = Player::PlayerAnimation::WATER;
@@ -472,22 +481,29 @@ public:
 
                     // Fertilizer done, reset time and increase attack
                     if (plant->currFertilizeTime >= plant->fertilizerCompleteTime) {
-                        std::cout << "Fertilize Done " << std::endl;
+                        //std::cout << "Fertilize Done " << std::endl;
                         plant->currFertilizeTime = 0.0f;
                         tool->fertilizerCurrTime = 0.0f;
-                        
+
+                        // decrease attack interval
+                        plant->attackInterval -= plant->deltaAttackInterval;
+                        if (plant->attackInterval <= plant->minAttackInterval) {
+                            plant->attackInterval = plant->minAttackInterval;
+                        }
+
                         // increase attack power
                         plant->attackPower += plant->deltaAttack;
+                        plant->level++;
                     }
 
                     // if cooldown is not active, fertilize plant
                     if (tool->fertilizerCurrTime >= tool->fertilizerCooldownTime) {
-                        std::cout << "Current plant fertilizing progress: " << plant->currFertilizeTime << std::endl;
+                        //std::cout << "Current plant fertilizing progress: " << plant->currFertilizeTime << std::endl;
                         plant->currFertilizeTime += deltaTime;
                         player->animation->animationType = Player::PlayerAnimation::WATER;
                     }
                     else {
-                        std::cout << "Cannot fertilize since fertilizer is in cooldown: " << tool->fertilizerCurrTime << std::endl;
+                        //std::cout << "Cannot fertilize since fertilizer is in cooldown: " << tool->fertilizerCurrTime << std::endl;
                     }
                 }
                 break;
@@ -533,11 +549,11 @@ public:
                     tools.push_back(seed);
                     player->holding = true;
                     player->heldObject = seed->objectId;
-                    std::cout << "Pick up seed from seed shack at (" << highlightedShack->position->x << ", " << highlightedShack->position->z << ")" << std::endl;
+                    //std::cout << "Pick up seed from seed shack at (" << highlightedShack->position->x << ", " << highlightedShack->position->z << ")" << std::endl;
                 }
                 else {
                     Tool* currTool = (Tool*)gameObjectMap[player->highlightObjectId];
-                    std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+                    //std::cout << "Pick up tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                     player->holding = true;
                     player->heldObject = currTool->objectId;
                     currTool->heldBy = player->objectId;
@@ -561,6 +577,7 @@ public:
                     Tile* tile = getCurrentTile(plant);
                     tile->canPlow = true;
                     tile->tileType = Tile::TYPE_NORMAL;
+                    tile->plantId = 0;
                     it = plants.erase(it);
                     continue;
                 }
@@ -571,7 +588,7 @@ public:
                 }
                 else {
                     plant->currAttackTime = 0.0f;
-                    std::cout << "Bugs Attacking plant! Use pesticide!!!" << std::endl;
+                    //std::cout << "Bugs Attacking plant! Use pesticide!!!" << std::endl;
                     plant->isAttackedByBugs = true;
                 }
 
@@ -700,10 +717,10 @@ public:
                             playerToBoundZ = floor->boundMinZ - player->position->z;
                         }
 
-                        std::cout << "Player to z boundary is " << playerToBoundZ << std::endl;
-                        std::cout << "cos(dir) is " << dz << std::endl;
-                        std::cout << "Player to x boundary is " << playerToBoundX << std::endl;
-                        std::cout << "sin(dir) is " << dx << std::endl;
+                        //std::cout << "Player to z boundary is " << playerToBoundZ << std::endl;
+                        //std::cout << "cos(dir) is " << dz << std::endl;
+                        //std::cout << "Player to x boundary is " << playerToBoundX << std::endl;
+                        //std::cout << "sin(dir) is " << dx << std::endl;
 
                         float knockBackDist = config.playerKnockBackMaxDistance;
                         if (playerToBoundZ / dz < knockBackDist) {
@@ -762,11 +779,11 @@ public:
 
             // 3. Check if collide with wall
             if (player->position->x < 0 || player->position->x > floor->tiles[0].size() * 1.0) {
-                std::cout << "Collide with wall" << std::endl;
+                //std::cout << "Collide with wall" << std::endl;
                 player->position->x = prevPos.x;
             }
             if (player->position->z < 0 || player->position->z > floor->tiles.size() * 1.0) {
-                std::cout << "Collide with wall" << std::endl;
+                //std::cout << "Collide with wall" << std::endl;
                 player->position->z = prevPos.z;
             }
 
@@ -928,14 +945,16 @@ public:
             bool reachedFinalTile = row == floor->zombieFinalTileRow
                 && col == floor->zombieFinalTileCol;
 
-            if (reachedFinalTile || zombie->health <= 0) {
-                if (reachedFinalTile) {
-                    homeBase->health--;
-                    std::cout << "Health of base is " << homeBase->health << "/" << homeBase->maxHealth << std::endl;
-				}
-                if (homeBase->health <= 0) {
-                    isGameOver = true;
-                }
+            if (reachedFinalTile) {
+                homeBase->health--;
+                std::cout << "Health of base is " << homeBase->health << "/" << homeBase->maxHealth << std::endl;
+                i = zombies.erase(i);
+                continue;
+            }
+
+            if (zombie->health <= 0) {
+                numZombiesKilled++;
+                std::cout << "Number of zombies killed: " << numZombiesKilled << std::endl;
                 i = zombies.erase(i);
                 continue;
             }
@@ -973,7 +992,7 @@ public:
         switch (plant->plantType) {
         case Plant::PlantType::CORN:
             //std::cout << "Distance to zombie is " << zombie->distanceTo(plant) << std::endl;
-            std::cout << "Corn perform attack to zombies" << std::endl;
+            //std::cout << "Corn perform attack to zombies" << std::endl;
             for (Zombie* zombie : zombies) {
                 if (zombie->distanceTo(plant) < plant->range->rangeDistance) {
                     zombie->health -= plant->attackPower;
@@ -982,7 +1001,7 @@ public:
             }
             break;
         case Plant::PlantType::CACTUS:
-            std::cout << "Cactus perform attack to zombies" << std::endl;
+            //std::cout << "Cactus perform attack to zombies" << std::endl;
             // spawn a bullet
             CactusBullet* bullet = new CactusBullet(
                 new Position(plant->position),
@@ -1090,7 +1109,7 @@ public:
                         player->highlightObjectId = waterTap->objectId;
                         player->highlightTileRow = waterTap->position->z / Floor::TILE_SIZE;
                         player->highlightTileCol = waterTap->position->x / Floor::TILE_SIZE;
-                        std::cout << "Highlighting WaterTap" << std::endl;
+                        //std::cout << "Highlighting WaterTap" << std::endl;
                     }
                     else {
                         // interacting with tools
@@ -1101,11 +1120,11 @@ public:
                                 player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
                                 player->highlightTileCol = highlightPlant->position->x / Floor::TILE_SIZE;
                             }
-                            std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
+                            //std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
                         }
                         else {
                             player->highlightObjectId = 0;
-                            std::cout << "Nothing is highlighted" << std::endl;
+                            //std::cout << "Nothing is highlighted" << std::endl;
                         }
                     }
                     break;
@@ -1152,11 +1171,11 @@ public:
                         player->highlightObjectId = highlightPlant->objectId;
                         player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
                         player->highlightTileCol = highlightPlant->position->x / Floor::TILE_SIZE;
-                        std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
+                        //std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
                     }
                     else {
                         player->highlightObjectId = 0;
-                        std::cout << "Nothing is highlighted" << std::endl;
+                        //std::cout << "Nothing is highlighted" << std::endl;
                     }
                     break;
                 }
@@ -1189,11 +1208,11 @@ public:
                         player->highlightObjectId = highlightPlant->objectId;
                         player->highlightTileRow = highlightPlant->position->z / Floor::TILE_SIZE;
                         player->highlightTileCol = highlightPlant->position->x / Floor::TILE_SIZE;
-                        std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
+                        //std::cout << "Highlighting plant at (" << highlightPlant->position->x << ", " << highlightPlant->position->z << ")" << std::endl;
                     }
                     else {
                         player->highlightObjectId = 0;
-                        std::cout << "Nothing is highlighted" << std::endl;
+                        //std::cout << "Nothing is highlighted" << std::endl;
                     }
                     break;
                 }
@@ -1240,18 +1259,18 @@ public:
 
                 if (highlightedShack && player->highlightCollideWith(highlightedShack)) {
                     player->highlightObjectId = highlightedShack->objectId;
-                    std::cout << "Highlighting seedShack" << std::endl;
+                    //std::cout << "Highlighting seedShack" << std::endl;
                 }
                 else {
                     // interacting with tools
                     // Make sure tool is within collision range and is not held by others 
                     if (currTool && player->highlightCollideWith(currTool) && currTool->heldBy == 0) {
                         player->highlightObjectId = currTool->objectId;
-                        std::cout << "Highlighting tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
+                        //std::cout << "Highlighting tool at (" << currTool->position->x << ", " << currTool->position->z << ")" << std::endl;
                     } else {
                         player->highlightObjectId = 0;
-                        std::cout << "Nothing is highlighted" << std::endl;
-					}
+                        //std::cout << "Nothing is highlighted" << std::endl;
+                    }
                 }
 
                 // Turn off tile highlighting
@@ -1303,13 +1322,13 @@ public:
 
         // Highlight tile if types match and no plant is on it (latter condition affects planting seeds)
         if (tileTypeMatch && plantNotOnTile) {
-            std::cout << "Player at (" << player->currRow << ", " << player->currCol << ")" << std::endl;
-            std::cout << "Highlighting tile at (" << highlightRow << ", " << highlightCol << ")" << std::endl;
+            //std::cout << "Player at (" << player->currRow << ", " << player->currCol << ")" << std::endl;
+            //std::cout << "Highlighting tile at (" << highlightRow << ", " << highlightCol << ")" << std::endl;
             player->highlightTileRow = highlightRow;
             player->highlightTileCol = highlightCol;
         }
         else {
-            std::cout << "No Tile highlighting" << std::endl;
+            //std::cout << "No Tile highlighting" << std::endl;
             player->highlightTileRow = -1;
             player->highlightTileCol = -1;
         }
@@ -1364,6 +1383,22 @@ public:
         }
     }
 
+    bool checkIsGameOver() {
+        bool areAllPlayersDead = true;
+        for (Player* player : players) {
+            if (!player->isDead) {
+                areAllPlayersDead = false;
+            }
+        }
+
+        bool isHomeBaseDead = false;
+        if (homeBase->health <= 0) {
+            isHomeBaseDead = true;
+        }
+
+        return areAllPlayersDead || isHomeBaseDead;
+    }
+
     // We could use other data structures, for now use a list
     std::vector<Player*> players; // Up to 4 players?
     std::vector<Plant*> plants;
@@ -1383,6 +1418,8 @@ public:
     // Zombie Spawn Manager
     ZombieWaveManager* zombieWaveManager;
     int waveNum = 0;
+    int totalWaveNum;
+    int numZombiesKilled = 0;
 
     // Game status losing/not losing
     bool isGameOver;

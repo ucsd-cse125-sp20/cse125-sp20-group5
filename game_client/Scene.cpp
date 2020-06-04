@@ -125,6 +125,7 @@ void Scene::update()
 
 	// update wave num
 	zombieWaveNum = state->waveNum;
+	totalWaveNum = state->totalWaveNum;
 
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
@@ -283,8 +284,8 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	RenderController::drawUI(viewProjMat);
 	testUI->draw(); //TODO to be removed
-	textUI->renderText("WAVE " + to_string(zombieWaveNum),
-		Client::getWinX() -350.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	textUI->renderText("WAVE " + to_string(zombieWaveNum) + " / " + to_string(totalWaveNum),
+		Client::getWinX() -450.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
 }
 
 void Scene::toggleWater()

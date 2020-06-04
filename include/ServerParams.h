@@ -32,15 +32,24 @@ public:
 
     // Zombie Waves related
     int waveDefaultNumZombies;
-    int waveDeltaNumZombies;
-    int zombieDefaultHealth;
-    int zombieDeltaHealth;
+    float waveDeltaNumZombiesMultiplier;
+    int zombieRabbitDefaultHealth;
+    float zombieRabbitDeltaHealthMultiplier;
+    float zombieRabbitDeltaMoveSpeedMultiplier;
+    int zombiePigDefaultHealth;
+    float zombiePigDeltaHealthMultiplier;
+    float zombiePigDeltaMoveSpeedMultiplier;
     float waveStartTime;
+    float zombieRabbitSpawnFreq;
+    float zombiePigSpawnFreq;
+    int totalWaveNum;
 
     // Plant Corn
     int cornAttackPower;
     float cornBoundingBoxRadius;
     float cornAttackInterval;
+    float cornMinAttackInterval;
+    float cornDeltaAttackInterval;
     float cornAttackRange;
     float cornGrowExpireTime;
     float cornCooldownExpireTime;
@@ -54,6 +63,8 @@ public:
     int cactusAttackPower;
     float cactusBoundingBoxRadius;
     float cactusAttackInterval;
+    float cactusMinAttackInterval;
+    float cactusDeltaAttackInterval;
     float cactusAttackRange;
     float cactusGrowExpireTime;
     float cactusCooldownExpireTime;
