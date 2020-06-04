@@ -211,3 +211,6 @@ void TextUI::draw(SceneNode& node, const glm::mat4& viewProjMtx) {
 	mat4 modelMtx = translate(vec3(node.transform[3])) * model;
 	renderTextInWorld(reservedText, viewProjMtx, modelMtx, 0.008f, usedColor);
 }
+
+void TextUI::update(SceneNode* node) {
+}
