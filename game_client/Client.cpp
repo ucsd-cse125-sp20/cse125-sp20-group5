@@ -195,13 +195,17 @@ void Client::sendKeyboardEvents()
 		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
 	}
 
-
-	if ((*keyPresses)[GLFW_KEY_E]) {
-		netClient->sendMessage(OPCODE_PLAYER_START_ACTION);
-	}
-	else {
-		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
-	}
+	if ((*keyPresses)[GLFW_KEY_0]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_0); }
+	else if ((*keyPresses)[GLFW_KEY_1]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_1); }
+	else if ((*keyPresses)[GLFW_KEY_2]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_2); }
+	else if ((*keyPresses)[GLFW_KEY_3]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_3); }
+	else if ((*keyPresses)[GLFW_KEY_4]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_4); }
+	else if ((*keyPresses)[GLFW_KEY_5]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_5); }
+	else if ((*keyPresses)[GLFW_KEY_6]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_6); }
+	else if ((*keyPresses)[GLFW_KEY_7]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_7); }
+	else if ((*keyPresses)[GLFW_KEY_8]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_8); }
+	else if ((*keyPresses)[GLFW_KEY_9]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_9); }
+	else if ((*keyPresses)[GLFW_KEY_P]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_SECRET); }
 
 	/* For testing */
 	if ((*keyPresses)[GLFW_KEY_1]) {
