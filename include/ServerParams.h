@@ -34,9 +34,11 @@ public:
     int waveDefaultNumZombies;
     float waveDeltaNumZombiesMultiplier;
     int zombieRabbitDefaultHealth;
-    int zombieRabbitDeltaHealthMultiplier;
+    float zombieRabbitDeltaHealthMultiplier;
+    float zombieRabbitDeltaMoveSpeedMultiplier;
     int zombiePigDefaultHealth;
-    int zombiePigDeltaHealthMultiplier;
+    float zombiePigDeltaHealthMultiplier;
+    float zombiePigDeltaMoveSpeedMultiplier;
     float waveStartTime;
     float zombieRabbitSpawnFreq;
     float zombiePigSpawnFreq;

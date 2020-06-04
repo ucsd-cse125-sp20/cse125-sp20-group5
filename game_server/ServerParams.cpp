@@ -33,8 +33,10 @@ ServerParams::ServerParams() {
     waveDeltaNumZombiesMultiplier = config.GetFloat("ZombieWaves", "WaveDeltaNumZombiesMultiplier", 1.2f);
     zombieRabbitDefaultHealth = config.GetInteger("ZombieWaves", "ZombieRabbitDefaultHealth", 100);
     zombieRabbitDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombieRabbitDeltaHealthMultiplier", 1.2f);
+    zombieRabbitDeltaMoveSpeedMultiplier = config.GetFloat("ZombieWaves", "ZombieRabbitDeltaMoveSpeedMultiplier", 1.05f);
     zombiePigDefaultHealth = config.GetInteger("ZombieWaves", "ZombiePigDefaultHealth", 100);
     zombiePigDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombiePigDeltaHealthMultiplier", 1.2f);
+    zombiePigDeltaMoveSpeedMultiplier = config.GetFloat("ZombieWaves", "ZombiePigDeltaMoveSpeedMultiplier", 1.02f);
     waveStartTime = config.GetFloat("ZombieWaves", "WaveStartTime", 5.0f);
     zombieRabbitSpawnFreq = config.GetFloat("ZombieWaves", "ZombieRabbitSpawnFreq", 1.0f);
     zombiePigSpawnFreq = config.GetFloat("ZombieWaves", "ZombiePigSpawnFreq", 1.0f);

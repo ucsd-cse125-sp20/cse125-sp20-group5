@@ -9,6 +9,8 @@ ZombieWaveManager::ZombieWaveManager(GameState* state)
   : zombiesInWave(state->config.waveDefaultNumZombies),
     zombieRabbitMaxHealth(state->config.zombieRabbitDefaultHealth),
     zombiePigMaxHealth(state->config.zombiePigDefaultHealth),
+    zombieRabbitMoveSpeed(state->config.zombieRabbitMoveSpeed),
+    zombiePigMoveSpeed(state->config.zombiePigMoveSpeed),
     zombiesSpawned(0) 
 {
     gameState = state;
@@ -33,10 +35,12 @@ void ZombieWaveManager::spawn(Zombie::ZombieType type) {
         if (type == Zombie::ZombieType::RABBIT) {
             zombie->maxHealth = zombieRabbitMaxHealth;
             zombie->health = zombie->maxHealth;
+            zombie->moveSpeed = zombieRabbitMoveSpeed;
         }
         else if (type == Zombie::ZombieType::PIG) {
             zombie->maxHealth = zombiePigMaxHealth;
             zombie->health = zombie->maxHealth;
+            zombie->moveSpeed = zombiePigMoveSpeed;
         }
         gameState->gameObjectMap[zombie->objectId] = zombie;
         gameState->zombies.push_back(zombie);
@@ -64,6 +68,9 @@ void ZombieWaveManager::handleZombieWaves() {
                 zombiesInWave += deltaZombies;
                 zombieRabbitMaxHealth *= gameState->config.zombieRabbitDeltaHealthMultiplier;
                 zombiePigMaxHealth *= gameState->config.zombiePigDeltaHealthMultiplier;
+
+                zombieRabbitMoveSpeed *= gameState->config.zombieRabbitDeltaMoveSpeedMultiplier;
+                zombiePigMoveSpeed *= gameState->config.zombiePigDeltaMoveSpeedMultiplier;
             }
         }
     }
