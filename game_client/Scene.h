@@ -18,6 +18,7 @@
 #include "Shader.h"
 #include "ParticleFactory.hpp"
 #include "ClientParams.h"
+#include "AudioEngine.h"
 
 class RenderController; //  put declaration here to sidestep header issues
 
@@ -115,7 +116,9 @@ public:
 
 	// static function for a to create a specfic scene good for grahics testing
 	static Scene* scene0(ClientParams& config);
-
+	
+	// passed in by Client
+	CAudioEngine* aEngine = nullptr;
 
 	// getter & setter
 	SceneNode* getGroundNode() { return groundNode;  }

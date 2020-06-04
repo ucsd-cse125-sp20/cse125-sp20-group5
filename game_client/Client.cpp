@@ -36,6 +36,7 @@ Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **a
 	scene = new Scene(config); 
 	scene->setupDirectionalLighting(cam->GetPosition());
 
+	scene->aEngine = &aEngine;
 	setupAudio();
 
 	state = ClientState::GETIP;
@@ -348,7 +349,11 @@ void Client::setupAudio() {
 	//aEngine.LoadSound("weapon-collide.mp3", true);
 	//aEngine.LoadSound("scream.mp3", true);
 
+<<<<<<< HEAD
 	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
+=======
+	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(CAudioEngine::volumeAdjust * 0.02f));
+>>>>>>> sound effect wip 1
 
 }
 
