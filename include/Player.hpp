@@ -17,7 +17,7 @@ public:
             : GameObject(position, direction, animation, objectId, boundingBoxRadius), 
               playerId(playerId) {
         this->color = color;
-        this->currChat = -1;
+        this->currChat = NO_CHAT;
     }
 
     friend class boost::serialization::access;
@@ -77,6 +77,7 @@ public:
     // Current chat blob type
     int currChat;
     const static std::string chatMessages[11];
+    static constexpr int NO_CHAT = -1;
 
     // Animation Type
     enum PlayerAnimation { IDLE, MOVE, WATER, PLOUGH };

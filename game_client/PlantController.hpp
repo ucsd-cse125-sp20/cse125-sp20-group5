@@ -129,6 +129,7 @@ public:
         if (fertilizeBar) { delete fertilizeBar; }
 
         if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+        if (levelText) { delete levelText; }
 
         delete pGroup;
     }

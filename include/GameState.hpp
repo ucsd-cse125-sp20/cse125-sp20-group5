@@ -226,7 +226,7 @@ public:
                 break;
         }
         // handle chat specific opcode
-        player->currChat = -1;
+        player->currChat = NO_CHAT;
         if (opCode >= OPCODE_PLAYER_CHAT_0) {
             player->currChat = opCode % OPCODE_PLAYER_CHAT_0;
         }
