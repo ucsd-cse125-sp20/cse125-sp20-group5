@@ -25,4 +25,7 @@ ClientParams::ClientParams() {
     distance = config.GetFloat("Camera", "Distance", 19.5f);
     azimuth = config.GetFloat("Camera", "Azimuth", 0.0f);
     incline = config.GetFloat("Camera", "Incline", 54.0f);
+
+    // Others
+    timeDifference = config.GetFloat("Others", "TimeDifference", 0.1f);
 }

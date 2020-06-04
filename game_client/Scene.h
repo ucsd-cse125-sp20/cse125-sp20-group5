@@ -95,9 +95,8 @@ private:
 
 	int zombieWaveNum = 0;
 
-	ClientParams& config;
-
 public:
+	ClientParams& config;
 
 	std::unordered_map<uint, SceneNode*> objectIdMap;
 	std::unordered_map<uint, RenderController*> controllers;

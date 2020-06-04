@@ -470,14 +470,22 @@ public:
                 if (player->highlightObjectId != 0) {
                     Plant* plant = (Plant*)gameObjectMap[player->highlightObjectId];
 
-                    // Fertilizer done, reset time and increase attack
+                    // Fertilizer done, reset time and increase attack frequency
                     if (plant->currFertilizeTime >= plant->fertilizerCompleteTime) {
                         std::cout << "Fertilize Done " << std::endl;
                         plant->currFertilizeTime = 0.0f;
                         tool->fertilizerCurrTime = 0.0f;
                         
                         // increase attack power
-                        plant->attackPower += plant->deltaAttack;
+                        // plant->attackPower += plant->deltaAttack;
+                        // Increase attack frequency
+                        plant->attackInterval /= 2.0;
+                        if (plant->plantType == Plant::PlantType::CORN) {
+                            plant->powerUpTimeLeft = config.cornPowerUpTime;
+                        }
+                        else {
+                            plant->powerUpTimeLeft = config.cactusPowerUpTime;
+                        }
                     }
 
                     // if cooldown is not active, fertilize plant
@@ -608,6 +616,16 @@ public:
                     tile->tileType = Tile::TYPE_NORMAL;
                     tile->plantId = 0;
                     continue;
+                }
+            }
+
+            if (plant->powerUpTimeLeft > 0.0) {
+                plant->powerUpTimeLeft -= deltaTime;
+                if (plant->powerUpTimeLeft <= 0.0) {
+                    if (plant->plantType == Plant::PlantType::CORN)
+                        plant->attackInterval = config.cornAttackInterval;
+                    else 
+                        plant->attackInterval = config.cactusAttackInterval;
                 }
             }
 

@@ -181,7 +181,7 @@ public:
                     modelNode = scene->getModel(ModelType::CORN)->createSceneNodes(objectId);
                     modelNode->scaler = CORN_SCALER;
                     float attackRange = plant->range->rangeDistance;
-                    pGroup = scene->getParticleFactory()->getCornAttackParticleGroup(glm::vec3(0, 0, 0), attackRange);
+                    pGroup = scene->getParticleFactory()->getCornAttackParticleGroup(glm::vec3(0, 0, 0), attackRange, scene->config.timeDifference);
                     particleNode = pGroup->createSceneNodes(plant->objectId);
                     particleNode->position = CORN_PARTICLE_HEIGHT;
                     modelNode->addChild(particleNode);

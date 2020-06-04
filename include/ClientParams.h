@@ -22,6 +22,8 @@ public:
     float azimuth;
     float incline;
 
+    // Others
+    float timeDifference;
 
     ClientParams();
 

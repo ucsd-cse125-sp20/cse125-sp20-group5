@@ -15,7 +15,7 @@ public:
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
 
-		pGroup = scene->getParticleFactory()->getWaterTapParticleGroup(glm::vec3(0));
+		pGroup = scene->getParticleFactory()->getWaterTapParticleGroup(glm::vec3(0), scene->config.timeDifference);
 		particleNode = pGroup->createSceneNodes(objectId);
 		particleNode->position = PARTICLE_POSITION;
 		modelNode->numAnimation = 2;
