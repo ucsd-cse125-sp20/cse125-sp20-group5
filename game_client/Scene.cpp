@@ -289,11 +289,6 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 		25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
 }
 
-void Scene::toggleWater()
-{
-	((TapController*)controllers[state->waterTap->objectId])->toggleWater();
-}
-
 // Update the current gamestate
 void Scene::setState(GameState* state) 
 {

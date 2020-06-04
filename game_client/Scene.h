@@ -6,6 +6,7 @@
 #include <set>
 
 #include <GameState.hpp>
+#include "Camera.h"
 #include "Model.h"
 #include "Ground.h"
 #include "AssimpModel.h"
@@ -35,6 +36,8 @@ enum class ModelType {
 class Scene
 {
 private:
+	Camera* cam;
+
 	Ground * ground;
 
 	GameState * state;
@@ -108,8 +111,6 @@ public:
 	void setState(GameState * state);
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat); // renders everything
-
-	void toggleWater();
 
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable* model);
 
