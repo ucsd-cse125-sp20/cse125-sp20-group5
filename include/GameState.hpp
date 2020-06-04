@@ -225,6 +225,12 @@ public:
                 player->shouldInteract = true;
                 break;
         }
+        // handle chat specific opcode
+        player->currChat = -1;
+        if (opCode >= OPCODE_PLAYER_CHAT_0) {
+            player->currChat = opCode % OPCODE_PLAYER_CHAT_0;
+        }
+
         //std::cout << "After update angle = " << player->direction->angle << std::endl;
     }
 

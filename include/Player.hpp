@@ -5,6 +5,7 @@
 #include "GameObject.hpp"
 #include "Color.hpp"
 #include "Floor.hpp"
+#include <map>
 
 class Player : public GameObject {
 public:
@@ -16,6 +17,7 @@ public:
             : GameObject(position, direction, animation, objectId, boundingBoxRadius), 
               playerId(playerId) {
         this->color = color;
+        this->currChat = -1;
     }
 
     friend class boost::serialization::access;
@@ -34,6 +36,7 @@ public:
         ar & highlightTileRow;
         ar & highlightTileCol;
         ar & invincibleTime;
+        ar & currChat;
     }
 
     ~Player() {
@@ -71,8 +74,18 @@ public:
     // Invincible time after hitting by zombie
     float invincibleTime;
 
+    // Current chat blob type
+    int currChat;
+    const static std::string chatMessages[11];
+
     // Animation Type
     enum PlayerAnimation { IDLE, MOVE, WATER, PLOUGH };
+};
+
+const std::string Player::chatMessages[11] = {
+    "Water!", "Shovel!", "Pesticide!", "Fertilizer!", "Come on!!", // 0~4
+    "Help!!!", "I need somebody", "Thanks!", "Good job!", "GG", // 5~9
+    "Thank you for the quarter!"// secret
 };
 
 #endif
