@@ -23,6 +23,11 @@ SceneNode* DrawableUI::createSceneNodes(uint objectId) {
     return new SceneNode(this, std::string("DrawableUI"), objectId);
 }
 
+void DrawableUI::setAlphaSetting(bool alphaEffectOn, float initialAlpha, float alphaStep) {
+    this->alphaEffectOn = alphaEffectOn;
+    this->alphaValue = initialAlpha;
+    this->alphaStep = alphaStep;
+}
 
 // borrowed from HealthBar
 void DrawableUI::loadTexture(const char* textureFile, GLuint* textureID)

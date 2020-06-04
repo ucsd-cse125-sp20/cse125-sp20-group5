@@ -100,20 +100,14 @@ public:
         std::tie(fertilizeBar, fBarNode) = createHealthBar(fBarSetting, scene);
         fertilizeBar->shouldDisplay = false;
         fertilizeBar->fillingStep /= 5.0f;
-        fertilizeBar->alphaEffectOn = true;
-        fertilizeBar->alphaValue = 0.0f;
-        fertilizeBar->alphaStep *= 1.0f;
+        fertilizeBar->setAlphaSetting(true, 0.0f, fertilizeBar->alphaStep);
         // init fertilize level text
-        levelText = new TextUI(scene->getShaderID(ShaderType::TEXT), 
-            FontType::CHUNK, FERTILIZE_BAR_COLOR, "Lv", 
-            glm::translate(glm::vec3(HealthBar::iconMtx[3].x, fBarTranslateY, 0)));
+        std::tie(levelText, textNode) = createTextUI(
+            FontType::CHUNK, FERTILIZE_BAR_COLOR, 
+            glm::translate(glm::vec3(HealthBar::iconMtx[3].x, fBarTranslateY, 0)), scene
+        );
         levelText->shouldDisplay = fertilizeBar->shouldDisplay;
-        levelText->alphaEffectOn = fertilizeBar->alphaEffectOn;
-        levelText->alphaValue = fertilizeBar->alphaValue;
-        levelText->alphaStep = fertilizeBar->alphaStep;
-        textNode = levelText->createSceneNodes(plant->objectId);
-        rootNode->addChild(textNode);
-        uiNodes.push_back(textNode);
+        levelText->setAlphaSetting(fertilizeBar->alphaEffectOn, fertilizeBar->alphaValue, fertilizeBar->alphaStep);
     }
 
     ~PlantController() {
