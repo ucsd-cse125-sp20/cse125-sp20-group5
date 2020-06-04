@@ -349,12 +349,20 @@ void Client::setupAudio() {
 	//aEngine.LoadSound("weapon-collide.mp3", true);
 	//aEngine.LoadSound("scream.mp3", true);
 
-<<<<<<< HEAD
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
-=======
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(CAudioEngine::volumeAdjust * 0.02f));
->>>>>>> sound effect wip 1
 
+	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
+
+	glm::vec3 listenerPos = glm::normalize(
+		glm::eulerAngleY(glm::radians(-cam->GetAzimuth())) 
+		* glm::eulerAngleX(glm::radians(-cam->GetIncline()))
+		* glm::vec4(0, 0, cam->GetDistance(), 1)
+	);
+	glm::vec3 listenerDir = glm::normalize(
+		glm::eulerAngleY(glm::radians(-cam->GetAzimuth()))
+		* glm::eulerAngleX(glm::radians(-cam->GetIncline()))
+		* glm::vec4(0, 0, -cam->GetDistance(), 0)
+	);
+	aEngine.Set3dListenerAndOrientation(listenerPos, listenerDir, glm::vec3(0, 1, 0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

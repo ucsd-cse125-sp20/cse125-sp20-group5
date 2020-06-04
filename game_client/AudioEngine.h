@@ -69,8 +69,6 @@ public:
 	FMOD::System *m_pSystem;
 	CAudioEngine();
 
-	static constexpr float volumeAdjust = 1.0f;
-
 };
 
 #endif
