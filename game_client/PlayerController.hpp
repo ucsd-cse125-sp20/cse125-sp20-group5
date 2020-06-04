@@ -59,17 +59,12 @@ public:
 		std::tie(hpBar, barNode) = createHealthBar(barSetting, scene);
 
 		// init chat text
-		chatText = new TextUI(
-			scene->getShaderID(ShaderType::TEXT),
-			FontType::CHUNK, CHAT_TEXT_COLOR, "Lv",
-			glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0))
+		std::tie(chatText, textNode) = createTextUI(
+			FontType::CHUNK, CHAT_TEXT_COLOR,
+			glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
 		);
 		chatText->shouldDisplay = false;
-		chatText->alphaEffectOn = true;
-		chatText->alphaValue = 0.0f;
-		textNode = chatText->createSceneNodes(player->objectId);
-		rootNode->addChild(textNode);
-		uiNodes.push_back(textNode);
+		chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
 	}
 
 	~PlayerController() {

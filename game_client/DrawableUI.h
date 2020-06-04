@@ -23,9 +23,9 @@ public:
     float alphaValue = MAX_ALPHA;
     float alphaStep = 0.05f;
 
-    virtual ~DrawableUI() {}
+    //virtual ~DrawableUI() {}
 
-
+    void setAlphaSetting(bool alphaEffectOn, float initialAlpha, float alphaStep);
     bool canDraw();
     void loadTexture(const char* textureFile, GLuint* textureID);
 
