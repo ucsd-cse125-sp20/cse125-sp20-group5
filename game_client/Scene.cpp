@@ -82,7 +82,6 @@ Scene::~Scene()
 	delete playerPigModel;
 
 	delete seedModel;
-	delete saplingModel;
 	delete babyCornModel;
 	delete cornModel;
 	delete cactusModel;
@@ -90,7 +89,6 @@ Scene::~Scene()
 	delete cactusBulletModel;
 	delete tapModel;
 	delete wateringCanModel;
-	delete seedSourceModel_corn;
 	delete seedSourceModel_corn;
 	delete shovelModel;
 	delete seedBagModel;
@@ -284,13 +282,11 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	RenderController::drawUI(viewProjMat);
 	testUI->draw(); //TODO to be removed
+	if (state)
+		textUI->renderText("SCORE " + to_string(state->numZombiesKilled),25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
+
 	textUI->renderText("WAVE " + to_string(zombieWaveNum) + " / " + to_string(totalWaveNum),
 		Client::getWinX() -450.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
-}
-
-void Scene::toggleWater()
-{
-	((TapController*)controllers[state->waterTap->objectId])->toggleWater();
 }
 
 // Update the current gamestate

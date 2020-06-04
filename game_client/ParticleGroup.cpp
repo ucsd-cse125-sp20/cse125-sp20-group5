@@ -4,7 +4,9 @@ ParticleGroup::ParticleGroup(GLuint shader, float particleSize, glm::vec3 partic
 	glm::vec3 color, glm::vec3 initialVelocity,
 	glm::vec3 acceleration, int initParicleNum, int maxParticleNum, float lifeSpan,
 	glm::vec3 colorVariance, glm::vec3 initialVelocityVariance,
-	float spawnTime, int spawnNum, float maxDistance, bool spawning) {
+	float spawnTime, int spawnNum, float maxDistance, bool spawning, float timeDifference) {
+
+	this->timeDifference = timeDifference;
 
 	this->spawning = spawning;
 
@@ -136,7 +138,7 @@ void ParticleGroup::draw(SceneNode& node, const glm::mat4& viewProjMat)
 
 void ParticleGroup::update(SceneNode * node)
 {
-	float timeDifference = 0.1f;
+	// float timeDifference = 0.02f;
 	if (spawning) {
 		timePastSinceLastSpawn += timeDifference;
 

@@ -214,6 +214,9 @@
     <None Include="TextUI.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="ClientConfig.ini">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="texture\default_texture.png">

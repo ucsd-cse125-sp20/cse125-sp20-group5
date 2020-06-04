@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 	// Create the window
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-	GLFWwindow * windowHandle = glfwCreateWindow(1440, 720, "plant", NULL, NULL);
+	GLFWwindow * windowHandle = glfwCreateWindow(1440, 720, "Grow-Away", NULL, NULL);
 	glfwSetWindowPos(windowHandle, 100, 100);
 	if (!windowHandle)
 	{

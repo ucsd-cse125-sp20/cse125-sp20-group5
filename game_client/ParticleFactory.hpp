@@ -14,7 +14,7 @@ public:
 		// Delete
 	}
 
-	ParticleGroup * getWaterTapParticleGroup(glm::vec3 particlePosition) {
+	ParticleGroup * getWaterTapParticleGroup(glm::vec3 particlePosition, float timeDifference) {
 		// The color of the particles
 		glm::vec3 particleColor = glm::vec3(0.2f, 0.95f, 1.0f);
 		// The initial velocity of the newly spawned particles
@@ -41,10 +41,10 @@ public:
 		return new ParticleGroup(shaderID,
 			particleSize, particlePosition, particleColor, particleInitVelocity,
 			particleAcceleration, particleInitNum, particleMaxNum, particleLifeSpan,
-			colorVariance, velocityVariance, spawnTime, spawnNum, maxDistance, true);
+			colorVariance, velocityVariance, spawnTime, spawnNum, maxDistance, true, timeDifference);
 	}
 
-	ParticleGroup* getCornAttackParticleGroup(glm::vec3 particlePosition, float maxDistance) {
+	ParticleGroup* getCornAttackParticleGroup(glm::vec3 particlePosition, float maxDistance, float timeDifference) {
 		// The color of the particles
 		glm::vec3 particleColor = glm::vec3(1.0f, 0.95f, 0.2f);
 		// The initial velocity of the newly spawned particles
@@ -70,6 +70,6 @@ public:
 		return new ParticleGroup(shaderID,
 			particleSize, particlePosition, particleColor, particleInitVelocity,
 			particleAcceleration, particleInitNum, particleMaxNum, particleLifeSpan,
-			colorVariance, velocityVariance, spawnTime, spawnNum, maxDistance, false);
+			colorVariance, velocityVariance, spawnTime, spawnNum, maxDistance, false, timeDifference);
 	}
 };

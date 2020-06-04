@@ -58,6 +58,7 @@ public:
     float cornPesticideSprayTime;
     float cornFertilizerCompleteTime;
     int cornFertilizerDeltaAttack;
+    float cornPowerUpTime;
 
     // Plant Cactus
     int cactusAttackPower;
@@ -75,6 +76,7 @@ public:
     float cactusPesticideSprayTime;
     float cactusFertilizerCompleteTime;
     int cactusFertilizerDeltaAttack;
+    float cactusPowerUpTime;
 
     // Obstacle
     float treeBoxRadius;

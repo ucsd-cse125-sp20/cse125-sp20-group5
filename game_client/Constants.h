@@ -29,7 +29,7 @@
 #define DIRT_MODEL "model/dirt.fbx"
 #define SEED_BAG_MODEL "model/basket.fbx"
 #define SPRAY_MODEL "model/spray.fbx"
-#define FERTILIZER_MODEL "model/fertilizer.obj"
+#define FERTILIZER_MODEL "model/fertilizer.fbx"
 
 #define SAPLING_MODEL "model/sapling.fbx"
 #define BABY_PLAYER_PLANT_MODEL "model/baby_player_plant.fbx"

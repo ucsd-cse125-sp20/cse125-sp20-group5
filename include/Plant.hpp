@@ -23,6 +23,7 @@ public:
         this->plantType = plantType;
         this->growStage = growStage;
         this->isAttackedByBugs = false;
+        this->powerUpTimeLeft = 0.0f;
     }
 
     friend class boost::serialization::access;
@@ -144,6 +145,8 @@ public:
 
     Player* playerPlant; // only used for PLAYER plants
     bool isAttackedByBugs;
+
+    float powerUpTimeLeft;
 };
 
 

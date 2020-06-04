@@ -16,6 +16,7 @@ ClientParams::ClientParams() {
     dirtScaler = config.GetFloat("Scaler", "DirtScaler", 0.05f);;
     treeScaler = config.GetFloat("Scaler", "TreeScaler", 0.3f);;
     stoneScaler = config.GetFloat("Scaler", "StoneScaler", 0.8f);;
+    playerScaler = config.GetFloat("Scaler", "PlayerScaler", 0.27f);
 
     // Camera
     FOV = config.GetFloat("Camera", "FOV", 45.0f);
@@ -25,4 +26,7 @@ ClientParams::ClientParams() {
     distance = config.GetFloat("Camera", "Distance", 19.5f);
     azimuth = config.GetFloat("Camera", "Azimuth", 0.0f);
     incline = config.GetFloat("Camera", "Incline", 54.0f);
+
+    // Others
+    timeDifference = config.GetFloat("Others", "TimeDifference", 0.1f);
 }

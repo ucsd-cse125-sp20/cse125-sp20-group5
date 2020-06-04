@@ -221,6 +221,7 @@
   <ItemGroup>
     <None Include="AnimatedAssimpModel.glsl" />
     <None Include="AssimpModel.glsl" />
+    <None Include="ClientConfig.ini" />
     <None Include="HealthBar.glsl" />
     <None Include="Model.glsl" />
     <None Include="Particle.glsl" />

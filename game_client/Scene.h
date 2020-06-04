@@ -35,6 +35,7 @@ enum class ModelType {
 class Scene
 {
 private:
+
 	Ground * ground;
 
 	GameState * state;
@@ -95,9 +96,8 @@ private:
 	int zombieWaveNum = 0;
 	int totalWaveNum = 0;
 
-	ClientParams& config;
-
 public:
+	ClientParams& config;
 
 	std::unordered_map<uint, SceneNode*> objectIdMap;
 	std::unordered_map<uint, RenderController*> controllers;
@@ -109,8 +109,6 @@ public:
 	void setState(GameState * state);
 	void update(); // recalcuate the matrices
 	void draw(const glm::mat4 &veiwProjMat); // renders everything
-
-	void toggleWater();
 
 	SceneNode* getDrawableSceneNode(uint objectId, Drawable* model);
 
