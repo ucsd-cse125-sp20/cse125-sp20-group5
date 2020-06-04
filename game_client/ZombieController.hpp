@@ -80,7 +80,7 @@ public:
 			if (oldAnimID == Zombie::MOVE || modelNode->playedOneAnimCycle) {
 				// reset & play DAMAGED
 				modelNode->loadAnimData(modelNode->numAnimation, newAnimID, false);
-				scene->aEngine->PlaySounds("scream.mp3", glm::vec3(rootNode->transform[3]), 
+				scene->aEngine->PlaySounds(AUDIO_FILE_ZOMBIE_DAMAGED, glm::vec3(rootNode->transform[3]),
 					scene->aEngine->VolumeTodB(Scene::volumeAdjust * 0.5f));
 			}
 		}
@@ -123,6 +123,13 @@ public:
 
 			// If not disppearing at the home base, but killed by the plant
 			if (!zombieController->atDestination()) {
+				// set DIE anim & audio
+				if (zombieController->modelNode->animationId != Zombie::DIE) {
+					// reset & play DAMAGED
+					scene->aEngine->PlaySounds(AUDIO_FILE_ZOMBIE_DIE, glm::vec3(zombieController->rootNode->transform[3]),
+						scene->aEngine->VolumeTodB(Scene::volumeAdjust * 0.5f));
+				}
+				// play anim
 				zombieController->modelNode->switchAnim(Zombie::ZombieAnimation::DIE, false);
 
 				// Don't delete if animation hasn't finished
