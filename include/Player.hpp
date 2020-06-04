@@ -76,17 +76,10 @@ public:
 
     // Current chat blob type
     int currChat;
-    const static std::string chatMessages[11];
     static constexpr int NO_CHAT = -1;
 
     // Animation Type
     enum PlayerAnimation { IDLE, MOVE, WATER, PLOUGH };
-};
-
-const std::string Player::chatMessages[11] = {
-    "Water!", "Shovel!", "Pesticide!", "Fertilizer!", "Come on!!", // 0~4
-    "Help!!!", "I need somebody", "Thanks!", "Good job!", "GG", // 5~9
-    "Thank you for the quarter!"// secret
 };
 
 #endif

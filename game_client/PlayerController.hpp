@@ -31,6 +31,7 @@ private:
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
 	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.0f; // black
 
+	const static std::string chatMessages[11];
 public:
 	PlayerController(Player* player, Scene* scene) {
 		this->playerScaler = scene->config.playerScaler;
@@ -108,7 +109,7 @@ public:
 			chatText->shouldDisplay = true;
 			// reset timer
 			chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
-			chatText->reservedText = Player::chatMessages[chatId];
+			chatText->reservedText = chatMessages[chatId];
 		}
 
 		// update the effect of textUI: 
@@ -160,6 +161,7 @@ public:
 		// Set highlight tiles
 		((Ground*)(scene->getGroundNode()->obj))->highlightTile(player->highlightTileCol, player->highlightTileRow);
 	}
+<<<<<<< HEAD
 
 	void updateHpBar(Player* player, Scene* scene) {
 		if (player->maxHealth <= 0) {
@@ -168,4 +170,12 @@ public:
 		hpBar->shouldDisplay = !player->isDead;
 		hpBar->updateBar((float)player->health / (float)player->maxHealth);
 	}
+=======
+};
+
+const std::string PlayerController::chatMessages[11] = {
+	"Water!", "Shovel!", "Pesticide!", "Fertilizer!", "Come on!!", // 0~4
+	"Help!!!", "I need somebody", "Thanks!", "Good job!", "GG", // 5~9
+	"Thank you for the quarter!"// secret
+>>>>>>> chat feature - wip 7: build error resolved
 };

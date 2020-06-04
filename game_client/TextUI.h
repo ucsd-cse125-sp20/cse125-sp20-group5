@@ -10,6 +10,7 @@
 
 #include "Core.h"
 #include "DrawableUI.h"
+#include "SceneNode.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H  
