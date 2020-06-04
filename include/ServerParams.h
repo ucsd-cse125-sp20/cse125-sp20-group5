@@ -48,6 +48,8 @@ public:
     int cornAttackPower;
     float cornBoundingBoxRadius;
     float cornAttackInterval;
+    float cornMinAttackInterval;
+    float cornDeltaAttackInterval;
     float cornAttackRange;
     float cornGrowExpireTime;
     float cornCooldownExpireTime;
@@ -61,6 +63,8 @@ public:
     int cactusAttackPower;
     float cactusBoundingBoxRadius;
     float cactusAttackInterval;
+    float cactusMinAttackInterval;
+    float cactusDeltaAttackInterval;
     float cactusAttackRange;
     float cactusGrowExpireTime;
     float cactusCooldownExpireTime;

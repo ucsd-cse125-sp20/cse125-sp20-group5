@@ -46,6 +46,8 @@ ServerParams::ServerParams() {
     cornAttackPower = config.GetInteger("Corn", "AttackPower", 50);
     cornBoundingBoxRadius = config.GetFloat("Corn", "BoundingBoxRadius", 1.0f);
     cornAttackInterval = config.GetFloat("Corn", "AttackInterval", 1.0f);
+    cornMinAttackInterval = config.GetFloat("Corn", "MinAttackInterval", 0.5f);
+    cornDeltaAttackInterval = config.GetFloat("Corn", "DeltaAttackInterval", 0.2f);
     cornAttackRange = config.GetFloat("Corn", "AttackRange", 3.0f);
     cornGrowExpireTime = config.GetFloat("Corn", "GrowExpireTime", 2.0f);
     cornCooldownExpireTime = config.GetFloat("Corn", "CooldownExpireTime", 2.0f);
@@ -59,6 +61,8 @@ ServerParams::ServerParams() {
     cactusAttackPower = config.GetInteger("Cactus", "AttackPower", 50);
     cactusBoundingBoxRadius = config.GetFloat("Cactus", "BoundingBoxRadius", 1.0f);
     cactusAttackInterval = config.GetFloat("Cactus", "AttackInterval", 1.0f);
+    cactusMinAttackInterval = config.GetFloat("Cactus", "MinAttackInterval", 0.5f);
+    cactusDeltaAttackInterval = config.GetFloat("Cactus", "DeltaAttackInterval", 0.2f);
     cactusAttackRange = config.GetFloat("Cactus", "AttackRange", 10.0f);
     cactusGrowExpireTime = config.GetFloat("Cactus", "GrowExpireTime", 2.0f);
     cactusCooldownExpireTime = config.GetFloat("Cactus", "CooldownExpireTime", 2.0f);

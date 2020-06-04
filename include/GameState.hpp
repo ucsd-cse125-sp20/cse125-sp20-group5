@@ -484,7 +484,13 @@ public:
                         //std::cout << "Fertilize Done " << std::endl;
                         plant->currFertilizeTime = 0.0f;
                         tool->fertilizerCurrTime = 0.0f;
-                        
+
+                        // decrease attack interval
+                        plant->attackInterval -= plant->deltaAttackInterval;
+                        if (plant->attackInterval <= plant->minAttackInterval) {
+                            plant->attackInterval = plant->minAttackInterval;
+                        }
+
                         // increase attack power
                         plant->attackPower += plant->deltaAttack;
                         plant->level++;
