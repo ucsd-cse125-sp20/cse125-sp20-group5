@@ -13,16 +13,23 @@
 
 class DrawableUI : public Drawable {
 public:
-    // Used to postpone drawing to the last for the sake of blending
-    static bool isDrawUiMode;
-
-    // Bar rendering var
+    // Render decision related
+    static bool isDrawUiMode; // Used to postpone drawing to the last for the sake of blending
     bool shouldDisplay = true;
+
+    // alpha related
     bool alphaEffectOn = false;
-    static constexpr float MAX_ALPHA = 0.8f;
-    float alphaValue = MAX_ALPHA;
+    static constexpr float DEFAULT_MAX_ALPHA = 0.8f;
+    float maxAlpha = DEFAULT_MAX_ALPHA;
+    float alphaValue = DEFAULT_MAX_ALPHA;
     float alphaStep = 0.05f;
 
+    bool autoFadeOff = false; // if true, will fade off after awhile automatically
+    std::chrono::system_clock::time_point maxAlphaStartTime; // to allow the hpBar display for awhile
+    static constexpr int RENDER_TIME_MILLISEC = 1500;
+
+
+    DrawableUI();
     //virtual ~DrawableUI() {}
 
     void setAlphaSetting(bool alphaEffectOn, float initialAlpha, float alphaStep);
@@ -30,6 +37,7 @@ public:
     void loadTexture(const char* textureFile, GLuint* textureID);
 
     SceneNode* createSceneNodes(uint objectId) override;
+    virtual void update(SceneNode* node) override;
 
 private:
 };

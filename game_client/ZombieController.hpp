@@ -169,7 +169,7 @@ public:
 			}
 			else {
 				hpBar->shouldDisplay = true; // display only when the bar is changing
-				hpBar->alphaValue = HealthBar::MAX_ALPHA; // so that no fading effect on start of change, but only on end of change
+				hpBar->alphaValue = hpBar->maxAlpha; // so that no fading effect on start of change, but only on end of change
 				hpBar->updateBar(newFilledFraction);
 
 				lastBarUpdateTime = std::chrono::system_clock::now();

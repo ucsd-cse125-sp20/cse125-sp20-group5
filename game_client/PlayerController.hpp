@@ -67,6 +67,7 @@ public:
 		);
 		chatText->shouldDisplay = false;
 		chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
+		chatText->autoFadeOff = true;
 	}
 
 	~PlayerController() {
@@ -108,11 +109,12 @@ public:
 		if (chatId != Player::NO_CHAT) {
 			chatText->shouldDisplay = true;
 			// reset timer
-			//TODO
+			chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
 			chatText->reservedText = Player::chatMessages[chatId];
 		}
 
-		// update the textUI
+		// update the effect of textUI: 
+		// should be handled by DrawableUI::update() when autoFadeOff turned on
 		// TODO
 	}
 
