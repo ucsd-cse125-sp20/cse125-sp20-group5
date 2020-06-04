@@ -136,22 +136,37 @@ void TextUI::renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&modelMtx);
 	glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 
-	renderFont(text, 0, 0, scale);
+	renderFont(text, 0, 0, scale, CENTER);
 
 	glUseProgram(0);
 }
 
-void TextUI::renderFont(std::string text, float x, float y, float scale) {
+void TextUI::renderFont(std::string text, float x, float y, float scale, int textAlignment) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // to allow transparent
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
 
+	// get characters for the chosen font
 	std::map<GLchar, Character >Characters = fontCharacters[usedFont];
 
-	// iterate through all characters
+	// get the width of the text
+	float totalWidth = 0.0f;
 	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		totalWidth += (Characters[*c].advance >> 6) * scale;
+	}
+
+	// set text alignment
+	switch (textAlignment) {
+		case LEFT:			x = x; break;
+		case CENTER:	x = x - totalWidth / 2.0f;
+		case RIGHT:		x = x - totalWidth;
+	}
+
+	// iterate through all characters
 	for (c = text.begin(); c != text.end(); c++)
 	{
 		Character ch = Characters[*c];

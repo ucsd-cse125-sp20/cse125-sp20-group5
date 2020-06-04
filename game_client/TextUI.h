@@ -25,6 +25,8 @@ enum BackgroundTexture { TEXT_BUBBLE, NUM_OF_BACKTEXT };
 
 enum class FontType { CARTOON, CHUNK, NUM_OF_FONT_TYPE};
 
+enum TextAlignment { LEFT, CENTER, RIGHT };
+
 class TextUI : public DrawableUI
 {
 public:
@@ -36,7 +38,7 @@ public:
 
 	void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
 	void renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat4 modelMtx, float scale, glm::vec3 color);
-	void renderFont(std::string text, float x, float y, float scale);
+	void renderFont(std::string text, float x, float y, float scale, int textAlignment = LEFT);
 
 	// These variables are needed for the shader program
 	static std::map<FontType, std::map<GLchar, Character >> fontCharacters;
