@@ -131,13 +131,7 @@ public:
 		if (player->maxHealth <= 0) {
 			return; // data hasn't been received from server yet
 		}
-		/*if (hpBar->currFilledFraction <= 0.0) {
-			if (barNode) {
-				//barNode = RenderController::deleteBarNode(barNode);
-			}
-		}*/
-		else {
-			hpBar->updateBar((float)player->health / (float)player->maxHealth);
-		}
+		hpBar->shouldDisplay = !player->isDead;
+		hpBar->updateBar((float)player->health / (float)player->maxHealth);
 	}
 };

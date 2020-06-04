@@ -6,7 +6,6 @@
 #include <set>
 
 #include <GameState.hpp>
-#include "Camera.h"
 #include "Model.h"
 #include "Ground.h"
 #include "AssimpModel.h"
@@ -36,7 +35,6 @@ enum class ModelType {
 class Scene
 {
 private:
-	Camera* cam;
 
 	Ground * ground;
 
