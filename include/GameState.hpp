@@ -561,6 +561,7 @@ public:
                     Tile* tile = getCurrentTile(plant);
                     tile->canPlow = true;
                     tile->tileType = Tile::TYPE_NORMAL;
+                    tile->plantId = 0;
                     it = plants.erase(it);
                     continue;
                 }
