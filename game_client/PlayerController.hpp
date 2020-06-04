@@ -3,6 +3,7 @@
 #include "RenderController.hpp"
 #include "ToolController.hpp"
 #include "HealthBar.h"
+#include "TextUI.h"
 
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
 #define SEED_BAG_HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
@@ -23,6 +24,12 @@ private:
 	HealthBar* hpBar;
 	SceneNode * barNode;
 	float playerScaler;
+
+	TextUI* chatText;
+	SceneNode* textNode;
+
+	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.0f; // black
 
 public:
 	PlayerController(Player* player, Scene* scene) {
@@ -50,13 +57,26 @@ public:
 			"texture/hp_icon.png", HP_BAR_TRANSLATE_Y, initBarFilledFraction, HP_BAR_COLOR
 		);
 		std::tie(hpBar, barNode) = createHealthBar(barSetting, scene);
+
+		// init chat text
+		chatText = new TextUI(
+			scene->getShaderID(ShaderType::TEXT),
+			FontType::CHUNK, CHAT_TEXT_COLOR, "Lv",
+			glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0))
+		);
+		chatText->shouldDisplay = false;
+		chatText->alphaEffectOn = true;
+		chatText->alphaValue = 0.0f;
+		textNode = chatText->createSceneNodes(player->objectId);
+		rootNode->addChild(textNode);
+		uiNodes.push_back(textNode);
 	}
 
 	~PlayerController() {
-		if (barNode) {
-			barNode = RenderController::deleteBarNode(barNode);
-		}
+		if (barNode) { barNode = RenderController::deleteBarNode(barNode); }
 		if (hpBar) { delete hpBar; }
+		if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+		if (chatText) { delete chatText; }
 	}
 
 	void update(GameObject * gameObject, Scene * scene) override {
@@ -73,6 +93,8 @@ public:
 				rootNode->addChild(modelNode);
 		}
 
+		updateChat(player);
+
 		rootNode->loadGameObject(player);
 		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)
 			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
@@ -81,6 +103,20 @@ public:
 		handleHoldingAction(player, scene);
 		handleHighlighting(player, scene);
 		updateHpBar(player, scene);
+	}
+
+	void updateChat(Player* player) {
+		// change the text content, if player object has a valid chatId
+		int chatId = player->currChat;
+		if (chatId != Player::NO_CHAT) {
+			chatText->shouldDisplay = true;
+			// reset timer
+			//TODO
+			chatText->reservedText = Player::chatMessages[chatId];
+		}
+
+		// update the textUI
+		// TODO
 	}
 
 	// here is wehre we handle stuff like making sure they are holding another object
