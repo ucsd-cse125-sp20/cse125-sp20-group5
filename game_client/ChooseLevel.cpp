@@ -7,18 +7,8 @@ ChooseLevel::ChooseLevel(GLFWwindow* window, nanogui::Screen* screen, uint numLe
 	this->screen = screen;
 	nanogui::Window* nanoguiWindow = new nanogui::Window(screen, "Choose Level");
 	wind = nanoguiWindow;
-	nanoguiWindow->setFixedSize(nanogui::Vector2i(900, 500));
-	nanoguiWindow->setPosition(nanogui::Vector2i(30, 30));
-
-	nanogui::GridLayout* layout =
-		new nanogui::GridLayout(nanogui::Orientation::Vertical, 2,
-			nanogui::Alignment::Middle, 5, 5);
-	layout->setColAlignment(
-		{ nanogui::Alignment::Maximum, nanogui::Alignment::Fill });
-	layout->setSpacing(0, 10);
-	nanoguiWindow->setLayout(layout);
-
-	nanogui::Label* numLabel = new nanogui::Label(nanoguiWindow, std::string("Players In Lobby"));
+	nanoguiWindow->setFixedSize(nanogui::Vector2i(200, 500));
+	nanoguiWindow->setLayout(new nanogui::GroupLayout());
 
 	nanogui::TextBox* textBox = new nanogui::TextBox(nanoguiWindow, "1");
 	textBox->setEditable(false);
@@ -29,17 +19,10 @@ ChooseLevel::ChooseLevel(GLFWwindow* window, nanogui::Screen* screen, uint numLe
 	textBox->setAlignment(nanogui::TextBox::Alignment::Center);
 	text = textBox;
 
-	images = new GLuint[numLevels];
 
 	for (uint i = 0; i < numLevels; i++) {
 		nanogui::Button* level = new nanogui::Button(nanoguiWindow, std::string("Level ") + std::to_string(i));
 		level->setCallback([textBox]() { std::cout << "Button pressed. " << textBox->value() << std::endl; });
-
-		/*level = new nanogui::Button(nanoguiWindow, std::string("Level ") + std::to_string(i));
-		level->setCallback([textBox]() { std::cout << "Button pressed. " << textBox->value() << std::endl; });*/
-		readInImages(images + i, "texture/ground_texture.jpg");
-		nanogui::ImageView* view = new nanogui::ImageView(nanoguiWindow, images[i]);
-		view->setFixedSize(nanogui::Vector2i(100, 100));
 		buttons.push_back(level);
 	}
 

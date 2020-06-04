@@ -285,7 +285,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	testUI->draw(); //TODO to be removed
 	textUI->renderText("WAVE " + to_string(zombieWaveNum),
 		Client::getWinX() -350.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(.0f, .0f, .0f));
-	textUI->renderText("KILLS " + to_string(zombieWaveNum),
+	textUI->renderText("SCORE " + to_string(zombieWaveNum),
 		25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
 }
 
