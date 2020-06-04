@@ -7,13 +7,13 @@ ZombieWaveManager::ZombieWaveManager() : gameState(nullptr) {}
 
 ZombieWaveManager::ZombieWaveManager(GameState* state)
   : zombiesInWave(state->config.waveDefaultNumZombies),
-    zombieRabbitHealthMultiplier(1.0f),
-    zombiePigHealthMultiplier(1.0f),
+    zombieRabbitMaxHealth(state->config.zombieRabbitDefaultHealth),
+    zombiePigMaxHealth(state->config.zombiePigDefaultHealth),
     zombiesSpawned(0) 
 {
     gameState = state;
     currTime = gameState->config.waveStartTime;
-    waveNum = 0;
+    waveNum = 1;
 }
 
 void ZombieWaveManager::spawn(Zombie::ZombieType type) {
@@ -31,11 +31,11 @@ void ZombieWaveManager::spawn(Zombie::ZombieType type) {
 
         
         if (type == Zombie::ZombieType::RABBIT) {
-            zombie->maxHealth = gameState->config.zombieRabbitDefaultHealth * zombieRabbitHealthMultiplier;
+            zombie->maxHealth = zombieRabbitMaxHealth;
             zombie->health = zombie->maxHealth;
         }
         else if (type == Zombie::ZombieType::PIG) {
-            zombie->maxHealth = gameState->config.zombiePigDefaultHealth * zombiePigHealthMultiplier;
+            zombie->maxHealth = zombiePigMaxHealth;
             zombie->health = zombie->maxHealth;
         }
         gameState->gameObjectMap[zombie->objectId] = zombie;
@@ -56,10 +56,14 @@ void ZombieWaveManager::handleZombieWaves() {
             // handle increasing health and number of zombies
             zombiesSpawned = 0;
 
-            if (waveNum % 2 == 0) {
-                zombiesInWave += gameState->config.waveDeltaNumZombies;
-                zombieRabbitHealthMultiplier += gameState->config.zombieRabbitDeltaHealthMultiplier;
-                zombiePigHealthMultiplier += gameState->config.zombiePigDeltaHealthMultiplier;
+            if (waveNum > 1 && waveNum % 2 == 1) {
+                int deltaZombies = zombiesInWave * gameState->config.waveDeltaNumZombiesMultiplier - zombiesInWave;
+                if (deltaZombies < 1) {
+                    deltaZombies = 1;
+				}
+                zombiesInWave += deltaZombies;
+                zombieRabbitMaxHealth *= gameState->config.zombieRabbitDeltaHealthMultiplier;
+                zombiePigMaxHealth *= gameState->config.zombiePigDeltaHealthMultiplier;
             }
         }
     }

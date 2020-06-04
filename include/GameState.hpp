@@ -101,6 +101,7 @@ public:
 
     void init(ServerParams& config) {
         this->config = config;
+        totalWaveNum = config.totalWaveNum;
         tickRate = config.tickrate;
         deltaTime = 1.0f / tickRate;
         isGameOver = false;
@@ -131,6 +132,7 @@ public:
         ar & waterTap;
         ar & homeBase;
         ar & waveNum;
+        ar & totalWaveNum;
         ar & numZombiesKilled;
         ar & isGameOver;
     }
@@ -1410,6 +1412,7 @@ public:
     // Zombie Spawn Manager
     ZombieWaveManager* zombieWaveManager;
     int waveNum = 0;
+    int totalWaveNum;
     int numZombiesKilled = 0;
 
     // Game status losing/not losing

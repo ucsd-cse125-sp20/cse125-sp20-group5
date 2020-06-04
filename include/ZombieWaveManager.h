@@ -19,8 +19,8 @@ public:
 
     int zombiesInWave;  // number of zombies in current wave
     int zombiesSpawned; // number of zombies spawned in current wave
-    int zombieRabbitHealthMultiplier;
-    int zombiePigHealthMultiplier;
+    int zombieRabbitMaxHealth;
+    int zombiePigMaxHealth;
     int waveNum;
 
     float currTime; // How long until wave

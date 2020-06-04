@@ -30,14 +30,15 @@ ServerParams::ServerParams() {
 
     // Zombie wave parameters
     waveDefaultNumZombies = config.GetInteger("ZombieWaves", "WaveDefaultNumZombies", 1);
-    waveDeltaNumZombies = config.GetInteger("ZombieWaves", "WaveDeltaNumZombies", 2);
+    waveDeltaNumZombiesMultiplier = config.GetFloat("ZombieWaves", "WaveDeltaNumZombiesMultiplier", 1.2f);
     zombieRabbitDefaultHealth = config.GetInteger("ZombieWaves", "ZombieRabbitDefaultHealth", 100);
-    zombieRabbitDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombieRabbitDeltaHealthMultiplier", 0.2f);
+    zombieRabbitDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombieRabbitDeltaHealthMultiplier", 1.2f);
     zombiePigDefaultHealth = config.GetInteger("ZombieWaves", "ZombiePigDefaultHealth", 100);
-    zombiePigDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombiePigDeltaHealthMultiplier", 0.2f);
+    zombiePigDeltaHealthMultiplier = config.GetFloat("ZombieWaves", "ZombiePigDeltaHealthMultiplier", 1.2f);
     waveStartTime = config.GetFloat("ZombieWaves", "WaveStartTime", 5.0f);
     zombieRabbitSpawnFreq = config.GetFloat("ZombieWaves", "ZombieRabbitSpawnFreq", 1.0f);
     zombiePigSpawnFreq = config.GetFloat("ZombieWaves", "ZombiePigSpawnFreq", 1.0f);
+    totalWaveNum = config.GetInteger("ZombieWaves", "TotalWaveNum", 10);
 
     // Plant Corn
     cornAttackPower = config.GetInteger("Corn", "AttackPower", 50);

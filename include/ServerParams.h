@@ -32,7 +32,7 @@ public:
 
     // Zombie Waves related
     int waveDefaultNumZombies;
-    int waveDeltaNumZombies;
+    float waveDeltaNumZombiesMultiplier;
     int zombieRabbitDefaultHealth;
     int zombieRabbitDeltaHealthMultiplier;
     int zombiePigDefaultHealth;
@@ -40,6 +40,7 @@ public:
     float waveStartTime;
     float zombieRabbitSpawnFreq;
     float zombiePigSpawnFreq;
+    int totalWaveNum;
 
     // Plant Corn
     int cornAttackPower;
