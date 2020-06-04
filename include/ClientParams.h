@@ -12,6 +12,7 @@ public:
     float dirtScaler;
     float treeScaler;
     float stoneScaler;
+    float playerScaler;
 
     // Camera
     float FOV;
