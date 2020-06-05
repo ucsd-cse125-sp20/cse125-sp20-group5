@@ -882,11 +882,17 @@ public:
             }
 
             // 8. Check if collide with obstacles 
+            Obstacle* minObstacle = nullptr;
+            float minDistance = std::numeric_limits<float>::max();
             for (Obstacle* obstacle : obstacles) {
-                if (player->collideWith(obstacle)) {
-                    collisionResponse(player, obstacle, prevPos);
-                    break;
+                float dist = player->distanceTo(obstacle);
+                if (dist < minDistance) {
+                    minObstacle = obstacle;
+                    minDistance = dist;
                 }
+            }
+            if (minObstacle && player->collideWith(minObstacle)) {
+                collisionResponse(player, minObstacle, prevPos);
             }
 
             player->currRow = player->position->z / Floor::TILE_SIZE;
