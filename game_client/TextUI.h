@@ -37,7 +37,7 @@ public:
 
 	std::map<GLchar, Character > initFont(const char* fontFile);
 
-	void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
+	void renderText(std::string text, float x, float y, float scale, glm::vec3 color, int textAlignment = LEFT);
 	void renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat4 modelMtx, float scale, glm::vec3 color, bool haveBackground = true);
 	void renderFont(std::string text, float x, float y, float scale, bool haveBackground, int textAlignment = LEFT);
 	void renderBackground(int bgType, float ratioToText);

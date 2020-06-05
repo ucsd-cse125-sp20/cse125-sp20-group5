@@ -27,7 +27,7 @@ public:
     int maxHealth;
 
     // Animation Type
-    enum PlayerAnimation { STAY, DAMAGED, DIE };
+    enum HomeBaseAnimation { STAY, DAMAGED, DIE };
 };
 
 #endif

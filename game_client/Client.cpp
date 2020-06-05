@@ -354,7 +354,7 @@ void Client::setupAudio() {
 	aEngine.LoadSound(AUDIO_FILE_HOMEBASE_DIE, true, false);
 
 
-	aEngine.PlaySounds(AUDIO_FILE_BGM_LOBBY, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
+	aEngine.PlaySounds(AUDIO_FILE_BGM_LOBBY, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume * 0.7f));
 
 	glm::vec3 listenerPos = glm::normalize(
 		glm::eulerAngleY(glm::radians(-cam->GetAzimuth())) 

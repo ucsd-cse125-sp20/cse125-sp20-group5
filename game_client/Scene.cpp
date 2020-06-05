@@ -127,6 +127,8 @@ void Scene::update()
 	// update wave num
 	zombieWaveNum = state->waveNum;
 	totalWaveNum = state->totalWaveNum;
+	score = state->numZombiesKilled;
+	isGameOver = state->isGameOver;
 
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
@@ -285,11 +287,12 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	RenderController::drawUI(viewProjMat);
 
-	if (state)
-		textUI->renderText("SCORE " + to_string(state->numZombiesKilled),25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
-
+	textUI->renderText("SCORE " + to_string(score), 25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
 	textUI->renderText("WAVE " + to_string(zombieWaveNum) + " / " + to_string(totalWaveNum),
 		Client::getWinX() - 450.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	if (isGameOver) {
+		textUI->renderText("GAME OVER", Client::getWinX() / 2, Client::getWinY() / 2, 3.0f, glm::vec3(0.7f, 0.0f, 0.0f), TextAlignment::CENTER);
+	}
 }
 
 

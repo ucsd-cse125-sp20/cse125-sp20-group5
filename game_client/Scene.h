@@ -99,6 +99,8 @@ private:
 
 	int zombieWaveNum = 0;
 	int totalWaveNum = 0;
+	int score = 0;
+	bool isGameOver = false;
 
 public:
 	ClientParams& config;
