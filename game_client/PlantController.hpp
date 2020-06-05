@@ -8,7 +8,8 @@
 
 #include "RenderController.hpp"
 #include <Plant.hpp>
-#include "HealthBar.h" //TODO to be removed
+#include "HealthBar.h"
+#include "TextUI.h"
 #include "Scene.h"
 
 #define SEED_SCALER 0.10
@@ -34,11 +35,13 @@ private:
     HealthBar* hpBar;
     HealthBar* pesticideBar;
     HealthBar* fertilizeBar;
+    TextUI* levelText;
     SceneNode* gBarNode;
     SceneNode* cBarNode;
     SceneNode* hBarNode;
     SceneNode* pBarNode;
     SceneNode* fBarNode;
+    SceneNode* textNode;
 
     ParticleGroup* pGroup;
     SceneNode* particleNode;
@@ -92,13 +95,19 @@ public:
 
         // init fertilize bar
         initBarFilledFraction = 0.0f;
-        HealthBarSetting fBarSetting("texture/plus_icon.png", HP_BAR_TRANSLATE_Y + 2.0 * barMarginY, initBarFilledFraction, FERTILIZE_BAR_COLOR);
+        float fBarTranslateY = HP_BAR_TRANSLATE_Y + 2.0 * barMarginY;
+        HealthBarSetting fBarSetting("texture/plus_icon.png", fBarTranslateY, initBarFilledFraction, FERTILIZE_BAR_COLOR);
         std::tie(fertilizeBar, fBarNode) = createHealthBar(fBarSetting, scene);
         fertilizeBar->shouldDisplay = false;
         fertilizeBar->fillingStep /= 5.0f;
-        fertilizeBar->alphaEffectOn = true;
-        fertilizeBar->alphaValue = 0.0f;
-        fertilizeBar->alphaStep *= 1.0f;
+        fertilizeBar->setAlphaSetting(true, 0.0f, fertilizeBar->alphaStep);
+        // init fertilize level text
+        std::tie(levelText, textNode) = createTextUI(
+            FontType::CHUNK, FERTILIZE_BAR_COLOR, 
+            glm::translate(glm::vec3(HealthBar::iconMtx[3].x, fBarTranslateY, 0)), scene
+        );
+        levelText->shouldDisplay = fertilizeBar->shouldDisplay;
+        levelText->setAlphaSetting(fertilizeBar->alphaEffectOn, fertilizeBar->alphaValue, fertilizeBar->alphaStep);
     }
 
     ~PlantController() {
@@ -112,6 +121,9 @@ public:
         if (pesticideBar) { delete pesticideBar; }
         if (fBarNode) { fBarNode = RenderController::deleteBarNode(fBarNode); }
         if (fertilizeBar) { delete fertilizeBar; }
+
+        if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+        if (levelText) { delete levelText; }
 
         delete pGroup;
     }
@@ -129,7 +141,7 @@ public:
         rootNode->loadGameObject(plant);
 
         // Update growth bar
-        updateGrowthBar(plant, scene);
+        updateUIs(plant, scene);
 
         // Update animation and particle effect
         updateAnimation(plant);
@@ -156,6 +168,8 @@ public:
             case Plant::GrowStage::SAPLING:
                 if (plant->plantType == Plant::PlantType::PLAYER) {
                     modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
+                    gBarNode->position.y = 0.5;
+                    cBarNode->position.y = 0.5;
                 }
                 else {
                     modelNode = scene->getModel(ModelType::SAPLING)->createSceneNodes(objectId);
@@ -195,7 +209,7 @@ public:
         rootNode->addChild(modelNode);
     }
 
-    void updateGrowthBar(Plant* plant, Scene* scene) {
+    void updateUIs(Plant* plant, Scene* scene) {
         if (plant->growStage == Plant::GrowStage::GROWN) {
             // delete all growth-related bar
             if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
@@ -219,10 +233,13 @@ public:
             float newFilledFraction = plant->currFertilizeTime / plant->fertilizerCompleteTime;
             if (fertilizeBar->currFilledFraction == newFilledFraction) {
                 fertilizeBar->shouldDisplay = false;
+                //levelText->shouldDisplay = fertilizeBar->shouldDisplay;
             }
             else {
                 fertilizeBar->shouldDisplay = true;
                 fertilizeBar->updateBar(newFilledFraction);
+                //levelText->shouldDisplay = fertilizeBar->shouldDisplay;
+                //levelText->reservedText = "Lv" + std::to_string(plant->fertilizedLevel);
             }
             if (newFilledFraction == 0.0) { fertilizeBar->resetBar(0.0f); }
         }

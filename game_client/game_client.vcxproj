@@ -191,6 +191,7 @@
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="RenderController.hpp" />
+    <ClInclude Include="DrawableUI.h" />
     <ClInclude Include="ZombieController.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -202,6 +203,7 @@
     <ClCompile Include="ChooseLevel.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="ClientParams.cpp" />
+    <ClCompile Include="DrawableUI.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="HealthBar.cpp" />
     <ClCompile Include="Image2d.cpp" />

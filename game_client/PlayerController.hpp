@@ -3,6 +3,7 @@
 #include "RenderController.hpp"
 #include "ToolController.hpp"
 #include "HealthBar.h"
+#include "TextUI.h"
 
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
 #define SEED_BAG_HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
@@ -26,6 +27,13 @@ private:
 	SceneNode * barNode;
 	float playerScaler;
 
+	TextUI* chatText;
+	SceneNode* textNode;
+
+	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.8f; // black
+
+	const static std::string chatMessages[11];
 public:
 	PlayerController(Player* player, Scene* scene) {
 		this->playerScaler = scene->config.playerScaler;
@@ -40,7 +48,7 @@ public:
 		}
 		
 		// create node
-		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + player->objectId, player->objectId);
+		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + std::to_string(player->objectId), player->objectId);
 		modelNode = scene->getModel(modelType)->createSceneNodes(player->objectId);
 		rootNode->addChild(modelNode);
 		rootNode->scaler = playerScaler;
@@ -52,13 +60,22 @@ public:
 			"texture/hp_icon.png", HP_BAR_TRANSLATE_Y, initBarFilledFraction, HP_BAR_COLOR
 		);
 		std::tie(hpBar, barNode) = createHealthBar(barSetting, scene);
+
+		// init chat text
+		std::tie(chatText, textNode) = createTextUI(
+			FontType::CHUNK, CHAT_TEXT_COLOR,
+			glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
+		);
+		chatText->shouldDisplay = false;
+		chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
+		chatText->autoFadeOff = true;
 	}
 
 	~PlayerController() {
-		if (barNode) {
-			barNode = RenderController::deleteBarNode(barNode);
-		}
+		if (barNode) { barNode = RenderController::deleteBarNode(barNode); }
 		if (hpBar) { delete hpBar; }
+		if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+		if (chatText) { delete chatText; }
 	}
 
 	void update(GameObject * gameObject, Scene * scene) override {
@@ -75,6 +92,9 @@ public:
 				rootNode->addChild(modelNode);
 		}
 
+		updateChat(player);
+		std::cout << player->currChat << std::endl;
+
 		rootNode->loadGameObject(player);
 		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)
 			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
@@ -83,6 +103,22 @@ public:
 		handleHoldingAction(player, scene);
 		handleHighlighting(player, scene);
 		updateHpBar(player, scene);
+	}
+
+	void updateChat(Player* player) {
+		// change the text content, if player object has a valid chatId
+		int chatId = player->currChat;
+		if (chatId != Player::NO_CHAT) {
+			chatText->shouldDisplay = true;
+			chatText->alphaValue = chatText->maxAlpha;
+			// reset timer
+			chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
+			chatText->reservedText = chatMessages[chatId];
+		}
+
+		// update the effect of textUI: 
+		// should be handled by DrawableUI::update() when autoFadeOff turned on
+		// TODO
 	}
 
 	// here is wehre we handle stuff like making sure they are holding another object
@@ -142,4 +178,10 @@ public:
 		hpBar->shouldDisplay = !player->isDead;
 		hpBar->updateBar((float)player->health / (float)player->maxHealth);
 	}
+};
+
+const std::string PlayerController::chatMessages[11] = {
+	"You suck","Water!", "Shovel!", "Pesticide!", "Fertilizer!", // 0~4
+	"Come on!!", "Help!!!", "I need somebody", "Thanks!", "Good job!", // 5~9
+	"Thank you for the quarter!"// secret
 };

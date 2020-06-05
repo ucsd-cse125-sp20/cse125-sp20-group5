@@ -7,7 +7,7 @@
 #pragma once
 
 #include "Core.h"
-#include "Drawable.h"
+#include "DrawableUI.h"
 #include "SceneNode.h"
 #include "stb_image.h"
 #include "Constants.h"
@@ -29,7 +29,7 @@ struct BarComponent {
 
 enum BarComponentID { ICON, BAR_BOX, BAR };
 
-class HealthBar : public Drawable
+class HealthBar : public DrawableUI
 {
 public:
 
@@ -55,12 +55,6 @@ public:
 	float currFilledFraction;
 	float fillingStep = 0.02f;
 
-	// Bar rendering var
-	bool shouldDisplay = true;
-	bool alphaEffectOn = false;
-	static constexpr float MAX_ALPHA = 0.8f;
-	float alphaValue = MAX_ALPHA;
-	float alphaStep = 0.05f;
 
 	// Modify bar methods
 	void updateBar(float filledFraction);
@@ -69,15 +63,10 @@ public:
 	// Drawable virtual methods
 	void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
 	void update(SceneNode* node) override;
-	SceneNode* createSceneNodes(uint objectId) override;
-
-	// Used to postpone drawing to the last for the sake of blending
-	static bool isDrawUiMode;
 
 private:
 
 	std::vector<BarComponent> barComponents;
-	void loadTexture(const char*, uint id);
 
 	// Define the coordinates and indices needed to draw the cube. Note that it is not necessary
     // to use a 2-dimensional array, since the layout in memory is the same as a 1-dimensional array.

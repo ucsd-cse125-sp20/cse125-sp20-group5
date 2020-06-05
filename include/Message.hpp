@@ -24,6 +24,20 @@
 #define OPCODE_GAME_STARTED 15
 #define OPCODE_GAME_NOT_STARTED 16
 
+// Chat message related op code
+#define OPCODE_PLAYER_CHAT_0 100
+#define OPCODE_PLAYER_CHAT_1 101
+#define OPCODE_PLAYER_CHAT_2 102
+#define OPCODE_PLAYER_CHAT_3 103
+#define OPCODE_PLAYER_CHAT_4 104
+#define OPCODE_PLAYER_CHAT_5 105
+#define OPCODE_PLAYER_CHAT_6 106
+#define OPCODE_PLAYER_CHAT_7 107
+#define OPCODE_PLAYER_CHAT_8 108
+#define OPCODE_PLAYER_CHAT_9 109
+#define OPCODE_PLAYER_CHAT_SECRET 110
+
+
 class Message {
 public:
 	Message() : opCode(OPCODE_NOP), levelId(0) {}

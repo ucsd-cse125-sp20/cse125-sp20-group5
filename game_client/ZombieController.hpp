@@ -72,14 +72,20 @@ public:
 		Zombie* zombie = (Zombie*) gameObject;
 		rootNode->loadGameObject(zombie);
 		
-		// animation
+		// animation & audio
+		// (assuming server will only pass in MOVE & DAMAGED animID)
 		int newAnimID = zombie->animation->animationType;
+		int oldAnimID = modelNode->animationId;
 		if (newAnimID == Zombie::DAMAGED) {
-			modelNode->switchAnim(newAnimID, false);
-		} 
-		// assuming server will only pass in MOVE & DAMAGED animID
-		// change back to MOVE if DAMAGED has been finished playing
-		else if (modelNode->animationId == Zombie::DAMAGED 
+			if (oldAnimID == Zombie::MOVE || modelNode->playedOneAnimCycle) {
+				// reset & play DAMAGED
+				modelNode->loadAnimData(modelNode->numAnimation, newAnimID, false);
+				scene->aEngine->PlaySounds(AUDIO_FILE_ZOMBIE_DAMAGED, glm::vec3(rootNode->transform[3]),
+					scene->aEngine->VolumeTodB(Scene::volumeAdjust * 0.05f));
+			}
+		}
+		// change back to MOVE only if DAMAGED has been finished playing
+		else if (oldAnimID == Zombie::DAMAGED
 			&& modelNode->playedOneAnimCycle) {
 			modelNode->switchAnim(newAnimID);
 		}
@@ -117,6 +123,13 @@ public:
 
 			// If not disppearing at the home base, but killed by the plant
 			if (!zombieController->atDestination()) {
+				// set DIE anim & audio
+				if (zombieController->modelNode->animationId != Zombie::DIE) {
+					// reset & play DAMAGED
+					scene->aEngine->PlaySounds(AUDIO_FILE_ZOMBIE_DIE, glm::vec3(zombieController->rootNode->transform[3]),
+						scene->aEngine->VolumeTodB(Scene::volumeAdjust * 0.5f));
+				}
+				// play anim
 				zombieController->modelNode->switchAnim(Zombie::ZombieAnimation::DIE, false);
 
 				// Don't delete if animation hasn't finished
@@ -169,7 +182,7 @@ public:
 			}
 			else {
 				hpBar->shouldDisplay = true; // display only when the bar is changing
-				hpBar->alphaValue = HealthBar::MAX_ALPHA; // so that no fading effect on start of change, but only on end of change
+				hpBar->alphaValue = hpBar->maxAlpha; // so that no fading effect on start of change, but only on end of change
 				hpBar->updateBar(newFilledFraction);
 
 				lastBarUpdateTime = std::chrono::system_clock::now();
