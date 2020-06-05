@@ -254,12 +254,44 @@ public:
     void removePlayer(Player *player) {
         auto it = std::find(players.begin(), players.end(), player);
         if (it != players.end()) {
-            players.erase(it);
-        }
+            // Drop tool if player disconnects
+            if (player->heldObject != 0) {
+                dropTool(player);
+            }
 
-        // Drop tool if player disconnects
-        if (player->heldObject != 0) {
-            dropTool(player);
+            if (player->isDead) {
+                // Remove any seed connected to player
+                bool removedSeed = false;
+                for (auto toolIt = tools.begin(); toolIt != tools.end(); toolIt++) {
+                    Tool* checkTool = *toolIt;
+                    bool isSeed = checkTool->toolType == Tool::ToolType::SEED;
+                    bool isPlayerSeed = isSeed && checkTool->seedType == Plant::PlantType::PLAYER;
+                    if (isPlayerSeed && checkTool->playerPlant == player) {
+                        tools.erase(toolIt);
+                        removedSeed = true;
+                        break;
+                    }
+                }
+
+                if (!removedSeed) {
+                    // Remove any plant connected to player
+                    for (auto plantIt = plants.begin(); plantIt != plants.end(); plantIt++) {
+                        Plant* checkPlant = *plantIt;
+                        if (checkPlant->plantType == Plant::PlantType::PLAYER && checkPlant->playerPlant == player) {
+                            // Reset plant tile (go back to normal)
+                            Tile* tile = getCurrentTile(checkPlant);
+                            tile->canPlow = true;
+                            tile->tileType = Tile::TYPE_NORMAL;
+                            tile->plantId = 0;
+                            plants.erase(plantIt);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Get rid of player
+            players.erase(it);
         }
     }
 
