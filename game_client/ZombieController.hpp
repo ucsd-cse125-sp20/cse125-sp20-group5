@@ -81,7 +81,7 @@ public:
 				// reset & play DAMAGED
 				modelNode->loadAnimData(modelNode->numAnimation, newAnimID, false);
 				scene->aEngine->PlaySounds(AUDIO_FILE_ZOMBIE_DAMAGED, glm::vec3(rootNode->transform[3]),
-					scene->aEngine->VolumeTodB(Scene::volumeAdjust * 0.5f));
+					scene->aEngine->VolumeTodB(Scene::volumeAdjust * 0.05f));
 			}
 		}
 		// change back to MOVE only if DAMAGED has been finished playing

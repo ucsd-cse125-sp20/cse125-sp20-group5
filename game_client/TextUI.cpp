@@ -23,6 +23,11 @@ TextUI::TextUI(uint shader, FontType usedFont, glm::vec3 usedColor, std::string 
 			const char* fontFile = it->second;
 			fontCharacters[type] = this->initFont(fontFile);
 		}
+
+		for (int i = 0; i < NUM_OF_BACKGROUND; i++) {
+			loadTexture(backgroundFiles[i], &backgroundTextureIDs[i]);
+			glBindTexture(GL_TEXTURE_2D, 0);
+		}
 	}
 
 	// load background textures
@@ -121,6 +126,7 @@ void TextUI::renderText(std::string text, float x, float y, float scale, glm::ve
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(Client::getWinX()), 0.0f, static_cast<float>(Client::getWinY()));
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE, (float*)&projection);
 	glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
+	glUniform1f(glGetUniformLocation(shader, "alpha"), alphaValue);
 	
 	renderFont(text, x, y, scale);
 
@@ -135,6 +141,7 @@ void TextUI::renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat
 	glUniformMatrix4fv(glGetUniformLocation(shader, "projectView"), 1, false, (float*)&viewProjMtx);
 	glUniformMatrix4fv(glGetUniformLocation(shader, "model"), 1, false, (float*)&modelMtx);
 	glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
+	glUniform1f(glGetUniformLocation(shader, "alpha"), alphaValue);
 
 	renderFont(text, 0, 0, scale, CENTER);
 
@@ -152,18 +159,19 @@ void TextUI::renderFont(std::string text, float x, float y, float scale, int tex
 	std::map<GLchar, Character >Characters = fontCharacters[usedFont];
 
 	// get the width of the text
-	float totalWidth = 0.0f;
+	float totalWidth = 0;
 	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++)
 	{
-		totalWidth += (Characters[*c].advance >> 6) * scale;
+		Character ch = Characters[*c];
+		totalWidth += (ch.advance >> 6) * scale;
 	}
 
 	// set text alignment
 	switch (textAlignment) {
 		case LEFT:			x = x; break;
-		case CENTER:	x = x - totalWidth / 2.0f;
-		case RIGHT:		x = x - totalWidth;
+		case CENTER:		x = x - totalWidth / 2.0f; break;
+		case RIGHT:			x = x - totalWidth; break;
 	}
 
 	// iterate through all characters
@@ -206,11 +214,8 @@ void TextUI::renderFont(std::string text, float x, float y, float scale, int tex
 
 
 void TextUI::draw(SceneNode& node, const glm::mat4& viewProjMtx) {
-	//if (!canDraw()) { return; }
+	if (!canDraw()) { return; }
 
 	mat4 modelMtx = translate(vec3(node.transform[3])) * model;
 	renderTextInWorld(reservedText, viewProjMtx, modelMtx, 0.008f, usedColor);
-}
-
-void TextUI::update(SceneNode* node) {
 }

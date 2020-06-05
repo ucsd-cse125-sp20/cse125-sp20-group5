@@ -22,7 +22,7 @@ struct Character {
 	unsigned int advance;   // Horizontal offset to advance to next glyph
 };
 
-enum BackgroundTexture { TEXT_BUBBLE, NUM_OF_BACKTEXT };
+enum BackgroundTexture { COMIC_BUBBLE, NUM_OF_BACKGROUND };
 
 enum class FontType { CARTOON, CHUNK, NUM_OF_FONT_TYPE};
 
@@ -47,22 +47,26 @@ public:
 	static bool staticInitialized;
 	
 	uint shader;
-	GLuint backgroundTextureIDs[NUM_OF_BACKTEXT];
+	GLuint backgroundTextureIDs[NUM_OF_BACKGROUND];
 
 	glm::mat4 model;
 	std::string reservedText;
 	FontType usedFont;
 	glm::vec3 usedColor;
 
-	void loadBackgroundTexture(const char* textureFile, uint id);
-
 	// Overriden methods from Drawable
 	void draw(SceneNode& node, const glm::mat4& viewProjMtx) override;
-	void update(SceneNode* node) override;
 
 private:
-	const std::map<FontType, const char*> fontFileMap = {
-		{ FontType::CARTOON, "font/From Cartoon Blocks.ttf" },
-		{ FontType::CHUNK, "font/Chunk Five Print.otf" }
-	};
+	static std::map<FontType, const char*> fontFileMap;
+	static char* backgroundFiles[NUM_OF_BACKGROUND];
 };
+
+std::map<FontType, const char*> TextUI::fontFileMap = {
+	   { FontType::CARTOON, "font/From Cartoon Blocks.ttf" },
+	   { FontType::CHUNK, "font/Chunk Five Print.otf" }
+};
+char* TextUI::backgroundFiles[NUM_OF_BACKGROUND] = {
+	   "texture/think_comic_bubble.png"
+};
+

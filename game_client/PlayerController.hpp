@@ -29,7 +29,7 @@ private:
 	SceneNode* textNode;
 
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
-	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.0f; // black
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.8f; // black
 
 	const static std::string chatMessages[11];
 public:
@@ -46,7 +46,7 @@ public:
 		}
 		
 		// create node
-		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + player->objectId, player->objectId);
+		rootNode = new SceneNode(NULL, "PlayerRootEmpty" + std::to_string(player->objectId), player->objectId);
 		modelNode = scene->getModel(modelType)->createSceneNodes(player->objectId);
 		rootNode->addChild(modelNode);
 		rootNode->scaler = playerScaler;
@@ -107,6 +107,7 @@ public:
 		int chatId = player->currChat;
 		if (chatId != Player::NO_CHAT) {
 			chatText->shouldDisplay = true;
+			chatText->alphaValue = chatText->maxAlpha;
 			// reset timer
 			chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
 			chatText->reservedText = chatMessages[chatId];

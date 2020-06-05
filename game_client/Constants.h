@@ -45,6 +45,7 @@
 #define STONE_SCALER 0.8
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing_full.wav"
-#define AUDIO_FILE_ZOMBIE_DAMAGED "audio/cat-cry2.mp3"
+#define AUDIO_FILE_ZOMBIE_DAMAGED "audio/cactus_bullet_hit.ogg"
 #define AUDIO_FILE_ZOMBIE_DIE "audio/money.mp3"
 #define AUDIO_FILE_PLAYER_PICK "audio/pa1.mp3"
+#define AUDIO_FILE_PESTICIDE "audio/bug_spray.ogg"

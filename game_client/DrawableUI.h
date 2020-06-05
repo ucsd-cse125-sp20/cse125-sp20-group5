@@ -37,7 +37,7 @@ public:
     void loadTexture(const char* textureFile, GLuint* textureID);
 
     SceneNode* createSceneNodes(uint objectId) override;
-    virtual void update(SceneNode* node) override;
+    void update(SceneNode* node) override;
 
 private:
 };
