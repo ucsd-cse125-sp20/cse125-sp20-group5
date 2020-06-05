@@ -188,8 +188,9 @@ void TextUI::renderFont(std::string text, float x, float y, float scale, bool ha
 	}
 
 	// adjust scale
-	if (haveBackground && totalWidth >= 300.0f) {
-		scale *= 1.0f - 0.01f * (totalWidth - 300.0f);
+	if (haveBackground && totalWidth >= 1.5f) {
+		scale = scale * 1.5f / totalWidth;
+		totalWidth = 1.5f;
 	}
 
 	// set text alignment

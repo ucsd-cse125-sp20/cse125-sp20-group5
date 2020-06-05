@@ -16,7 +16,7 @@
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
 #define FELINE_SHOVEL_HOLD_ANGLE glm::vec3(0.5,3.14/2,-2.8/2)
 
-static constexpr float HP_BAR_TRANSLATE_Y = 2.3;
+static constexpr float HP_BAR_TRANSLATE_Y = 1.9;
 static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, .7, 0.4);
 
 class PlayerController : public RenderController {
@@ -31,7 +31,7 @@ private:
 	SceneNode* textNode;
 
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
-	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.8f; // black
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.9f; // black
 
 	const static std::string chatMessages[11];
 public:
@@ -93,7 +93,6 @@ public:
 		}
 
 		updateChat(player);
-		// std::cout << player->currChat << std::endl;
 
 		rootNode->loadGameObject(player);
 		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)

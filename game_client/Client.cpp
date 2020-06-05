@@ -90,6 +90,12 @@ void Client::update() {
 			scene->setState(currentGameState);
 			scene->update();
 		}
+		else {
+			aEngine.StopSounds(AUDIO_FILE_BGM_LOBBY);
+			if (!aEngine.IsPlaying(AUDIO_FILE_BGM)) {
+				aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
+			}
+		}
 	}
 	else if (state == ClientState::GETIP) {
 		// if the enter button is pressed go off
@@ -334,13 +340,14 @@ void Client::setupKeyboardPresses()
 void Client::setupAudio() {
 	aEngine.Init();
 
-	aEngine.LoadSound(AUDIO_FILE_BGM, false, true);
+	aEngine.LoadSound(AUDIO_FILE_BGM, false, true); 
+	aEngine.LoadSound(AUDIO_FILE_BGM_LOBBY, false, true);
 	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DAMAGED, true, false);
 	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DIE, true, false);
 	aEngine.LoadSound(AUDIO_FILE_PLAYER_PICK, true, false);
 
 
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
+	aEngine.PlaySounds(AUDIO_FILE_BGM_LOBBY, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
 
 	glm::vec3 listenerPos = glm::normalize(
 		glm::eulerAngleY(glm::radians(-cam->GetAzimuth())) 

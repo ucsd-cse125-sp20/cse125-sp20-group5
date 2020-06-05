@@ -66,6 +66,8 @@ Scene::Scene(ClientParams& config) : config(config)
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
 
+	volumeAdjust = config.soundEffectVolumeAdjust;
+
 	srand(time(0));
 }
 

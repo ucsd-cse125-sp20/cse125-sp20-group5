@@ -108,6 +108,7 @@ int CAudioEngine::PlaySounds(const string& strSoundName, const glm::vec3&vPositi
 {
 
 	int nChannelId = sgpImplementation->mnNextChannelId++;
+	fileToChannelMap[strSoundName] = nChannelId; // added by me
 	auto tFoundIt = sgpImplementation->mSounds.find(strSoundName);
 	if (tFoundIt == sgpImplementation->mSounds.end())
 	{
@@ -133,6 +134,30 @@ int CAudioEngine::PlaySounds(const string& strSoundName, const glm::vec3&vPositi
 		sgpImplementation->mChannels[nChannelId] = pChannel;
 	}
 	return nChannelId;
+}
+
+void CAudioEngine::StopSounds(const string& strSoundName) {
+	auto soundFoundIt = sgpImplementation->mSounds.find(strSoundName);
+	if (soundFoundIt == sgpImplementation->mSounds.end())
+	{
+		std::cout << "Cannot stop a unloaded sound" << std::endl;
+		return;
+	}
+	auto channelFoundIt = sgpImplementation->mChannels.find(fileToChannelMap[strSoundName]);
+	CAudioEngine::ErrorCheck(channelFoundIt->second->stop());
+}
+
+bool CAudioEngine::IsPlaying(const string& strSoundName) {
+	auto soundFoundIt = sgpImplementation->mSounds.find(strSoundName);
+	if (soundFoundIt == sgpImplementation->mSounds.end())
+	{
+		return false;
+	}
+	auto channelFoundIt = sgpImplementation->mChannels.find(fileToChannelMap[strSoundName]);
+
+	bool retVal;
+	channelFoundIt->second->isPlaying(&retVal);
+	return retVal;
 }
 
 void CAudioEngine::SetChannel3dPosition(int nChannelId, const glm::vec3& vPosition)

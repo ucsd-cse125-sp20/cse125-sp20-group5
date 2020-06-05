@@ -5,7 +5,8 @@ class ClientParams {
 public:
 
     //Sound
-    float BGMVolume;
+    float BGMVolume; 
+    float soundEffectVolumeAdjust;
 
     // Scaler
     float seedSourceScaler;
