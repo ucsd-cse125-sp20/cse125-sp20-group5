@@ -33,7 +33,7 @@ private:
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
 	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.9f; // black
 
-	const static std::string chatMessages[11];
+	const static std::string chatMessages[16];
 public:
 	PlayerController(Player* player, Scene* scene) {
 		this->playerScaler = scene->config.playerScaler;
@@ -179,8 +179,13 @@ public:
 	}
 };
 
-const std::string PlayerController::chatMessages[11] = {
-	"You suck","Water!", "Shovel!", "Pesticide!", "Fertilizer!", // 0~4
-	"Come on!!", "Help!!!", "I need somebody", "Thanks!", "Good job!", // 5~9
-	"Thank you for the quarter!"// secret
+const std::string PlayerController::chatMessages[16] = {
+	"You suck", "Water", "Shovel", "Pesticide", "Fertilizer", // 0~4
+	"Come on", "Help", "I'm so dead", "Thanks", "Good job", // 5~9
+	"Thank you for the quarter!", // secret
+	"Thank you for the quarter!", // alex Zhu
+	"Thank you for the quarter!", // arun sUgUmar
+	"Thank you for the quarter!", // Joyaan
+	"Thank you for the quarter!", // Mingqi
+	"Thank you for the quarter!" // Yang
 };

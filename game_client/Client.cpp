@@ -213,6 +213,11 @@ void Client::sendKeyboardEvents()
 	else if ((*keyPresses)[GLFW_KEY_8]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_8); }
 	else if ((*keyPresses)[GLFW_KEY_9]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_9); }
 	else if ((*keyPresses)[GLFW_KEY_P]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_SECRET); }
+	else if ((*keyPresses)[GLFW_KEY_Z]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_ZHU); }
+	else if ((*keyPresses)[GLFW_KEY_U]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_SUGUMAR); }
+	else if ((*keyPresses)[GLFW_KEY_J]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_JOYAAN); }
+	else if ((*keyPresses)[GLFW_KEY_M]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_MINGQI); }
+	else if ((*keyPresses)[GLFW_KEY_Y]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_YANG); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
