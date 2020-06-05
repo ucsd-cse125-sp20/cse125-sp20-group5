@@ -37,6 +37,7 @@ Client::Client(GLFWwindow * window, nanogui::Screen  *screen, int argc, char **a
 	scene->setupDirectionalLighting(cam->GetPosition());
 
 	setupAudio();
+	scene->aEngine = &aEngine;
 
 	state = ClientState::GETIP;
 
@@ -195,15 +196,17 @@ void Client::sendKeyboardEvents()
 		netClient->sendMessage(OPCODE_PLAYER_END_ACTION);
 	}
 
-	/* For testing */
-	if ((*keyPresses)[GLFW_KEY_1]) {
-		int player1_numAnim = 2;
-		Animation* player1_anim = currentGameState->players[0]->animation;
-		player1_anim->animationType = (player1_anim->animationType + 1) % player1_numAnim;
-	}
-	if ((*keyPresses)[GLFW_KEY_2]) {
-		//scene->healthBar->updateBar(std::fmod(scene->healthBar->filledFraction + 0.3, 1.0));
-	}
+	if ((*keyPresses)[GLFW_KEY_0]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_0); }
+	else if ((*keyPresses)[GLFW_KEY_1]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_1); }
+	else if ((*keyPresses)[GLFW_KEY_2]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_2); }
+	else if ((*keyPresses)[GLFW_KEY_3]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_3); }
+	else if ((*keyPresses)[GLFW_KEY_4]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_4); }
+	else if ((*keyPresses)[GLFW_KEY_5]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_5); }
+	else if ((*keyPresses)[GLFW_KEY_6]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_6); }
+	else if ((*keyPresses)[GLFW_KEY_7]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_7); }
+	else if ((*keyPresses)[GLFW_KEY_8]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_8); }
+	else if ((*keyPresses)[GLFW_KEY_9]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_9); }
+	else if ((*keyPresses)[GLFW_KEY_P]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_SECRET); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -332,12 +335,24 @@ void Client::setupAudio() {
 	aEngine.Init();
 
 	aEngine.LoadSound(AUDIO_FILE_BGM, false, true);
-	//aEngine.LoadSound("hold-weapon.mp3", true);
-	//aEngine.LoadSound("weapon-collide.mp3", true);
-	//aEngine.LoadSound("scream.mp3", true);
+	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DAMAGED, true, false);
+	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DIE, true, false);
+	aEngine.LoadSound(AUDIO_FILE_PLAYER_PICK, true, false);
+
 
 	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
 
+	glm::vec3 listenerPos = glm::normalize(
+		glm::eulerAngleY(glm::radians(-cam->GetAzimuth())) 
+		* glm::eulerAngleX(glm::radians(-cam->GetIncline()))
+		* glm::vec4(0, 0, cam->GetDistance(), 1)
+	);
+	glm::vec3 listenerDir = glm::normalize(
+		glm::eulerAngleY(glm::radians(-cam->GetAzimuth()))
+		* glm::eulerAngleX(glm::radians(-cam->GetIncline()))
+		* glm::vec4(0, 0, -cam->GetDistance(), 0)
+	);
+	aEngine.Set3dListenerAndOrientation(listenerPos, listenerDir, glm::vec3(0, 1, 0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,6 @@ using namespace std;
 GLuint HealthBar::VBO, HealthBar::VBO2, HealthBar::VAO, HealthBar::EBO;
 uint HealthBar::shader;
 bool HealthBar::staticInitialized = false;
-bool HealthBar::isDrawUiMode = false;
 mat4 HealthBar::iconMtx;
 mat4 HealthBar::barBoxMtx;
 mat4 HealthBar::barMtx;
@@ -74,10 +73,10 @@ HealthBar::HealthBar(uint shader, const char* iconFile, float translateY, float 
 	// Texture loading and binding
 	for (BarComponent bc : barComponents) {
 		if (bc.id == ICON) {
-			loadTexture(iconFile, bc.id);
+			loadTexture(iconFile, &textureIDs[bc.id]);
 		}
 		else {
-			loadTexture(NO_TEXTURE, bc.id);
+			loadTexture(NO_TEXTURE, &textureIDs[bc.id]);
 		}
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -91,19 +90,7 @@ HealthBar::~HealthBar()
 
 void HealthBar::draw(SceneNode& node, const glm::mat4& viewProjMtx)
 {
-	if (!HealthBar::isDrawUiMode) { return; } // isDrawUiMode is toggled when drawing all UI at the end of render pass for the sake of alpha blending
-
-	if (this->alphaEffectOn) { 
-		if (this->shouldDisplay) {
-			alphaValue = std::min(HealthBar::MAX_ALPHA, alphaValue + alphaStep);
-		}
-		else {
-			if (alphaValue == 0.0f) { return; } // do not display
-			alphaValue = std::max(0.0f, alphaValue - alphaStep);
-		}
-	}
-	else if (!this->shouldDisplay) { return; } // do not display
-
+	if (!canDraw()) { return; }
 
 
 	glUseProgram(shader);
@@ -162,35 +149,7 @@ void HealthBar::resetBar(float defaultFilledFraction) {
 		* scale(vec3(this->currFilledFraction, 1, 1));
 }
 
-void HealthBar::loadTexture(const char* textureFile, uint id)
-{
-	int width, height, nrComponents;
-	unsigned char* tdata;  // texture pixel data
-
-	tdata = stbi_load(textureFile, &width, &height, &nrComponents, STBI_rgb_alpha);
-	if (tdata == NULL) return;
-
-	// Create ID for texture
-	glGenTextures(1, &textureIDs[id]);
-
-	// Set this texture to be the one we are working with
-	glBindTexture(GL_TEXTURE_2D, textureIDs[id]);
-
-	// Generate the texture
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tdata);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	// Set bi-linear filtering for both minification and magnification
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-
 void HealthBar::update(SceneNode* node) {
 	// Animate the decrease of the bar if filledFraction got updated before
 	updateBar(this->filledFraction);
-}
-
-SceneNode* HealthBar::createSceneNodes(uint objectId) {
-	return new SceneNode(this, std::string("healthBar"), objectId);
 }

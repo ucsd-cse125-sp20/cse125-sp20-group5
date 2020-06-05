@@ -225,6 +225,12 @@ public:
                 player->shouldInteract = true;
                 break;
         }
+        // handle chat specific opcode
+        player->currChat = Player::NO_CHAT;
+        if (opCode >= OPCODE_PLAYER_CHAT_0) {
+            player->currChat = opCode % OPCODE_PLAYER_CHAT_0;
+        }
+
         //std::cout << "After update angle = " << player->direction->angle << std::endl;
     }
 
@@ -536,7 +542,6 @@ public:
                         else {
                             plant->powerUpTimeLeft = config.cactusPowerUpTime;
                         }
-
                     }
 
                     // if cooldown is not active, fertilize plant

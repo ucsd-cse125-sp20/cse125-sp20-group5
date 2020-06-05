@@ -61,7 +61,7 @@ Scene::Scene(ClientParams& config) : config(config)
 	skybox = new Skybox(skyboxProgram->GetProgramID(), glm::scale(glm::vec3(100.0f)));
 
 	testUI = new Image2d(uiProgram->GetProgramID(), "texture/player_one.png", 0.1, glm::vec2((1.6 * 0 + 0.8) * 0.1 - 1.0, 0.12 - 1.0), 2, 0.9);  //TODO to be removed
-	textUI = new TextUI(textProgram->GetProgramID(), "font/From Cartoon Blocks.ttf");
+	textUI = new TextUI(textProgram->GetProgramID(), FontType::CARTOON);
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
@@ -281,13 +281,14 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	rootNode->draw(viewProjMat);
 
 	RenderController::drawUI(viewProjMat);
-	testUI->draw(); //TODO to be removed
+
 	if (state)
 		textUI->renderText("SCORE " + to_string(state->numZombiesKilled),25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
 
 	textUI->renderText("WAVE " + to_string(zombieWaveNum) + " / " + to_string(totalWaveNum),
-		Client::getWinX() -450.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
+		Client::getWinX() - 450.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
 }
+
 
 // Update the current gamestate
 void Scene::setState(GameState* state) 

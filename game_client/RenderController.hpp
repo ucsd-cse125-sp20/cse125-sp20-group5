@@ -10,6 +10,7 @@
 #include "Constants.h"
 #include "SceneNode.h"
 #include "Drawable.h"
+#include "DrawableUI.h"
 #include "HealthBar.h"
 
 
@@ -57,15 +58,25 @@ public:
         return std::pair<HealthBar*, SceneNode*>(barObject, barNode);
     }
 
+    // Init the healthbar object and add its node to the scene graph and the uiNode vector
+    std::pair<TextUI*, SceneNode*> createTextUI(FontType font, glm::vec3 color, glm::mat4 model, Scene* scene) {
+        TextUI* textObject = new TextUI(scene->getShaderID(ShaderType::TEXT), font, color, "", model);
+        SceneNode* textNode = textObject->createSceneNodes(rootNode->objectId);
+        rootNode->addChild(textNode);
+        uiNodes.push_back(textNode);
+
+        return std::pair<TextUI*, SceneNode*>(textObject, textNode);
+    }
+
     static std::vector<SceneNode*> uiNodes;
 
     static void drawUI(const glm::mat4& viewProjMtx) {
         std::sort(uiNodes.begin(), uiNodes.end(), z_compare());
-        HealthBar::isDrawUiMode = true;
+        DrawableUI::isDrawUiMode = true;
         for (SceneNode* uiNode : uiNodes) {
             uiNode->draw(viewProjMtx);
         }
-        HealthBar::isDrawUiMode = false;
+        DrawableUI::isDrawUiMode = false;
     }
 
     // Always return nullptr which should be assigned to the original barNode class member

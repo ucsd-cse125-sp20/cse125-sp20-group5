@@ -18,6 +18,7 @@
 #include "Shader.h"
 #include "ParticleFactory.hpp"
 #include "ClientParams.h"
+#include "AudioEngine.h"
 
 class RenderController; //  put declaration here to sidestep header issues
 
@@ -85,6 +86,7 @@ private:
 	Skybox* skybox;
 	Image2d* testUI; //TODO to be removed
 	TextUI* textUI; //TODO to be removed
+	TextUI* textInWorld; //TODO to be removed
 
 	// this is a temp thing until we get animation from server;
 	chrono::system_clock::time_point startTime;
@@ -114,7 +116,10 @@ public:
 
 	// static function for a to create a specfic scene good for grahics testing
 	static Scene* scene0(ClientParams& config);
-
+	
+	// passed in by Client
+	CAudioEngine* aEngine = nullptr;
+	static constexpr float volumeAdjust = 1.0f;
 
 	// getter & setter
 	SceneNode* getGroundNode() { return groundNode;  }
