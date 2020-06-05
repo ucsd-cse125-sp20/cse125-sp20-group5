@@ -206,9 +206,10 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     source << CRLF;
     source << '\0';
 
-
-    for (PtrClientConnection conn : clients) {
-        conn->deliverSerialization(buffer);
+    if (opCode == OPCODE_GAME_NOT_STARTED) {
+        for (PtrClientConnection conn : clients) {
+            conn->deliverSerialization(buffer);
+        }
     }
     pConn->deliverSerialization(buffer);
     pConn->setStartMessageSent(gameStarted);
