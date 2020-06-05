@@ -160,9 +160,11 @@ bool CAudioEngine::IsPlaying(const string& strSoundName) {
 	}
 	auto channelFoundIt = sgpImplementation->mChannels.find(fileToChannelMap[strSoundName]);
 
-	bool retVal = false;
-	channelFoundIt->second->isPlaying(&retVal);
-	return retVal;
+	bool* retVal = nullptr;
+	channelFoundIt->second->isPlaying(retVal);
+	if (retVal == nullptr) return false;
+	if (*retVal) return *retVal;
+	return false;
 }
 
 void CAudioEngine::SetChannel3dPosition(int nChannelId, const glm::vec3& vPosition)
