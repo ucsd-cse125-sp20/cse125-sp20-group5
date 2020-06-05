@@ -46,11 +46,12 @@ Scene::Scene(ClientParams& config) : config(config)
 	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
 	sprayModel = new AssimpModel(SPRAY_MODEL, assimpProgram->GetProgramID());
 	fertilizerModel = new AssimpModel(FERTILIZER_MODEL, assimpProgram->GetProgramID());
-	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
 	treeModel = new AssimpModel(TREE_MODEL, assimpProgram->GetProgramID());
 	for (int i = 1; i <= 5; i++) {
 		rockModels.push_back(new AssimpModel((ROCK_MODEL_PATH_START + std::to_string(i) + ".fbx"), assimpProgram->GetProgramID()));
 	}
+
+	baseModel = new AnimatedAssimpModel(HOME_BASE_MODEL, animationProgram->GetProgramID());
 
 	ground = NULL;
 

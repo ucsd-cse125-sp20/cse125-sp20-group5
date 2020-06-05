@@ -144,7 +144,7 @@ void CAudioEngine::StopSounds(const string& strSoundName) {
 		return;
 	}
 
-	if (this->IsPlaying(strSoundName)) {
+	if (!this->IsPlaying(strSoundName)) {
 		return;
 	}
 

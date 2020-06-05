@@ -42,6 +42,14 @@ public:
 		rootNode->loadGameObject(homeBase);
 
 		updateHpBar(homeBase, scene);
+
+		// update anim
+		if (homeBase->animation->animationType == 2) {
+			modelNode->switchAnim(homeBase->animation->animationType, false);
+		}
+		else {
+			modelNode->switchAnim(homeBase->animation->animationType);
+		}
 	}
 
 	void updateHpBar(HomeBase* homeBase, Scene* scene) {

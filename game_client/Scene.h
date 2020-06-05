@@ -62,21 +62,23 @@ private:
 	AnimatedAssimpModel* playerPigModel;
 	AnimatedAssimpModel* playerChickenModel;
 
-	AssimpModel* seedModel;
-	AssimpModel* saplingModel;
-	AssimpModel* babyplayerplant;
-	AssimpModel* babyCornModel;
-	AssimpModel* cornModel;
-	AssimpModel* babyCactusModel;
-	AssimpModel* cactusModel;
-	AssimpModel* cactusBulletModel;
+	AnimatedAssimpModel* seedModel;
+	AnimatedAssimpModel* saplingModel;
+	AnimatedAssimpModel* babyplayerplant;
+	AnimatedAssimpModel* babyCornModel;
+	AnimatedAssimpModel* cornModel;
+	AnimatedAssimpModel* babyCactusModel;
+	AnimatedAssimpModel* cactusModel;
+	AnimatedAssimpModel* cactusBulletModel;
+
+	AnimatedAssimpModel* baseModel;
+
 	AssimpModel* tapModel;
 	AssimpModel* wateringCanModel;
 	AssimpModel* seedSourceModel_corn;
 	AssimpModel* seedSourceModel_cactus;
 	AssimpModel* shovelModel;
 	AssimpModel* seedBagModel;
-	AssimpModel* baseModel;
 	AssimpModel* sprayModel;
 	AssimpModel* fertilizerModel;
 	AssimpModel* treeModel;
