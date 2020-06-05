@@ -193,8 +193,8 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
 
     boost::archive::text_oarchive oa(source);
-
-    Message msg(opCode);
+    std::cout << "player id counter in client connected" << playerIdCounter << std::endl;
+    Message msg(opCode, playerIdCounter, false); 
     oa << msg;
     source << CRLF;
     source << '\0';
@@ -230,6 +230,7 @@ void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::sy
         else {
             gameState.removeTempPlayer(toDel);
         }
+        playerIdCounter--;
     }
 
     // TODO: Update GameState (delete player)

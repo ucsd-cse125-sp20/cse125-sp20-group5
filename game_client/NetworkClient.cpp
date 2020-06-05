@@ -104,6 +104,10 @@ void NetworkClient::handleReceiveBeforeStart(const boost::system::error_code& er
         Message msg;
         ia >> msg;
 
+
+        playerIdCount = msg.getNumPlayers();
+        std::cout << "Num players " << playerIdCount << std::endl;
+
         switch (msg.getOpCode()) {
         case OPCODE_GAME_STARTED: {
             gameStarted = true;

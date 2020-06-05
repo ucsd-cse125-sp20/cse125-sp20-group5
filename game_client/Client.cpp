@@ -112,7 +112,7 @@ void Client::update() {
 		else {
 			int level = levelPage->getLevel();
 			// this means we've selected a level
-			levelPage->setPlayers(1);
+			levelPage->setPlayers(netClient->playerIdCount);
 			if (level != -1) {
 				// TODO we should set a message to the server with the level we choose
 				netClient->sendMessage(OPCODE_LEVEL_SELECT, level);
