@@ -27,7 +27,7 @@ enum class ShaderType {
 };
 
 enum class ModelType {
-	CAT, BLACKPIG, TIGER, CHICKEN, RABBIT, PIG,
+	CAT, BLACKPIG, TIGER, CHICKEN, RABBIT, PIG, SECRET_CAT,
 	WATER_TAP, WATERING_CAN, SEED_SHACK_CORN, SEED_SHACK_CACTUS, SHOVEL, SEED_BAG, SPRAY, FERTILIZER,
 	CORN, SEED, SAPLING, BABY_CORN, BABY_CACTUS, CACTUS, CACTUS_BULLET,
 	HOME_BASE, BABY_PLAYER_PLANT
@@ -61,6 +61,7 @@ private:
 	AnimatedAssimpModel* playerCatModel;
 	AnimatedAssimpModel* playerPigModel;
 	AnimatedAssimpModel* playerChickenModel;
+	AnimatedAssimpModel* playerSecretModel;
 
 	AnimatedAssimpModel* seedModel;
 	AnimatedAssimpModel* saplingModel;
@@ -147,6 +148,7 @@ public:
 			case ModelType::CHICKEN:			return playerChickenModel;
 			case ModelType::BLACKPIG:			return playerPigModel;
 			case ModelType::PIG:				return zombiePigModel;
+			case ModelType::SECRET_CAT:	return playerSecretModel;
 			case ModelType::RABBIT:				return zombieModel;
 			case ModelType::CORN:				return cornModel;
 			case ModelType::WATER_TAP:			return tapModel;

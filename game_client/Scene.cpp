@@ -28,6 +28,7 @@ Scene::Scene(ClientParams& config) : config(config)
 	playerCatModel = new AnimatedAssimpModel(PLAYER_CAT_MODEL, animationProgram->GetProgramID());
 	playerPigModel = new AnimatedAssimpModel(PLAYER_PIG_MODEL, animationProgram->GetProgramID());
 	playerChickenModel = new AnimatedAssimpModel(PLAYER_CHICKEN_MODEL, animationProgram->GetProgramID());
+	playerSecretModel = new AnimatedAssimpModel(PLAYER_SECRET_MODEL, animationProgram->GetProgramID());
 
 	saplingModel = new AnimatedAssimpModel(SAPLING_MODEL, animationProgram->GetProgramID());
 	babyplayerplant = new AnimatedAssimpModel(BABY_PLAYER_PLANT_MODEL, animationProgram->GetProgramID());
@@ -291,7 +292,7 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 	textUI->renderText("WAVE " + to_string(zombieWaveNum) + " / " + to_string(totalWaveNum),
 		Client::getWinX() - 450.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
 	if (isGameOver) {
-		textUI->renderText("GAME OVER", Client::getWinX() / 2, Client::getWinY() / 2, 3.0f, glm::vec3(0.7f, 0.0f, 0.0f), TextAlignment::CENTER);
+		textUI->renderText("GAME OVER", Client::getWinX() / 2, Client::getWinY() / 2, 4.0f, glm::vec3(0.7f, 0.0f, 0.0f), TextAlignment::CENTER);
 	}
 }
 

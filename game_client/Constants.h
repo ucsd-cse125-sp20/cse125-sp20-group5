@@ -14,6 +14,7 @@
 #define PLAYER_CAT_MODEL "model/cat.fbx"
 #define PLAYER_PIG_MODEL "model/blackpig.fbx"
 #define PLAYER_CHICKEN_MODEL "model/chicken.fbx"
+#define PLAYER_SECRET_MODEL "model/secret_cat.fbx"
 
 #define CORN_MODEL "model/corn.fbx"
 #define BABY_CORN_MODEL "model/baby_corn.fbx"
