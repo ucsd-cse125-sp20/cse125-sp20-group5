@@ -51,6 +51,8 @@ public:
 	void SetChannelVolume(int nChannelId, float fVolumedB);
 
 	int PlaySounds(const string& strSoundName, const glm::vec3&vPosition = glm::vec3(0), float fVolumedB = 0.0f);
+	void StopSounds(const string& strSoundName); // added by me
+	bool IsPlaying(const string& strSoundName); // added by me
 	void PlayEvent(const string &strEventName);
 	void StopChannel(int nChannelId);
 	void StopEvent(const string &strEventName, bool bImmediate = false);
@@ -67,6 +69,8 @@ public:
 
 
 	FMOD::System *m_pSystem;
+	map<string, int> fileToChannelMap;
+
 	CAudioEngine();
 
 };

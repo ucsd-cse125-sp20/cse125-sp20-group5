@@ -27,7 +27,7 @@ enum class ShaderType {
 };
 
 enum class ModelType {
-	CAT, BLACKPIG, TIGER, CHICKEN, RABBIT, PIG,
+	CAT, BLACKPIG, TIGER, CHICKEN, RABBIT, PIG, SECRET_CAT,
 	WATER_TAP, WATERING_CAN, SEED_SHACK_CORN, SEED_SHACK_CACTUS, SHOVEL, SEED_BAG, SPRAY, FERTILIZER,
 	CORN, SEED, SAPLING, BABY_CORN, BABY_CACTUS, CACTUS, CACTUS_BULLET,
 	HOME_BASE, BABY_PLAYER_PLANT
@@ -61,22 +61,25 @@ private:
 	AnimatedAssimpModel* playerCatModel;
 	AnimatedAssimpModel* playerPigModel;
 	AnimatedAssimpModel* playerChickenModel;
+	AnimatedAssimpModel* playerSecretModel;
 
-	AssimpModel* seedModel;
-	AssimpModel* saplingModel;
-	AssimpModel* babyplayerplant;
-	AssimpModel* babyCornModel;
-	AssimpModel* cornModel;
-	AssimpModel* babyCactusModel;
-	AssimpModel* cactusModel;
-	AssimpModel* cactusBulletModel;
+	AnimatedAssimpModel* seedModel;
+	AnimatedAssimpModel* saplingModel;
+	AnimatedAssimpModel* babyplayerplant;
+	AnimatedAssimpModel* babyCornModel;
+	AnimatedAssimpModel* cornModel;
+	AnimatedAssimpModel* babyCactusModel;
+	AnimatedAssimpModel* cactusModel;
+	AnimatedAssimpModel* cactusBulletModel;
+
+	AnimatedAssimpModel* baseModel;
+
 	AssimpModel* tapModel;
 	AssimpModel* wateringCanModel;
 	AssimpModel* seedSourceModel_corn;
 	AssimpModel* seedSourceModel_cactus;
 	AssimpModel* shovelModel;
 	AssimpModel* seedBagModel;
-	AssimpModel* baseModel;
 	AssimpModel* sprayModel;
 	AssimpModel* fertilizerModel;
 	AssimpModel* treeModel;
@@ -97,6 +100,8 @@ private:
 
 	int zombieWaveNum = 0;
 	int totalWaveNum = 0;
+	int score = 0;
+	bool isGameOver = false;
 
 public:
 	ClientParams& config;
@@ -119,7 +124,7 @@ public:
 	
 	// passed in by Client
 	CAudioEngine* aEngine = nullptr;
-	static constexpr float volumeAdjust = 1.0f;
+	float volumeAdjust;
 
 	// getter & setter
 	SceneNode* getGroundNode() { return groundNode;  }
@@ -143,6 +148,7 @@ public:
 			case ModelType::CHICKEN:			return playerChickenModel;
 			case ModelType::BLACKPIG:			return playerPigModel;
 			case ModelType::PIG:				return zombiePigModel;
+			case ModelType::SECRET_CAT:	return playerSecretModel;
 			case ModelType::RABBIT:				return zombieModel;
 			case ModelType::CORN:				return cornModel;
 			case ModelType::WATER_TAP:			return tapModel;

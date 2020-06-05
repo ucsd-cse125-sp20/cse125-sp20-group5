@@ -10,6 +10,7 @@ ClientParams::ClientParams() {
 
     // Sound
     BGMVolume = config.GetFloat("Sound", "BGMVolume", 0.02f);
+    soundEffectVolumeAdjust = config.GetFloat("Sound", "soundEffectVolumeAdjust", 0.05f);
 
     // Scaler
     seedSourceScaler = config.GetFloat("Scaler", "SeedSourceScaler", 0.2f);

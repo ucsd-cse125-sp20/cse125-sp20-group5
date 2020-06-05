@@ -28,6 +28,7 @@ Scene::Scene(ClientParams& config) : config(config)
 	playerCatModel = new AnimatedAssimpModel(PLAYER_CAT_MODEL, animationProgram->GetProgramID());
 	playerPigModel = new AnimatedAssimpModel(PLAYER_PIG_MODEL, animationProgram->GetProgramID());
 	playerChickenModel = new AnimatedAssimpModel(PLAYER_CHICKEN_MODEL, animationProgram->GetProgramID());
+	playerSecretModel = new AnimatedAssimpModel(PLAYER_SECRET_MODEL, animationProgram->GetProgramID());
 
 	saplingModel = new AnimatedAssimpModel(SAPLING_MODEL, animationProgram->GetProgramID());
 	babyplayerplant = new AnimatedAssimpModel(BABY_PLAYER_PLANT_MODEL, animationProgram->GetProgramID());
@@ -46,11 +47,12 @@ Scene::Scene(ClientParams& config) : config(config)
 	seedBagModel = new AssimpModel(SEED_BAG_MODEL, assimpProgram->GetProgramID());
 	sprayModel = new AssimpModel(SPRAY_MODEL, assimpProgram->GetProgramID());
 	fertilizerModel = new AssimpModel(FERTILIZER_MODEL, assimpProgram->GetProgramID());
-	baseModel = new AssimpModel(HOME_BASE_MODEL, assimpProgram->GetProgramID());
 	treeModel = new AssimpModel(TREE_MODEL, assimpProgram->GetProgramID());
 	for (int i = 1; i <= 5; i++) {
 		rockModels.push_back(new AssimpModel((ROCK_MODEL_PATH_START + std::to_string(i) + ".fbx"), assimpProgram->GetProgramID()));
 	}
+
+	baseModel = new AnimatedAssimpModel(HOME_BASE_MODEL, animationProgram->GetProgramID());
 
 	ground = NULL;
 
@@ -65,6 +67,8 @@ Scene::Scene(ClientParams& config) : config(config)
 
 	particleProgram = new ShaderProgram("Particle.glsl", ShaderProgram::eRender);
 	particleFactory = new ParticleFactory(particleProgram->GetProgramID());
+
+	volumeAdjust = config.soundEffectVolumeAdjust;
 
 	srand(time(0));
 }
@@ -124,6 +128,8 @@ void Scene::update()
 	// update wave num
 	zombieWaveNum = state->waveNum;
 	totalWaveNum = state->totalWaveNum;
+	score = state->numZombiesKilled;
+	isGameOver = state->isGameOver;
 
 	// TODO refactor ground in gamestate and to simplify this
 	Floor* floor = state->floor;
@@ -282,11 +288,12 @@ void Scene::draw(const glm::mat4 &viewProjMat)
 
 	RenderController::drawUI(viewProjMat);
 
-	if (state)
-		textUI->renderText("SCORE " + to_string(state->numZombiesKilled),25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
-
+	textUI->renderText("SCORE " + to_string(score), 25, Client::getWinY() - 70.0, 1.5f, glm::vec3(0.5f, .05f, .05f));
 	textUI->renderText("WAVE " + to_string(zombieWaveNum) + " / " + to_string(totalWaveNum),
 		Client::getWinX() - 450.0f, Client::getWinY() - 80.0, 1.5f, glm::vec3(1.0, 1.0f, 1.0f));
+	if (isGameOver) {
+		textUI->renderText("GAME OVER", Client::getWinX() / 2, Client::getWinY() / 2, 4.0f, glm::vec3(0.7f, 0.0f, 0.0f), TextAlignment::CENTER);
+	}
 }
 
 

@@ -16,7 +16,7 @@
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
 #define FELINE_SHOVEL_HOLD_ANGLE glm::vec3(0.5,3.14/2,-2.8/2)
 
-static constexpr float HP_BAR_TRANSLATE_Y = 2.3;
+static constexpr float HP_BAR_TRANSLATE_Y = 1.9;
 static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, .7, 0.4);
 
 class PlayerController : public RenderController {
@@ -31,9 +31,11 @@ private:
 	SceneNode* textNode;
 
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
-	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.8f; // black
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.9f; // black
 
-	const static std::string chatMessages[11];
+	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14/2, 0, 3.14/2);
+
+	const static std::string chatMessages[16];
 public:
 	PlayerController(Player* player, Scene* scene) {
 		this->playerScaler = scene->config.playerScaler;
@@ -41,10 +43,10 @@ public:
 		// determine model type based on player ID
 		this->playerId = player->playerId;
 		switch (playerId % 4) {
-			case 0: modelType = ModelType::TIGER; break;
+			case 0: modelType = ModelType::SECRET_CAT; break;
 			case 1: modelType = ModelType::CHICKEN; break; 
-			case 2: modelType = ModelType::BLACKPIG; break;
-			case 3: modelType = ModelType::CAT; break;
+			case 2: modelType = ModelType::TIGER; break;
+			case 3: modelType = ModelType::BLACKPIG; break;
 		}
 		
 		// create node
@@ -93,10 +95,9 @@ public:
 		}
 
 		updateChat(player);
-		// std::cout << player->currChat << std::endl;
 
 		rootNode->loadGameObject(player);
-		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)
+		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER || modelType == ModelType::SECRET_CAT)
 			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
 		modelNode->switchAnim(player->animation->animationType, !dontLoop);
 
@@ -135,8 +136,11 @@ public:
 					controller->putInHand(playerHand, playerScaler, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
 				}
 				else if (controller->type == Tool::ToolType::PLOW) {
-					if (modelNode->obj == scene->getModel(ModelType::CAT) || modelNode->obj == scene->getModel(ModelType::TIGER)) {
-						controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
+					if (modelNode->obj == scene->getModel(ModelType::CAT) || modelNode->obj == scene->getModel(ModelType::TIGER) || modelType == ModelType::SECRET_CAT) {
+						if (modelNode->animationId == Player::PlayerAnimation::PLOUGH)
+							controller->putInHand(playerHand, playerScaler, glm::vec3(0), FELINE_PLOUGH_ANGLE, scene);
+						else
+							controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
 					}
 					else {
 						controller->putInHand(playerHand, playerScaler, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
@@ -180,8 +184,13 @@ public:
 	}
 };
 
-const std::string PlayerController::chatMessages[11] = {
-	"You suck","Water!", "Shovel!", "Pesticide!", "Fertilizer!", // 0~4
-	"Come on!!", "Help!!!", "I need somebody", "Thanks!", "Good job!", // 5~9
-	"Thank you for the quarter!"// secret
+const std::string PlayerController::chatMessages[16] = {
+	"You suck", "Water", "Shovel", "Pesticide", "Fertilizer", // 0~4
+	"Come on", "Help", "I'm so dead", "Thanks", "Good job", // 5~9
+	"Thank you for the quarter!", // secret
+	"Thank you for the quarter!", // alex Zhu
+	"Thank you for the quarter!", // arun sUgUmar
+	"Thank you for the quarter!", // Joyaan
+	"Thank you for the quarter!", // Mingqi
+	"Thank you for the quarter!" // Yang
 };

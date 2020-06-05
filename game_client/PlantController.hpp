@@ -222,7 +222,15 @@ public:
             // update pesticide bar
             if (plant->isAttackedByBugs) {
                 pesticideBar->shouldDisplay = true;
-                pesticideBar->updateBar((plant->pesticideSprayTime - plant->currSprayTime) / plant->pesticideSprayTime);
+                float oldFraction = pesticideBar->filledFraction;
+                float newFraction = (plant->pesticideSprayTime - plant->currSprayTime) / plant->pesticideSprayTime;
+                pesticideBar->updateBar(newFraction);
+                // audio
+                if (oldFraction != newFraction 
+                    && !scene->aEngine->IsPlaying(AUDIO_FILE_PESTICIDE)) {
+                    scene->aEngine->PlaySounds(AUDIO_FILE_PESTICIDE, glm::vec3(rootNode->transform[3]),
+                        scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.0f));
+                }
             }
             else {
                 pesticideBar->shouldDisplay = false;
@@ -236,6 +244,10 @@ public:
                 //levelText->shouldDisplay = fertilizeBar->shouldDisplay;
             }
             else {
+                if (!scene->aEngine->IsPlaying(AUDIO_FILE_FERTILIZER)) {
+                    scene->aEngine->PlaySounds(AUDIO_FILE_FERTILIZER, glm::vec3(rootNode->transform[3]),
+                        scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.0f));
+                }
                 fertilizeBar->shouldDisplay = true;
                 fertilizeBar->updateBar(newFilledFraction);
                 //levelText->shouldDisplay = fertilizeBar->shouldDisplay;
@@ -257,7 +269,15 @@ public:
                 if (plant->growProgressTime == 0.0f) {
                     growthBar->resetBar(0.0f);
                 }
-                growthBar->updateBar(plant->growProgressTime / plant->growExpireTime);
+                float oldFraction = growthBar->filledFraction;
+                float newFraction = plant->growProgressTime / plant->growExpireTime;
+                growthBar->updateBar(newFraction);
+                // audio
+                if (oldFraction != newFraction
+                    && !scene->aEngine->IsPlaying(AUDIO_FILE_WATERING)) {
+                    scene->aEngine->PlaySounds(AUDIO_FILE_WATERING, glm::vec3(rootNode->transform[3]),
+                        scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.0f));
+                }
 
                 coolDownBar->shouldDisplay = false;
                 growthBar->shouldDisplay = true;    

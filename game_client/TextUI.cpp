@@ -133,7 +133,7 @@ TextUI::~TextUI()
 
 // render line of text
 // -------------------
-void TextUI::renderText(std::string text, float x, float y, float scale, glm::vec3 color)
+void TextUI::renderText(std::string text, float x, float y, float scale, glm::vec3 color, int textAlignment)
 {
 	glUseProgram(shader);
 
@@ -144,7 +144,7 @@ void TextUI::renderText(std::string text, float x, float y, float scale, glm::ve
 	glUniform1f(glGetUniformLocation(shader, "alpha"), alphaValue);
 	
 	//renderBackground(COMIC_BUBBLE, 1);
-	renderFont(text, x, y, scale, false);
+	renderFont(text, x, y, scale, false, textAlignment);
 
 	glUseProgram(0);
 }
@@ -188,8 +188,9 @@ void TextUI::renderFont(std::string text, float x, float y, float scale, bool ha
 	}
 
 	// adjust scale
-	if (haveBackground && totalWidth >= 300.0f) {
-		scale *= 1.0f - 0.01f * (totalWidth - 300.0f);
+	if (haveBackground && totalWidth >= 1.5f) {
+		scale = scale * 1.5f / totalWidth;
+		totalWidth = 1.5f;
 	}
 
 	// set text alignment

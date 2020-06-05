@@ -9,6 +9,9 @@ private:
 	HealthBar* hpBar;
 	SceneNode* barNode;
 
+	int maxHealth;
+	int health;
+
 	static constexpr float HP_BAR_TRANSLATE_Y = 3.0;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4);
 
@@ -17,6 +20,7 @@ public:
 		rootNode = new SceneNode(NULL, "HomeBaseRootEmpty", homeBase->objectId);
 		modelNode = scene->getModel(ModelType::HOME_BASE)->createSceneNodes(homeBase->objectId);
 		modelNode->scaler = HOME_BASE_SCALER;
+		modelNode->loadAnimData(modelNode->numAnimation, HomeBase::HomeBaseAnimation::STAY);
 
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
@@ -41,7 +45,38 @@ public:
 
 		rootNode->loadGameObject(homeBase);
 
+		updateAnimationAndAudio(homeBase, scene);
+
 		updateHpBar(homeBase, scene);
+
+		this->health = homeBase->health;
+		this->maxHealth = homeBase->maxHealth;
+	}
+
+	// for base, animation is handled by client due to lack of time, needs refactor
+	void updateAnimationAndAudio(HomeBase* homeBase, Scene* scene) {
+		if (homeBase->maxHealth <= 0) {
+			modelNode->switchAnim(HomeBase::HomeBaseAnimation::STAY);
+			return; // data hasn't been received from server yet
+		}
+
+		if (homeBase->health <= 0) { // dead
+			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DIE, false);
+			if (this->health != homeBase->health) {
+				scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DIE, glm::vec3(rootNode->transform[3]),
+					scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
+			}
+		}
+		else if (this->health != homeBase->health && homeBase->health != homeBase->maxHealth) { // damaged
+			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DAMAGED, false);
+			scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DAMAGED, glm::vec3(rootNode->transform[3]),
+				scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
+		}
+		else {
+			if (modelNode->playedOneAnimCycle) {
+				modelNode->switchAnim(HomeBase::HomeBaseAnimation::STAY);
+			}
+		}
 	}
 
 	void updateHpBar(HomeBase* homeBase, Scene* scene) {

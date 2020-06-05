@@ -14,6 +14,7 @@
 #define PLAYER_CAT_MODEL "model/cat.fbx"
 #define PLAYER_PIG_MODEL "model/blackpig.fbx"
 #define PLAYER_CHICKEN_MODEL "model/chicken.fbx"
+#define PLAYER_SECRET_MODEL "model/secret_cat.fbx"
 
 #define CORN_MODEL "model/corn.fbx"
 #define BABY_CORN_MODEL "model/baby_corn.fbx"
@@ -45,7 +46,13 @@
 #define STONE_SCALER 0.8
 
 #define AUDIO_FILE_BGM "audio/animal\ dizhuing_full.wav"
+#define AUDIO_FILE_BGM_LOBBY "audio/animal\ dizhuing.wav"
 #define AUDIO_FILE_ZOMBIE_DAMAGED "audio/cactus_bullet_hit.ogg"
 #define AUDIO_FILE_ZOMBIE_DIE "audio/money.mp3"
 #define AUDIO_FILE_PLAYER_PICK "audio/pa1.mp3"
 #define AUDIO_FILE_PESTICIDE "audio/bug_spray.ogg"
+#define AUDIO_FILE_FERTILIZER "audio/fertilizer.ogg"
+#define AUDIO_FILE_WATERING "audio/watering.ogg"
+#define AUDIO_FILE_WATER_REFILL "audio/watercap_refill.ogg"
+#define AUDIO_FILE_HOMEBASE_DAMAGED "audio/bomb2.mp3"
+#define AUDIO_FILE_HOMEBASE_DIE "audio/earth-tremor1.mp3"

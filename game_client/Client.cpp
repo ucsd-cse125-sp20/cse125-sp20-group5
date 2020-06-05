@@ -90,6 +90,12 @@ void Client::update() {
 			scene->setState(currentGameState);
 			scene->update();
 		}
+		else {
+			aEngine.StopSounds(AUDIO_FILE_BGM_LOBBY);
+			if (!aEngine.IsPlaying(AUDIO_FILE_BGM)) {
+				aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
+			}
+		}
 	}
 	else if (state == ClientState::GETIP) {
 		// if the enter button is pressed go off
@@ -207,6 +213,11 @@ void Client::sendKeyboardEvents()
 	else if ((*keyPresses)[GLFW_KEY_8]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_8); }
 	else if ((*keyPresses)[GLFW_KEY_9]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_9); }
 	else if ((*keyPresses)[GLFW_KEY_P]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_SECRET); }
+	else if ((*keyPresses)[GLFW_KEY_Z]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_ZHU); }
+	else if ((*keyPresses)[GLFW_KEY_U]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_SUGUMAR); }
+	else if ((*keyPresses)[GLFW_KEY_J]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_JOYAAN); }
+	else if ((*keyPresses)[GLFW_KEY_M]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_MINGQI); }
+	else if ((*keyPresses)[GLFW_KEY_Y]) { netClient->sendMessage(OPCODE_PLAYER_CHAT_YANG); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -334,13 +345,20 @@ void Client::setupKeyboardPresses()
 void Client::setupAudio() {
 	aEngine.Init();
 
-	aEngine.LoadSound(AUDIO_FILE_BGM, false, true);
+	aEngine.LoadSound(AUDIO_FILE_BGM, false, true); 
+	aEngine.LoadSound(AUDIO_FILE_BGM_LOBBY, false, true);
 	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DAMAGED, true, false);
 	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DIE, true, false);
 	aEngine.LoadSound(AUDIO_FILE_PLAYER_PICK, true, false);
+	aEngine.LoadSound(AUDIO_FILE_HOMEBASE_DAMAGED, true, false);
+	aEngine.LoadSound(AUDIO_FILE_HOMEBASE_DIE, true, false);
 
+	aEngine.LoadSound(AUDIO_FILE_PESTICIDE, true, false);
+	aEngine.LoadSound(AUDIO_FILE_FERTILIZER, true, false);
+	aEngine.LoadSound(AUDIO_FILE_WATERING, true, false);
+	aEngine.LoadSound(AUDIO_FILE_WATER_REFILL, true, false);
 
-	aEngine.PlaySounds(AUDIO_FILE_BGM, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
+	aEngine.PlaySounds(AUDIO_FILE_BGM_LOBBY, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume * 0.7f));
 
 	glm::vec3 listenerPos = glm::normalize(
 		glm::eulerAngleY(glm::radians(-cam->GetAzimuth())) 
