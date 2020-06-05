@@ -106,7 +106,14 @@ public:
 					filledBar->resetBar(0.0f);
 				}
 				else {
-					filledBar->updateBar(tool->remainingWater / tool->capacity);
+					float oldFraction = filledBar->filledFraction;
+					float newFraction = tool->remainingWater / tool->capacity;
+					filledBar->updateBar(newFraction);
+					if (oldFraction != newFraction
+						&& !scene->aEngine->IsPlaying(AUDIO_FILE_WATER_REFILL)) {
+						scene->aEngine->PlaySounds(AUDIO_FILE_WATER_REFILL, glm::vec3(rootNode->transform[3]),
+							scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.0f));
+					}
 				}
 				break;
 			case Tool::ToolType::PLOW: break;

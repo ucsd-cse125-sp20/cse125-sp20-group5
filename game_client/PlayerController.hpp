@@ -96,7 +96,7 @@ public:
 		updateChat(player);
 
 		rootNode->loadGameObject(player);
-		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)
+		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER || modelType == ModelType::SECRET_CAT)
 			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
 		modelNode->switchAnim(player->animation->animationType, !dontLoop);
 
@@ -135,7 +135,7 @@ public:
 					controller->putInHand(playerHand, playerScaler, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
 				}
 				else if (controller->type == Tool::ToolType::PLOW) {
-					if (modelNode->obj == scene->getModel(ModelType::CAT) || modelNode->obj == scene->getModel(ModelType::TIGER)) {
+					if (modelNode->obj == scene->getModel(ModelType::CAT) || modelNode->obj == scene->getModel(ModelType::TIGER) || modelType == ModelType::SECRET_CAT) {
 						if (modelNode->animationId == Player::PlayerAnimation::PLOUGH)
 							controller->putInHand(playerHand, playerScaler, glm::vec3(0), FELINE_PLOUGH_ANGLE, scene);
 						else
