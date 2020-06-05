@@ -162,28 +162,36 @@ void GameServer::sendToAll() {
 
 void GameServer::onClientConnected(PtrClientConnection pConn) {
     std::cout << "Client connected!" << std::endl;
-    Player* newPlayer = new Player(nullptr,
-        new Direction(Direction::DIRECTION_DOWN),
-        new Animation(0, 0),
-        gameState.objectCount++,
-        config.playerCatRadius, // TODO: we might have other radii for other players?
-        new Color(0, 0, 0), playerIdCounter++);
-    newPlayer->maxHealth = config.playerMaxHealth;
-    newPlayer->health = newPlayer->maxHealth;
 
-    int opCode = gameStarted ? OPCODE_GAME_STARTED : OPCODE_GAME_NOT_STARTED;
+    // Create new player, don't set values yet
+    Player* newPlayer = new Player();
+    int opCode;
 
     // TODO: Update GameState (add player)
     // Need to synchronize?
     {
         boost::lock_guard<boost::recursive_mutex> lock(m_guard);
 
+        // Set new player's values in critical section
+        newPlayer->direction = new Direction(Direction::DIRECTION_DOWN);
+        newPlayer->animation = new Animation(0, 0);
+        newPlayer->objectId = gameState.objectCount++;
+        newPlayer->boundingBoxRadius = config.playerCatRadius;
+        newPlayer->color = new Color(0, 0, 0);
+        newPlayer->playerId = playerIdCounter++;
+        newPlayer->maxHealth = config.playerMaxHealth;
+        newPlayer->health = newPlayer->maxHealth;
+
+        // Add player to game state
         if (gameStarted) {
             gameState.addPlayer(newPlayer);
         }
         else {
             gameState.addPlayerBeforeStart(newPlayer);
         }
+
+        // Read opcode value here
+        opCode  = gameStarted ? OPCODE_GAME_STARTED : OPCODE_GAME_NOT_STARTED;
     }
 
     // Send initial message to client (has game started or not?)

@@ -254,12 +254,44 @@ public:
     void removePlayer(Player *player) {
         auto it = std::find(players.begin(), players.end(), player);
         if (it != players.end()) {
-            players.erase(it);
-        }
+            // Drop tool if player disconnects
+            if (player->heldObject != 0) {
+                dropTool(player);
+            }
 
-        // Drop tool if player disconnects
-        if (player->heldObject != 0) {
-            dropTool(player);
+            if (player->isDead) {
+                // Remove any seed connected to player
+                bool removedSeed = false;
+                for (auto toolIt = tools.begin(); toolIt != tools.end(); toolIt++) {
+                    Tool* checkTool = *toolIt;
+                    bool isSeed = checkTool->toolType == Tool::ToolType::SEED;
+                    bool isPlayerSeed = isSeed && checkTool->seedType == Plant::PlantType::PLAYER;
+                    if (isPlayerSeed && checkTool->playerPlant == player) {
+                        tools.erase(toolIt);
+                        removedSeed = true;
+                        break;
+                    }
+                }
+
+                if (!removedSeed) {
+                    // Remove any plant connected to player
+                    for (auto plantIt = plants.begin(); plantIt != plants.end(); plantIt++) {
+                        Plant* checkPlant = *plantIt;
+                        if (checkPlant->plantType == Plant::PlantType::PLAYER && checkPlant->playerPlant == player) {
+                            // Reset plant tile (go back to normal)
+                            Tile* tile = getCurrentTile(checkPlant);
+                            tile->canPlow = true;
+                            tile->tileType = Tile::TYPE_NORMAL;
+                            tile->plantId = 0;
+                            plants.erase(plantIt);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Get rid of player
+            players.erase(it);
         }
     }
 
@@ -828,7 +860,9 @@ public:
 
             // 5. Check if collide with plants
             for (Plant* plant : plants) {
-                if (player->collideWith(plant)) {
+                if ((plant->growStage == Plant::GrowStage::BABY
+                    || plant->growStage == Plant::GrowStage::GROWN)
+                    && player->collideWith(plant)) {
                     collisionResponse(player, plant, prevPos);
                     break;
                 }
@@ -848,11 +882,17 @@ public:
             }
 
             // 8. Check if collide with obstacles 
+            Obstacle* minObstacle = nullptr;
+            float minDistance = std::numeric_limits<float>::max();
             for (Obstacle* obstacle : obstacles) {
-                if (player->collideWith(obstacle)) {
-                    collisionResponse(player, obstacle, prevPos);
-                    break;
+                float dist = player->distanceTo(obstacle);
+                if (dist < minDistance) {
+                    minObstacle = obstacle;
+                    minDistance = dist;
                 }
+            }
+            if (minObstacle && player->collideWith(minObstacle)) {
+                collisionResponse(player, minObstacle, prevPos);
             }
 
             player->currRow = player->position->z / Floor::TILE_SIZE;

@@ -78,7 +78,7 @@ public:
 
     bool highlightCollideWith(GameObject* that) {
         float distance = this->distanceTo(that);
-        return distance <= boundingBoxRadius + that->boundingBoxRadius + 0.3f;
+        return distance <= boundingBoxRadius + that->boundingBoxRadius + 1.0f;
     }
 
     Position* position; // Plant position
