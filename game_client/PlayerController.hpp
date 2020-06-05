@@ -93,6 +93,7 @@ public:
 		}
 
 		updateChat(player);
+		std::cout << player->currChat << std::endl;
 
 		rootNode->loadGameObject(player);
 		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER)

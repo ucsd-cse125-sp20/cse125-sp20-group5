@@ -9,7 +9,9 @@
 
 class Player : public GameObject {
 public:
-    Player() : GameObject(), color(nullptr), playerId(0), holding(false), heldObject(0) {}
+    Player() : GameObject(), color(nullptr), playerId(0), holding(false), heldObject(0) {
+        this->currChat = NO_CHAT;
+    }
 
     Player(Position* position, Direction* direction,
            Animation* animation, unsigned int objectId, float boundingBoxRadius,
