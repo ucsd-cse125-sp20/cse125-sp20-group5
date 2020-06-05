@@ -87,7 +87,20 @@ public:
         return nullptr;
     }
 
+    const static std::string chatMessages[16];
+
 private:
 };
 
 std::vector<SceneNode*> RenderController::uiNodes;
+
+const std::string RenderController::chatMessages[16] = {
+    "You suck", "Water", "Shovel", "Pesticide", "Fertilizer", // 0~4
+    "Come on", "Help", "I'm so dead", "Thanks", "Good job", // 5~9
+    "Thank you for the quarter!", // secret
+    "Thank you for the quarter!", // alex Zhu
+    "Thank you for the quarter!", // arun sUgUmar
+    "Thank you for the quarter!", // Joyaan
+    "Thank you for the quarter!", // Mingqi
+    "Thank you for the quarter!" // Yang
+};

@@ -176,7 +176,12 @@ public:
     }
 
     void updatePlayer(int opCode, Player* player) {
-        //std::cout << "Before update angle = " << player->direction->angle << std::endl;
+        // handle chat specific opcode, regardless of death
+        player->currChat = Player::NO_CHAT;
+        if (opCode >= OPCODE_PLAYER_CHAT_0) {
+            player->currChat = opCode % OPCODE_PLAYER_CHAT_0;
+        }
+
         if (player->isDead) {
             player->moveState = Player::MoveState::FREEZE;
             player->shouldPerformAction = false;
@@ -224,11 +229,6 @@ public:
             case OPCODE_PLAYER_INTERACT:
                 player->shouldInteract = true;
                 break;
-        }
-        // handle chat specific opcode
-        player->currChat = Player::NO_CHAT;
-        if (opCode >= OPCODE_PLAYER_CHAT_0) {
-            player->currChat = opCode % OPCODE_PLAYER_CHAT_0;
         }
 
         //std::cout << "After update angle = " << player->direction->angle << std::endl;

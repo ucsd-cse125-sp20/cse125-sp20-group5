@@ -3,6 +3,7 @@
 #include <Tool.hpp>
 #include "Scene.h"
 #include "HealthBar.h"
+#include "TextUI.h"
 
 #define SEED_BAG_SCALER 0.2
 #define WATER_CAN_SCALER 0.35
@@ -37,6 +38,15 @@ public:
 		else if(type == Tool::ToolType::SEED) {
 			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
 			modelNode->scaler = SEED_BAG_SCALER;
+
+			// init chat text
+			std::tie(chatText, textNode) = createTextUI(
+				FontType::CHUNK, CHAT_TEXT_COLOR,
+				glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
+			);
+			chatText->shouldDisplay = false;
+			chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
+			chatText->autoFadeOff = true;
 		}
 		else if (tool->toolType == Tool::ToolType::PESTICIDE) {
 			modelNode = scene->getModel(ModelType::SPRAY)->createSceneNodes(tool->objectId);
@@ -64,6 +74,9 @@ public:
 		if (barNode) { barNode = RenderController::deleteBarNode(barNode); }
 		if (filledBar) delete filledBar;
 		if (pGroup) delete pGroup;
+
+		if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+		if (chatText) { delete chatText; }
 	}
 
 	void update(GameObject* gameObject, Scene* scene) override {
@@ -80,6 +93,10 @@ public:
 		}
 
 		updateBar(tool, scene);
+
+		if (tool->toolType == Tool::ToolType::SEED && tool->seedType == Plant::PlantType::PLAYER) {
+			updateChat(tool->playerPlant);
+		}
 	}
 
 	void updateBar(Tool* tool, Scene* scene) {
@@ -116,6 +133,22 @@ public:
 			}
 			else { barNode->pose[1] = -rootNode->pose[1]; }
 		}
+	}
+
+	void updateChat(Player* player) {
+		// change the text content, if player object has a valid chatId
+		int chatId = player->currChat;
+		if (chatId != Player::NO_CHAT) {
+			chatText->shouldDisplay = true;
+			chatText->alphaValue = chatText->maxAlpha;
+			// reset timer
+			chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
+			chatText->reservedText = chatMessages[chatId];
+		}
+
+		// update the effect of textUI: 
+		// should be handled by DrawableUI::update() when autoFadeOff turned on
+		// TODO
 	}
 
 	void putInHand(SceneNode * handNode, float scaler, glm::vec3 holdVec, glm::vec3 holdPose, Scene * scene) {
@@ -157,4 +190,11 @@ private:
 	static constexpr glm::vec3 CAN_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0);
 	static constexpr float CAN_BAR_TRANSLATE_Y = 1.3;
 	static constexpr glm::vec3 COOLDOWN_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6); // grey
+
+	TextUI* chatText;
+	SceneNode* textNode;
+
+	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0.2); // grey
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 1.2f;
+
 };

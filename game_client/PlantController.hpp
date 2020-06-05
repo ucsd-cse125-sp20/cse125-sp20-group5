@@ -48,6 +48,12 @@ private:
 
     Plant::GrowStage currGrowStage;
 
+    TextUI* chatText;
+    SceneNode* textNode;
+
+    static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0.2); // grey
+    static constexpr float CHAT_TEXT_TRANSLATE_Y = 1.0f;
+
     static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
     static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0); // blue
     static constexpr float COOLDOWN_BAR_TRANSLATE_Y = 1.3;
@@ -101,6 +107,7 @@ public:
         fertilizeBar->shouldDisplay = false;
         fertilizeBar->fillingStep /= 5.0f;
         fertilizeBar->setAlphaSetting(true, 0.0f, fertilizeBar->alphaStep);
+        /*
         // init fertilize level text
         std::tie(levelText, textNode) = createTextUI(
             FontType::CHUNK, FERTILIZE_BAR_COLOR, 
@@ -108,6 +115,16 @@ public:
         );
         levelText->shouldDisplay = fertilizeBar->shouldDisplay;
         levelText->setAlphaSetting(fertilizeBar->alphaEffectOn, fertilizeBar->alphaValue, fertilizeBar->alphaStep);
+        */
+
+        // init chat text
+        std::tie(chatText, textNode) = createTextUI(
+            FontType::CHUNK, CHAT_TEXT_COLOR,
+            glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
+        );
+        chatText->shouldDisplay = false;
+        chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
+        chatText->autoFadeOff = true;
     }
 
     ~PlantController() {
@@ -123,7 +140,8 @@ public:
         if (fertilizeBar) { delete fertilizeBar; }
 
         if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
-        if (levelText) { delete levelText; }
+        if (chatText) { delete chatText; }
+        //if (levelText) { delete levelText; }
 
         delete pGroup;
     }
@@ -157,7 +175,8 @@ public:
         switch (plant->growStage) {
             case Plant::GrowStage::SEED:
                 if (plant->plantType == Plant::PlantType::PLAYER) {
-                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
+                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId); 
+                    updateChat(plant->playerPlant);
                 }
                 else {
                     modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
@@ -170,6 +189,8 @@ public:
                     modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
                     gBarNode->position.y = 0.5;
                     cBarNode->position.y = 0.5;
+                    updateChat(plant->playerPlant);
+                    textNode->position.y = 1.2;
                 }
                 else {
                     modelNode = scene->getModel(ModelType::SAPLING)->createSceneNodes(objectId);
@@ -180,6 +201,7 @@ public:
                 if (plant->plantType == Plant::PlantType::PLAYER) {
                     modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
                     modelNode->scaler = SAPLING_SCALER;
+                    updateChat(plant->playerPlant);
                 }
                 else if (plant->plantType == Plant::PlantType::CORN) {
                     modelNode = scene->getModel(ModelType::BABY_CORN)->createSceneNodes(objectId);
@@ -207,6 +229,22 @@ public:
                 break;
         }
         rootNode->addChild(modelNode);
+    }
+
+    void updateChat(Player* player) {
+        // change the text content, if player object has a valid chatId
+        int chatId = player->currChat;
+        if (chatId != Player::NO_CHAT) {
+            chatText->shouldDisplay = true;
+            chatText->alphaValue = chatText->maxAlpha;
+            // reset timer
+            chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
+            chatText->reservedText = chatMessages[chatId];
+        }
+
+        // update the effect of textUI: 
+        // should be handled by DrawableUI::update() when autoFadeOff turned on
+        // TODO
     }
 
     void updateUIs(Plant* plant, Scene* scene) {

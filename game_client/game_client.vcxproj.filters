@@ -189,7 +189,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ClientParams.cpp">
-     <Filter>Source Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DrawableUI.cpp">
       <Filter>Source Files</Filter>
