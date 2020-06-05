@@ -173,7 +173,7 @@ public:
 };
 
 const std::string PlayerController::chatMessages[11] = {
-	"Water!", "Shovel!", "Pesticide!", "Fertilizer!", "Come on!!", // 0~4
-	"Help!!!", "I need somebody", "Thanks!", "Good job!", "GG", // 5~9
+	"You suck","Water!", "Shovel!", "Pesticide!", "Fertilizer!", // 0~4
+	"Come on!!", "Help!!!", "I need somebody", "Thanks!", "Good job!", // 5~9
 	"Thank you for the quarter!"// secret
 };
