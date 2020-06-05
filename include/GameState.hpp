@@ -828,7 +828,9 @@ public:
 
             // 5. Check if collide with plants
             for (Plant* plant : plants) {
-                if (player->collideWith(plant)) {
+                if ((plant->growStage == Plant::GrowStage::BABY
+                    || plant->growStage == Plant::GrowStage::GROWN)
+                    && player->collideWith(plant)) {
                     collisionResponse(player, plant, prevPos);
                     break;
                 }
