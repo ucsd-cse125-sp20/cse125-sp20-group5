@@ -199,7 +199,10 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     source << CRLF;
     source << '\0';
 
-    pConn->deliverSerialization(buffer);
+
+    for (PtrClientConnection conn : clients) {
+        conn->deliverSerialization(buffer);
+    }
     pConn->setStartMessageSent(gameStarted);
 
     // Add player mapping
