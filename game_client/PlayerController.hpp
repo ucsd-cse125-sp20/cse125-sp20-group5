@@ -41,10 +41,10 @@ public:
 		// determine model type based on player ID
 		this->playerId = player->playerId;
 		switch (playerId % 4) {
-			case 0: modelType = ModelType::TIGER; break;
+			case 0: modelType = ModelType::CAT; break;
 			case 1: modelType = ModelType::CHICKEN; break; 
-			case 2: modelType = ModelType::BLACKPIG; break;
-			case 3: modelType = ModelType::CAT; break;
+			case 2: modelType = ModelType::TIGER; break;
+			case 3: modelType = ModelType::BLACKPIG; break;
 		}
 		
 		// create node

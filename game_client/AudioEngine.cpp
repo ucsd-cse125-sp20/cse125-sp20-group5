@@ -143,6 +143,11 @@ void CAudioEngine::StopSounds(const string& strSoundName) {
 		std::cout << "Cannot stop a unloaded sound" << std::endl;
 		return;
 	}
+
+	if (this->IsPlaying(strSoundName)) {
+		return;
+	}
+
 	auto channelFoundIt = sgpImplementation->mChannels.find(fileToChannelMap[strSoundName]);
 	CAudioEngine::ErrorCheck(channelFoundIt->second->stop());
 }
