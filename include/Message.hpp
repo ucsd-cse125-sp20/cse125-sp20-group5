@@ -43,11 +43,13 @@ public:
 	Message() : opCode(OPCODE_NOP), levelId(0) {}
 	Message(int op_code) : opCode(op_code), levelId(0) {}
 	Message(int op_code, int level_id) : opCode(op_code), levelId(level_id) {}
-	
+	Message(int op_code, unsigned int num_players, bool fake) : opCode(op_code), numPlayers(num_players) {}
+
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 		ar & opCode;
 		ar & levelId;
+		ar & numPlayers;
 	}
 
 	int getOpCode() {
@@ -58,9 +60,14 @@ public:
 		return levelId;
 	}
 
+	int getNumPlayers() {
+		return numPlayers;
+	}
+
 private:
 	int opCode;
 	int levelId; // used in OPCODE_LEVEL_SELECT
+	unsigned int numPlayers; // num players in lobby
 };
 
 #endif

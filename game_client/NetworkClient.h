@@ -25,6 +25,7 @@ public:
     void close();
 
     bool getGameStarted();
+    unsigned int playerIdCount;
 
 private:
     void doWrite(Message& msg);

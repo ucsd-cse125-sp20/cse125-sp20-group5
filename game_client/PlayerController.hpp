@@ -8,11 +8,13 @@
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
 #define SEED_BAG_HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
 #define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
+#define FELINE_SHOVEL_HOLD_VEC glm::vec3(-.6, 1.7, 2.1)
 #define SPRAY_HOLD_VEC glm::vec3(-.5, -1.5, 0.3)
 #define FERTILIZER_HOLD_VEC glm::vec3(-.5, .5, 0.3)
 
 #define FERTILIZER_HOLD_ANGLE glm::vec3(3.14/2, 0, 0)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
+#define FELINE_SHOVEL_HOLD_ANGLE glm::vec3(0.5,3.14/2,-2.8/2)
 
 static constexpr float HP_BAR_TRANSLATE_Y = 2.3;
 static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, .7, 0.4);
@@ -133,7 +135,12 @@ public:
 					controller->putInHand(playerHand, playerScaler, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
 				}
 				else if (controller->type == Tool::ToolType::PLOW) {
-					controller->putInHand(playerHand, playerScaler, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
+					if (modelNode->obj == scene->getModel(ModelType::CAT) || modelNode->obj == scene->getModel(ModelType::TIGER)) {
+						controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
+					}
+					else {
+						controller->putInHand(playerHand, playerScaler, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
+					}
 				}
 				else if (controller->type == Tool::ToolType::SEED) {
 					controller->putInHand(playerHand, playerScaler, SEED_BAG_HOLD_VEC, glm::vec3(0), scene);
