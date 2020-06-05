@@ -193,7 +193,6 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
 
     boost::archive::text_oarchive oa(source);
-    std::cout << "player id counter in client connected" << playerIdCounter << std::endl;
     Message msg(opCode, playerIdCounter, false); 
     oa << msg;
     source << CRLF;
@@ -203,6 +202,7 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     for (PtrClientConnection conn : clients) {
         conn->deliverSerialization(buffer);
     }
+    pConn->deliverSerialization(buffer);
     pConn->setStartMessageSent(gameStarted);
 
     // Add player mapping
