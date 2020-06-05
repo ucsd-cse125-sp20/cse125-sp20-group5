@@ -72,23 +72,7 @@ public:
 		Zombie* zombie = (Zombie*) gameObject;
 		rootNode->loadGameObject(zombie);
 		
-		// animation & audio
-		// (assuming server will only pass in MOVE & DAMAGED animID)
-		int newAnimID = zombie->animation->animationType;
-		int oldAnimID = modelNode->animationId;
-		if (newAnimID == Zombie::DAMAGED) {
-			if (oldAnimID == Zombie::MOVE || modelNode->playedOneAnimCycle) {
-				// reset & play DAMAGED
-				modelNode->loadAnimData(modelNode->numAnimation, newAnimID, false);
-				scene->aEngine->PlaySounds(AUDIO_FILE_ZOMBIE_DAMAGED, glm::vec3(rootNode->transform[3]),
-					scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.0f));
-			}
-		}
-		// change back to MOVE only if DAMAGED has been finished playing
-		else if (oldAnimID == Zombie::DAMAGED
-			&& modelNode->playedOneAnimCycle) {
-			modelNode->switchAnim(newAnimID);
-		}
+		updateAnimationAndAudio(zombie, scene);
 
 		this->health = zombie->health;
 		this->maxHealth = zombie->maxHealth;
@@ -157,6 +141,26 @@ public:
 
 		// reset aliveZombie for next update cycle
 		aliveZombie.clear(); // or = std::set<uintd>();     
+	}
+
+	void updateAnimationAndAudio(Zombie* zombie, Scene* scene) {
+		// animation & audio
+		// (assuming server will only pass in MOVE & DAMAGED animID)
+		int newAnimID = zombie->animation->animationType;
+		int oldAnimID = modelNode->animationId;
+		if (newAnimID == Zombie::DAMAGED) {
+			if (oldAnimID == Zombie::MOVE || modelNode->playedOneAnimCycle) {
+				// reset & play DAMAGED
+				modelNode->loadAnimData(modelNode->numAnimation, newAnimID, false);
+				scene->aEngine->PlaySounds(AUDIO_FILE_ZOMBIE_DAMAGED, glm::vec3(rootNode->transform[3]),
+					scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.0f));
+			}
+		}
+		// change back to MOVE only if DAMAGED has been finished playing
+		else if (oldAnimID == Zombie::DAMAGED
+			&& modelNode->playedOneAnimCycle) {
+			modelNode->switchAnim(newAnimID);
+		}
 	}
 
 	void updateHpBar(Scene* scene) {

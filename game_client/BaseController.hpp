@@ -41,14 +41,35 @@ public:
 
 		rootNode->loadGameObject(homeBase);
 
-		updateHpBar(homeBase, scene);
+		updateAnimationAndAudio(homeBase, scene);
 
-		// update anim
-		if (homeBase->animation->animationType == 2) {
-			modelNode->switchAnim(homeBase->animation->animationType, false);
-		}
-		else {
-			modelNode->switchAnim(homeBase->animation->animationType);
+		updateHpBar(homeBase, scene);
+	}
+
+	void updateAnimationAndAudio(HomeBase* homeBase, Scene* scene) {
+		int newAnimID = homeBase->animation->animationType;
+		int oldAnimID = modelNode->animationId;
+		switch (newAnimID) {
+			case HomeBase::STAY:	
+				// if not a different old animation still playing, we switch back to STAY
+				if (!(newAnimID != oldAnimID && !modelNode->playedOneAnimCycle)) {
+					modelNode->switchAnim(newAnimID);
+				}
+				break;
+			case HomeBase::DAMAGED:	
+				modelNode->switchAnim(newAnimID, false);
+				if (newAnimID != oldAnimID) {
+					scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DAMAGED, glm::vec3(rootNode->transform[3]),
+						scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.0f));
+				}
+				break;
+			case HomeBase::DIE:
+				modelNode->switchAnim(newAnimID, false);
+				if (newAnimID != oldAnimID) {
+					scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DIE, glm::vec3(rootNode->transform[3]),
+						scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
+				}
+				break;
 		}
 	}
 

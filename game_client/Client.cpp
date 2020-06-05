@@ -345,6 +345,8 @@ void Client::setupAudio() {
 	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DAMAGED, true, false);
 	aEngine.LoadSound(AUDIO_FILE_ZOMBIE_DIE, true, false);
 	aEngine.LoadSound(AUDIO_FILE_PLAYER_PICK, true, false);
+	aEngine.LoadSound(AUDIO_FILE_HOMEBASE_DAMAGED, true, false);
+	aEngine.LoadSound(AUDIO_FILE_HOMEBASE_DIE, true, false);
 
 
 	aEngine.PlaySounds(AUDIO_FILE_BGM_LOBBY, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume));
