@@ -201,12 +201,16 @@ void GameServer::onClientConnected(PtrClientConnection pConn) {
     boost::iostreams::stream< boost::iostreams::basic_array_sink<char> > source(sr);
 
     boost::archive::text_oarchive oa(source);
-
-    Message msg(opCode);
+    Message msg(opCode, playerIdCounter, false); 
     oa << msg;
     source << CRLF;
     source << '\0';
 
+    if (opCode == OPCODE_GAME_NOT_STARTED) {
+        for (PtrClientConnection conn : clients) {
+            conn->deliverSerialization(buffer);
+        }
+    }
     pConn->deliverSerialization(buffer);
     pConn->setStartMessageSent(gameStarted);
 
@@ -238,6 +242,7 @@ void GameServer::onClientDisconnected(PtrClientConnection pConn, const boost::sy
         else {
             gameState.removeTempPlayer(toDel);
         }
+        playerIdCounter--;
     }
 
     // TODO: Update GameState (delete player)
