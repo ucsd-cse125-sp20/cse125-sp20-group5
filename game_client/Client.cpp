@@ -353,6 +353,10 @@ void Client::setupAudio() {
 	aEngine.LoadSound(AUDIO_FILE_HOMEBASE_DAMAGED, true, false);
 	aEngine.LoadSound(AUDIO_FILE_HOMEBASE_DIE, true, false);
 
+	aEngine.LoadSound(AUDIO_FILE_PESTICIDE, true, false);
+	aEngine.LoadSound(AUDIO_FILE_FERTILIZER, true, false);
+	aEngine.LoadSound(AUDIO_FILE_WATERING, true, false);
+	aEngine.LoadSound(AUDIO_FILE_WATER_REFILL, true, false);
 
 	aEngine.PlaySounds(AUDIO_FILE_BGM_LOBBY, glm::vec3(0), aEngine.VolumeTodB(config.BGMVolume * 0.7f));
 

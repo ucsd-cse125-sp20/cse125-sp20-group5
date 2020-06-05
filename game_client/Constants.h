@@ -51,5 +51,8 @@
 #define AUDIO_FILE_ZOMBIE_DIE "audio/money.mp3"
 #define AUDIO_FILE_PLAYER_PICK "audio/pa1.mp3"
 #define AUDIO_FILE_PESTICIDE "audio/bug_spray.ogg"
+#define AUDIO_FILE_FERTILIZER "audio/fertilizer.ogg"
+#define AUDIO_FILE_WATERING "audio/watering.ogg"
+#define AUDIO_FILE_WATER_REFILL "audio/watercap_refill.ogg"
 #define AUDIO_FILE_HOMEBASE_DAMAGED "audio/bomb2.mp3"
 #define AUDIO_FILE_HOMEBASE_DIE "audio/earth-tremor1.mp3"
