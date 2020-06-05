@@ -33,6 +33,8 @@ private:
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
 	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.9f; // black
 
+	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14/2, 0, 3.14/2);
+
 	const static std::string chatMessages[16];
 public:
 	PlayerController(Player* player, Scene* scene) {
@@ -135,7 +137,10 @@ public:
 				}
 				else if (controller->type == Tool::ToolType::PLOW) {
 					if (modelNode->obj == scene->getModel(ModelType::CAT) || modelNode->obj == scene->getModel(ModelType::TIGER)) {
-						controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
+						if (modelNode->animationId == Player::PlayerAnimation::PLOUGH)
+							controller->putInHand(playerHand, playerScaler, glm::vec3(0), FELINE_PLOUGH_ANGLE, scene);
+						else
+							controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
 					}
 					else {
 						controller->putInHand(playerHand, playerScaler, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);

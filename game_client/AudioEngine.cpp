@@ -160,7 +160,7 @@ bool CAudioEngine::IsPlaying(const string& strSoundName) {
 	}
 	auto channelFoundIt = sgpImplementation->mChannels.find(fileToChannelMap[strSoundName]);
 
-	bool retVal;
+	bool retVal = false;
 	channelFoundIt->second->isPlaying(&retVal);
 	return retVal;
 }
