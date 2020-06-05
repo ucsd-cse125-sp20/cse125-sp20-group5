@@ -38,8 +38,9 @@ public:
 	std::map<GLchar, Character > initFont(const char* fontFile);
 
 	void renderText(std::string text, float x, float y, float scale, glm::vec3 color);
-	void renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat4 modelMtx, float scale, glm::vec3 color);
-	void renderFont(std::string text, float x, float y, float scale, int textAlignment = LEFT);
+	void renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat4 modelMtx, float scale, glm::vec3 color, bool haveBackground = true);
+	void renderFont(std::string text, float x, float y, float scale, bool haveBackground, int textAlignment = LEFT);
+	void renderBackground(int bgType, float ratioToText);
 
 	// These variables are needed for the shader program
 	static std::map<FontType, std::map<GLchar, Character >> fontCharacters;
@@ -59,14 +60,6 @@ public:
 
 private:
 	static std::map<FontType, const char*> fontFileMap;
-	static char* backgroundFiles[NUM_OF_BACKGROUND];
+	static std::string backgroundFiles[NUM_OF_BACKGROUND];
+	static float backgroundVertices[6][4];
 };
-
-std::map<FontType, const char*> TextUI::fontFileMap = {
-	   { FontType::CARTOON, "font/From Cartoon Blocks.ttf" },
-	   { FontType::CHUNK, "font/Chunk Five Print.otf" }
-};
-char* TextUI::backgroundFiles[NUM_OF_BACKGROUND] = {
-	   "texture/think_comic_bubble.png"
-};
-

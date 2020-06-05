@@ -8,6 +8,24 @@ GLuint TextUI::VBO, TextUI::VAO;
 std::map<FontType, std::map<GLchar, Character >> TextUI::fontCharacters;
 bool TextUI::staticInitialized = false;
 
+std::map<FontType, const char*> TextUI::fontFileMap = {
+	   { FontType::CARTOON, "font/From Cartoon Blocks.ttf" },
+	   { FontType::CHUNK, "font/Chunk Five Print.otf" }
+};
+std::string TextUI::backgroundFiles[NUM_OF_BACKGROUND] = {
+	   "texture/think_comic_bubble.png"
+};
+float TextUI::backgroundVertices[6][4] = {
+		   { -1.0f, 1.0f,	0.0f, 0.0f },
+		   { -1.0f, -1.0f,	0.0f, 1.0f },
+		   { 1.0f, -1.0f,	1.0f, 1.0f },
+
+		   { -1.0f, 1.0f,	0.0f, 0.0f },
+		   { 1.0f, -1.0f,	1.0f, 1.0f },
+		   { 1.0f, 1.0f,	1.0f, 0.0f }
+};
+
+
 TextUI::TextUI(uint shader, FontType usedFont, glm::vec3 usedColor, std::string reservedText, mat4 model)
 {
 	this->shader = shader;
@@ -25,13 +43,10 @@ TextUI::TextUI(uint shader, FontType usedFont, glm::vec3 usedColor, std::string 
 		}
 
 		for (int i = 0; i < NUM_OF_BACKGROUND; i++) {
-			loadTexture(backgroundFiles[i], &backgroundTextureIDs[i]);
+			loadTexture(backgroundFiles[i].c_str(), &backgroundTextureIDs[i]);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	}
-
-	// load background textures
-	//TODO loadTexture("texture/blob.png", backgroundTexture[BackgroundTexture::BLOB]);
 	
 
 	// configure VAO/VBO for texture quads
@@ -128,12 +143,13 @@ void TextUI::renderText(std::string text, float x, float y, float scale, glm::ve
 	glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 	glUniform1f(glGetUniformLocation(shader, "alpha"), alphaValue);
 	
-	renderFont(text, x, y, scale);
+	//renderBackground(COMIC_BUBBLE, 1);
+	renderFont(text, x, y, scale, false);
 
 	glUseProgram(0);
 }
 
-void TextUI::renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat4 modelMtx, float scale, glm::vec3 color)
+void TextUI::renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat4 modelMtx, float scale, glm::vec3 color, bool haveBackground)
 {
 	glUseProgram(shader);
 
@@ -143,17 +159,21 @@ void TextUI::renderTextInWorld(std::string text, glm::mat4 viewProjMtx, glm::mat
 	glUniform3f(glGetUniformLocation(shader, "textColor"), color.x, color.y, color.z);
 	glUniform1f(glGetUniformLocation(shader, "alpha"), alphaValue);
 
-	renderFont(text, 0, 0, scale, CENTER);
+	if (haveBackground) { renderBackground(COMIC_BUBBLE, 1); }
+	renderFont(text, 0, 0, scale, haveBackground, CENTER);
 
 	glUseProgram(0);
 }
 
-void TextUI::renderFont(std::string text, float x, float y, float scale, int textAlignment) {
+void TextUI::renderFont(std::string text, float x, float y, float scale, bool haveBackground, int textAlignment) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // to allow transparent
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(VAO);
+
+	glUniform1i(glGetUniformLocation(shader, "text"), 0);
+	glUniform1i(glGetUniformLocation(shader, "isBackground"), 0);
 
 	// get characters for the chosen font
 	std::map<GLchar, Character >Characters = fontCharacters[usedFont];
@@ -165,6 +185,11 @@ void TextUI::renderFont(std::string text, float x, float y, float scale, int tex
 	{
 		Character ch = Characters[*c];
 		totalWidth += (ch.advance >> 6) * scale;
+	}
+
+	// adjust scale
+	if (haveBackground && totalWidth >= 300.0f) {
+		scale *= 1.0f - 0.01f * (totalWidth - 300.0f);
 	}
 
 	// set text alignment
@@ -208,14 +233,36 @@ void TextUI::renderFont(std::string text, float x, float y, float scale, int tex
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-
 	glDisable(GL_BLEND);
 }
 
+void TextUI::renderBackground(int bgType, float ratioToText) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // to allow transparent
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindVertexArray(VAO);
+
+	glUniform1i(glGetUniformLocation(shader, "background"), 1);
+	glUniform1i(glGetUniformLocation(shader, "isBackground"), 1);
+
+	glBindTexture(GL_TEXTURE_2D, backgroundTextureIDs[bgType]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(backgroundVertices), backgroundVertices); // be sure to use glBufferSubData and not glBufferData
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	// reset
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glDisable(GL_BLEND);
+}
 
 void TextUI::draw(SceneNode& node, const glm::mat4& viewProjMtx) {
 	if (!canDraw()) { return; }
 
 	mat4 modelMtx = translate(vec3(node.transform[3])) * model;
-	renderTextInWorld(reservedText, viewProjMtx, modelMtx, 0.008f, usedColor);
+	renderTextInWorld(reservedText, viewProjMtx, modelMtx, 0.005f, usedColor);
 }
