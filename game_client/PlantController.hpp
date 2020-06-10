@@ -35,13 +35,11 @@ private:
     HealthBar* hpBar;
     HealthBar* pesticideBar;
     HealthBar* fertilizeBar;
-    TextUI* levelText;
     SceneNode* gBarNode;
     SceneNode* cBarNode;
     SceneNode* hBarNode;
     SceneNode* pBarNode;
     SceneNode* fBarNode;
-    SceneNode* textNode;
 
     ParticleGroup* pGroup;
     SceneNode* particleNode;
@@ -49,6 +47,7 @@ private:
     Plant::GrowStage currGrowStage;
 
     TextUI* chatText;
+    TextUI* levelText; // not used
     SceneNode* textNode;
 
     static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0.2); // grey

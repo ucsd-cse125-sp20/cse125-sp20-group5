@@ -160,12 +160,8 @@ bool CAudioEngine::IsPlaying(const string& strSoundName) {
 	}
 	auto channelFoundIt = sgpImplementation->mChannels.find(fileToChannelMap[strSoundName]);
 
-	bool isPlaying = false;
-	FMOD_RESULT fRes = channelFoundIt->second->isPlaying(&isPlaying);
-	if (fRes == FMOD_ERR_INVALID_HANDLE || fRes == FMOD_ERR_CHANNEL_STOLEN)	{
-		return false; // Expected error
-	}
-	return isPlaying;
+	bool isPlaying;
+	return channelFoundIt->second->isPlaying(&isPlaying) == FMOD_OK && isPlaying;
 }
 
 void CAudioEngine::SetChannel3dPosition(int nChannelId, const glm::vec3& vPosition)

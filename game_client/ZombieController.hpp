@@ -130,7 +130,7 @@ public:
 
 			// Delete the bar if is going to die
 			// Might be redundant with the destructor but has to be called here or the program crashes somehow
-			zombieController->barNode = deleteBarNode(zombieController->barNode);
+			zombieController->barNode = zombieController->deleteBarNode(zombieController->barNode);
 
 			delete scene->controllers[zombieId];
 			scene->controllers.erase(zombieId);

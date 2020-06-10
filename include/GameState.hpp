@@ -239,6 +239,9 @@ public:
         player->position = spawnPos;
         player->currRow = spawnPos->z / Floor::TILE_SIZE;
         player->currCol = spawnPos->x / Floor::TILE_SIZE;
+
+        srand(time(0));
+        player->isGolden = (rand() % 100) < 30;
         players.push_back(player);
     }
 

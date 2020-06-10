@@ -23,46 +23,49 @@ public:
 		holderId = 0;
 
 		switch (type) {
-		case Tool::ToolType::WATER_CAN:
-			modelNode = scene->getModel(ModelType::WATERING_CAN)->createSceneNodes(tool->objectId);
-			modelNode->scaler = WATER_CAN_SCALER;
+			case Tool::ToolType::WATER_CAN: {
+				modelNode = scene->getModel(ModelType::WATERING_CAN)->createSceneNodes(tool->objectId);
+				modelNode->scaler = WATER_CAN_SCALER;
 
-			// init water filled bar 
-			float initBarFilledFraction = 1.0f;
-			HealthBarSetting barSetting("texture/water_icon.png", CAN_BAR_TRANSLATE_Y, initBarFilledFraction, CAN_BAR_COLOR);
-			std::tie(filledBar, barNode) = createHealthBar(barSetting, scene);
-			break;
-		case Tool::ToolType::PLOW:
-			modelNode = scene->getModel(ModelType::SHOVEL)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SHOVEL_SCALER;
-			break;
-		case Tool::ToolType::SEED:
-			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SEED_BAG_SCALER;
+				// init water filled bar 
+				HealthBarSetting wBarSetting("texture/water_icon.png", CAN_BAR_TRANSLATE_Y, 1.0f, CAN_BAR_COLOR);
+				std::tie(filledBar, barNode) = createHealthBar(wBarSetting, scene);
+				break;
+			}
+			case Tool::ToolType::PLOW: {
+				modelNode = scene->getModel(ModelType::SHOVEL)->createSceneNodes(tool->objectId);
+				modelNode->scaler = SHOVEL_SCALER;
+				break;
+			}
+			case Tool::ToolType::SEED: {
+				modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
+				modelNode->scaler = SEED_BAG_SCALER;
 
-			// init chat text
-			std::tie(chatText, textNode) = createTextUI(
-				FontType::CHUNK, CHAT_TEXT_COLOR,
-				glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
-			);
-			chatText->shouldDisplay = false;
-			chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
-			chatText->autoFadeOff = true;
-			break;
-		case Tool::ToolType::PESTICIDE:
-			modelNode = scene->getModel(ModelType::SPRAY)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SPRAY_SCALER;
-			break;
-		case Tool::ToolType::FERTILIZER:
-			modelNode = scene->getModel(ModelType::FERTILIZER)->createSceneNodes(tool->objectId);
-			modelNode->scaler = FERTILIZER_SCALER;
+				// init chat text
+				std::tie(chatText, textNode) = createTextUI(
+					FontType::CHUNK, CHAT_TEXT_COLOR,
+					glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
+				);
+				chatText->shouldDisplay = false;
+				chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
+				chatText->autoFadeOff = true;
+				break;
+			}
+			case Tool::ToolType::PESTICIDE: {
+				modelNode = scene->getModel(ModelType::SPRAY)->createSceneNodes(tool->objectId);
+				modelNode->scaler = SPRAY_SCALER;
+				break;
+			}
+			case Tool::ToolType::FERTILIZER: {
+				modelNode = scene->getModel(ModelType::FERTILIZER)->createSceneNodes(tool->objectId);
+				modelNode->scaler = FERTILIZER_SCALER;
 
-			// init fertilizer cool down bar
-			float initBarFilledFraction = 1.0f;
-			HealthBarSetting barSetting("texture/time_icon.png", CAN_BAR_TRANSLATE_Y, initBarFilledFraction, COOLDOWN_BAR_COLOR);
-			std::tie(filledBar, barNode) = createHealthBar(barSetting, scene);
-			filledBar->shouldDisplay = false;
-			break;
+				// init fertilizer cool down bar
+				HealthBarSetting fBarSetting("texture/time_icon.png", CAN_BAR_TRANSLATE_Y, 1.0f, COOLDOWN_BAR_COLOR);
+				std::tie(filledBar, barNode) = createHealthBar(fBarSetting, scene);
+				filledBar->shouldDisplay = false;
+				break;
+			}
 		}
 
 		rootNode->addChild(modelNode);
