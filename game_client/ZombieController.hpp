@@ -63,7 +63,7 @@ public:
 
 	~ZombieController() {
 		if (barNode) {
-			barNode = RenderController::deleteBarNode(barNode);
+			barNode = deleteBarNode(barNode);
 		}
 		if (hpBar) { delete hpBar; }
 	}
@@ -130,7 +130,7 @@ public:
 
 			// Delete the bar if is going to die
 			// Might be redundant with the destructor but has to be called here or the program crashes somehow
-			zombieController->barNode = RenderController::deleteBarNode(zombieController->barNode);
+			zombieController->barNode = deleteBarNode(zombieController->barNode);
 
 			delete scene->controllers[zombieId];
 			scene->controllers.erase(zombieId);
@@ -170,7 +170,7 @@ public:
 
 		if (hpBar->currFilledFraction <= 0.0) {
 			if (barNode) {
-				barNode = RenderController::deleteBarNode(barNode);
+				barNode = deleteBarNode(barNode);
 			}
 		}
 		else {

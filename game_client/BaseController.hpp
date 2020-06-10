@@ -9,8 +9,8 @@ private:
 	HealthBar* hpBar;
 	SceneNode* barNode;
 
-	int maxHealth;
-	int health;
+	int prevMaxHealth;
+	int prevHealth;
 
 	static constexpr float HP_BAR_TRANSLATE_Y = 3.0;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4);
@@ -35,7 +35,7 @@ public:
 
 	~BaseController() {
 		if (barNode) {
-			barNode = RenderController::deleteBarNode(barNode);
+			barNode = deleteBarNode(barNode);
 		}
 		if (hpBar) { delete hpBar; }
 	}
@@ -49,8 +49,9 @@ public:
 
 		updateHpBar(homeBase, scene);
 
-		this->health = homeBase->health;
-		this->maxHealth = homeBase->maxHealth;
+		// updated at the end
+		this->prevHealth = homeBase->health;
+		this->prevMaxHealth = homeBase->maxHealth;
 	}
 
 	// for base, animation is handled by client due to lack of time, needs refactor
@@ -62,12 +63,12 @@ public:
 
 		if (homeBase->health <= 0) { // dead
 			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DIE, false);
-			if (this->health != homeBase->health) {
+			if (this->prevHealth != homeBase->health) {
 				scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DIE, glm::vec3(rootNode->transform[3]),
 					scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
 			}
 		}
-		else if (this->health != homeBase->health && homeBase->health != homeBase->maxHealth) { // damaged
+		else if (this->prevHealth != homeBase->health && homeBase->health != homeBase->maxHealth) { // damaged
 			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DAMAGED, false);
 			scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DAMAGED, glm::vec3(rootNode->transform[3]),
 				scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
@@ -86,7 +87,7 @@ public:
 
 		if (hpBar->currFilledFraction <= 0.0) {
 			if (barNode) {
-				barNode = RenderController::deleteBarNode(barNode);
+				barNode = deleteBarNode(barNode);
 			}
 		}
 		else {

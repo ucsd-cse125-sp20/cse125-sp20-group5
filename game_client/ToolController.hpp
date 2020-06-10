@@ -22,7 +22,8 @@ public:
 		type = tool->toolType;
 		holderId = 0;
 
-		if (type == Tool::ToolType::WATER_CAN) { // TODO make this a constant
+		switch (type) {
+		case Tool::ToolType::WATER_CAN:
 			modelNode = scene->getModel(ModelType::WATERING_CAN)->createSceneNodes(tool->objectId);
 			modelNode->scaler = WATER_CAN_SCALER;
 
@@ -30,12 +31,12 @@ public:
 			float initBarFilledFraction = 1.0f;
 			HealthBarSetting barSetting("texture/water_icon.png", CAN_BAR_TRANSLATE_Y, initBarFilledFraction, CAN_BAR_COLOR);
 			std::tie(filledBar, barNode) = createHealthBar(barSetting, scene);
-		}
-		else if (type == Tool::ToolType::PLOW) {
+			break;
+		case Tool::ToolType::PLOW:
 			modelNode = scene->getModel(ModelType::SHOVEL)->createSceneNodes(tool->objectId);
 			modelNode->scaler = SHOVEL_SCALER;
-		}
-		else if(type == Tool::ToolType::SEED) {
+			break;
+		case Tool::ToolType::SEED:
 			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
 			modelNode->scaler = SEED_BAG_SCALER;
 
@@ -47,12 +48,12 @@ public:
 			chatText->shouldDisplay = false;
 			chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
 			chatText->autoFadeOff = true;
-		}
-		else if (tool->toolType == Tool::ToolType::PESTICIDE) {
+			break;
+		case Tool::ToolType::PESTICIDE:
 			modelNode = scene->getModel(ModelType::SPRAY)->createSceneNodes(tool->objectId);
 			modelNode->scaler = SPRAY_SCALER;
-		}
-		else if (tool->toolType == Tool::ToolType::FERTILIZER) {
+			break;
+		case Tool::ToolType::FERTILIZER:
 			modelNode = scene->getModel(ModelType::FERTILIZER)->createSceneNodes(tool->objectId);
 			modelNode->scaler = FERTILIZER_SCALER;
 
@@ -61,21 +62,19 @@ public:
 			HealthBarSetting barSetting("texture/time_icon.png", CAN_BAR_TRANSLATE_Y, initBarFilledFraction, COOLDOWN_BAR_COLOR);
 			std::tie(filledBar, barNode) = createHealthBar(barSetting, scene);
 			filledBar->shouldDisplay = false;
+			break;
 		}
-		else {
-			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SEED_BAG_SCALER;
-		}
+
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
 	}
 
 	~ToolController() {
-		if (barNode) { barNode = RenderController::deleteBarNode(barNode); }
+		if (barNode) { barNode = deleteBarNode(barNode); }
 		if (filledBar) delete filledBar;
 		if (pGroup) delete pGroup;
 
-		if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+		if (textNode) { textNode = deleteBarNode(textNode); }
 		if (chatText) { delete chatText; }
 	}
 
@@ -95,7 +94,7 @@ public:
 		updateBar(tool, scene);
 
 		if (tool->toolType == Tool::ToolType::SEED && tool->seedType == Plant::PlantType::PLAYER) {
-			updateChat(tool->playerPlant);
+			updateChat(tool->playerPlant, chatText);
 		}
 	}
 
@@ -142,22 +141,6 @@ public:
 		}
 	}
 
-	void updateChat(Player* player) {
-		// change the text content, if player object has a valid chatId
-		int chatId = player->currChat;
-		if (chatId != Player::NO_CHAT) {
-			chatText->shouldDisplay = true;
-			chatText->alphaValue = chatText->maxAlpha;
-			// reset timer
-			chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
-			chatText->reservedText = chatMessages[chatId];
-		}
-
-		// update the effect of textUI: 
-		// should be handled by DrawableUI::update() when autoFadeOff turned on
-		// TODO
-	}
-
 	void putInHand(SceneNode * handNode, float scaler, glm::vec3 holdVec, glm::vec3 holdPose, Scene * scene) {
 		if (rootNode->parent != handNode) {
 			holderId = handNode->objectId;
@@ -165,14 +148,6 @@ public:
 			rootNode->scaler = 1.0/scaler;
 			rootNode->position = holdVec;
 			rootNode->pose = holdPose;
-		}
-	}
-
-	Drawable * getModelFromType(Tool::ToolType type, Scene * scene) {
-		switch (type) {
-		case Tool::ToolType::PLOW:		return scene->getModel(ModelType::SHOVEL);
-		case Tool::ToolType::WATER_CAN:	return scene->getModel(ModelType::WATERING_CAN);
-		case Tool::ToolType::SEED:		return scene->getModel(ModelType::SEED_BAG);
 		}
 	}
 
@@ -185,7 +160,7 @@ public:
 		return 1.0;
 	}
 
-Tool::ToolType type;
+	Tool::ToolType type;
 
 private:
 	uint holderId;

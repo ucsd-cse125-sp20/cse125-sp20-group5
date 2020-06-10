@@ -128,18 +128,18 @@ public:
     }
 
     ~PlantController() {
-        if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
+        if (gBarNode) { gBarNode = deleteBarNode(gBarNode); }
         if (growthBar) { delete growthBar; }
-        if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
+        if (cBarNode) { cBarNode = deleteBarNode(cBarNode); }
         if (coolDownBar) { delete coolDownBar; }
-        if (hBarNode) { hBarNode = RenderController::deleteBarNode(hBarNode); }
+        if (hBarNode) { hBarNode = deleteBarNode(hBarNode); }
         if (hpBar) { delete hpBar; }
-        if (pBarNode) { pBarNode = RenderController::deleteBarNode(pBarNode); }
+        if (pBarNode) { pBarNode = deleteBarNode(pBarNode); }
         if (pesticideBar) { delete pesticideBar; }
-        if (fBarNode) { fBarNode = RenderController::deleteBarNode(fBarNode); }
+        if (fBarNode) { fBarNode = deleteBarNode(fBarNode); }
         if (fertilizeBar) { delete fertilizeBar; }
 
-        if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+        if (textNode) { textNode = deleteBarNode(textNode); }
         if (chatText) { delete chatText; }
         //if (levelText) { delete levelText; }
 
@@ -153,6 +153,11 @@ public:
         if (currGrowStage != plant->growStage) {
             updatePlantModel(plant, scene);
             currGrowStage = plant->growStage;
+        }
+
+        // Update the chat message if is a player plant, assuming a player plant will never be in GROWN stage
+        if (plant->plantType == Plant::PlantType::PLAYER) {
+            updateChat(plant->playerPlant, chatText);
         }
 
         // Load new data provided by server
@@ -176,7 +181,6 @@ public:
             case Plant::GrowStage::SEED:
                 if (plant->plantType == Plant::PlantType::PLAYER) {
                     modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId); 
-                    updateChat(plant->playerPlant);
                 }
                 else {
                     modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
@@ -189,7 +193,6 @@ public:
                     modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
                     gBarNode->position.y = 0.5;
                     cBarNode->position.y = 0.5;
-                    updateChat(plant->playerPlant);
                     textNode->position.y = 1.2;
                 }
                 else {
@@ -201,7 +204,6 @@ public:
                 if (plant->plantType == Plant::PlantType::PLAYER) {
                     modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
                     modelNode->scaler = SAPLING_SCALER;
-                    updateChat(plant->playerPlant);
                 }
                 else if (plant->plantType == Plant::PlantType::CORN) {
                     modelNode = scene->getModel(ModelType::BABY_CORN)->createSceneNodes(objectId);
@@ -231,27 +233,11 @@ public:
         rootNode->addChild(modelNode);
     }
 
-    void updateChat(Player* player) {
-        // change the text content, if player object has a valid chatId
-        int chatId = player->currChat;
-        if (chatId != Player::NO_CHAT) {
-            chatText->shouldDisplay = true;
-            chatText->alphaValue = chatText->maxAlpha;
-            // reset timer
-            chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
-            chatText->reservedText = chatMessages[chatId];
-        }
-
-        // update the effect of textUI: 
-        // should be handled by DrawableUI::update() when autoFadeOff turned on
-        // TODO
-    }
-
     void updateUIs(Plant* plant, Scene* scene) {
         if (plant->growStage == Plant::GrowStage::GROWN) {
             // delete all growth-related bar
-            if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
-            if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
+            if (gBarNode) { gBarNode = deleteBarNode(gBarNode); }
+            if (cBarNode) { cBarNode = deleteBarNode(cBarNode); }
 
             // update hp bar
             hpBar->shouldDisplay = true;
@@ -310,6 +296,7 @@ public:
                 float oldFraction = growthBar->filledFraction;
                 float newFraction = plant->growProgressTime / plant->growExpireTime;
                 growthBar->updateBar(newFraction);
+
                 // audio
                 if (oldFraction != newFraction
                     && !scene->aEngine->IsPlaying(AUDIO_FILE_WATERING)) {

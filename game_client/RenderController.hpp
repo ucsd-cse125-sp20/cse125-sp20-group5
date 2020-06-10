@@ -12,6 +12,7 @@
 #include "Drawable.h"
 #include "DrawableUI.h"
 #include "HealthBar.h"
+#include "TextUI.h"
 
 
 class Scene; //  put declaration here to sidestep header issues
@@ -44,7 +45,9 @@ public:
 
 
     virtual void update(GameObject* gameObject, Scene* scene) {};
-   
+
+    /* Helpers */
+
     // Init the healthbar object and add its node to the scene graph and the uiNode vector
     std::pair<HealthBar*, SceneNode*> createHealthBar(HealthBarSetting barSetting, Scene* scene) {
         HealthBar* barObject = new HealthBar(
@@ -68,6 +71,31 @@ public:
         return std::pair<TextUI*, SceneNode*>(textObject, textNode);
     }
 
+    // Always return nullptr which should be assigned to the original barNode class member
+    SceneNode* deleteBarNode(SceneNode* barNode) {
+        if (barNode) {
+            uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
+        }
+        return nullptr;
+    }
+
+    void updateChat(Player* player, TextUI* chatText) {
+        // change the text content, if player object has a valid chatId
+        int chatId = player->currChat;
+        if (chatId != Player::NO_CHAT) {
+            chatText->shouldDisplay = true;
+            chatText->alphaValue = chatText->maxAlpha;
+            // reset timer
+            chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
+            chatText->reservedText = chatMessages[chatId];
+        }
+
+        // Update the effect of textUI: 
+        // should be handled by DrawableUI::update() when autoFadeOff turned on
+    }
+
+    /* Static */
+
     static std::vector<SceneNode*> uiNodes;
 
     static void drawUI(const glm::mat4& viewProjMtx) {
@@ -77,14 +105,6 @@ public:
             uiNode->draw(viewProjMtx);
         }
         DrawableUI::isDrawUiMode = false;
-    }
-
-    // Always return nullptr which should be assigned to the original barNode class member
-    static SceneNode* deleteBarNode(SceneNode* barNode) {
-        if (barNode) {
-            uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
-        }
-        return nullptr;
     }
 
     const static std::string chatMessages[16];
