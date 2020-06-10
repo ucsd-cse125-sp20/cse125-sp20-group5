@@ -1014,8 +1014,9 @@ public:
 
             if (reachedFinalTile) {
                 homeBase->health--;
-                //homeBase->animation->animationType = HomeBase::HomeBaseAnimation::DAMAGED;
+                homeBase->animation->animationType = HomeBase::HomeBaseAnimation::DAMAGED;
                 std::cout << "Health of base is " << homeBase->health << "/" << homeBase->maxHealth << std::endl;
+                std::cout << "---HomeBase animation is " << homeBase->animation->animationType << std::endl;
                 i = zombies.erase(i);
                 continue;
             }
@@ -1460,10 +1461,11 @@ public:
         }
 
         bool isHomeBaseDead = false;
-        //homeBase->animation->animationType = HomeBase::HomeBaseAnimation::STAY;
+        homeBase->animation->animationType = HomeBase::HomeBaseAnimation::STAY;
         if (homeBase->health <= 0) {
             isHomeBaseDead = true;
-            //homeBase->animation->animationType = HomeBase::HomeBaseAnimation::DIE;
+            homeBase->animation->animationType = HomeBase::HomeBaseAnimation::DIE;
+            std::cout << "---HomeBase animation is " << homeBase->animation->animationType << std::endl;
         }
 
         return areAllPlayersDead || isHomeBaseDead;

@@ -44,6 +44,8 @@ public:
 		HomeBase* homeBase = (HomeBase*) gameObject;
 
 		rootNode->loadGameObject(homeBase);
+		if (homeBase->animation->animationType != HomeBase::STAY)
+			std::cout << "WWWWWWOOOOOOWWWW" << homeBase->animation->animationType << std::endl;
 
 		updateAnimationAndAudio(homeBase, scene);
 
