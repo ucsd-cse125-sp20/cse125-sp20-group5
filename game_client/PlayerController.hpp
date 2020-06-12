@@ -33,8 +33,8 @@ private:
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
 	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.8f;
 
-	static constexpr glm::vec3 FELINE_PLOUGH_VEC = glm::vec3(0,2.0,0);
-	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14, 1, 3.14/1.5);
+	static constexpr glm::vec3 FELINE_PLOUGH_VEC = glm::vec3(0.0,2.0,0);
+	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14, 1.8, 3.14/1.5);
 
 public:
 	PlayerController(Player* player, Scene* scene) {
