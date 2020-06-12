@@ -49,7 +49,7 @@ public:
         ar & activeTime;
         ar & deathTime;
         ar & level;
-        ar& boost::serialization::base_object<GameObject>(*playerPlant);
+        ar & playerPlant;
     }
 
     ~Plant() {

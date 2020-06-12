@@ -28,7 +28,7 @@ public:
         ar & capacity;
         ar & fertilizerCurrTime;
         ar & fertilizerCooldownTime;
-        ar& boost::serialization::base_object<GameObject>(*playerPlant);
+        ar & playerPlant;
     }
 
     ~Tool() {

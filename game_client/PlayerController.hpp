@@ -7,13 +7,13 @@
 
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
 #define SEED_BAG_HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
-#define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
-#define FELINE_SHOVEL_HOLD_VEC glm::vec3(-.6, 1.7, 2.1)
 #define SPRAY_HOLD_VEC glm::vec3(-.5, -1.5, 0.3)
 #define FERTILIZER_HOLD_VEC glm::vec3(-.5, .5, 0.3)
-
 #define FERTILIZER_HOLD_ANGLE glm::vec3(3.14/2, 3.14/2, 0)
+#define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
+
+#define FELINE_SHOVEL_HOLD_VEC glm::vec3(-.6, 1.7, 2.1)
 #define FELINE_SHOVEL_HOLD_ANGLE glm::vec3(0.5,3.14/2,-2.8/2)
 
 static constexpr float HP_BAR_TRANSLATE_Y = 1.9;
@@ -31,9 +31,10 @@ private:
 	SceneNode* textNode;
 
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
-	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.9f;
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.8f;
 
-	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14/2, 0, 3.14/2);
+	static constexpr glm::vec3 FELINE_PLOUGH_VEC = glm::vec3(0,2.0,0);
+	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14, 1, 3.14/1.5);
 
 public:
 	PlayerController(Player* player, Scene* scene) {
@@ -73,9 +74,9 @@ public:
 	}
 
 	~PlayerController() {
-		if (barNode) { barNode = deleteBarNode(barNode); }
+		if (barNode) { barNode = deleteUiNode(barNode); }
 		if (hpBar) { delete hpBar; }
-		if (textNode) { textNode = deleteBarNode(textNode); }
+		if (textNode) { textNode = deleteUiNode(textNode); }
 		if (chatText) { delete chatText; }
 	}
 
@@ -97,17 +98,11 @@ public:
 
 	void processDeath(Player* player, Scene* scene) {
 		if (player->isDead) {
-			if (modelNode != nullptr) {
-				modelNode->removeSelf();
-			}
+			if (modelNode != nullptr) { modelNode->removeSelf(); }
+			if (textNode != nullptr && std::find(uiNodes.begin(), uiNodes.end(), textNode) != uiNodes.end()) { deleteUiNode(textNode); }
 		} else {
-			// if a player model never has been created
-			if (modelNode == nullptr) {
-				modelNode = scene->getModel(modelType)->createSceneNodes(player->objectId);
-			}
-			if (modelNode->childNum == -1) {
-				rootNode->addChild(modelNode);
-			}
+			if (modelNode->childNum == -1) { rootNode->addChild(modelNode); }
+			if (std::find(uiNodes.begin(), uiNodes.end(), textNode) == uiNodes.end()) { uiNodes.push_back(textNode); }
 		}
 	}
 
@@ -134,7 +129,7 @@ public:
 			case Tool::ToolType::PLOW:
 				if (this->isFeline()) {
 					if (modelNode->animationId == Player::PlayerAnimation::PLOUGH) {
-						controller->putInHand(playerHand, playerScaler, glm::vec3(0), FELINE_PLOUGH_ANGLE, scene);
+						controller->putInHand(playerHand, playerScaler, FELINE_PLOUGH_VEC, FELINE_PLOUGH_ANGLE, scene);
 					} else {
 						controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
 					}

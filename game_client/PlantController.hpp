@@ -51,11 +51,11 @@ private:
     SceneNode* textNode;
 
     static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0.2); // grey
-    static constexpr float CHAT_TEXT_TRANSLATE_Y = 1.0f;
+    static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.0f;
 
-    static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
+    static constexpr float WATERING_BAR_TRANSLATE_Y = 1.0;
     static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0); // blue
-    static constexpr float COOLDOWN_BAR_TRANSLATE_Y = 1.3;
+    static constexpr float COOLDOWN_BAR_TRANSLATE_Y = 1.0;
     static constexpr glm::vec3 COOLDOWN_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6); // grey
     static constexpr float HP_BAR_TRANSLATE_Y = 2.0;
     static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4); // green
@@ -127,18 +127,18 @@ public:
     }
 
     ~PlantController() {
-        if (gBarNode) { gBarNode = deleteBarNode(gBarNode); }
+        if (gBarNode) { gBarNode = deleteUiNode(gBarNode); }
         if (growthBar) { delete growthBar; }
-        if (cBarNode) { cBarNode = deleteBarNode(cBarNode); }
+        if (cBarNode) { cBarNode = deleteUiNode(cBarNode); }
         if (coolDownBar) { delete coolDownBar; }
-        if (hBarNode) { hBarNode = deleteBarNode(hBarNode); }
+        if (hBarNode) { hBarNode = deleteUiNode(hBarNode); }
         if (hpBar) { delete hpBar; }
-        if (pBarNode) { pBarNode = deleteBarNode(pBarNode); }
+        if (pBarNode) { pBarNode = deleteUiNode(pBarNode); }
         if (pesticideBar) { delete pesticideBar; }
-        if (fBarNode) { fBarNode = deleteBarNode(fBarNode); }
+        if (fBarNode) { fBarNode = deleteUiNode(fBarNode); }
         if (fertilizeBar) { delete fertilizeBar; }
 
-        if (textNode) { textNode = deleteBarNode(textNode); }
+        if (textNode) { textNode = deleteUiNode(textNode); }
         if (chatText) { delete chatText; }
         //if (levelText) { delete levelText; }
 
@@ -235,8 +235,8 @@ public:
     void updateUIs(Plant* plant, Scene* scene) {
         if (plant->growStage == Plant::GrowStage::GROWN) {
             // delete all growth-related bar
-            if (gBarNode) { gBarNode = deleteBarNode(gBarNode); }
-            if (cBarNode) { cBarNode = deleteBarNode(cBarNode); }
+            if (gBarNode) { gBarNode = deleteUiNode(gBarNode); }
+            if (cBarNode) { cBarNode = deleteUiNode(cBarNode); }
 
             // update hp bar
             hpBar->shouldDisplay = true;

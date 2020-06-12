@@ -35,7 +35,7 @@ public:
 
 	~BaseController() {
 		if (barNode) {
-			barNode = deleteBarNode(barNode);
+			barNode = deleteUiNode(barNode);
 		}
 		if (hpBar) { delete hpBar; }
 	}
@@ -44,8 +44,6 @@ public:
 		HomeBase* homeBase = (HomeBase*) gameObject;
 
 		rootNode->loadGameObject(homeBase);
-		if (homeBase->animation->animationType != HomeBase::STAY)
-			std::cout << "WWWWWWOOOOOOWWWW" << homeBase->animation->animationType << std::endl;
 
 		updateAnimationAndAudio(homeBase, scene);
 
@@ -63,22 +61,25 @@ public:
 			return; // data hasn't been received from server yet
 		}
 
-		if (homeBase->health <= 0) { // dead
-			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DIE, false);
+		int newAnimID = homeBase->animation->animationType;
+		switch (newAnimID) {
+		case HomeBase::HomeBaseAnimation::DIE:
+			modelNode->switchAnim(newAnimID, false);
 			if (this->prevHealth != homeBase->health) {
 				scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DIE, glm::vec3(rootNode->transform[3]),
 					scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
 			}
-		}
-		else if (this->prevHealth != homeBase->health && homeBase->health != homeBase->maxHealth) { // damaged
-			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DAMAGED, false);
+			break;
+		case HomeBase::HomeBaseAnimation::DAMAGED:
+			modelNode->switchAnim(newAnimID, false);
 			scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DAMAGED, glm::vec3(rootNode->transform[3]),
 				scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
-		}
-		else {
+			break;
+		case HomeBase::HomeBaseAnimation::STAY:
 			if (modelNode->playedOneAnimCycle) {
-				modelNode->switchAnim(HomeBase::HomeBaseAnimation::STAY);
+				modelNode->switchAnim(newAnimID);
 			}
+			break;
 		}
 	}
 
@@ -89,7 +90,7 @@ public:
 
 		if (hpBar->currFilledFraction <= 0.0) {
 			if (barNode) {
-				barNode = deleteBarNode(barNode);
+				barNode = deleteUiNode(barNode);
 			}
 		}
 		else {

@@ -73,11 +73,11 @@ public:
 	}
 
 	~ToolController() {
-		if (barNode) { barNode = deleteBarNode(barNode); }
+		if (barNode) { barNode = deleteUiNode(barNode); }
 		if (filledBar) delete filledBar;
 		if (pGroup) delete pGroup;
 
-		if (textNode) { textNode = deleteBarNode(textNode); }
+		if (textNode) { textNode = deleteUiNode(textNode); }
 		if (chatText) { delete chatText; }
 	}
 
@@ -148,10 +148,10 @@ public:
 		if (rootNode->parent != handNode) {
 			holderId = handNode->objectId;
 			handNode->addChild(rootNode);
-			rootNode->scaler = 1.0/scaler;
-			rootNode->position = holdVec;
-			rootNode->pose = holdPose;
 		}
+		rootNode->scaler = 1.0/scaler;
+		rootNode->position = holdVec;
+		rootNode->pose = holdPose;
 	}
 
 	float getScalerFromType(Tool::ToolType type) {
@@ -180,6 +180,6 @@ private:
 	SceneNode* textNode;
 
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0.2); // grey
-	static constexpr float CHAT_TEXT_TRANSLATE_Y = 1.2f;
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 1.5f;
 
 };

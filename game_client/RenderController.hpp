@@ -72,9 +72,9 @@ public:
     }
 
     // Always return nullptr which should be assigned to the original barNode class member
-    SceneNode* deleteBarNode(SceneNode* barNode) {
-        if (barNode) {
-            uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), barNode));
+    SceneNode* deleteUiNode(SceneNode* uiNode) {
+        if (uiNode) {
+            uiNodes.erase(std::find(uiNodes.begin(), uiNodes.end(), uiNode));
         }
         return nullptr;
     }
