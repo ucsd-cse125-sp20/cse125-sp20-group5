@@ -49,6 +49,7 @@ public:
         ar & activeTime;
         ar & deathTime;
         ar & level;
+        ar & playerPlant;
     }
 
     ~Plant() {

@@ -39,6 +39,7 @@ public:
         ar & highlightTileCol;
         ar & invincibleTime;
         ar & currChat;
+        ar & isGolden;
     }
 
     ~Player() {
@@ -47,6 +48,7 @@ public:
 
     Color* color;
     int playerId;
+    bool isGolden; // 30% turned on, if cat model, then will be golden
 
     int health;
     int maxHealth;

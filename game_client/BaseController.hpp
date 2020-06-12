@@ -9,8 +9,8 @@ private:
 	HealthBar* hpBar;
 	SceneNode* barNode;
 
-	int maxHealth;
-	int health;
+	int prevMaxHealth;
+	int prevHealth;
 
 	static constexpr float HP_BAR_TRANSLATE_Y = 3.0;
 	static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4);
@@ -35,7 +35,7 @@ public:
 
 	~BaseController() {
 		if (barNode) {
-			barNode = RenderController::deleteBarNode(barNode);
+			barNode = deleteUiNode(barNode);
 		}
 		if (hpBar) { delete hpBar; }
 	}
@@ -49,8 +49,9 @@ public:
 
 		updateHpBar(homeBase, scene);
 
-		this->health = homeBase->health;
-		this->maxHealth = homeBase->maxHealth;
+		// updated at the end
+		this->prevHealth = homeBase->health;
+		this->prevMaxHealth = homeBase->maxHealth;
 	}
 
 	// for base, animation is handled by client due to lack of time, needs refactor
@@ -60,22 +61,25 @@ public:
 			return; // data hasn't been received from server yet
 		}
 
-		if (homeBase->health <= 0) { // dead
-			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DIE, false);
-			if (this->health != homeBase->health) {
+		int newAnimID = homeBase->animation->animationType;
+		switch (newAnimID) {
+		case HomeBase::HomeBaseAnimation::DIE:
+			modelNode->switchAnim(newAnimID, false);
+			if (this->prevHealth != homeBase->health) {
 				scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DIE, glm::vec3(rootNode->transform[3]),
 					scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
 			}
-		}
-		else if (this->health != homeBase->health && homeBase->health != homeBase->maxHealth) { // damaged
-			modelNode->switchAnim(HomeBase::HomeBaseAnimation::DAMAGED, false);
+			break;
+		case HomeBase::HomeBaseAnimation::DAMAGED:
+			modelNode->switchAnim(newAnimID, false);
 			scene->aEngine->PlaySounds(AUDIO_FILE_HOMEBASE_DAMAGED, glm::vec3(rootNode->transform[3]),
 				scene->aEngine->VolumeTodB(scene->volumeAdjust * 1.5f));
-		}
-		else {
+			break;
+		case HomeBase::HomeBaseAnimation::STAY:
 			if (modelNode->playedOneAnimCycle) {
-				modelNode->switchAnim(HomeBase::HomeBaseAnimation::STAY);
+				modelNode->switchAnim(newAnimID);
 			}
+			break;
 		}
 	}
 
@@ -86,7 +90,7 @@ public:
 
 		if (hpBar->currFilledFraction <= 0.0) {
 			if (barNode) {
-				barNode = RenderController::deleteBarNode(barNode);
+				barNode = deleteUiNode(barNode);
 			}
 		}
 		else {

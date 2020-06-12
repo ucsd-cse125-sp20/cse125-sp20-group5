@@ -7,13 +7,13 @@
 
 #define WATER_CAN_HOLD_VEC glm::vec3(-1.0, 0.0, 0.0)
 #define SEED_BAG_HOLD_VEC glm::vec3(-1.0,-1.0,0.0)
-#define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
-#define FELINE_SHOVEL_HOLD_VEC glm::vec3(-.6, 1.7, 2.1)
 #define SPRAY_HOLD_VEC glm::vec3(-.5, -1.5, 0.3)
 #define FERTILIZER_HOLD_VEC glm::vec3(-.5, .5, 0.3)
-
-#define FERTILIZER_HOLD_ANGLE glm::vec3(3.14/2, 0, 0)
+#define FERTILIZER_HOLD_ANGLE glm::vec3(3.14/2, 3.14/2, 0)
+#define SHOVEL_HOLD_VEC glm::vec3(0.0, 0.0, 0.0)
 #define SHOVEL_HOLD_ANGLE glm::vec3(0,0,3.14/2)
+
+#define FELINE_SHOVEL_HOLD_VEC glm::vec3(-.6, 1.7, 2.1)
 #define FELINE_SHOVEL_HOLD_ANGLE glm::vec3(0.5,3.14/2,-2.8/2)
 
 static constexpr float HP_BAR_TRANSLATE_Y = 1.9;
@@ -31,11 +31,11 @@ private:
 	SceneNode* textNode;
 
 	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0); // black
-	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.9f; // black
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.8f;
 
-	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14/2, 0, 3.14/2);
+	static constexpr glm::vec3 FELINE_PLOUGH_VEC = glm::vec3(0.0,2.0,0);
+	static constexpr glm::vec3 FELINE_PLOUGH_ANGLE = glm::vec3(3.14, 1.8, 3.14/1.5);
 
-	const static std::string chatMessages[16];
 public:
 	PlayerController(Player* player, Scene* scene) {
 		this->playerScaler = scene->config.playerScaler;
@@ -43,7 +43,7 @@ public:
 		// determine model type based on player ID
 		this->playerId = player->playerId;
 		switch (playerId % 4) {
-			case 0: modelType = ModelType::SECRET_CAT; break;
+			case 0: modelType = (player->isGolden) ? ModelType::SECRET_CAT : ModelType::CAT; break;
 			case 1: modelType = ModelType::CHICKEN; break; 
 			case 2: modelType = ModelType::TIGER; break;
 			case 3: modelType = ModelType::BLACKPIG; break;
@@ -74,88 +74,79 @@ public:
 	}
 
 	~PlayerController() {
-		if (barNode) { barNode = RenderController::deleteBarNode(barNode); }
+		if (barNode) { barNode = deleteUiNode(barNode); }
 		if (hpBar) { delete hpBar; }
-		if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
+		if (textNode) { textNode = deleteUiNode(textNode); }
 		if (chatText) { delete chatText; }
 	}
 
 	void update(GameObject * gameObject, Scene * scene) override {
 		Player* player = (Player*) gameObject;
 		
-		if (player->isDead) {
-			if (modelNode != nullptr) {
-				modelNode->removeSelf();
-			}
-		}
-		if (!player->isDead) {
-			//modelNode = scene->getModel(modelType)->createSceneNodes(player->objectId);
-			if (modelNode->childNum == -1)
-				rootNode->addChild(modelNode);
-		}
+		processDeath(player, scene);
 
-		updateChat(player);
+		updateChat(player, chatText);
 
 		rootNode->loadGameObject(player);
-		bool dontLoop = (modelType == ModelType::CAT || modelType == ModelType::TIGER || modelType == ModelType::SECRET_CAT)
-			&& player->animation->animationType == Player::PlayerAnimation::PLOUGH;
-		modelNode->switchAnim(player->animation->animationType, !dontLoop);
+
+		updateAnimation(player);
 
 		handleHoldingAction(player, scene);
 		handleHighlighting(player, scene);
 		updateHpBar(player, scene);
 	}
 
-	void updateChat(Player* player) {
-		// change the text content, if player object has a valid chatId
-		int chatId = player->currChat;
-		if (chatId != Player::NO_CHAT) {
-			chatText->shouldDisplay = true;
-			chatText->alphaValue = chatText->maxAlpha;
-			// reset timer
-			chatText->maxAlphaStartTime = std::chrono::system_clock::now(); // to allow new text be rendered for awhile
-			chatText->reservedText = chatMessages[chatId];
+	void processDeath(Player* player, Scene* scene) {
+		if (player->isDead) {
+			if (modelNode != nullptr) { modelNode->removeSelf(); }
+			if (textNode != nullptr && std::find(uiNodes.begin(), uiNodes.end(), textNode) != uiNodes.end()) { deleteUiNode(textNode); }
+		} else {
+			if (modelNode->childNum == -1) { rootNode->addChild(modelNode); }
+			if (std::find(uiNodes.begin(), uiNodes.end(), textNode) == uiNodes.end()) { uiNodes.push_back(textNode); }
 		}
+	}
 
-		// update the effect of textUI: 
-		// should be handled by DrawableUI::update() when autoFadeOff turned on
-		// TODO
+	// for base, animation is handled by client due to lack of time, needs refactor
+	void updateAnimation(Player* player) {
+		bool dontLoop = isFeline() && player->animation->animationType == Player::PlayerAnimation::PLOUGH;
+		modelNode->switchAnim(player->animation->animationType, !dontLoop);
 	}
 
 	// here is wehre we handle stuff like making sure they are holding another object
 	void handleHoldingAction(Player* player, Scene* scene) {
-		if (!player->holding) {
-			return;
-		}
+		if (!player->holding) { return; }
+		if (scene->controllers.count(player->heldObject) <= 0) { return; }
 
-		if (scene->controllers.count(player->heldObject) > 0) {
-			ToolController* controller = (ToolController*)(scene->controllers[player->heldObject]);
-			SceneNode* playerHand = modelNode->find("j_r_hand", modelNode->objectId);
-			if (playerHand != NULL) {
-				if (controller->type == Tool::ToolType::WATER_CAN) {
-					controller->putInHand(playerHand, playerScaler, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
-				}
-				else if (controller->type == Tool::ToolType::PLOW) {
-					if (modelNode->obj == scene->getModel(ModelType::CAT) || modelNode->obj == scene->getModel(ModelType::TIGER) || modelType == ModelType::SECRET_CAT) {
-						if (modelNode->animationId == Player::PlayerAnimation::PLOUGH)
-							controller->putInHand(playerHand, playerScaler, glm::vec3(0), FELINE_PLOUGH_ANGLE, scene);
-						else
-							controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
+		ToolController* controller = (ToolController*)(scene->controllers[player->heldObject]);
+		SceneNode* playerHand = modelNode->find("j_r_hand", modelNode->objectId);
+
+		if (playerHand == NULL) { return; }
+
+		switch (controller->type) {
+			case Tool::ToolType::WATER_CAN:
+				controller->putInHand(playerHand, playerScaler, WATER_CAN_HOLD_VEC, glm::vec3(0), scene);
+				break;
+			case Tool::ToolType::PLOW:
+				if (this->isFeline()) {
+					if (modelNode->animationId == Player::PlayerAnimation::PLOUGH) {
+						controller->putInHand(playerHand, playerScaler, FELINE_PLOUGH_VEC, FELINE_PLOUGH_ANGLE, scene);
+					} else {
+						controller->putInHand(playerHand, playerScaler, FELINE_SHOVEL_HOLD_VEC, FELINE_SHOVEL_HOLD_ANGLE, scene);
 					}
-					else {
-						controller->putInHand(playerHand, playerScaler, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
-					}
 				}
-				else if (controller->type == Tool::ToolType::SEED) {
-					controller->putInHand(playerHand, playerScaler, SEED_BAG_HOLD_VEC, glm::vec3(0), scene);
+				else {
+					controller->putInHand(playerHand, playerScaler, SHOVEL_HOLD_VEC, SHOVEL_HOLD_ANGLE, scene);
 				}
-				else if (controller->type == Tool::ToolType::PESTICIDE) {
-					controller->putInHand(playerHand, playerScaler, SPRAY_HOLD_VEC, glm::vec3(0), scene);
-				}
-				else if (controller->type == Tool::ToolType::FERTILIZER) {
-					controller->putInHand(playerHand, playerScaler, FERTILIZER_HOLD_VEC, FERTILIZER_HOLD_ANGLE, scene);
-				}
-			}
+				break;
+			case Tool::ToolType::SEED:
+				controller->putInHand(playerHand, playerScaler, SEED_BAG_HOLD_VEC, glm::vec3(0), scene);
+				break;
+			case Tool::ToolType::PESTICIDE:
+				controller->putInHand(playerHand, playerScaler, SPRAY_HOLD_VEC, glm::vec3(0), scene);
+				break;
+			case Tool::ToolType::FERTILIZER:
+				controller->putInHand(playerHand, playerScaler, FERTILIZER_HOLD_VEC, FERTILIZER_HOLD_ANGLE, scene);
+				break;
 		}
 	}
 
@@ -182,15 +173,8 @@ public:
 		hpBar->shouldDisplay = !player->isDead;
 		hpBar->updateBar((float)player->health / (float)player->maxHealth);
 	}
-};
 
-const std::string PlayerController::chatMessages[16] = {
-	"You suck", "Water", "Shovel", "Pesticide", "Fertilizer", // 0~4
-	"Come on", "Help", "I'm so dead", "Thanks", "Good job", // 5~9
-	"Thank you for the quarter!", // secret
-	"Thank you for the quarter!", // alex Zhu
-	"Thank you for the quarter!", // arun sUgUmar
-	"Thank you for the quarter!", // Joyaan
-	"Thank you for the quarter!", // Mingqi
-	"Thank you for the quarter!" // Yang
+	bool isFeline() {
+		return modelType == ModelType::CAT || modelType == ModelType::TIGER || modelType == ModelType::SECRET_CAT;
+	}
 };

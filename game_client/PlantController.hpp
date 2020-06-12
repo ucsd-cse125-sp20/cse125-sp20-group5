@@ -35,22 +35,27 @@ private:
     HealthBar* hpBar;
     HealthBar* pesticideBar;
     HealthBar* fertilizeBar;
-    TextUI* levelText;
     SceneNode* gBarNode;
     SceneNode* cBarNode;
     SceneNode* hBarNode;
     SceneNode* pBarNode;
     SceneNode* fBarNode;
-    SceneNode* textNode;
 
     ParticleGroup* pGroup;
     SceneNode* particleNode;
 
     Plant::GrowStage currGrowStage;
 
-    static constexpr float WATERING_BAR_TRANSLATE_Y = 1.3;
+    TextUI* chatText;
+    TextUI* levelText; // not used
+    SceneNode* textNode;
+
+    static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0.2); // grey
+    static constexpr float CHAT_TEXT_TRANSLATE_Y = 2.0f;
+
+    static constexpr float WATERING_BAR_TRANSLATE_Y = 1.0;
     static constexpr glm::vec3 WATERING_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0); // blue
-    static constexpr float COOLDOWN_BAR_TRANSLATE_Y = 1.3;
+    static constexpr float COOLDOWN_BAR_TRANSLATE_Y = 1.0;
     static constexpr glm::vec3 COOLDOWN_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6); // grey
     static constexpr float HP_BAR_TRANSLATE_Y = 2.0;
     static constexpr glm::vec3 HP_BAR_COLOR = glm::vec3(0.3, 1.0, 0.4); // green
@@ -101,6 +106,7 @@ public:
         fertilizeBar->shouldDisplay = false;
         fertilizeBar->fillingStep /= 5.0f;
         fertilizeBar->setAlphaSetting(true, 0.0f, fertilizeBar->alphaStep);
+        /*
         // init fertilize level text
         std::tie(levelText, textNode) = createTextUI(
             FontType::CHUNK, FERTILIZE_BAR_COLOR, 
@@ -108,22 +114,33 @@ public:
         );
         levelText->shouldDisplay = fertilizeBar->shouldDisplay;
         levelText->setAlphaSetting(fertilizeBar->alphaEffectOn, fertilizeBar->alphaValue, fertilizeBar->alphaStep);
+        */
+
+        // init chat text
+        std::tie(chatText, textNode) = createTextUI(
+            FontType::CHUNK, CHAT_TEXT_COLOR,
+            glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
+        );
+        chatText->shouldDisplay = false;
+        chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
+        chatText->autoFadeOff = true;
     }
 
     ~PlantController() {
-        if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
+        if (gBarNode) { gBarNode = deleteUiNode(gBarNode); }
         if (growthBar) { delete growthBar; }
-        if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
+        if (cBarNode) { cBarNode = deleteUiNode(cBarNode); }
         if (coolDownBar) { delete coolDownBar; }
-        if (hBarNode) { hBarNode = RenderController::deleteBarNode(hBarNode); }
+        if (hBarNode) { hBarNode = deleteUiNode(hBarNode); }
         if (hpBar) { delete hpBar; }
-        if (pBarNode) { pBarNode = RenderController::deleteBarNode(pBarNode); }
+        if (pBarNode) { pBarNode = deleteUiNode(pBarNode); }
         if (pesticideBar) { delete pesticideBar; }
-        if (fBarNode) { fBarNode = RenderController::deleteBarNode(fBarNode); }
+        if (fBarNode) { fBarNode = deleteUiNode(fBarNode); }
         if (fertilizeBar) { delete fertilizeBar; }
 
-        if (textNode) { textNode = RenderController::deleteBarNode(textNode); }
-        if (levelText) { delete levelText; }
+        if (textNode) { textNode = deleteUiNode(textNode); }
+        if (chatText) { delete chatText; }
+        //if (levelText) { delete levelText; }
 
         delete pGroup;
     }
@@ -135,6 +152,11 @@ public:
         if (currGrowStage != plant->growStage) {
             updatePlantModel(plant, scene);
             currGrowStage = plant->growStage;
+        }
+
+        // Update the chat message if is a player plant, assuming a player plant will never be in GROWN stage
+        if (plant->plantType == Plant::PlantType::PLAYER) {
+            updateChat(plant->playerPlant, chatText);
         }
 
         // Load new data provided by server
@@ -157,7 +179,7 @@ public:
         switch (plant->growStage) {
             case Plant::GrowStage::SEED:
                 if (plant->plantType == Plant::PlantType::PLAYER) {
-                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
+                    modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId); 
                 }
                 else {
                     modelNode = scene->getModel(ModelType::SEED)->createSceneNodes(objectId);
@@ -170,6 +192,7 @@ public:
                     modelNode = scene->getModel(ModelType::BABY_PLAYER_PLANT)->createSceneNodes(objectId);
                     gBarNode->position.y = 0.5;
                     cBarNode->position.y = 0.5;
+                    textNode->position.y = 1.2;
                 }
                 else {
                     modelNode = scene->getModel(ModelType::SAPLING)->createSceneNodes(objectId);
@@ -212,8 +235,8 @@ public:
     void updateUIs(Plant* plant, Scene* scene) {
         if (plant->growStage == Plant::GrowStage::GROWN) {
             // delete all growth-related bar
-            if (gBarNode) { gBarNode = RenderController::deleteBarNode(gBarNode); }
-            if (cBarNode) { cBarNode = RenderController::deleteBarNode(cBarNode); }
+            if (gBarNode) { gBarNode = deleteUiNode(gBarNode); }
+            if (cBarNode) { cBarNode = deleteUiNode(cBarNode); }
 
             // update hp bar
             hpBar->shouldDisplay = true;
@@ -272,6 +295,7 @@ public:
                 float oldFraction = growthBar->filledFraction;
                 float newFraction = plant->growProgressTime / plant->growExpireTime;
                 growthBar->updateBar(newFraction);
+
                 // audio
                 if (oldFraction != newFraction
                     && !scene->aEngine->IsPlaying(AUDIO_FILE_WATERING)) {

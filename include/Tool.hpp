@@ -28,6 +28,7 @@ public:
         ar & capacity;
         ar & fertilizerCurrTime;
         ar & fertilizerCooldownTime;
+        ar & playerPlant;
     }
 
     ~Tool() {

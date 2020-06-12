@@ -3,6 +3,7 @@
 #include <Tool.hpp>
 #include "Scene.h"
 #include "HealthBar.h"
+#include "TextUI.h"
 
 #define SEED_BAG_SCALER 0.2
 #define WATER_CAN_SCALER 0.35
@@ -21,49 +22,63 @@ public:
 		type = tool->toolType;
 		holderId = 0;
 
-		if (type == Tool::ToolType::WATER_CAN) { // TODO make this a constant
-			modelNode = scene->getModel(ModelType::WATERING_CAN)->createSceneNodes(tool->objectId);
-			modelNode->scaler = WATER_CAN_SCALER;
+		switch (type) {
+			case Tool::ToolType::WATER_CAN: {
+				modelNode = scene->getModel(ModelType::WATERING_CAN)->createSceneNodes(tool->objectId);
+				modelNode->scaler = WATER_CAN_SCALER;
 
-			// init water filled bar 
-			float initBarFilledFraction = 1.0f;
-			HealthBarSetting barSetting("texture/water_icon.png", CAN_BAR_TRANSLATE_Y, initBarFilledFraction, CAN_BAR_COLOR);
-			std::tie(filledBar, barNode) = createHealthBar(barSetting, scene);
-		}
-		else if (type == Tool::ToolType::PLOW) {
-			modelNode = scene->getModel(ModelType::SHOVEL)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SHOVEL_SCALER;
-		}
-		else if(type == Tool::ToolType::SEED) {
-			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SEED_BAG_SCALER;
-		}
-		else if (tool->toolType == Tool::ToolType::PESTICIDE) {
-			modelNode = scene->getModel(ModelType::SPRAY)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SPRAY_SCALER;
-		}
-		else if (tool->toolType == Tool::ToolType::FERTILIZER) {
-			modelNode = scene->getModel(ModelType::FERTILIZER)->createSceneNodes(tool->objectId);
-			modelNode->scaler = FERTILIZER_SCALER;
+				// init water filled bar 
+				HealthBarSetting wBarSetting("texture/water_icon.png", CAN_BAR_TRANSLATE_Y, 1.0f, CAN_BAR_COLOR);
+				std::tie(filledBar, barNode) = createHealthBar(wBarSetting, scene);
+				break;
+			}
+			case Tool::ToolType::PLOW: {
+				modelNode = scene->getModel(ModelType::SHOVEL)->createSceneNodes(tool->objectId);
+				modelNode->scaler = SHOVEL_SCALER;
+				break;
+			}
+			case Tool::ToolType::SEED: {
+				modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
+				modelNode->scaler = SEED_BAG_SCALER;
 
-			// init fertilizer cool down bar
-			float initBarFilledFraction = 1.0f;
-			HealthBarSetting barSetting("texture/time_icon.png", CAN_BAR_TRANSLATE_Y, initBarFilledFraction, COOLDOWN_BAR_COLOR);
-			std::tie(filledBar, barNode) = createHealthBar(barSetting, scene);
-			filledBar->shouldDisplay = false;
+				// init chat text
+				std::tie(chatText, textNode) = createTextUI(
+					FontType::CHUNK, CHAT_TEXT_COLOR,
+					glm::translate(glm::vec3(0, CHAT_TEXT_TRANSLATE_Y, 0)), scene
+				);
+				chatText->shouldDisplay = false;
+				chatText->setAlphaSetting(true, 0.0f, chatText->alphaStep);
+				chatText->autoFadeOff = true;
+				break;
+			}
+			case Tool::ToolType::PESTICIDE: {
+				modelNode = scene->getModel(ModelType::SPRAY)->createSceneNodes(tool->objectId);
+				modelNode->scaler = SPRAY_SCALER;
+				break;
+			}
+			case Tool::ToolType::FERTILIZER: {
+				modelNode = scene->getModel(ModelType::FERTILIZER)->createSceneNodes(tool->objectId);
+				modelNode->scaler = FERTILIZER_SCALER;
+
+				// init fertilizer cool down bar
+				HealthBarSetting fBarSetting("texture/time_icon.png", CAN_BAR_TRANSLATE_Y, 1.0f, COOLDOWN_BAR_COLOR);
+				std::tie(filledBar, barNode) = createHealthBar(fBarSetting, scene);
+				filledBar->shouldDisplay = false;
+				break;
+			}
 		}
-		else {
-			modelNode = scene->getModel(ModelType::SEED_BAG)->createSceneNodes(tool->objectId);
-			modelNode->scaler = SEED_BAG_SCALER;
-		}
+
 		rootNode->addChild(modelNode);
 		scene->getGroundNode()->addChild(rootNode);
 	}
 
 	~ToolController() {
-		if (barNode) { barNode = RenderController::deleteBarNode(barNode); }
+		if (barNode) { barNode = deleteUiNode(barNode); }
 		if (filledBar) delete filledBar;
 		if (pGroup) delete pGroup;
+
+		if (textNode) { textNode = deleteUiNode(textNode); }
+		if (chatText) { delete chatText; }
 	}
 
 	void update(GameObject* gameObject, Scene* scene) override {
@@ -80,6 +95,10 @@ public:
 		}
 
 		updateBar(tool, scene);
+
+		if (tool->toolType == Tool::ToolType::SEED && tool->seedType == Plant::PlantType::PLAYER) {
+			updateChat(tool->playerPlant, chatText);
+		}
 	}
 
 	void updateBar(Tool* tool, Scene* scene) {
@@ -129,18 +148,10 @@ public:
 		if (rootNode->parent != handNode) {
 			holderId = handNode->objectId;
 			handNode->addChild(rootNode);
-			rootNode->scaler = 1.0/scaler;
-			rootNode->position = holdVec;
-			rootNode->pose = holdPose;
 		}
-	}
-
-	Drawable * getModelFromType(Tool::ToolType type, Scene * scene) {
-		switch (type) {
-		case Tool::ToolType::PLOW:		return scene->getModel(ModelType::SHOVEL);
-		case Tool::ToolType::WATER_CAN:	return scene->getModel(ModelType::WATERING_CAN);
-		case Tool::ToolType::SEED:		return scene->getModel(ModelType::SEED_BAG);
-		}
+		rootNode->scaler = 1.0/scaler;
+		rootNode->position = holdVec;
+		rootNode->pose = holdPose;
 	}
 
 	float getScalerFromType(Tool::ToolType type) {
@@ -152,7 +163,7 @@ public:
 		return 1.0;
 	}
 
-Tool::ToolType type;
+	Tool::ToolType type;
 
 private:
 	uint holderId;
@@ -164,4 +175,11 @@ private:
 	static constexpr glm::vec3 CAN_BAR_COLOR = glm::vec3(0.1, 0.9, 1.0);
 	static constexpr float CAN_BAR_TRANSLATE_Y = 1.3;
 	static constexpr glm::vec3 COOLDOWN_BAR_COLOR = glm::vec3(0.6, 0.6, 0.6); // grey
+
+	TextUI* chatText;
+	SceneNode* textNode;
+
+	static constexpr glm::vec3 CHAT_TEXT_COLOR = glm::vec3(0.2); // grey
+	static constexpr float CHAT_TEXT_TRANSLATE_Y = 1.5f;
+
 };
