@@ -12,16 +12,6 @@
 1. Download the cmake-ed library files from: https://drive.google.com/file/d/1VCsYnV9MU1V1_fhXB-5pwY4ks9-lSN1i/view
 2. Move all the files in "Win32\" to "lib\Win32\", and "x64\" to "lib\x64\"
 
-### FreeType (version 2.10.2)
-1. Download and unzip the FreeType GitHub repo from: https://github.com/ubawurinna/freetype-windows-binaries
-2. Move all files & directories in "include\" to "include\"
-3. Move all .dll files in "win32\" to "dll\Debug\Win32\" & "dll\Release\Win32\"
-4. Move all .lib files in "win32\" to "lib\Win32\", and "win64\" to "lib\x64\"
-
-### Common Errors
-- There were multiple "const char[] to char*" conversion errors when trying to build. This was because Visual Studio’s conformance mode was turned on, apparently it's been a thing since VS2017. You can disable it by going to Project Properties -> C/C++ -> Language and removing the "Yes (/permissive-)" option.
-- There was another error about strncpy being unsafe, for now a fix was to add "CRT_SECURE_NO_WARNINGS" in Project Properties -> C/C++ -> Preprocessor -> Preprocessor Definitions.
-
 ## Run
 - Start the client through VS solution
 - Start the server by running "game_server.exe" by command-line under the "game_server" directory with the correct relative path to "game_server.exe"
