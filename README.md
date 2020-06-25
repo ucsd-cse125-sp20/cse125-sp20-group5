@@ -1,4 +1,4 @@
-# To Run the Program (assuming Windows environment)
+# To Run the Program
 
 ## Install 
 
